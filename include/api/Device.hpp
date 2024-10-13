@@ -17,39 +17,24 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __GLOBAL_HPP__
-#define __GLOBAL_HPP__
+#ifndef __API_DEVICE_HPP__
+#define __API_DEVICE_HPP__
 
-namespace energy {
+#include <api/Handler.hpp>
 
-class Counter;
+#include <string>
 
-class Global
+namespace api {
+
+class Device: public Handler
 {
-	static Global *instance;
-
-	Counter *grid;
-	Counter *pv;
-	Counter *hws;
-
-	double hws_min_energy = 0;
+	std::string ip;
 
 	public:
-		Global(Counter *grid, Counter *pv, Counter *hws);
-
-		static Global *GetInstance() { return instance; }
-
-		void SetHWSMinEnergy(double e) { hws_min_energy = e; }
-
-		double GetGridPower() const; // Grid power (>0 if importing, <0 if exporting)
-		double GetPVPower() const; // Solar production (>0 if producting)
-
-		double GetPower() const; // Total consumption
-		double GetNetAvailablePower() const; // Available power with HWS ON
-		double GetGrossAvailablePower() const; // Available power excluding HWS consuption
-		double GetExcessPower() const; // Power exported to grid
+		 nlohmann::json HandleMessage(const std::string &cmd, const nlohmann::json &j_params);
 };
 
 }
 
 #endif
+

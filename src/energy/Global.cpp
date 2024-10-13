@@ -33,11 +33,11 @@ Global::Global(Counter *grid, Counter *pv, Counter *hws)
 	this->hws = hws;
 }
 
-double Global::GetGridPower()
+double Global::GetGridPower() const
 {
 	return grid->GetPower();
 }
-double Global::GetPVPower()
+double Global::GetPVPower() const
 {
 	return pv->GetPower();
 }

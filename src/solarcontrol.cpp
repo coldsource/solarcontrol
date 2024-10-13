@@ -22,6 +22,7 @@
 #include <configuration/ConfigurationReader.hpp>
 #include <database/DB.hpp>
 #include <database/Query.hpp>
+#include <websocket/SolarControl.hpp>
 
 #include <nlohmann/json.hpp>
 
@@ -105,11 +106,16 @@ int main(int argc, char **argv)
 	energy::Global global(&grid, &pv, &hws);
 	global.SetHWSMinEnergy(0);
 
+	websocket::SolarControl ws;
+	ws.Start();
+
 	::thread::DevicesManager dev_manager;
 	dev_manager.WaitForShutdown();
 
 	mqtt.Shutdown();
 	mqtt.WaitForShutdown();
+
+	ws.Shutdown();
 
 	delete config;
 

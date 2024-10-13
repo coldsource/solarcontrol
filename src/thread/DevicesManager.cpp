@@ -21,6 +21,7 @@
 #include <datetime/Timestamp.hpp>
 #include <device/Devices.hpp>
 #include <energy/Global.hpp>
+#include <websocket/SolarControl.hpp>
 
 #include <stdexcept>
 
@@ -74,6 +75,9 @@ void DevicesManager::main()
 		}
 
 		devices.Unlock();
+
+		if(websocket::SolarControl::GetInstance())
+			websocket::SolarControl::GetInstance()->NotifyAll(websocket::SolarControl::en_protocols::METER);
 
 		printf("%f %f %f\n", global->GetPower(), global->GetGrossAvailablePower(), global->GetNetAvailablePower());
 		if(!wait(1))

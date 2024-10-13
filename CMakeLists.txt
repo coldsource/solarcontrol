@@ -13,6 +13,8 @@ aux_source_directory(src/thread srcThread)
 aux_source_directory(src/utils srcUtils)
 aux_source_directory(src/configuration srcConfiguration)
 aux_source_directory(src/database srcDatabase)
+aux_source_directory(src/websocket srcWebsocket)
+aux_source_directory(src/api srcAPI)
 
 add_executable(solarcontrol
 	${srcMQTT}
@@ -24,6 +26,8 @@ add_executable(solarcontrol
 	${srcUtils}
 	${srcConfiguration}
 	${srcDatabase}
+	${srcWebsocket}
+	${srcAPI}
 	
 	src/solarcontrol.cpp
 	)
@@ -52,5 +56,6 @@ endif()
 
 target_link_libraries(solarcontrol mosquitto)
 target_link_libraries(solarcontrol curl)
+target_link_libraries(solarcontrol websockets)
 
 include_directories(include /usr/include)

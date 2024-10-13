@@ -67,4 +67,24 @@ double Global::GetExcessPower() const
 	return (grid_power>0)?0:-grid_power;
 }
 
+double Global::GetGridEnergy() const
+{
+	return grid->GetEnergyConsumption();
+}
+
+double Global::GetExportedEnergy() const
+{
+	return grid->GetEnergyExcess();
+}
+
+double Global::GetPVEnergy() const
+{
+	return pv->GetEnergyConsumption();
+}
+
+double Global::GetHWSEnergy() const
+{
+	return hws->GetEnergyConsumption();
+}
+
 }

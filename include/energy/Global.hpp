@@ -48,6 +48,11 @@ class Global
 		double GetNetAvailablePower() const; // Available power with HWS ON
 		double GetGrossAvailablePower() const; // Available power excluding HWS consuption
 		double GetExcessPower() const; // Power exported to grid
+
+		double GetGridEnergy() const; // Energy taken from grid
+		double GetExportedEnergy() const; // Total engergy exported to grid
+		double GetPVEnergy() const; // Total produced energy
+		double GetHWSEnergy() const; // Total energy consummed by HWS
 };
 
 }

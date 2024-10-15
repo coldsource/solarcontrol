@@ -17,25 +17,45 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __RANGE_HPP__
-#define __RANGE_HPP__
+#include <datetime/DateTime.hpp>
+#include <datetime/Timestamp.hpp>
 
-#include <datetime/HourMinuteSecond.hpp>
+#include <time.h>
+#include <stdio.h>
+
+using namespace std;
 
 namespace datetime {
 
-class Range
+DateTime::DateTime()
 {
-	HourMinuteSecond start;
-	HourMinuteSecond end;
-	int day_of_week;
-
-	public:
-		Range(const HourMinuteSecond &start, const HourMinuteSecond &end, int day_of_week = -1);
-
-		bool IsActive() const;
-};
-
+	time_t t = time(NULL);
+	localtime_r(&t, &tm);
 }
 
-#endif
+DateTime::DateTime(const Timestamp &ts)
+{
+	time_t t = ts;
+	localtime_r(&t, &tm);
+}
+
+DateTime::operator struct tm() const
+{
+	return tm;
+}
+
+DateTime::operator string() const
+{
+	char str[32];
+	size_t s = strftime(str, 32, "%Y-%m-%d %H:%M:%S", &tm);
+	return string(str, s);
+}
+
+DateTime::operator Timestamp() const
+{
+	struct tm ltm = tm;
+	time_t ts = mktime(&ltm);
+	return Timestamp(ts);
+}
+
+}

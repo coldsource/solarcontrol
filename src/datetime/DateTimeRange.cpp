@@ -17,59 +17,54 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
+#include <datetime/DateTimeRange.hpp>
 #include <datetime/Timestamp.hpp>
 #include <datetime/DateTime.hpp>
 
-#include <time.h>
-
-#include <stdexcept>
-
-using namespace std;
-
-namespace datetime {
-
-Timestamp::Timestamp(int type)
+namespace datetime
 {
-	struct timespec t;
 
-	if(type==TS_MONOTONIC)
-		clock_gettime(CLOCK_MONOTONIC, &t);
-	else if(type==TS_REAL)
-		clock_gettime(CLOCK_REALTIME, &t);
+DateTimeRange::DateTimeRange(const Timestamp &start, const Timestamp &end)
+{
+	start_t = start;
+	end_t = end;
+}
+
+DateTimeRange::Iterator& DateTimeRange::Iterator::operator++()
+{
+	if(cur_t==dtr_ptr->end_t)
+	{
+		cur_t = dtr_ptr->end_t+1;
+		return *this;
+	}
+
+	struct tm cur_tm;
+	struct tm end_tm;
+	localtime_r(&cur_t, &cur_tm);
+	localtime_r(&dtr_ptr->end_t, &end_tm);
+
+	if(cur_tm.tm_yday==end_tm.tm_yday && cur_tm.tm_year==end_tm.tm_year)
+		cur_t = dtr_ptr->end_t;
 	else
-		throw invalid_argument("Unknown timestamp type");
-
-	ts_i = t.tv_sec;
-	ts_d = (double)t.tv_sec +  (double)t.tv_nsec / 1000000000;
-}
-
-Timestamp::Timestamp(time_t ts)
-{
-	ts_i = ts;
-	ts_d = (double)ts;
-}
-
-Timestamp& Timestamp::operator+=(time_t t_inc)
-{
-	ts_i += t_inc;
-	ts_d += (double)t_inc;
+	{
+		cur_tm.tm_mday++;
+		cur_tm.tm_hour = 0;
+		cur_tm.tm_min = 0;
+		cur_tm.tm_sec = 0;
+		cur_t = mktime(&cur_tm);
+	}
 
 	return *this;
 }
 
-Timestamp::operator time_t() const
+bool DateTimeRange::Iterator::operator==(const Iterator& r) const
 {
-	return ts_i;
+	return (cur_t==r.cur_t && dtr_ptr==r.dtr_ptr);
 }
 
-Timestamp::operator double() const
+Timestamp DateTimeRange::Iterator::operator*() const
 {
-	return ts_d;
-}
-
-Timestamp::operator DateTime() const
-{
-	return DateTime(*this);
+	return Timestamp(cur_t);
 }
 
 }

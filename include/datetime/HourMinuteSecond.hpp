@@ -17,8 +17,8 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __HOURMINUTESECOND_HPP__
-#define __HOURMINUTESECOND_HPP__
+#ifndef __DATETIME_HOURMINUTESECOND_HPP__
+#define __DATETIME_HOURMINUTESECOND_HPP__
 
 #include <string>
 

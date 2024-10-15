@@ -21,6 +21,7 @@
 #define __DEVICETIMERANGE_HPP__
 
 #include <device/Device.hpp>
+#include <datetime/TimeRanges.hpp>
 #include <control/OnOff.hpp>
 #include <nlohmann/json.hpp>
 
@@ -37,8 +38,8 @@ class DeviceTimeRange: public Device
 	const energy::Global *global_meter;
 	control::OnOff *ctrl;
 
-	datetime::Ranges force;
-	datetime::Ranges offload;
+	datetime::TimeRanges force;
+	datetime::TimeRanges offload;
 	double expected_consumption;
 
 	public:

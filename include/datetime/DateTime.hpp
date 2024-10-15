@@ -17,19 +17,37 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __RANGES_HPP__
-#define __RANGES_HPP__
+#ifndef __DATETIME_DATETIME_HPP__
+#define __DATETIME_DATETIME_HPP__
 
-#include <datetime/Range.hpp>
+#include <time.h>
 
-#include <vector>
+#include <string>
 
 namespace datetime {
 
-class Ranges: public std::vector<Range>
+class Timestamp;
+
+class DateTime
 {
+	struct tm tm;
+
 	public:
-		bool IsActive() const;
+		DateTime();
+		DateTime(const Timestamp &ts);
+
+		int GetHour() { return tm.tm_hour; }
+		int GetMinute() { return tm.tm_min; }
+		int GetSecond() { return tm.tm_sec; }
+
+		int GetWeekDay() { return tm.tm_wday; }
+		int GetEUWeekDay() { return (tm.tm_wday + 6)%7; }
+		int GetMonthDay() { return tm.tm_mday; }
+		int GetYearDay() { return tm.tm_yday; }
+
+		operator struct tm() const;
+		operator std::string() const;
+		operator Timestamp() const;
 };
 
 }

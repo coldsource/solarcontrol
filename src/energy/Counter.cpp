@@ -19,7 +19,7 @@
 
 #include <energy/Counter.hpp>
 #include <datetime/Timestamp.hpp>
-#include <datetime/Time.hpp>
+#include <datetime/DateTime.hpp>
 
 using namespace std;
 
@@ -28,7 +28,7 @@ namespace energy {
 Counter::Counter()
 {
 	last_ts = 0;
-	last_yday = datetime::Time().GetYearDay();
+	last_yday = datetime::DateTime().GetYearDay();
 
 	power = 0;
 	energy_consumption = 0;
@@ -41,7 +41,7 @@ void Counter::SetPower(double v)
 
 	power = v;
 
-	int yday = datetime::Time().GetYearDay();
+	int yday = datetime::DateTime().GetYearDay();
 	if(last_yday!=yday)
 	{
 		last_yday = yday;

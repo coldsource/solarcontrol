@@ -17,16 +17,25 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#include <datetime/Ranges.hpp>
+#ifndef __DATETIME_TIMERANGE_HPP__
+#define __DATETIME_TIMERANGE_HPP__
+
+#include <datetime/HourMinuteSecond.hpp>
 
 namespace datetime {
 
-bool Ranges::IsActive() const
+class TimeRange
 {
-	for(int i=0;i<size(); i++)
-		if(at(i).IsActive())
-			return true;
-	return false;
-}
+	HourMinuteSecond start;
+	HourMinuteSecond end;
+	int day_of_week;
+
+	public:
+		TimeRange(const HourMinuteSecond &start, const HourMinuteSecond &end, int day_of_week = -1);
+
+		bool IsActive() const;
+};
 
 }
+
+#endif

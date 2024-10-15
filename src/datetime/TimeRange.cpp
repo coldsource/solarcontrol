@@ -17,20 +17,20 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#include <datetime/Range.hpp>
-#include <datetime/Time.hpp>
+#include <datetime/TimeRange.hpp>
+#include <datetime/DateTime.hpp>
 
 namespace datetime {
 
-Range::Range(const HourMinuteSecond &start, const HourMinuteSecond &end, int day_of_week): start(start), end(end)
+TimeRange::TimeRange(const HourMinuteSecond &start, const HourMinuteSecond &end, int day_of_week): start(start), end(end)
 {
 	this->day_of_week = day_of_week;
 }
 
-bool Range::IsActive() const
+bool TimeRange::IsActive() const
 {
-	Time t;
-	if(day_of_week!=-1 && t.GetWeekDay()!=day_of_week)
+	DateTime t;
+	if(day_of_week!=-1 && t.GetEUWeekDay()!=day_of_week)
 		return false;
 
 	bool after_start =

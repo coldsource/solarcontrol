@@ -20,9 +20,6 @@
 #ifndef __DEVICE_HPP__
 #define __DEVICE_HPP__
 
-#include <datetime/Ranges.hpp>
-#include <control/Plug.hpp>
-
 #include <string>
 
 namespace device {

@@ -17,35 +17,16 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __DATETIME_TIMESTAMP_HPP__
-#define __DATETIME_TIMESTAMP_HPP__
-
-#include <time.h>
-
-#define TS_MONOTONIC        1
-#define TS_REAL             2
+#include <datetime/TimeRanges.hpp>
 
 namespace datetime {
 
-class DateTime;
-
-class Timestamp
+bool TimeRanges::IsActive() const
 {
-	time_t ts_i;
-	double ts_d;
-
-	public:
-		Timestamp(int type);
-		Timestamp(time_t ts);
-
-		Timestamp& operator+=(time_t t_inc);
-
-		operator time_t() const;
-		operator double() const;
-		operator DateTime() const;
-};
-
+	for(int i=0;i<size(); i++)
+		if(at(i).IsActive())
+			return true;
+	return false;
 }
 
-#endif
-
+}

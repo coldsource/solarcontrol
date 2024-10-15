@@ -17,31 +17,19 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __TIME_HPP__
-#define __TIME_HPP__
+#ifndef __DATETIME_TIMERANGES_HPP__
+#define __DATETIME_TIMERANGES_HPP__
+
+#include <datetime/TimeRange.hpp>
+
+#include <vector>
 
 namespace datetime {
 
-class Time
+class TimeRanges: public std::vector<TimeRange>
 {
-	int hour;
-	int minute;
-	int second;
-
-	int wday;
-	int mday;
-	int yday;
-
 	public:
-		Time();
-
-		int GetHour() { return hour; }
-		int GetMinute() { return minute; }
-		int GetSecond() { return second; }
-
-		int GetWeekDay() { return wday; }
-		int GetMonthDay() { return mday; }
-		int GetYearDay() { return yday; }
+		bool IsActive() const;
 };
 
 }

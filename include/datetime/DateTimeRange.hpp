@@ -17,25 +17,50 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#include <datetime/Time.hpp>
+#ifndef __DATETIME_DATETIMERANGE_HPP__
+#define __DATETIME_DATETIMERANGE_HPP__
 
 #include <time.h>
-#include <stdio.h>
 
 namespace datetime {
 
-Time::Time()
+class Timestamp;
+
+class DateTimeRange
 {
-	time_t t = time(NULL);
-	struct tm tm = *localtime(&t);
+	time_t start_t;
+	time_t end_t;
 
-	hour = tm.tm_hour;
-	minute = tm.tm_min;
-	second = tm.tm_sec;
+	public:
+		DateTimeRange(const Timestamp &start, const Timestamp &end);
 
-	wday = (tm.tm_wday + 6)%7;
-	mday = tm.tm_mday;
-	yday = tm.tm_yday;
+		// Iterator
+		struct Iterator
+		{
+			private:
+				DateTimeRange *dtr_ptr;
+				time_t cur_t;
+
+			public:
+				Iterator(DateTimeRange *ptr, time_t cur_t): dtr_ptr(ptr), cur_t(cur_t) { }
+
+				Iterator& operator++();
+				bool operator==(const Iterator& r) const;
+				Timestamp operator*() const;
+		};
+
+		Iterator begin()
+		{
+			return Iterator(this, start_t);
+		}
+
+		Iterator end()
+		{
+			return Iterator(this, end_t+1);
+		}
+};
+
 }
 
-}
+#endif
+

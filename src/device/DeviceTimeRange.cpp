@@ -33,10 +33,10 @@ DeviceTimeRange::DeviceTimeRange(const string &name, int prio, const json &confi
 	ctrl = new control::Plug(config["ip"]);
 
 	for(auto it : config["force"])
-		force.push_back(datetime::Range(datetime::HourMinuteSecond(it["from"]), datetime::HourMinuteSecond(it["to"])));
+		force.push_back(datetime::TimeRange(datetime::HourMinuteSecond(it["from"]), datetime::HourMinuteSecond(it["to"])));
 
 	for(auto it : config["offload"])
-		offload.push_back(datetime::Range(datetime::HourMinuteSecond(it["from"]), datetime::HourMinuteSecond(it["to"])));
+		offload.push_back(datetime::TimeRange(datetime::HourMinuteSecond(it["from"]), datetime::HourMinuteSecond(it["to"])));
 
 	expected_consumption = config["expected_consumption"];
 }

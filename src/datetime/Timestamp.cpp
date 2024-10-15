@@ -28,6 +28,12 @@ using namespace std;
 
 namespace datetime {
 
+Timestamp::Timestamp()
+{
+	ts_i = 0;
+	ts_d = 0;
+}
+
 Timestamp::Timestamp(int type)
 {
 	struct timespec t;
@@ -55,6 +61,15 @@ Timestamp& Timestamp::operator+=(time_t t_inc)
 	ts_d += (double)t_inc;
 
 	return *this;
+}
+
+unsigned long Timestamp::operator-(const Timestamp &rts) const
+{
+	time_t r_t = (time_t)rts;
+	if(r_t>ts_i)
+		throw logic_error("Could not substract greater timestamp");
+
+	return ts_i-r_t;
 }
 
 Timestamp::operator time_t() const

@@ -17,40 +17,41 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __DATETIME_TIMESTAMP_HPP__
-#define __DATETIME_TIMESTAMP_HPP__
+#ifndef __DATETIME_TIMESPANHISTORY_HPP__
+#define __DATETIME_TIMESPANHISTORY_HPP__
 
 #include <time.h>
 
-#define TS_MONOTONIC        1
-#define TS_REAL             2
+#include <vector>
 
 namespace datetime {
 
-class DateTime;
+class Timestamp;
 
-class Timestamp
+class TimespanHistory
 {
-	time_t ts_i;
-	double ts_d;
+	struct st_timespan
+	{
+		time_t from = 0;
+		time_t to = 0;
+	};
+
+	int retention_days;
+	std::vector<st_timespan> history;
+
+	void purge();
 
 	public:
-		Timestamp();
-		Timestamp(int type);
-		Timestamp(time_t ts);
+		TimespanHistory();
 
-		bool Isempty() { return ts_i==0; }
+		void ClockIn();
+		void ClockIn(const Timestamp &ts);
+		void ClockOut();
+		void ClockOut(const Timestamp &ts);
 
-		Timestamp& operator+=(time_t t_inc);
-		unsigned long operator-(const Timestamp &rts) const;
-		bool operator<(const Timestamp& r) const { return ts_i < r.ts_i; }
-
-		operator time_t() const;
-		operator double() const;
-		operator DateTime() const;
+		unsigned long  GetTotalForLast(int nseconds) const;
 };
 
 }
 
 #endif
-

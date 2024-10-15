@@ -22,14 +22,27 @@
 #include <energy/Global.hpp>
 #include <datetime/Timestamp.hpp>
 
+#include <stdexcept>
+
 using namespace std;
 using nlohmann::json;
 
 namespace device {
 
+void DeviceTimeRange::check_config_parameters(const json &config, const vector<string> &names)
+{
+	for(auto name : names)
+	{
+		if(!config.contains(name))
+			throw runtime_error("Unable to load configuration for device : missing parameter « " + name + " »");
+	}
+}
+
 DeviceTimeRange::DeviceTimeRange(const string &name, int prio, const json &config): Device(name, prio)
 {
 	this->global_meter = energy::Global::GetInstance();
+
+	check_config_parameters(config, {"ip", "force", "offload", "expected_consumption", "remainder", "min_on_time", "min_on_for_last"});
 	ctrl = new control::Plug(config["ip"]);
 
 	for(auto it : config["force"])
@@ -39,6 +52,12 @@ DeviceTimeRange::DeviceTimeRange(const string &name, int prio, const json &confi
 		offload.push_back(datetime::TimeRange(datetime::HourMinuteSecond(it["from"]), datetime::HourMinuteSecond(it["to"])));
 
 	expected_consumption = config["expected_consumption"];
+
+	for(auto it : config["remainder"])
+		remainder.push_back(datetime::TimeRange(datetime::HourMinuteSecond(it["from"]), datetime::HourMinuteSecond(it["to"])));
+
+	min_on_time = config["min_on_time"];
+	min_on_for_last = config["min_on_for_last"];
 }
 
 DeviceTimeRange::~DeviceTimeRange()
@@ -53,18 +72,17 @@ bool DeviceTimeRange::IsForced() const
 
 bool DeviceTimeRange::WantOffload() const
 {
-	return offload.IsActive();
+	return (offload.IsActive() && global_meter->GetNetAvailablePower()>expected_consumption);
+}
+
+bool DeviceTimeRange::WantRemainder() const
+{
+	return remainder.IsActive() && on_history.GetTotalForLast(min_on_for_last)<min_on_time;
 }
 
 bool DeviceTimeRange::WantedState() const
 {
-	if(IsForced())
-		return true;
-
-	if(WantOffload() && global_meter->GetNetAvailablePower()>expected_consumption)
-		return true;
-
-	return false;
+	return (IsForced() || WantOffload() || WantRemainder());
 }
 
 bool DeviceTimeRange::GetState() const
@@ -75,6 +93,11 @@ bool DeviceTimeRange::GetState() const
 void DeviceTimeRange::SetState(bool new_state)
 {
 	ctrl->Switch(new_state);
+
+	if(new_state)
+		on_history.ClockIn();
+	else
+		on_history.ClockOut();
 }
 
 }

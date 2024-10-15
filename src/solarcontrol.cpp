@@ -8,6 +8,7 @@
 #include <datetime/Timestamp.hpp>
 #include <datetime/HourMinuteSecond.hpp>
 #include <datetime/DateTimeRange.hpp>
+#include <datetime/TimespanHistory.hpp>
 #include <energy/Counter.hpp>
 #include <energy/Global.hpp>
 #include <control/Plug.hpp>
@@ -27,6 +28,7 @@
 
 #include <vector>
 #include <set>
+#include <map>
 
 using nlohmann::json;
 using namespace std;

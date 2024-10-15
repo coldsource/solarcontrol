@@ -45,6 +45,11 @@ class DateTime
 		int GetMonthDay() { return tm.tm_mday; }
 		int GetYearDay() { return tm.tm_yday; }
 
+		bool IsSameDay(const DateTime &dt) const ;
+		void ToNoon();
+
+		bool operator<(const DateTime& r) const;
+
 		operator struct tm() const;
 		operator std::string() const;
 		operator Timestamp() const;

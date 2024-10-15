@@ -38,6 +38,7 @@ ConfigurationSolarControl::ConfigurationSolarControl(void)
 {
 	// Load default configuration
 	entries["control.cooldown.on"] = "10";
+	entries["core.history.maxdays"] = "30";
 	entries["mqtt.host"] = "127.0.0.1";
 	entries["mqtt.port"] = "1883";
 	entries["sql.host"] = "127.0.0.1";
@@ -53,9 +54,13 @@ ConfigurationSolarControl::~ConfigurationSolarControl(void)
 void ConfigurationSolarControl::Check(void)
 {
 	check_int_entry("control.cooldown.on");
+	check_int_entry("core.history.maxdays");
 
 	if(GetInt("control.cooldown.on")<0)
-		throw invalid_argument("control.cooldown.on: must be greater than 0");
+		throw invalid_argument("control.cooldown.on : must be greater than 0");
+
+	if(GetInt("core.history.maxdays")<0)
+		throw invalid_argument("core.history.maxdays : must be greater than 0");
 }
 
 }

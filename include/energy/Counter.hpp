@@ -17,8 +17,8 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __COUNTER_HPP__
-#define __COUNTER_HPP__
+#ifndef __ENERGY_COUNTER_HPP__
+#define __ENERGY_COUNTER_HPP__
 
 #include <mutex>
 

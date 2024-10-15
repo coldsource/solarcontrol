@@ -17,8 +17,8 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __GLOBAL_HPP__
-#define __GLOBAL_HPP__
+#ifndef __ENERGY_GLOBAL_HPP__
+#define __ENERGY_GLOBAL_HPP__
 
 namespace energy {
 

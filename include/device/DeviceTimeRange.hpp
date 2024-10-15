@@ -22,10 +22,12 @@
 
 #include <device/Device.hpp>
 #include <datetime/TimeRanges.hpp>
+#include <datetime/TimespanHistory.hpp>
 #include <control/OnOff.hpp>
 #include <nlohmann/json.hpp>
 
 #include <string>
+#include <vector>
 
 namespace energy {
 	class Global;
@@ -39,8 +41,16 @@ class DeviceTimeRange: public Device
 	control::OnOff *ctrl;
 
 	datetime::TimeRanges force;
+
 	datetime::TimeRanges offload;
 	double expected_consumption;
+
+	datetime::TimeRanges remainder;
+	datetime::TimespanHistory on_history;
+	int min_on_time;
+	int min_on_for_last;
+
+	void check_config_parameters( const nlohmann::json &config, const std::vector<std::string> &names);
 
 	public:
 		DeviceTimeRange(const std::string &name, int prio, const nlohmann::json &config);
@@ -48,6 +58,7 @@ class DeviceTimeRange: public Device
 
 		bool IsForced() const;
 		bool WantOffload() const;
+		bool WantRemainder() const;
 
 		double GetExpectedConsumption() const { return expected_consumption; }
 

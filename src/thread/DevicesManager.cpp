@@ -22,6 +22,7 @@
 #include <device/Devices.hpp>
 #include <energy/Global.hpp>
 #include <websocket/SolarControl.hpp>
+#include <configuration/ConfigurationSolarControl.hpp>
 
 #include <stdexcept>
 
@@ -44,7 +45,7 @@ void DevicesManager::main()
 
 	device::Devices devices;
 
-	double start_cooldown = 10;
+	double start_cooldown = configuration::ConfigurationSolarControl::GetInstance()->GetInt("control.cooldown.on");
 	double last_start_ts = 0;
 	while(true)
 	{

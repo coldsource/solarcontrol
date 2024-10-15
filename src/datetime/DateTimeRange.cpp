@@ -21,6 +21,10 @@
 #include <datetime/Timestamp.hpp>
 #include <datetime/DateTime.hpp>
 
+#include <stdexcept>
+
+using namespace std;
+
 namespace datetime
 {
 
@@ -28,6 +32,9 @@ DateTimeRange::DateTimeRange(const Timestamp &start, const Timestamp &end)
 {
 	start_t = start;
 	end_t = end;
+
+	if(start_t>end_t)
+		throw logic_error("TimeRange start cannot be greater than end");
 }
 
 DateTimeRange::Iterator& DateTimeRange::Iterator::operator++()

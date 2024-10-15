@@ -39,6 +39,25 @@ DateTime::DateTime(const Timestamp &ts)
 	localtime_r(&t, &tm);
 }
 
+bool DateTime::IsSameDay(const DateTime &dt) const
+{
+	return (tm.tm_year==dt.tm.tm_year && tm.tm_yday==dt.tm.tm_yday);
+
+}
+void DateTime::ToNoon()
+{
+	tm.tm_hour = 0;
+	tm.tm_min = 0;
+	tm.tm_sec = 0;
+}
+
+bool DateTime::operator<(const DateTime& r) const
+{
+	time_t l_t = (time_t)(Timestamp)*this;
+	time_t r_t = (time_t)(Timestamp)r;
+	return l_t<r_t;
+}
+
 DateTime::operator struct tm() const
 {
 	return tm;

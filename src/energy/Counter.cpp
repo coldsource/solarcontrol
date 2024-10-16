@@ -65,21 +65,21 @@ void Counter::SetPower(double v)
 	last_ts = ts;
 }
 
-double Counter::GetPower()
+double Counter::GetPower() const
 {
 	unique_lock<mutex> llock(lock);
 
 	return power;
 }
 
-double Counter::GetEnergyConsumption()
+double Counter::GetEnergyConsumption() const
 {
 	unique_lock<mutex> llock(lock);
 
 	return energy_consumption;
 }
 
-double Counter::GetEnergyExcess()
+double Counter::GetEnergyExcess() const
 {
 	unique_lock<mutex> llock(lock);
 

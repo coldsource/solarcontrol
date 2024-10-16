@@ -23,6 +23,7 @@
 #include <database/DB.hpp>
 #include <database/Query.hpp>
 #include <websocket/SolarControl.hpp>
+#include <thread/LCD.hpp>
 
 #include <nlohmann/json.hpp>
 
@@ -110,6 +111,8 @@ int main(int argc, char **argv)
 	websocket::SolarControl ws;
 	ws.Start();
 
+	::thread::LCD lcd;
+
 	::thread::DevicesManager dev_manager;
 	dev_manager.WaitForShutdown();
 
@@ -117,6 +120,9 @@ int main(int argc, char **argv)
 	mqtt.WaitForShutdown();
 
 	ws.Shutdown();
+
+	lcd.Shutdown();
+	lcd.WaitForShutdown();
 
 	delete config;
 

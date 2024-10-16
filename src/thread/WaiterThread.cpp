@@ -25,6 +25,9 @@ namespace thread {
 
 void WaiterThread::start()
 {
+	if(!enabled)
+		return;
+
 	thread_handle = std::thread(thread_main, this);
 }
 
@@ -57,6 +60,9 @@ void WaiterThread::thread_main(WaiterThread *ptr)
 
 void WaiterThread::Shutdown(void)
 {
+	if(!enabled)
+		return;
+
 	if(thread_handle.get_id()==std::thread::id())
 		return; // Thread not yet started, nothing to do
 
@@ -68,6 +74,9 @@ void WaiterThread::Shutdown(void)
 
 void WaiterThread::WaitForShutdown(void)
 {
+	if(!enabled)
+		return;
+
 	thread_handle.join();
 }
 

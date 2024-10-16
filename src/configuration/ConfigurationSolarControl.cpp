@@ -45,6 +45,10 @@ ConfigurationSolarControl::ConfigurationSolarControl(void)
 	entries["sql.user"] = "";
 	entries["sql.password"] = "";
 	entries["sql.database"] = "sol";
+	entries["display.lcd.path"] = "/dev/i2c-1";
+	entries["display.lcd.address"] = "0x27";
+	entries["display.lcd.linesize"] = "20";
+	entries["display.lcd.enable"] = "no";
 }
 
 ConfigurationSolarControl::~ConfigurationSolarControl(void)

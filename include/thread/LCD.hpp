@@ -17,33 +17,24 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __ENERGY_COUNTER_HPP__
-#define __ENERGY_COUNTER_HPP__
+#ifndef __THREAD_LCD_HPP__
+#define __THREAD_LCD_HPP__
 
-#include <mutex>
+#include <thread/WaiterThread.hpp>
 
-namespace energy {
+namespace thread {
 
-class Counter
+class LCD: public WaiterThread
 {
-	double last_ts;
-	double last_yday;
-
-	double power;
-	double energy_consumption;
-	double energy_excess;
-
-	mutable std::mutex lock;
+	protected:
+		void main(void);
 
 	public:
-		Counter();
-
-		void SetPower(double v);
-		double GetPower() const;
-		double GetEnergyConsumption()  const;
-		double GetEnergyExcess()  const;
+		LCD();
 };
 
 }
 
 #endif
+
+

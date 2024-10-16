@@ -17,8 +17,8 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __DEVICESMANAGER_HPP__
-#define __DEVICESMANAGER_HPP__
+#ifndef __THREAD_DEVICESMANAGER_HPP__
+#define __THREAD_DEVICESMANAGER_HPP__
 
 #include <thread/WaiterThread.hpp>
 

@@ -17,8 +17,8 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef _WAITERTHREAD_H_
-#define _WAITERTHREAD_H_
+#ifndef __THREAD_WAITERTHREAD_H__
+#define __THREAD_WAITERTHREAD_H__
 
 #include <thread>
 #include <mutex>
@@ -33,11 +33,13 @@ class WaiterThread
 	std::mutex wait_lock;
 	std::condition_variable shutdown_requested;
 
+	bool enabled = true;
 	bool is_shutting_down = false;
 
 	protected:
 		void start();
 		bool wait(int seconds);
+		void set_enabled(bool enabled) { this->enabled = enabled; }
 
 		static void thread_main(WaiterThread *ptr);
 		virtual void main(void) = 0;

@@ -17,33 +17,37 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __ENERGY_COUNTER_HPP__
-#define __ENERGY_COUNTER_HPP__
+#ifndef __DISPLAY_LCDDISPLAY_HPP__
+#define __DISPLAY_LCDDISPLAY_HPP__
 
-#include <mutex>
+#include <string>
 
-namespace energy {
+namespace display {
 
-class Counter
+class LCDDisplay
 {
-	double last_ts;
-	double last_yday;
-
-	double power;
-	double energy_consumption;
-	double energy_excess;
-
-	mutable std::mutex lock;
+	int fd = -1;
+	int line_size;
+	int backlight;
 
 	public:
-		Counter();
+		LCDDisplay(const std::string &device_path, int i2c_address, int line_size);
+		~LCDDisplay();
 
-		void SetPower(double v);
-		double GetPower() const;
-		double GetEnergyConsumption()  const;
-		double GetEnergyExcess()  const;
+		void Clear();
+		void Home();
+		void SetBacklight(bool onoff);
+		void WriteLine(int line, const std::string &str);
+
+	protected:
+		void i2c_send_byte(unsigned char data);
+		void lcd_strobe(unsigned char data);
+		void lcd_write_four_bits(unsigned char data);
+		void lcd_write(unsigned char cmd, unsigned char mode = 0);
 };
 
 }
 
 #endif
+
+

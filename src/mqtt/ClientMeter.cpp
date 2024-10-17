@@ -32,7 +32,7 @@ namespace mqtt {
 ClientMeter::ClientMeter(): Client(
 	ConfigurationSolarControl::GetInstance()->Get("mqtt.host"),
 	ConfigurationSolarControl::GetInstance()->GetInt("mqtt.port"),
-	"compteur/events/rpc"
+	ConfigurationSolarControl::GetInstance()->Get("energy.mqtt.id") + "/events/rpc"
 )
 {
 

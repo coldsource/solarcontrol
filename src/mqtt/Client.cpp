@@ -18,6 +18,7 @@
  */
 
 #include <mqtt/Client.hpp>
+#include <configuration/ConfigurationSolarControl.hpp>
 
 using namespace std;
 
@@ -25,7 +26,8 @@ namespace mqtt {
 
 Client::Client(const string &host, unsigned int port, const string &topic)
 {
-	mosqh = mosquitto_new("mqttclient", true, this);
+	string id = configuration::ConfigurationSolarControl::GetInstance()->Get("mqtt.id");
+	mosqh = mosquitto_new(id.c_str(), true, this);
 
 	mosquitto_message_callback_set(mosqh, message_callback);
 

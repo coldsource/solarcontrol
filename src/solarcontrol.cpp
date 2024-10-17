@@ -20,6 +20,7 @@
 #include <configuration/Args.hpp>
 #include <configuration/Configuration.hpp>
 #include <configuration/ConfigurationReader.hpp>
+#include <configuration/ConfigurationSolarControl.hpp>
 #include <database/DB.hpp>
 #include <database/Query.hpp>
 #include <websocket/SolarControl.hpp>
@@ -97,6 +98,8 @@ int main(int argc, char **argv)
 	config->Merge();
 
 	configuration::ConfigurationReader::Read(config_filename, config);
+	config->Split();
+	config->CheckAll();
 
 	mqtt::ClientMeter mqtt;
 

@@ -40,6 +40,8 @@ ConfigurationSolarControl::ConfigurationSolarControl(void)
 	entries["control.cooldown.on"] = "10";
 	entries["core.history.maxdays"] = "30";
 	entries["energy.hws.min"] = "3000";
+	entries["energy.mqtt.id"] = "";
+	entries["mqtt.id"] = "solarcontrol";
 	entries["mqtt.host"] = "127.0.0.1";
 	entries["mqtt.port"] = "1883";
 	entries["sql.host"] = "127.0.0.1";
@@ -66,6 +68,9 @@ void ConfigurationSolarControl::Check(void)
 
 	if(GetInt("core.history.maxdays")<0)
 		throw invalid_argument("core.history.maxdays : must be greater than 0");
+
+	if(Get("energy.mqtt.id")=="")
+		throw invalid_argument("energy.mqtt.id : can't be empty");
 }
 
 }

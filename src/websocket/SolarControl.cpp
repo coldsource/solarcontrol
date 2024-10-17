@@ -19,7 +19,7 @@
 
 #include <websocket/SolarControl.hpp>
 #include <database/DB.hpp>
-#include <energy/Global.hpp>
+#include <energy/GlobalMeter.hpp>
 #include <nlohmann/json.hpp>
 
 using namespace std;
@@ -105,7 +105,7 @@ std::string SolarControl::lws_callback_server_writeable(struct lws *wsi, unsigne
 	}
 	else if(protocol==METER)
 	{
-		auto global = energy::Global::GetInstance();
+		auto global = energy::GlobalMeter::GetInstance();
 
 		json j;
 		j["grid"] = global->GetGridPower();

@@ -17,29 +17,33 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __ENERGY_GLOBAL_HPP__
-#define __ENERGY_GLOBAL_HPP__
+#ifndef __ENERGY_GLOBALMETER_HPP__
+#define __ENERGY_GLOBALMETER_HPP__
+
+#include <mqtt/Subscriber.hpp>
+#include <energy/Counter.hpp>
+
+namespace energy {
+	class Counter;
+}
 
 namespace energy {
 
-class Counter;
-
-class Global
+class GlobalMeter: public mqtt::Subscriber
 {
-	static Global *instance;
-
-	Counter *grid;
-	Counter *pv;
-	Counter *hws;
+	Counter grid;
+	Counter pv;
+	Counter hws;
 
 	double hws_min_energy = 0;
 
+	static GlobalMeter *instance;
+
+protected:
 	public:
-		Global(Counter *grid, Counter *pv, Counter *hws);
+		GlobalMeter();
 
-		static Global *GetInstance() { return instance; }
-
-		void SetHWSMinEnergy(double e) { hws_min_energy = e; }
+		static GlobalMeter *GetInstance() { return instance; }
 
 		double GetGridPower() const; // Grid power (>0 if importing, <0 if exporting)
 		double GetPVPower() const; // Solar production (>0 if producting)
@@ -54,6 +58,8 @@ class Global
 		double GetExportedEnergy() const; // Total engergy exported to grid
 		double GetPVEnergy() const; // Total produced energy
 		double GetHWSEnergy() const; // Total energy consummed by HWS
+
+		void HandleMessage(const std::string &message);
 };
 
 }

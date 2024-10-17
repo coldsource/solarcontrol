@@ -30,14 +30,14 @@
 #include <vector>
 
 namespace energy {
-	class Global;
+	class GlobalMeter;
 }
 
 namespace device {
 
 class DeviceTimeRange: public Device
 {
-	const energy::Global *global_meter;
+	const energy::GlobalMeter *global_meter;
 	control::OnOff *ctrl;
 
 	datetime::TimeRanges force;

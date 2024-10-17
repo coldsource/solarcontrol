@@ -19,7 +19,7 @@
 
 #include <thread/LCD.hpp>
 #include <display/LCDDisplay.hpp>
-#include <energy/Global.hpp>
+#include <energy/GlobalMeter.hpp>
 #include <configuration/ConfigurationSolarControl.hpp>
 
 #include <string>
@@ -58,7 +58,7 @@ string LCD::format_energy(double e) const
 
 void LCD::main()
 {
-	auto global = energy::Global::GetInstance();
+	auto global = energy::GlobalMeter::GetInstance();
 	auto config = configuration::ConfigurationSolarControl::GetInstance();
 
 	string path = config->Get("display.lcd.path");

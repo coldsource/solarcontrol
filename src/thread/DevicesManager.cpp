@@ -20,7 +20,7 @@
 #include <thread/DevicesManager.hpp>
 #include <datetime/Timestamp.hpp>
 #include <device/Devices.hpp>
-#include <energy/Global.hpp>
+#include <energy/GlobalMeter.hpp>
 #include <websocket/SolarControl.hpp>
 #include <configuration/ConfigurationSolarControl.hpp>
 
@@ -41,7 +41,7 @@ DevicesManager::DevicesManager()
 
 void DevicesManager::main()
 {
-	auto global = energy::Global::GetInstance();
+	auto global = energy::GlobalMeter::GetInstance();
 
 	device::Devices devices;
 

@@ -19,7 +19,7 @@
 
 #include <device/DeviceTimeRange.hpp>
 #include <control/Plug.hpp>
-#include <energy/Global.hpp>
+#include <energy/GlobalMeter.hpp>
 #include <datetime/Timestamp.hpp>
 
 #include <stdexcept>
@@ -40,7 +40,7 @@ void DeviceTimeRange::check_config_parameters(const json &config, const vector<s
 
 DeviceTimeRange::DeviceTimeRange(const string &name, int prio, const json &config): Device(name, prio)
 {
-	this->global_meter = energy::Global::GetInstance();
+	this->global_meter = energy::GlobalMeter::GetInstance();
 
 	check_config_parameters(config, {"ip", "force", "offload", "expected_consumption", "remainder", "min_on_time", "min_on_for_last"});
 	ctrl = new control::Plug(config["ip"]);

@@ -17,30 +17,41 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __MQTTCLIENT_HPP__
-#define __MQTTCLIENT_HPP__
+#ifndef __MQTT_MQTTCLIENT_HPP__
+#define __MQTT_MQTTCLIENT_HPP__
 
 #include <mosquitto.h>
 
 #include <string>
+#include <map>
 #include <thread>
+#include <mutex>
 
 namespace mqtt {
+
+class Subscriber;
 
 class Client
 {
 	struct mosquitto *mosqh;
+
 	std::thread loop_handle;
+	std::mutex lock;
+
+	std::map<std::string, Subscriber *> subscribers;
 
 	static void message_callback(struct mosquitto *mosq, void *obj, const struct mosquitto_message *message);
 	static void loop(Client *mqtt);
 
-	protected:
-		virtual void handle_message(const std::string &message) = 0;
+	static Client *instance;
 
 	public:
-		Client(const std::string &host, unsigned int port, const std::string &topic);
+		Client(const std::string &host, unsigned int port);
 		~Client();
+
+		static Client *GetInstance() { return instance; }
+
+		void Subscribe(const std::string &topic, Subscriber *subscriber);
 
 		void Shutdown();
 		void WaitForShutdown();

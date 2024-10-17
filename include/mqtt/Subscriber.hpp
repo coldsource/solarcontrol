@@ -17,36 +17,20 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __MQTTCLIENTMETER_HPP__
-#define __MQTTCLIENTMETER_HPP__
+#ifndef __MQTT_SUBSCRIBER_HPP__
+#define __MQTT_SUBSCRIBER_HPP__
 
-#include <mqtt/Client.hpp>
-
-#include <mutex>
-
-namespace energy {
-	class Counter;
-}
+#include <string>
 
 namespace mqtt {
 
-class ClientMeter: public Client
+class Subscriber
 {
-	energy::Counter *grid = 0;
-	energy::Counter *pv = 0;
-	energy::Counter *hws = 0;
-
-	std::mutex lock;
-
-protected:
-		void handle_message(const std::string &message);
-
 	public:
-		ClientMeter();
-
-		void SetCounters(energy::Counter *grid, energy::Counter *pv, energy::Counter *hws);
+		virtual void HandleMessage(const std::string &message) = 0;
 };
 
 }
 
 #endif
+

@@ -4,13 +4,13 @@
 #include <signal.h>
 
 #include <datetime/DateTime.hpp>
-#include <mqtt/ClientMeter.hpp>
+#include <mqtt/Client.hpp>
 #include <datetime/Timestamp.hpp>
 #include <datetime/HourMinuteSecond.hpp>
 #include <datetime/DateTimeRange.hpp>
 #include <datetime/TimespanHistory.hpp>
 #include <energy/Counter.hpp>
-#include <energy/Global.hpp>
+#include <energy/GlobalMeter.hpp>
 #include <control/Plug.hpp>
 #include <device/Device.hpp>
 #include <device/Devices.hpp>
@@ -101,14 +101,10 @@ int main(int argc, char **argv)
 	config->Split();
 	config->CheckAll();
 
-	mqtt::ClientMeter mqtt;
+	auto config_sc = configuration::ConfigurationSolarControl::GetInstance();
+	mqtt::Client mqtt(config_sc->Get("mqtt.host"), config_sc->GetInt("mqtt.port"));
 
-	energy::Counter grid;
-	energy::Counter pv;
-	energy::Counter hws;
-	mqtt.SetCounters(&grid, &pv, &hws);
-
-	energy::Global global(&grid, &pv, &hws);
+	energy::GlobalMeter globalmeter;
 
 	websocket::SolarControl ws;
 	ws.Start();

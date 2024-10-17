@@ -18,13 +18,16 @@
  */
 
 #include <mqtt/Client.hpp>
+#include <mqtt/Subscriber.hpp>
 #include <configuration/ConfigurationSolarControl.hpp>
 
 using namespace std;
 
 namespace mqtt {
 
-Client::Client(const string &host, unsigned int port, const string &topic)
+Client * Client::instance = 0;
+
+Client::Client(const string &host, unsigned int port)
 {
 	string id = configuration::ConfigurationSolarControl::GetInstance()->Get("mqtt.id");
 	mosqh = mosquitto_new(id.c_str(), true, this);
@@ -35,14 +38,22 @@ Client::Client(const string &host, unsigned int port, const string &topic)
 	if(re!=MOSQ_ERR_SUCCESS)
 		throw runtime_error("Could connect to host " + host + "on port " + to_string(port));
 
-	mosquitto_subscribe(mosqh, 0, topic.c_str(), 0);
-
 	loop_handle = thread(loop, this);
+
+	instance = this;
 }
 
 Client::~Client()
 {
 	mosquitto_destroy(mosqh);
+}
+
+void Client::Subscribe(const string &topic, Subscriber *subscriber)
+{
+	unique_lock<mutex> llock(lock);
+
+	mosquitto_subscribe(mosqh, 0, topic.c_str(), 0);
+	subscribers[topic] = subscriber;
 }
 
 void Client::Shutdown()
@@ -58,7 +69,15 @@ void Client::WaitForShutdown()
 void Client::message_callback(struct mosquitto *mosq, void *obj, const struct mosquitto_message *message)
 {
 	Client *mqtt = (Client *)obj;
-	mqtt->handle_message((const char *)message->payload);
+	string topic(message->topic);
+
+	unique_lock<mutex> llock(mqtt->lock);
+
+	auto it = mqtt->subscribers.find(topic);
+	if(it==mqtt->subscribers.end())
+		return;
+
+	it->second->HandleMessage((const char *)message->payload);
 }
 
 void Client::loop(Client *mqtt)

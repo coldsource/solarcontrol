@@ -19,6 +19,7 @@
 
 #include <energy/Global.hpp>
 #include <energy/Counter.hpp>
+#include <configuration/ConfigurationSolarControl.hpp>
 
 namespace energy {
 
@@ -31,20 +32,28 @@ Global::Global(Counter *grid, Counter *pv, Counter *hws)
 	this->grid = grid;
 	this->pv = pv;
 	this->hws = hws;
+
+	hws_min_energy = configuration::ConfigurationSolarControl::GetInstance()->GetInt("energy.hws.min");
 }
 
 double Global::GetGridPower() const
 {
 	return grid->GetPower();
 }
+
 double Global::GetPVPower() const
 {
 	return pv->GetPower();
 }
 
+double Global::GetHWSPower() const
+{
+	return hws->GetPower();
+}
+
 double Global::GetPower() const
 {
-	return grid->GetPower() + pv->GetPower();
+	return grid->GetPower() + std::abs(pv->GetPower());
 }
 
 double Global::GetNetAvailablePower() const

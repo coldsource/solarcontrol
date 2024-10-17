@@ -43,6 +43,7 @@ class Global
 
 		double GetGridPower() const; // Grid power (>0 if importing, <0 if exporting)
 		double GetPVPower() const; // Solar production (>0 if producting)
+		double GetHWSPower() const; // HWS consumption
 
 		double GetPower() const; // Total consumption
 		double GetNetAvailablePower() const; // Available power with HWS ON

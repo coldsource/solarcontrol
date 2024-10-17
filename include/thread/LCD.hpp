@@ -29,6 +29,9 @@ class LCD: public WaiterThread
 	protected:
 		void main(void);
 
+		std::string format_power(double e) const;
+		std::string format_energy(double e) const;
+
 	public:
 		LCD();
 };

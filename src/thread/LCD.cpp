@@ -36,6 +36,26 @@ LCD::LCD()
 	start();
 }
 
+string LCD::format_power(double p) const
+{
+	if(p<1000)
+		return to_string((int)p) + "W";
+
+	char f[32];
+	snprintf(f, 32, "%.01f", p/1000);
+	return string(f) + "kW";
+}
+
+string LCD::format_energy(double e) const
+{
+	if(e<1000)
+		return to_string((int)e) + "Wh";
+
+	char f[32];
+	snprintf(f, 32, "%.01f", e/1000);
+	return string(f) + "kWh";
+}
+
 void LCD::main()
 {
 	auto global = energy::Global::GetInstance();
@@ -50,9 +70,15 @@ void LCD::main()
 
 	while(true)
 	{
-		string l1 = to_string((int)global->GetPower());
+		string l1 = "Grid : " + format_power(global->GetGridPower()) + " (" + format_power(global->GetNetAvailablePower()) + ")";
+		string l2 = "PV : " + format_power(global->GetPVPower());
+		string l3 = "" + format_energy(global->GetGridEnergy()) + " / " + format_energy(global->GetExportedEnergy());
+		string l4 = "HWS : " + format_energy(global->GetHWSEnergy());
 		lcd.Home();
 		lcd.WriteLine(1, l1);
+		lcd.WriteLine(2, l2);
+		lcd.WriteLine(3, l3);
+		lcd.WriteLine(4, l4);
 
 		if(!wait(2))
 			return;

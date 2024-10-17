@@ -95,6 +95,11 @@ LCDDisplay::LCDDisplay(const std::string &device_path, int i2c_address, int line
 
 	ioctl(fd, I2C_SLAVE, i2c_address);
 
+	lcd_write(0x03);
+	lcd_write(0x03);
+	lcd_write(0x03);
+	lcd_write(0x02);
+
 	lcd_write(LCD_FUNCTIONSET | LCD_2LINE | LCD_5x8DOTS | LCD_4BITMODE);
 	lcd_write(LCD_DISPLAYCONTROL | LCD_DISPLAYON);
 }

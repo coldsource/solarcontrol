@@ -102,6 +102,7 @@ LCDDisplay::LCDDisplay(const std::string &device_path, int i2c_address, int line
 
 	lcd_write(LCD_FUNCTIONSET | LCD_2LINE | LCD_5x8DOTS | LCD_4BITMODE);
 	lcd_write(LCD_DISPLAYCONTROL | LCD_DISPLAYON);
+	usleep(200000);
 }
 
 LCDDisplay::~LCDDisplay()
@@ -156,7 +157,9 @@ void LCDDisplay::i2c_send_byte(unsigned char data)
 void LCDDisplay::lcd_strobe(unsigned char data)
 {
 	i2c_send_byte(data | En);
+	usleep(5000);
 	i2c_send_byte(data);
+	usleep(2000);
 }
 
 void LCDDisplay::lcd_write_four_bits(unsigned char data)

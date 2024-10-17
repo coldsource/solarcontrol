@@ -106,7 +106,6 @@ int main(int argc, char **argv)
 	mqtt.SetCounters(&grid, &pv, &hws);
 
 	energy::Global global(&grid, &pv, &hws);
-	global.SetHWSMinEnergy(0);
 
 	websocket::SolarControl ws;
 	ws.Start();

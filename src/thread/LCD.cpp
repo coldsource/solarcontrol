@@ -38,7 +38,7 @@ LCD::LCD()
 
 string LCD::format_power(double p) const
 {
-	if(p<1000)
+	if(std::abs(p)<1000)
 		return to_string((int)p) + "W";
 
 	char f[32];
@@ -48,7 +48,7 @@ string LCD::format_power(double p) const
 
 string LCD::format_energy(double e) const
 {
-	if(e<1000)
+	if(std::abs(e)<1000)
 		return to_string((int)e) + "Wh";
 
 	char f[32];

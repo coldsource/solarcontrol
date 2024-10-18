@@ -93,7 +93,6 @@ void DevicesManager::main()
 		if(websocket::SolarControl::GetInstance())
 			websocket::SolarControl::GetInstance()->NotifyAll(websocket::SolarControl::en_protocols::METER);
 
-		printf("%f %f %f\n", global->GetPower(), global->GetGrossAvailablePower(), global->GetNetAvailablePower());
 		if(!wait(1))
 			return;
 	}

@@ -17,26 +17,30 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __API_DEVICEONOFF_HPP__
-#define __API_DEVICEONOFF_HPP__
+#ifndef __DEVICE_DEVICEHEATER_HPP__
+#define __DEVICE_DEVICEHEATER_HPP__
 
-#include <api/Handler.hpp>
+#include <device/DeviceTimeRange.hpp>
 
-#include <string>
+namespace device {
 
-namespace api {
-
-class DeviceOnOff: public Handler
+class DeviceHeater: public DeviceTimeRange
 {
-	std::string ip;
+	protected:
+		unsigned int ht_device_id;
+		double max_temperature;
 
-	void check_config(const nlohmann::json &j_config, const std::string &device_type);
+		bool state_on_condition() const;
 
 	public:
-		 nlohmann::json HandleMessage(const std::string &cmd, const nlohmann::json &j_params);
+		DeviceHeater(unsigned int id, const std::string &name, const nlohmann::json &config);
+		virtual ~DeviceHeater() {}
+
+		std::string GetType() const { return "heater"; }
 };
 
 }
 
 #endif
+
 

@@ -38,26 +38,29 @@ namespace device {
 
 class DeviceTimeRange: public DeviceOnOff
 {
-	const energy::GlobalMeter *global_meter;
-	control::OnOff *ctrl;
+	protected:
+		const energy::GlobalMeter *global_meter;
+		control::OnOff *ctrl;
 
-	bool manual = false;
+		bool manual = false;
 
 
-	int min_on = 0;
-	int min_off = 0;
-	datetime::Timestamp last_on;
-	datetime::Timestamp last_off;
+		int min_on = 0;
+		int min_off = 0;
+		datetime::Timestamp last_on;
+		datetime::Timestamp last_off;
 
-	datetime::TimeRanges force;
+		datetime::TimeRanges force;
 
-	datetime::TimeRanges offload;
-	double expected_consumption;
+		datetime::TimeRanges offload;
+		double expected_consumption;
 
-	datetime::TimeRanges remainder;
-	datetime::TimespanHistory on_history;
-	int min_on_time;
-	int min_on_for_last;
+		datetime::TimeRanges remainder;
+		datetime::TimespanHistory on_history;
+		int min_on_time;
+		int min_on_for_last;
+
+		virtual bool state_on_condition() const { return true; }
 
 	public:
 		DeviceTimeRange(unsigned int id, const std::string &name, const nlohmann::json &config);

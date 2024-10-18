@@ -19,6 +19,7 @@
 
 #include <device/DevicesOnOff.hpp>
 #include <device/DeviceTimeRange.hpp>
+#include <device/DeviceHeater.hpp>
 #include <database/DB.hpp>
 #include <logs/Logger.hpp>
 #include <nlohmann/json.hpp>
@@ -58,7 +59,7 @@ void DevicesOnOff::Reload()
 
 	database::DB db;
 
-	auto res = db.Query("SELECT device_id, device_name, device_type, device_config FROM t_device WHERE device_type IN('timerange-plug')"_sql);
+	auto res = db.Query("SELECT device_id, device_name, device_type, device_config FROM t_device WHERE device_type IN('timerange-plug', 'heater')"_sql);
 	while(res.FetchRow())
 	{
 		auto config = json::parse((string)res["device_config"]);
@@ -66,6 +67,8 @@ void DevicesOnOff::Reload()
 		DeviceOnOff *device;
 		if((string)res["device_type"]=="timerange-plug")
 			device = new DeviceTimeRange(res["device_id"], res["device_name"], config);
+		else if((string)res["device_type"]=="heater")
+			device = new DeviceHeater(res["device_id"], res["device_name"], config);
 
 		insert(device);
 		id_device.insert(pair<unsigned int, DeviceOnOff *>(res["device_id"], device));

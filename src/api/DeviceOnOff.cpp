@@ -32,7 +32,7 @@ using device::DevicesOnOff;
 namespace api
 {
 
-void DeviceOnOff::check_config(const nlohmann::json &j_config)
+void DeviceOnOff::check_config(const nlohmann::json &j_config, const string &device_type)
 {
 	check_param(j_config, "prio", "int");
 	check_param(j_config, "ip", "string");
@@ -44,6 +44,12 @@ void DeviceOnOff::check_config(const nlohmann::json &j_config)
 	check_param(j_config, "min_on_for_last", "int");
 	check_param(j_config, "min_on", "int");
 	check_param(j_config, "min_off", "int");
+
+	if(device_type=="heater")
+	{
+		check_param(j_config, "ht_device_id", "int");
+		check_param(j_config, "max_temperature", "float");
+	}
 }
 
 json DeviceOnOff::HandleMessage(const string &cmd, const nlohmann::json &j_params)
@@ -96,12 +102,14 @@ json DeviceOnOff::HandleMessage(const string &cmd, const nlohmann::json &j_param
 		check_param(j_params, "device_name", "string");
 		check_param(j_params, "device_config", "object");
 
-		auto j_config = j_params["device_config"];
-		check_config(j_config);
-
 		int device_id =j_params["device_id"];
 		string device_name = j_params["device_name"];
 		string device_config = j_params["device_config"].dump();
+
+		string device_type = devices.GetByID(device_id)->GetType();
+
+		auto j_config = j_params["device_config"];
+		check_config(j_config, device_type);
 
 		db.Query(
 			"UPDATE t_device SET device_name=%s, device_config=%s WHERE device_id=%i"_sql
@@ -121,11 +129,11 @@ json DeviceOnOff::HandleMessage(const string &cmd, const nlohmann::json &j_param
 		string device_name = j_params["device_name"];
 		string device_type = j_params["device_type"];
 
-		if(device_type!="timerange-plug")
+		if(device_type!="timerange-plug" && device_type!="heater")
 			throw invalid_argument("Invalid device type : « " + device_type + " »");
 
 		auto j_config = j_params["device_config"];
-		check_config(j_config);
+		check_config(j_config, device_type);
 
 		string device_config = j_params["device_config"].dump();
 

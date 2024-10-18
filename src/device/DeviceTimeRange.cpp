@@ -89,7 +89,10 @@ bool DeviceTimeRange::WantedState() const
 	if(!GetState() && now-last_off<min_off)
 		return false;
 
-	return (IsForced() || WantOffload() || WantRemainder());
+	if(state_on_condition())
+		return (IsForced() || WantOffload() || WantRemainder());
+	else
+		return false;
 }
 
 bool DeviceTimeRange::GetState() const

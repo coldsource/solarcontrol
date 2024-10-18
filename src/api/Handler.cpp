@@ -32,11 +32,11 @@ void Handler::check_param(const json &j, const string &name, const string &type)
 		throw invalid_argument("Missing parameter « " + name + " »");
 
 	auto jtype = j[name].type();
-	if(type=="int" && jtype!=json::value_t::number_unsigned)
+	if(type=="int" && jtype!=json::value_t::number_integer && jtype!=json::value_t::number_unsigned)
 		throw invalid_argument("Parameter « " + name + " » must be integer");
 	else if(type=="unsigned int" && jtype!=json::value_t::number_unsigned)
 		throw invalid_argument("Parameter « " + name + " » must be unsigned integer");
-	else if(type=="float" && jtype!=json::value_t::number_float)
+	else if(type=="float" && jtype!=json::value_t::number_float && jtype!=json::value_t::number_integer && jtype!=json::value_t::number_unsigned)
 		throw invalid_argument("Parameter « " + name + " » must be float");
 	else if(type=="string" && jtype!=json::value_t::string)
 		throw invalid_argument("Parameter « " + name + " » must be string");

@@ -91,6 +91,31 @@ json DeviceOnOff::HandleMessage(const string &cmd, const nlohmann::json &j_param
 
 		return json();
 	}
+	else if(cmd=="create")
+	{
+		string device_name = j_params["device_name"];
+		string device_type = j_params["device_type"];
+		string device_config = j_params["device_config"].dump();
+
+		db.Query(
+			"INSERT INTO t_device (device_type, device_name, device_config) VALUES(%s, %s, %s)"_sql
+			<<device_type<<device_name<<device_config
+		);
+
+		devices.Reload();
+
+		return json();
+	}
+	else if(cmd=="delete")
+	{
+		int device_id = j_params["device_id"];
+
+		db.Query("DELETE FROM t_device WHERE device_id=%i"_sql<<device_id);
+
+		devices.Reload();
+
+		return json();
+	}
 	else if(cmd=="setstate")
 	{
 		if(!j_params.contains("device_id"))

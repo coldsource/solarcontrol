@@ -77,7 +77,7 @@ json HTTP::Post(const json &j) const
 	catch(exception &e)
 	{
 		curl_easy_cleanup(curl);
-		throw e;
+		throw;
 	}
 }
 

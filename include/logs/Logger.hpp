@@ -17,32 +17,29 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __CONTROL_PLUG_HPP__
-#define __CONTROL_PLUG_HPP__
+#ifndef __LOGS_LOGGER_HPP__
+#define __LOGS_LOGGER_HPP__
 
-#include <control/HTTP.hpp>
-#include <control/OnOff.hpp>
+#define LOG_EMERG             0
+#define LOG_ALERT             1
+#define LOG_CRIT              2
+#define LOG_ERR               3
+#define LOG_WARNING           4
+#define LOG_NOTICE            5
+#define LOG_INFO              6
+#define LOG_DEBUG             7
 
 #include <string>
 
-namespace control {
-
-class Plug: public HTTP, public OnOff
+namespace logs
 {
-	bool state = false;
 
-	protected:
-		bool get_output() const;
-
+class Logger
+{
 	public:
-		Plug(const std::string &ip);
-
-		void Switch(bool state);
-		bool GetState() const { return state; }
-		void UpdateState();
+		static void Log(int crit, const std::string &msg);
 };
 
 }
 
 #endif
-

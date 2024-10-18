@@ -18,8 +18,10 @@
  */
 
 #include <control/Plug.hpp>
+#include <logs/Logger.hpp>
 #include <nlohmann/json.hpp>
 
+using namespace std;
 using nlohmann::json;
 
 namespace control {
@@ -37,7 +39,15 @@ void Plug::Switch(bool new_state)
 	j["params"]["id"] = 0;
 	j["params"]["on"] = new_state;
 
-	Post(j);
+	try
+	{
+		Post(j);
+	}
+	catch(exception &e)
+	{
+		logs::Logger::Log(LOG_WARNING, "Unable to set plug state : « " + string(e.what()) + " »");
+		return;
+	}
 
 	state = new_state;
 }
@@ -49,9 +59,16 @@ bool Plug::get_output() const
 	j["method"] = "Switch.GetStatus";
 	j["params"]["id"] = 0;
 
-	auto out = Post(j);
-
-	return out["result"]["output"];
+	try
+	{
+		auto out = Post(j);
+		return out["result"]["output"];
+	}
+	catch(exception &e)
+	{
+		logs::Logger::Log(LOG_WARNING, "Unable to get plug state : « " + string(e.what()) + " »");
+		return false;
+	}
 }
 
 void Plug::UpdateState()

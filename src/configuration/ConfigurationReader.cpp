@@ -165,7 +165,7 @@ void ConfigurationReader::Read(const string &filename, Configuration *config)
 	{
 		if(f)
 			fclose(f);
-		throw e;
+		throw;
 	}
 
 	fclose(f);

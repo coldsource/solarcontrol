@@ -17,32 +17,34 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __CONTROL_PLUG_HPP__
-#define __CONTROL_PLUG_HPP__
+#include <logs/Logger.hpp>
 
-#include <control/HTTP.hpp>
-#include <control/OnOff.hpp>
+using namespace std;
 
-#include <string>
-
-namespace control {
-
-class Plug: public HTTP, public OnOff
+namespace logs
 {
-	bool state = false;
 
-	protected:
-		bool get_output() const;
+void Logger::Log(int crit, const string &msg)
+{
+	if(crit==LOG_EMERG)
+		fputs("EMERG ", stderr);
+	else if(crit==LOG_ALERT)
+		fputs("ALERT ", stderr);
+	else if(crit==LOG_CRIT)
+		fputs("CRIT ", stderr);
+	else if(crit==LOG_ERR)
+		fputs("ERR ", stderr);
+	else if(crit==LOG_WARNING)
+		fputs("WARNING ", stderr);
+	else if(crit==LOG_NOTICE)
+		fputs("NOTICE ", stderr);
+	else if(crit==LOG_INFO)
+		fputs("INFO ", stderr);
+	else if(crit==LOG_DEBUG)
+		fputs("DEBUG ", stderr);
 
-	public:
-		Plug(const std::string &ip);
-
-		void Switch(bool state);
-		bool GetState() const { return state; }
-		void UpdateState();
-};
-
+	fputs(msg.c_str(), stderr);
+	fputs("\n", stderr);
 }
 
-#endif
-
+}

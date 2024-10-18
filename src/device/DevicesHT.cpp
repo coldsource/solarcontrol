@@ -20,6 +20,7 @@
 #include <device/DevicesHT.hpp>
 #include <device/DeviceHT.hpp>
 #include <database/DB.hpp>
+#include <logs/Logger.hpp>
 #include <nlohmann/json.hpp>
 
 using namespace std;
@@ -49,7 +50,7 @@ void DevicesHT::Reload()
 {
 	unique_lock<mutex> llock(d_mutex);
 
-	printf("Loading devices HT\n");
+	logs::Logger::Log(LOG_NOTICE, "Loading devices OnOff");
 
 	free();
 

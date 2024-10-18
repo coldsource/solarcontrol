@@ -16,6 +16,7 @@ aux_source_directory(src/database srcDatabase)
 aux_source_directory(src/websocket srcWebsocket)
 aux_source_directory(src/api srcAPI)
 aux_source_directory(src/display srcDisplay)
+aux_source_directory(src/logs srcLogs)
 
 add_executable(solarcontrol
 	${srcMQTT}
@@ -30,6 +31,7 @@ add_executable(solarcontrol
 	${srcWebsocket}
 	${srcAPI}
 	${srcDisplay}
+	${srcLogs}
 	
 	src/solarcontrol.cpp
 	)

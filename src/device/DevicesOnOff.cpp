@@ -20,6 +20,7 @@
 #include <device/DevicesOnOff.hpp>
 #include <device/DeviceTimeRange.hpp>
 #include <database/DB.hpp>
+#include <logs/Logger.hpp>
 #include <nlohmann/json.hpp>
 
 #include <stdexcept>
@@ -51,7 +52,7 @@ void DevicesOnOff::Reload()
 {
 	unique_lock<mutex> llock(d_mutex);
 
-	printf("Loading devices OnOff\n");
+	logs::Logger::Log(LOG_NOTICE, "Loading devices OnOff");
 
 	free();
 

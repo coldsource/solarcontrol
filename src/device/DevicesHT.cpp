@@ -36,6 +36,15 @@ DevicesHT::DevicesHT()
 	instance = this;
 }
 
+DeviceHT *DevicesHT::GetByID(unsigned int id) const
+{
+	auto it = id_device.find(id);
+	if(it==id_device.end())
+		throw invalid_argument("Unknown HT device ID « " + to_string(id) + " »");
+
+	return it->second;
+}
+
 void DevicesHT::Reload()
 {
 	unique_lock<mutex> llock(d_mutex);
@@ -56,6 +65,7 @@ void DevicesHT::Reload()
 			device = new DeviceHT(res["device_id"], res["device_name"], config);
 
 		insert(device);
+		id_device.insert(pair<unsigned int, DeviceHT *>(res["device_id"], device));
 	}
 }
 
@@ -68,6 +78,7 @@ void DevicesHT::free()
 	}
 
 	clear();
+	id_device.clear();
 }
 
 DevicesHT::~DevicesHT()

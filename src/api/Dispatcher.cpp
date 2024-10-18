@@ -69,6 +69,7 @@ string Dispatcher::Dispatch(const std::string &message)
 		j_params = j["parameters"];
 
 	auto j_res = handler->second->HandleMessage(j["cmd"], j_params);
+
 	return j_res.dump();
 }
 

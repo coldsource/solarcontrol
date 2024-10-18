@@ -22,6 +22,8 @@
 #include <database/DB.hpp>
 #include <nlohmann/json.hpp>
 
+#include <stdexcept>
+
 using namespace std;
 using nlohmann::json;
 
@@ -34,6 +36,15 @@ DevicesOnOff::DevicesOnOff()
 	Reload();
 
 	instance = this;
+}
+
+DeviceOnOff *DevicesOnOff::GetByID(unsigned int id) const
+{
+	auto it = id_device.find(id);
+	if(it==id_device.end())
+		throw invalid_argument("Unknown OnOff device ID « " + to_string(id) + " »");
+
+	return it->second;
 }
 
 void DevicesOnOff::Reload()
@@ -56,6 +67,7 @@ void DevicesOnOff::Reload()
 			device = new DeviceTimeRange(res["device_id"], res["device_name"], config);
 
 		insert(device);
+		id_device.insert(pair<unsigned int, DeviceOnOff *>(res["device_id"], device));
 	}
 }
 
@@ -68,6 +80,7 @@ void DevicesOnOff::free()
 	}
 
 	clear();
+	id_device.clear();
 }
 
 DevicesOnOff::~DevicesOnOff()

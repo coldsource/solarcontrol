@@ -31,6 +31,8 @@ class DevicesHT: public std::unordered_set<DeviceHT *>
 {
 	static DevicesHT *instance;
 
+	std::map<unsigned int, DeviceHT *> id_device;
+
 	std::mutex d_mutex;
 
 	void free();
@@ -40,6 +42,8 @@ class DevicesHT: public std::unordered_set<DeviceHT *>
 		~DevicesHT();
 
 		static DevicesHT *GetInstance() { return instance; }
+
+		DeviceHT *GetByID(unsigned int id) const;
 
 		void Lock() { d_mutex.lock(); }
 		void Unlock() { d_mutex.unlock(); }

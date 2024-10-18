@@ -23,6 +23,7 @@
 #include <device/DeviceOnOff.hpp>
 
 #include <set>
+#include <map>
 #include <mutex>
 
 namespace device {
@@ -38,6 +39,8 @@ class DevicesOnOff: public std::multiset<DeviceOnOff *, DevicesPtrComparator>
 {
 	static DevicesOnOff *instance;
 
+	std::map<unsigned int, DeviceOnOff *> id_device;
+
 	std::mutex d_mutex;
 
 	void free();
@@ -47,6 +50,8 @@ class DevicesOnOff: public std::multiset<DeviceOnOff *, DevicesPtrComparator>
 		~DevicesOnOff();
 
 		static DevicesOnOff *GetInstance() { return instance; }
+
+		DeviceOnOff *GetByID(unsigned int id) const;
 
 		void Lock() { d_mutex.lock(); }
 		void Unlock() { d_mutex.unlock(); }

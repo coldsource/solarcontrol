@@ -76,6 +76,9 @@ bool DeviceTimeRange::WantRemainder() const
 
 bool DeviceTimeRange::WantedState() const
 {
+	if(manual)
+		return GetState();
+
 	return (IsForced() || WantOffload() || WantRemainder());
 }
 
@@ -92,6 +95,17 @@ void DeviceTimeRange::SetState(bool new_state)
 		on_history.ClockIn();
 	else
 		on_history.ClockOut();
+}
+
+void DeviceTimeRange::SetManualState(bool new_state)
+{
+	manual = true;
+	SetState(new_state);
+}
+
+void DeviceTimeRange::SetAutoState()
+{
+	manual = false;
 }
 
 void DeviceTimeRange::UpdateState()

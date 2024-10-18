@@ -26,6 +26,8 @@
 using namespace std;
 using nlohmann::json;
 using database::DB;
+using device::Devices;
+using device::DevicesOnOff;
 
 namespace api
 {
@@ -35,10 +37,10 @@ json DeviceOnOff::HandleMessage(const string &cmd, const nlohmann::json &j_param
 	json j_res;
 	DB db;
 
+	DevicesOnOff &devices = Devices::GetInstance()->GetOnOff();
+
 	if(cmd=="list")
 	{
-		device::DevicesOnOff &devices = device::Devices::GetInstance()->GetOnOff();
-
 		devices.Lock();
 
 		j_res = json::array();
@@ -47,7 +49,8 @@ json DeviceOnOff::HandleMessage(const string &cmd, const nlohmann::json &j_param
 			json j_device;
 			j_device["device_id"] = device->GetID();
 			j_device["device_name"] = device->GetName();
-			j_device["device_state"] = device->GetState();
+			j_device["state"] = device->GetState();
+			j_device["manual"] = device->IsManual();
 
 			j_res.push_back(j_device);
 		}
@@ -84,7 +87,28 @@ json DeviceOnOff::HandleMessage(const string &cmd, const nlohmann::json &j_param
 			<<device_name<<device_config<<device_id
 		);
 
-		device::DevicesOnOff::GetInstance()->Reload();
+		devices.Reload();
+
+		return json();
+	}
+	else if(cmd=="setstate")
+	{
+		if(!j_params.contains("device_id"))
+			throw invalid_argument("Missing device_id");
+
+		if(!j_params.contains("state"))
+			throw invalid_argument("Missing state");
+
+		int device_id =j_params["device_id"];
+		string state = j_params["state"];
+		if(state!="on" && state!="off" && state!="auto")
+			throw invalid_argument("Invalid state : « " + state + " »");
+
+		auto device = devices.GetByID(device_id);
+		if(state=="auto")
+			device->SetAutoState();
+		else
+			device->SetManualState(state=="on"?true:false);
 
 		return json();
 	}

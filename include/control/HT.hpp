@@ -29,8 +29,8 @@ namespace control {
 
 class HT: public mqtt::Subscriber
 {
-	double temperature;
-	double humidity;
+	double temperature = 0;
+	double humidity = 0;
 
 	mutable std::mutex lock;
 

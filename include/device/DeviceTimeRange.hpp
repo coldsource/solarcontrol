@@ -40,6 +40,8 @@ class DeviceTimeRange: public DeviceOnOff
 	const energy::GlobalMeter *global_meter;
 	control::OnOff *ctrl;
 
+	bool manual = false;
+
 	datetime::TimeRanges force;
 
 	datetime::TimeRanges offload;
@@ -65,6 +67,9 @@ class DeviceTimeRange: public DeviceOnOff
 		bool WantedState() const;
 		bool GetState() const;
 		void SetState(bool new_state);
+		void SetManualState(bool new_state);
+		void SetAutoState();
+		bool IsManual() { return manual; }
 		void UpdateState();
 };
 

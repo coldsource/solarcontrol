@@ -39,6 +39,9 @@ class DeviceOnOff: public Device
 		virtual bool WantedState() const = 0;
 		virtual bool GetState() const = 0;
 		virtual void SetState(bool new_state) = 0;
+		virtual void SetManualState(bool new_state) = 0;
+		virtual void SetAutoState() = 0;
+		virtual bool IsManual() = 0;
 		virtual void UpdateState() = 0;
 };
 

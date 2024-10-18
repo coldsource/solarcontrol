@@ -67,7 +67,7 @@ double GlobalMeter::GetPower() const
 {
 	unique_lock<recursive_mutex> llock(lock);
 
-	return grid.GetPower() + std::abs(pv.GetPower());
+	return grid.GetPower() + (pv.GetPower()>0?pv.GetPower():0);
 }
 
 double GlobalMeter::GetNetAvailablePower() const

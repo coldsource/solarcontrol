@@ -68,9 +68,18 @@ string Dispatcher::Dispatch(const std::string &message)
 	if(j.contains("parameters"))
 		j_params = j["parameters"];
 
-	auto j_res = handler->second->HandleMessage(j["cmd"], j_params);
-
-	return j_res.dump();
+	try
+	{
+		auto j_res = handler->second->HandleMessage(j["cmd"], j_params);
+		return j_res.dump();
+	}
+	catch(exception &e)
+	{
+		auto j_err = json();
+		j_err["status"] = "error";
+		j_err["message"] = string(e.what());
+		return j_err.dump();
+	}
 }
 
 }

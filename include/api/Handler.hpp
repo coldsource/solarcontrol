@@ -28,6 +28,9 @@ namespace api {
 
 class Handler
 {
+	protected:
+		void check_param(const nlohmann::json &j, const std::string &name, const std::string &type);
+
 	public:
 		Handler() {}
 		virtual ~Handler() {}

@@ -32,6 +32,20 @@ using device::DevicesOnOff;
 namespace api
 {
 
+void DeviceOnOff::check_config(const nlohmann::json &j_config)
+{
+	check_param(j_config, "prio", "int");
+	check_param(j_config, "ip", "string");
+	check_param(j_config, "expected_consumption", "int");
+	check_param(j_config, "offload", "array");
+	check_param(j_config, "force", "array");
+	check_param(j_config, "remainder", "array");
+	check_param(j_config, "min_on_time", "int");
+	check_param(j_config, "min_on_for_last", "int");
+	check_param(j_config, "min_on", "int");
+	check_param(j_config, "min_off", "int");
+}
+
 json DeviceOnOff::HandleMessage(const string &cmd, const nlohmann::json &j_params)
 {
 	json j_res;
@@ -78,6 +92,13 @@ json DeviceOnOff::HandleMessage(const string &cmd, const nlohmann::json &j_param
 	}
 	else if(cmd=="set")
 	{
+		check_param(j_params, "device_id", "int");
+		check_param(j_params, "device_name", "string");
+		check_param(j_params, "device_config", "object");
+
+		auto j_config = j_params["device_config"];
+		check_config(j_config);
+
 		int device_id =j_params["device_id"];
 		string device_name = j_params["device_name"];
 		string device_config = j_params["device_config"].dump();
@@ -93,8 +114,19 @@ json DeviceOnOff::HandleMessage(const string &cmd, const nlohmann::json &j_param
 	}
 	else if(cmd=="create")
 	{
+		check_param(j_params, "device_name", "string");
+		check_param(j_params, "device_type", "string");
+		check_param(j_params, "device_config", "object");
+
 		string device_name = j_params["device_name"];
 		string device_type = j_params["device_type"];
+
+		if(device_type!="timerange-plug")
+			throw invalid_argument("Invalid device type : « " + device_type + " »");
+
+		auto j_config = j_params["device_config"];
+		check_config(j_config);
+
 		string device_config = j_params["device_config"].dump();
 
 		db.Query(
@@ -108,6 +140,8 @@ json DeviceOnOff::HandleMessage(const string &cmd, const nlohmann::json &j_param
 	}
 	else if(cmd=="delete")
 	{
+		check_param(j_params, "device_id", "int");
+
 		int device_id = j_params["device_id"];
 
 		db.Query("DELETE FROM t_device WHERE device_id=%i"_sql<<device_id);
@@ -118,11 +152,8 @@ json DeviceOnOff::HandleMessage(const string &cmd, const nlohmann::json &j_param
 	}
 	else if(cmd=="setstate")
 	{
-		if(!j_params.contains("device_id"))
-			throw invalid_argument("Missing device_id");
-
-		if(!j_params.contains("state"))
-			throw invalid_argument("Missing state");
+		check_param(j_params, "device_id", "int");
+		check_param(j_params, "state", "string");
 
 		int device_id =j_params["device_id"];
 		string state = j_params["state"];

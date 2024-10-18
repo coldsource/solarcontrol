@@ -30,6 +30,8 @@ class DeviceOnOff: public Handler
 {
 	std::string ip;
 
+	void check_config(const nlohmann::json &j_config);
+
 	public:
 		 nlohmann::json HandleMessage(const std::string &cmd, const nlohmann::json &j_params);
 };

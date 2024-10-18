@@ -25,6 +25,7 @@
 #include <energy/GlobalMeter.hpp>
 #include <websocket/SolarControl.hpp>
 #include <configuration/ConfigurationSolarControl.hpp>
+#include <logs/Logger.hpp>
 
 #include <stdexcept>
 
@@ -84,7 +85,7 @@ void DevicesManager::main()
 		}
 		catch(exception &e)
 		{
-			fprintf(stderr, "%s\n", e.what());
+			logs::Logger::Log(LOG_ERR, e.what());
 		}
 
 		devices.Unlock();

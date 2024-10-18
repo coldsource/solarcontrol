@@ -20,12 +20,12 @@
 #include <device/DeviceTimeRange.hpp>
 #include <control/Plug.hpp>
 #include <energy/GlobalMeter.hpp>
-#include <datetime/Timestamp.hpp>
 
 #include <stdexcept>
 
 using namespace std;
 using nlohmann::json;
+using datetime::Timestamp;
 
 namespace device {
 
@@ -33,7 +33,7 @@ DeviceTimeRange::DeviceTimeRange(unsigned int id, const string &name, const json
 {
 	this->global_meter = energy::GlobalMeter::GetInstance();
 
-	check_config_parameters(config, {"prio", "ip", "force", "offload", "expected_consumption", "remainder", "min_on_time", "min_on_for_last"});
+	check_config_parameters(config, {"prio", "ip", "force", "offload", "expected_consumption", "remainder", "min_on_time", "min_on_for_last", "min_on", "min_off"});
 
 	ctrl = new control::Plug(config["ip"]);
 
@@ -52,6 +52,9 @@ DeviceTimeRange::DeviceTimeRange(unsigned int id, const string &name, const json
 
 	min_on_time = config["min_on_time"];
 	min_on_for_last = config["min_on_for_last"];
+
+	min_on = config["min_on"];
+	min_off = config["min_off"];
 }
 
 DeviceTimeRange::~DeviceTimeRange()
@@ -79,6 +82,13 @@ bool DeviceTimeRange::WantedState() const
 	if(manual)
 		return GetState();
 
+	Timestamp now(TS_MONOTONIC);
+	if(GetState() && now-last_on<min_on)
+		return true;
+
+	if(!GetState() && now-last_off<min_off)
+		return false;
+
 	return (IsForced() || WantOffload() || WantRemainder());
 }
 
@@ -95,6 +105,11 @@ void DeviceTimeRange::SetState(bool new_state)
 		on_history.ClockIn();
 	else
 		on_history.ClockOut();
+
+	if(new_state)
+		last_on = Timestamp(TS_MONOTONIC);
+	else
+		last_off = Timestamp(TS_MONOTONIC);
 }
 
 void DeviceTimeRange::SetManualState(bool new_state)

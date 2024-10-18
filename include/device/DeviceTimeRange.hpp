@@ -23,6 +23,7 @@
 #include <device/DeviceOnOff.hpp>
 #include <datetime/TimeRanges.hpp>
 #include <datetime/TimespanHistory.hpp>
+#include <datetime/Timestamp.hpp>
 #include <control/OnOff.hpp>
 #include <nlohmann/json.hpp>
 
@@ -41,6 +42,12 @@ class DeviceTimeRange: public DeviceOnOff
 	control::OnOff *ctrl;
 
 	bool manual = false;
+
+
+	int min_on = 0;
+	int min_off = 0;
+	datetime::Timestamp last_on;
+	datetime::Timestamp last_off;
 
 	datetime::TimeRanges force;
 

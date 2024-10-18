@@ -17,41 +17,32 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __DEVICES_HPP__
-#define __DEVICES_HPP__
+#ifndef __DEVICE_DEVICES_HPP__
+#define __DEVICE_DEVICES_HPP__
 
-#include <device/Device.hpp>
+#include <device/DevicesOnOff.hpp>
+#include <device/DevicesHT.hpp>
 
-#include <set>
-#include <mutex>
+#include <string>
 
 namespace device {
 
-struct DevicesPtrComparator {
-	bool operator()(device::Device *a, device::Device *b) const
-	{
-		return a->GetPrio() < b->GetPrio();
-	}
-};
-
-class Devices: public std::multiset<Device *, DevicesPtrComparator>
+class Devices
 {
 	static Devices *instance;
 
-	std::mutex d_mutex;
-
-	void free();
+	DevicesOnOff devices_onoff;
+	DevicesHT devices_ht;
 
 	public:
 		Devices();
-		~Devices();
 
 		static Devices *GetInstance() { return instance; }
 
-		void Lock() { d_mutex.lock(); }
-		void Unlock() { d_mutex.unlock(); }
-
 		void Reload();
+
+		DevicesOnOff &GetOnOff() { return devices_onoff; }
+		DevicesHT &GetHT() { return devices_ht; }
 };
 
 }

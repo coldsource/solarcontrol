@@ -29,21 +29,15 @@ using nlohmann::json;
 
 namespace device {
 
-void DeviceTimeRange::check_config_parameters(const json &config, const vector<string> &names)
-{
-	for(auto name : names)
-	{
-		if(!config.contains(name))
-			throw runtime_error("Unable to load configuration for device : missing parameter « " + name + " »");
-	}
-}
-
-DeviceTimeRange::DeviceTimeRange(const string &name, int prio, const json &config): Device(name, prio)
+DeviceTimeRange::DeviceTimeRange(unsigned int id, const string &name, const json &config): DeviceOnOff(id, name)
 {
 	this->global_meter = energy::GlobalMeter::GetInstance();
 
-	check_config_parameters(config, {"ip", "force", "offload", "expected_consumption", "remainder", "min_on_time", "min_on_for_last"});
+	check_config_parameters(config, {"prio", "ip", "force", "offload", "expected_consumption", "remainder", "min_on_time", "min_on_for_last"});
+
 	ctrl = new control::Plug(config["ip"]);
+
+	prio = config["prio"];
 
 	for(auto it : config["force"])
 		force.push_back(datetime::TimeRange(datetime::HourMinuteSecond(it["from"]), datetime::HourMinuteSecond(it["to"])));
@@ -98,6 +92,17 @@ void DeviceTimeRange::SetState(bool new_state)
 		on_history.ClockIn();
 	else
 		on_history.ClockOut();
+}
+
+void DeviceTimeRange::UpdateState()
+{
+	bool cur_state = ctrl->GetState();
+	ctrl->UpdateState();
+
+	bool new_state = ctrl->GetState();
+
+	if(new_state!=cur_state)
+		SetState(new_state);
 }
 
 }

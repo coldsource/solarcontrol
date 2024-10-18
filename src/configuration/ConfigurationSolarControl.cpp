@@ -38,6 +38,7 @@ ConfigurationSolarControl::ConfigurationSolarControl(void)
 {
 	// Load default configuration
 	entries["control.cooldown.on"] = "10";
+	entries["control.state.update_interval"] = "60";
 	entries["core.history.maxdays"] = "30";
 	entries["energy.hws.min"] = "3000";
 	entries["energy.mqtt.id"] = "";

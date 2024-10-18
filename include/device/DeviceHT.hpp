@@ -17,25 +17,33 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __CONTROL_HTTP_HPP__
-#define __CONTROL_HTTP_HPP__
+#ifndef __DEVICE_DEVICEHT_HPP__
+#define __DEVICE_DEVICEHT_HPP__
 
+#include <device/Device.hpp>
+#include <control/HT.hpp>
 #include <nlohmann/json.hpp>
 
 #include <string>
 
-namespace control {
+namespace device {
 
-class HTTP
+class DeviceHT: public Device
 {
-	std::string ip;
+	control::HT *ctrl;
 
 	public:
-		HTTP(const std::string &ip);
+		DeviceHT(unsigned int id, const std::string &name, const nlohmann::json &config);
+		virtual ~DeviceHT();
 
-		nlohmann::json Post(const nlohmann::json &j) const;
+		std::string GetType() const { return "ht"; }
+
+		double GetTemperature() const;
+		double GetHumidity() const;
 };
 
 }
 
 #endif
+
+

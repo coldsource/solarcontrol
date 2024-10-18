@@ -17,8 +17,8 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __ONOFF_HPP__
-#define __ONOFF_HPP__
+#ifndef __CONTROL_ONOFF_HPP__
+#define __CONTROL_ONOFF_HPP__
 
 namespace control {
 
@@ -29,6 +29,7 @@ class OnOff
 
 		virtual void Switch(bool) = 0;
 		virtual bool GetState() const = 0;
+		virtual void UpdateState() = 0;
 };
 
 }

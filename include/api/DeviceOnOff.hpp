@@ -17,25 +17,24 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __CONTROL_HTTP_HPP__
-#define __CONTROL_HTTP_HPP__
+#ifndef __API_DEVICEONOFF_HPP__
+#define __API_DEVICEONOFF_HPP__
 
-#include <nlohmann/json.hpp>
+#include <api/Handler.hpp>
 
 #include <string>
 
-namespace control {
+namespace api {
 
-class HTTP
+class DeviceOnOff: public Handler
 {
 	std::string ip;
 
 	public:
-		HTTP(const std::string &ip);
-
-		nlohmann::json Post(const nlohmann::json &j) const;
+		 nlohmann::json HandleMessage(const std::string &cmd, const nlohmann::json &j_params);
 };
 
 }
 
 #endif
+

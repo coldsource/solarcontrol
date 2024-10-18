@@ -25,6 +25,7 @@
 
 #include <set>
 #include <map>
+#include <mutex>
 
 namespace websocket
 {
@@ -32,6 +33,7 @@ namespace websocket
 class SolarControl: public Server
 {
 	static SolarControl *instance;
+	std::mutex lock;
 
 	std::map<unsigned int, std::set<struct lws *>> clients;
 

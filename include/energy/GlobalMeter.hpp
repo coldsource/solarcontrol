@@ -23,6 +23,8 @@
 #include <mqtt/Subscriber.hpp>
 #include <energy/Counter.hpp>
 
+#include <mutex>
+
 namespace energy {
 	class Counter;
 }
@@ -38,6 +40,7 @@ class GlobalMeter: public mqtt::Subscriber
 	double hws_min_energy = 0;
 
 	static GlobalMeter *instance;
+	mutable std::recursive_mutex lock;
 
 protected:
 	public:

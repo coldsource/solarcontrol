@@ -70,10 +70,10 @@ void LCD::main()
 
 	while(true)
 	{
-		string l1 = "Grid : " + format_power(global->GetGridPower()) + " (" + format_power(global->GetPower()) + ")";
-		string l2 = "PV : " + format_power(global->GetPVPower()) + " (" + format_power(global->GetNetAvailablePower()) + ")";
+		string l1 = "Grid " + format_power(global->GetGridPower()) + " (" + format_power(global->GetPower()) + ")";
+		string l2 = "PV " + format_power(global->GetPVPower()) + " (" + format_power(global->GetNetAvailablePower()) + ")";
 		string l3 = "" + format_energy(global->GetGridEnergy()) + " / " + format_energy(global->GetExportedEnergy());
-		string l4 = "HWS : " + format_energy(global->GetHWSEnergy()) + " (" + format_power(global->GetHWSPower()) + ")";
+		string l4 = "HWS " + format_energy(global->GetHWSEnergy()) + " (" + format_power(global->GetHWSPower()) + ")";
 		lcd.Home();
 		lcd.WriteLine(1, l1);
 		lcd.WriteLine(2, l2);

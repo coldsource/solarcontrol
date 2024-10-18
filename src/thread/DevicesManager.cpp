@@ -20,6 +20,8 @@
 #include <thread/DevicesManager.hpp>
 #include <datetime/Timestamp.hpp>
 #include <device/Devices.hpp>
+#include <device/DevicesOnOff.hpp>
+#include <device/DeviceOnOff.hpp>
 #include <energy/GlobalMeter.hpp>
 #include <websocket/SolarControl.hpp>
 #include <configuration/ConfigurationSolarControl.hpp>
@@ -43,31 +45,41 @@ void DevicesManager::main()
 {
 	auto global = energy::GlobalMeter::GetInstance();
 
-	device::Devices devices;
+	device::DevicesOnOff &devices = device::Devices::GetInstance()->GetOnOff();
 
-	double start_cooldown = configuration::ConfigurationSolarControl::GetInstance()->GetInt("control.cooldown.on");
+	auto config = configuration::ConfigurationSolarControl::GetInstance();
+	unsigned long long state_update_interval = config->GetInt("control.state.update_interval");
+
+	double start_cooldown = config->GetInt("control.cooldown.on");
 	double last_start_ts = 0;
+	datetime::Timestamp last_state_update(TS_MONOTONIC);
 	while(true)
 	{
 		devices.Lock();
 
 		try
 		{
+			datetime::Timestamp now(TS_MONOTONIC);
 			for(auto it = devices.begin(); it!=devices.end(); ++it)
 			{
-				device::Device *device = *it;
+				device::DeviceOnOff *device = *it;
+
+				if(now-last_state_update>state_update_interval)
+				{
+					device->UpdateState();
+					last_state_update = now;
+				}
 
 				bool new_state = device->WantedState();
 				if(new_state==device->GetState())
 					continue;
 
-				double ts = datetime::Timestamp(TS_MONOTONIC);
-				if(new_state && ts-last_start_ts<start_cooldown)
+				if(new_state && (double)now-last_start_ts<start_cooldown)
 					continue;
 
 				device->SetState(new_state);
 				if(new_state)
-					last_start_ts = ts;
+					last_start_ts = now;
 			}
 		}
 		catch(exception &e)

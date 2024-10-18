@@ -17,8 +17,8 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __PLUG_HPP__
-#define __PLUG_HPP__
+#ifndef __CONTROL_PLUG_HPP__
+#define __CONTROL_PLUG_HPP__
 
 #include <control/HTTP.hpp>
 #include <control/OnOff.hpp>
@@ -39,6 +39,7 @@ class Plug: public HTTP, public OnOff
 
 		void Switch(bool state);
 		bool GetState() const { return state; }
+		void UpdateState();
 };
 
 }

@@ -54,4 +54,9 @@ bool Plug::get_output() const
 	return out["result"]["output"];
 }
 
+void Plug::UpdateState()
+{
+	state = get_output();
+}
+
 }

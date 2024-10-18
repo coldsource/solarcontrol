@@ -17,25 +17,50 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __CONTROL_HTTP_HPP__
-#define __CONTROL_HTTP_HPP__
-
+#include <control/HT.hpp>
+#include <mqtt/Client.hpp>
 #include <nlohmann/json.hpp>
 
-#include <string>
+using namespace std;
+using nlohmann::json;
 
-namespace control {
-
-class HTTP
+namespace control
 {
-	std::string ip;
 
-	public:
-		HTTP(const std::string &ip);
-
-		nlohmann::json Post(const nlohmann::json &j) const;
-};
-
+HT::HT(const string &mqtt_id)
+{
+	auto mqtt = mqtt::Client::GetInstance();
+	mqtt->Subscribe(mqtt_id + "/events/rpc", this);
 }
 
-#endif
+double HT::GetTemperature() const
+{
+	unique_lock<mutex> llock(lock);
+
+	return temperature;
+}
+
+double HT::GetHumidity() const
+{
+	unique_lock<mutex> llock(lock);
+
+	return humidity;
+}
+
+void HT::HandleMessage(const string &message)
+{
+	unique_lock<mutex> llock(lock);
+
+	try
+	{
+		json j = json::parse(message);
+		humidity = j["params"]["humidity:0"]["rh"];
+		temperature = j["params"]["temperature:0"]["tC"];
+	}
+	catch(json::exception &e)
+	{
+		return;
+	}
+}
+
+}

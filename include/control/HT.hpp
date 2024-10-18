@@ -17,25 +17,35 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __CONTROL_HTTP_HPP__
-#define __CONTROL_HTTP_HPP__
+#ifndef __CONTROL_HT_HPP__
+#define __CONTROL_HT_HPP__
 
-#include <nlohmann/json.hpp>
+#include <mqtt/Subscriber.hpp>
 
 #include <string>
+#include <mutex>
 
 namespace control {
 
-class HTTP
+class HT: public mqtt::Subscriber
 {
-	std::string ip;
+	double temperature;
+	double humidity;
+
+	mutable std::mutex lock;
 
 	public:
-		HTTP(const std::string &ip);
+		HT(const std::string &mqtt_id);
+		virtual ~HT() {}
 
-		nlohmann::json Post(const nlohmann::json &j) const;
+		double GetTemperature() const;
+		double GetHumidity() const;
+
+		void HandleMessage(const std::string &message);
 };
 
 }
 
 #endif
+
+

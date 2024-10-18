@@ -17,25 +17,32 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __CONTROL_HTTP_HPP__
-#define __CONTROL_HTTP_HPP__
+#ifndef __DEVICE_DEVICEONOFF_HPP__
+#define __DEVICE_DEVICEONOFF_HPP__
 
-#include <nlohmann/json.hpp>
+#include <device/Device.hpp>
 
 #include <string>
 
-namespace control {
+namespace device {
 
-class HTTP
+class DeviceOnOff: public Device
 {
-	std::string ip;
+	protected:
+		int prio = 0;
 
 	public:
-		HTTP(const std::string &ip);
+		DeviceOnOff(unsigned int id, const std::string &name): Device(id, name) {}
 
-		nlohmann::json Post(const nlohmann::json &j) const;
+		int GetPrio() const { return prio; }
+
+		virtual bool WantedState() const = 0;
+		virtual bool GetState() const = 0;
+		virtual void SetState(bool new_state) = 0;
+		virtual void UpdateState() = 0;
 };
 
 }
 
 #endif
+

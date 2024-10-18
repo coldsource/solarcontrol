@@ -17,10 +17,10 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __DEVICETIMERANGE_HPP__
-#define __DEVICETIMERANGE_HPP__
+#ifndef __DEVICE_DEVICETIMERANGE_HPP__
+#define __DEVICE_DEVICETIMERANGE_HPP__
 
-#include <device/Device.hpp>
+#include <device/DeviceOnOff.hpp>
 #include <datetime/TimeRanges.hpp>
 #include <datetime/TimespanHistory.hpp>
 #include <control/OnOff.hpp>
@@ -35,7 +35,7 @@ namespace energy {
 
 namespace device {
 
-class DeviceTimeRange: public Device
+class DeviceTimeRange: public DeviceOnOff
 {
 	const energy::GlobalMeter *global_meter;
 	control::OnOff *ctrl;
@@ -50,11 +50,11 @@ class DeviceTimeRange: public Device
 	int min_on_time;
 	int min_on_for_last;
 
-	void check_config_parameters( const nlohmann::json &config, const std::vector<std::string> &names);
-
 	public:
-		DeviceTimeRange(const std::string &name, int prio, const nlohmann::json &config);
+		DeviceTimeRange(unsigned int id, const std::string &name, const nlohmann::json &config);
 		virtual ~DeviceTimeRange();
+
+		std::string GetType() const { return "timerange-plug"; }
 
 		bool IsForced() const;
 		bool WantOffload() const;
@@ -65,6 +65,7 @@ class DeviceTimeRange: public Device
 		bool WantedState() const;
 		bool GetState() const;
 		void SetState(bool new_state);
+		void UpdateState();
 };
 
 }

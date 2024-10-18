@@ -17,7 +17,7 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#include <api/Device.hpp>
+#include <api/DeviceOnOff.hpp>
 #include <database/DB.hpp>
 #include <device/Devices.hpp>
 
@@ -30,24 +30,29 @@ using database::DB;
 namespace api
 {
 
-json Device::HandleMessage(const string &cmd, const nlohmann::json &j_params)
+json DeviceOnOff::HandleMessage(const string &cmd, const nlohmann::json &j_params)
 {
 	json j_res;
 	DB db;
 
 	if(cmd=="list")
 	{
-		auto res = db.Query("SELECT device_id, device_name, device_prio FROM t_device"_sql);
-		j_res = json::array();
-		while(res.FetchRow())
-		{
-			json device;
-			device["device_id"] = res["device_id"];
-			device["device_name"] = res["device_name"];
-			device["device_prio"] = res["device_prio"];
+		device::DevicesOnOff &devices = device::Devices::GetInstance()->GetOnOff();
 
-			j_res.push_back(device);
+		devices.Lock();
+
+		j_res = json::array();
+		for(auto device : devices)
+		{
+			json j_device;
+			j_device["device_id"] = device->GetID();
+			j_device["device_name"] = device->GetName();
+			j_device["device_state"] = device->GetState();
+
+			j_res.push_back(j_device);
 		}
+
+		devices.Unlock();
 
 		return j_res;
 	}
@@ -56,14 +61,14 @@ json Device::HandleMessage(const string &cmd, const nlohmann::json &j_params)
 		if(!j_params.contains("device_id"))
 			throw invalid_argument("Missing device_id");
 
-		auto res = db.Query("SELECT device_id, device_name, device_prio, device_config FROM t_device WHERE device_id = %i"_sql <<(int)j_params["device_id"]);
+		auto res = db.Query("SELECT device_id, device_name, device_type, device_config FROM t_device WHERE device_id = %i"_sql <<(int)j_params["device_id"]);
 		if(!res.FetchRow())
 			throw invalid_argument("Uknown device_id : « " + string(j_params["device_id"]) + " »");
 
 		json device;
 		device["device_id"] = res["device_id"];
 		device["device_name"] = res["device_name"];
-		device["device_prio"] = res["device_prio"];
+		device["device_type"] = res["device_type"];
 		device["device_config"] = json::parse(string(res["device_config"]));
 
 		return device;
@@ -72,20 +77,19 @@ json Device::HandleMessage(const string &cmd, const nlohmann::json &j_params)
 	{
 		int device_id =j_params["device_id"];
 		string device_name = j_params["device_name"];
-		int device_prio = j_params["device_prio"];
 		string device_config = j_params["device_config"].dump();
 
 		db.Query(
-			"UPDATE t_device SET device_name=%s, device_prio=%i, device_config=%s WHERE device_id=%i"_sql
-			<<device_name<<device_prio<<device_config<<device_id
+			"UPDATE t_device SET device_name=%s, device_config=%s WHERE device_id=%i"_sql
+			<<device_name<<device_config<<device_id
 		);
 
-		device::Devices::GetInstance()->Reload();
+		device::DevicesOnOff::GetInstance()->Reload();
 
 		return json();
 	}
 
-	throw invalid_argument("Unknown command « " + cmd + " » in module « device »");
+	throw invalid_argument("Unknown command « " + cmd + " » in module « deviceonoff »");
 }
 
 }

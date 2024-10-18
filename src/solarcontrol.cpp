@@ -25,6 +25,7 @@
 #include <database/Query.hpp>
 #include <websocket/SolarControl.hpp>
 #include <thread/LCD.hpp>
+#include <control/HT.hpp>
 
 #include <nlohmann/json.hpp>
 
@@ -105,6 +106,9 @@ int main(int argc, char **argv)
 	mqtt::Client mqtt(config_sc->Get("mqtt.host"), config_sc->GetInt("mqtt.port"));
 
 	energy::GlobalMeter globalmeter;
+	control::HT ht("ht-bob");
+
+	device::Devices devices;
 
 	websocket::SolarControl ws;
 	ws.Start();

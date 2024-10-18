@@ -44,26 +44,36 @@ GlobalMeter::GlobalMeter()
 
 double GlobalMeter::GetGridPower() const
 {
+	unique_lock<recursive_mutex> llock(lock);
+
 	return grid.GetPower();
 }
 
 double GlobalMeter::GetPVPower() const
 {
+	unique_lock<recursive_mutex> llock(lock);
+
 	return pv.GetPower();
 }
 
 double GlobalMeter::GetHWSPower() const
 {
+	unique_lock<recursive_mutex> llock(lock);
+
 	return hws.GetPower();
 }
 
 double GlobalMeter::GetPower() const
 {
+	unique_lock<recursive_mutex> llock(lock);
+
 	return grid.GetPower() + std::abs(pv.GetPower());
 }
 
 double GlobalMeter::GetNetAvailablePower() const
 {
+	unique_lock<recursive_mutex> llock(lock);
+
 	if(hws.GetEnergyConsumption()>hws_min_energy)
 		return GetGrossAvailablePower();
 	return GetExcessPower();
@@ -71,39 +81,52 @@ double GlobalMeter::GetNetAvailablePower() const
 
 double GlobalMeter::GetGrossAvailablePower() const
 {
+	unique_lock<recursive_mutex> llock(lock);
+
 	double available = hws.GetPower()-grid.GetPower();
 	return (available<0)?0:available;
 }
 
 double GlobalMeter::GetExcessPower() const
 {
-	double grid_power = grid.GetPower();
+	unique_lock<recursive_mutex> llock(lock);
 
+	double grid_power = grid.GetPower();
 	return (grid_power>0)?0:-grid_power;
 }
 
 double GlobalMeter::GetGridEnergy() const
 {
+	unique_lock<recursive_mutex> llock(lock);
+
 	return grid.GetEnergyConsumption();
 }
 
 double GlobalMeter::GetExportedEnergy() const
 {
+	unique_lock<recursive_mutex> llock(lock);
+
 	return grid.GetEnergyExcess();
 }
 
 double GlobalMeter::GetPVEnergy() const
 {
+	unique_lock<recursive_mutex> llock(lock);
+
 	return pv.GetEnergyConsumption();
 }
 
 double GlobalMeter::GetHWSEnergy() const
 {
+	unique_lock<recursive_mutex> llock(lock);
+
 	return hws.GetEnergyConsumption();
 }
 
 void GlobalMeter::HandleMessage(const std::string &message)
 {
+	unique_lock<recursive_mutex> llock(lock);
+
 	double power_grid, power_pv, power_hws;
 
 	try

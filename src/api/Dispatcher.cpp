@@ -18,7 +18,8 @@
  */
 
 #include <api/Dispatcher.hpp>
-#include <api/Device.hpp>
+#include <api/DeviceOnOff.hpp>
+#include <api/DeviceHT.hpp>
 
 #include <stdexcept>
 
@@ -30,7 +31,8 @@ namespace api
 
 Dispatcher::Dispatcher()
 {
-	handlers["device"] = new Device();
+	handlers["deviceonoff"] = new DeviceOnOff();
+	handlers["deviceht"] = new DeviceHT();
 }
 
 Dispatcher::~Dispatcher()

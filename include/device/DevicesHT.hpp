@@ -17,25 +17,38 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __CONTROL_HTTP_HPP__
-#define __CONTROL_HTTP_HPP__
+#ifndef __DEVICE_DEVICESHT_HPP__
+#define __DEVICE_DEVICESHT_HPP__
 
-#include <nlohmann/json.hpp>
+#include <device/DeviceHT.hpp>
 
-#include <string>
+#include <unordered_set>
+#include <mutex>
 
-namespace control {
+namespace device {
 
-class HTTP
+class DevicesHT: public std::unordered_set<DeviceHT *>
 {
-	std::string ip;
+	static DevicesHT *instance;
+
+	std::mutex d_mutex;
+
+	void free();
 
 	public:
-		HTTP(const std::string &ip);
+		DevicesHT();
+		~DevicesHT();
 
-		nlohmann::json Post(const nlohmann::json &j) const;
+		static DevicesHT *GetInstance() { return instance; }
+
+		void Lock() { d_mutex.lock(); }
+		void Unlock() { d_mutex.unlock(); }
+
+		void Reload();
 };
 
 }
 
 #endif
+
+

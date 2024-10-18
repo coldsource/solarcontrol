@@ -17,8 +17,10 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __DEVICE_HPP__
-#define __DEVICE_HPP__
+#ifndef __DEVICE_DEVICE_HPP__
+#define __DEVICE_DEVICE_HPP__
+
+#include <nlohmann/json.hpp>
 
 #include <string>
 
@@ -26,20 +28,21 @@ namespace device {
 
 class Device
 {
+	unsigned int id;
 	std::string name;
-	int prio;
+
+	protected:
+		void check_config_parameters( const nlohmann::json &config, const std::vector<std::string> &names);
 
 	public:
-		Device(const std::string &name, int prio);
+		Device(unsigned int id, const std::string &name);
 		Device(const Device&) = delete;
 		virtual ~Device() {}
 
-		std::string GetName() const { return name; }
-		int GetPrio() const { return prio; }
+		virtual std::string GetType() const = 0;
 
-		virtual bool WantedState() const = 0;
-		virtual bool GetState() const = 0;
-		virtual void SetState(bool new_state) = 0;
+		unsigned int GetID() const { return id; }
+		std::string GetName() const { return name; }
 };
 
 }

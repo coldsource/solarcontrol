@@ -18,57 +18,20 @@
  */
 
 #include <device/Devices.hpp>
-#include <device/DeviceTimeRange.hpp>
-#include <database/DB.hpp>
-#include <nlohmann/json.hpp>
 
-using namespace std;
-using nlohmann::json;
+namespace device
+{
 
-namespace device {
-
-Devices * Devices::instance = 0;
+Devices *Devices::instance = 0;
 
 Devices::Devices()
 {
-	Reload();
-
 	instance = this;
 }
 
 void Devices::Reload()
 {
-	unique_lock<mutex> llock(d_mutex);
-
-	printf("Loading devices\n");
-
-	free();
-
-	database::DB db;
-
-	auto res = db.Query("SELECT device_name, device_prio, device_config FROM t_device"_sql);
-	while(res.FetchRow())
-	{
-		auto config = json::parse((string)res["device_config"]);
-		DeviceTimeRange *device = new DeviceTimeRange(res["device_name"], res["device_prio"], config);
-		insert(device);
-	}
-}
-
-void Devices::free()
-{
-	for(auto it = begin(); it!=end(); ++it)
-	{
-		Device *device = *it;
-		delete device;
-	}
-
-	clear();
-}
-
-Devices::~Devices()
-{
-	free();
+	devices_onoff.Reload();
 }
 
 }

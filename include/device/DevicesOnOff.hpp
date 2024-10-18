@@ -17,25 +17,44 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __CONTROL_HTTP_HPP__
-#define __CONTROL_HTTP_HPP__
+#ifndef __DEVICE_DEVICESONOFF_HPP__
+#define __DEVICE_DEVICESONOFF_HPP__
 
-#include <nlohmann/json.hpp>
+#include <device/DeviceOnOff.hpp>
 
-#include <string>
+#include <set>
+#include <mutex>
 
-namespace control {
+namespace device {
 
-class HTTP
+struct DevicesPtrComparator {
+	bool operator()(DeviceOnOff *a, DeviceOnOff *b) const
+	{
+		return a->GetPrio() < b->GetPrio();
+	}
+};
+
+class DevicesOnOff: public std::multiset<DeviceOnOff *, DevicesPtrComparator>
 {
-	std::string ip;
+	static DevicesOnOff *instance;
+
+	std::mutex d_mutex;
+
+	void free();
 
 	public:
-		HTTP(const std::string &ip);
+		DevicesOnOff();
+		~DevicesOnOff();
 
-		nlohmann::json Post(const nlohmann::json &j) const;
+		static DevicesOnOff *GetInstance() { return instance; }
+
+		void Lock() { d_mutex.lock(); }
+		void Unlock() { d_mutex.unlock(); }
+
+		void Reload();
 };
 
 }
 
 #endif
+

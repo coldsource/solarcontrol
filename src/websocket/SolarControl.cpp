@@ -42,6 +42,8 @@ SolarControl::~SolarControl()
 
 void SolarControl::NotifyAll(unsigned int protocol)
 {
+	unique_lock<mutex> llock(lock);
+
 	for(auto client : clients[protocol])
 		lws_callback_on_writable(client);
 
@@ -73,6 +75,8 @@ void SolarControl::stop_thread(void)
 
 void *SolarControl::lws_callback_established(struct lws *wsi, unsigned int protocol)
 {
+	unique_lock<mutex> llock(lock);
+
 	clients[protocol].insert(wsi);
 
 	return new st_api_context();;
@@ -80,6 +84,8 @@ void *SolarControl::lws_callback_established(struct lws *wsi, unsigned int proto
 
 void SolarControl::lws_callback_closed(struct lws *wsi, unsigned int protocol, void *user_data)
 {
+	unique_lock<mutex> llock(lock);
+
 	clients[protocol].erase(wsi);
 	delete (st_api_context *)user_data;
 }

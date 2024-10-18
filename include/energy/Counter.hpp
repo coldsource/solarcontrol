@@ -20,8 +20,6 @@
 #ifndef __ENERGY_COUNTER_HPP__
 #define __ENERGY_COUNTER_HPP__
 
-#include <mutex>
-
 namespace energy {
 
 class Counter
@@ -32,8 +30,6 @@ class Counter
 	double power;
 	double energy_consumption;
 	double energy_excess;
-
-	mutable std::mutex lock;
 
 	public:
 		Counter();

@@ -17,24 +17,34 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __API_DEVICE_HPP__
-#define __API_DEVICE_HPP__
 
-#include <api/Handler.hpp>
+#include <device/DeviceHT.hpp>
 
-#include <string>
+using namespace std;
 
-namespace api {
-
-class Device: public Handler
+namespace device
 {
-	std::string ip;
 
-	public:
-		 nlohmann::json HandleMessage(const std::string &cmd, const nlohmann::json &j_params);
-};
+DeviceHT::DeviceHT(unsigned int id, const string &name, const nlohmann::json &config): Device(id, name)
+{
+	check_config_parameters(config, {"mqtt_id"});
 
+	ctrl = new control::HT(config["mqtt_id"]);
 }
 
-#endif
+DeviceHT::~DeviceHT()
+{
+	delete ctrl;
+}
 
+double DeviceHT::GetTemperature() const
+{
+	return ctrl->GetTemperature();
+}
+
+double DeviceHT::GetHumidity() const
+{
+	return ctrl->GetHumidity();
+}
+
+}

@@ -17,26 +17,49 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#include <device/Device.hpp>
+#include <api/DeviceHT.hpp>
+#include <database/DB.hpp>
+#include <device/Devices.hpp>
+
+#include <stdexcept>
 
 using namespace std;
 using nlohmann::json;
+using database::DB;
 
-namespace device {
-
-Device::Device(unsigned int id, const string &name)
+namespace api
 {
-	this->id = id;
-	this->name = name;
-}
 
-void Device::check_config_parameters(const json &config, const vector<string> &names)
+json DeviceHT::HandleMessage(const string &cmd, const nlohmann::json &j_params)
 {
-	for(auto name : names)
+	json j_res;
+	DB db;
+
+	if(cmd=="list")
 	{
-		if(!config.contains(name))
-			throw runtime_error("Unable to load configuration for device : missing parameter « " + name + " »");
+		device::DevicesHT &devices = device::Devices::GetInstance()->GetHT();
+
+		devices.Lock();
+
+		j_res = json::array();
+		for(auto device : devices)
+		{
+			json j_device;
+			j_device["device_id"] = device->GetID();
+			j_device["device_name"] = device->GetName();
+			j_device["temperature"] = device->GetTemperature();
+			j_device["humidity"] = device->GetHumidity();
+
+			j_res.push_back(j_device);
+		}
+
+		devices.Unlock();
+
+		return j_res;
 	}
+
+	throw invalid_argument("Unknown command « " + cmd + " » in module « deviceht »");
 }
 
 }
+

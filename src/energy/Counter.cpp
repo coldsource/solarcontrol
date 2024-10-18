@@ -37,8 +37,6 @@ Counter::Counter()
 
 void Counter::SetPower(double v)
 {
-	unique_lock<mutex> llock(lock);
-
 	power = v;
 
 	int yday = datetime::DateTime().GetYearDay();
@@ -67,22 +65,16 @@ void Counter::SetPower(double v)
 
 double Counter::GetPower() const
 {
-	unique_lock<mutex> llock(lock);
-
 	return power;
 }
 
 double Counter::GetEnergyConsumption() const
 {
-	unique_lock<mutex> llock(lock);
-
 	return energy_consumption;
 }
 
 double Counter::GetEnergyExcess() const
 {
-	unique_lock<mutex> llock(lock);
-
 	return energy_excess;
 }
 

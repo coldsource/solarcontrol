@@ -50,7 +50,7 @@ void DevicesHT::Reload()
 {
 	unique_lock<mutex> llock(d_mutex);
 
-	logs::Logger::Log(LOG_NOTICE, "Loading devices OnOff");
+	logs::Logger::Log(LOG_NOTICE, "Loading devices HT");
 
 	free();
 

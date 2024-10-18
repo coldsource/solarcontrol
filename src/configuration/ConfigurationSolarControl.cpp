@@ -41,7 +41,7 @@ ConfigurationSolarControl::ConfigurationSolarControl(void)
 	entries["control.state.update_interval"] = "60";
 	entries["core.history.maxdays"] = "30";
 	entries["energy.hws.min"] = "3000";
-	entries["energy.mqtt.id"] = "solarcontrol";
+	entries["energy.mqtt.id"] = "";
 	entries["mqtt.id"] = "solarcontrol";
 	entries["mqtt.host"] = "127.0.0.1";
 	entries["mqtt.port"] = "1883";

@@ -17,8 +17,8 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __API_DEVICEONOFF_HPP__
-#define __API_DEVICEONOFF_HPP__
+#ifndef __API_LOGS_HPP__
+#define __API_LOGS_HPP__
 
 #include <api/Handler.hpp>
 
@@ -26,10 +26,8 @@
 
 namespace api {
 
-class DeviceOnOff: public Handler
+class Logs: public Handler
 {
-	void check_config(const nlohmann::json &j_config, const std::string &device_type);
-
 	public:
 		 nlohmann::json HandleMessage(const std::string &cmd, const nlohmann::json &j_params);
 };
@@ -37,4 +35,5 @@ class DeviceOnOff: public Handler
 }
 
 #endif
+
 

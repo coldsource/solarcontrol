@@ -20,6 +20,7 @@
 #include <device/DeviceTimeRange.hpp>
 #include <control/Plug.hpp>
 #include <energy/GlobalMeter.hpp>
+#include <logs/State.hpp>
 
 #include <stdexcept>
 
@@ -113,6 +114,8 @@ void DeviceTimeRange::SetState(bool new_state)
 		last_on = Timestamp(TS_MONOTONIC);
 	else
 		last_off = Timestamp(TS_MONOTONIC);
+
+	logs::State::LogStateChange(GetID(), manual?logs::State::en_mode::manual:logs::State::en_mode::automatic, new_state);
 }
 
 void DeviceTimeRange::SetManualState(bool new_state)
@@ -124,6 +127,8 @@ void DeviceTimeRange::SetManualState(bool new_state)
 void DeviceTimeRange::SetAutoState()
 {
 	manual = false;
+
+	logs::State::LogModeChange(GetID(), logs::State::en_mode::automatic);
 }
 
 void DeviceTimeRange::UpdateState()

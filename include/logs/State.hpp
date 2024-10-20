@@ -17,24 +17,23 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __API_DEVICEONOFF_HPP__
-#define __API_DEVICEONOFF_HPP__
 
-#include <api/Handler.hpp>
+#ifndef __LOGS_STATE__
+#define __LOGS_STATE__
 
-#include <string>
-
-namespace api {
-
-class DeviceOnOff: public Handler
+namespace logs
 {
-	void check_config(const nlohmann::json &j_config, const std::string &device_type);
+
+class State
+{
 
 	public:
-		 nlohmann::json HandleMessage(const std::string &cmd, const nlohmann::json &j_params);
+		enum en_mode { automatic, manual };
+
+		static void LogModeChange(unsigned int device_id, en_mode mode);
+		static void LogStateChange(unsigned int device_id, en_mode mode, bool state);
 };
 
 }
 
 #endif
-

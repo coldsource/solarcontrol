@@ -17,24 +17,34 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __API_DEVICEONOFF_HPP__
-#define __API_DEVICEONOFF_HPP__
-
-#include <api/Handler.hpp>
+#include <logs/State.hpp>
+#include <database/DB.hpp>
 
 #include <string>
 
-namespace api {
+using namespace std;
+using database::DB;
 
-class DeviceOnOff: public Handler
+namespace logs
 {
-	void check_config(const nlohmann::json &j_config, const std::string &device_type);
 
-	public:
-		 nlohmann::json HandleMessage(const std::string &cmd, const nlohmann::json &j_params);
-};
+void State::LogModeChange(unsigned int device_id, en_mode mode)
+{
+	DB db;
+
+	string mode_str = (mode==automatic)?"automatic":"manual";
+
+	db.Query("INSERT INTO  t_log_state(device_id, log_state_mode) VALUES(%i, %s)"_sql <<device_id<<mode_str);
+}
+
+void State::LogStateChange(unsigned int device_id, en_mode mode, bool state)
+{
+	DB db;
+
+	string mode_str = (mode==automatic)?"automatic":"manual";
+
+	db.Query("INSERT INTO  t_log_state(device_id, log_state_mode, log_state) VALUES(%i, %s, %i)"_sql <<device_id<<mode_str<<state);
 
 }
 
-#endif
-
+}

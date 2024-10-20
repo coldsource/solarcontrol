@@ -20,6 +20,7 @@
 #include <api/Dispatcher.hpp>
 #include <api/DeviceOnOff.hpp>
 #include <api/DeviceHT.hpp>
+#include <api/Logs.hpp>
 
 #include <stdexcept>
 
@@ -33,6 +34,7 @@ Dispatcher::Dispatcher()
 {
 	handlers["deviceonoff"] = new DeviceOnOff();
 	handlers["deviceht"] = new DeviceHT();
+	handlers["logs"] = new Logs();
 }
 
 Dispatcher::~Dispatcher()

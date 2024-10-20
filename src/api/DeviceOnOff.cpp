@@ -48,7 +48,8 @@ void DeviceOnOff::check_config(const nlohmann::json &j_config, const string &dev
 	if(device_type=="heater")
 	{
 		check_param(j_config, "ht_device_id", "int");
-		check_param(j_config, "max_temperature", "float");
+		check_param(j_config, "force_max_temperature", "float");
+		check_param(j_config, "offload_max_temperature", "float");
 	}
 }
 

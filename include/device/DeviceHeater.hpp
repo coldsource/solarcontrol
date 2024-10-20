@@ -28,7 +28,8 @@ class DeviceHeater: public DeviceTimeRange
 {
 	protected:
 		unsigned int ht_device_id;
-		double max_temperature;
+		double force_max_temperature;
+		double offload_max_temperature;
 
 		bool state_on_condition() const;
 

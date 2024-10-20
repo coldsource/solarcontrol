@@ -29,16 +29,24 @@ namespace device
 
 DeviceHeater::DeviceHeater(unsigned int id, const string &name, const json &config):DeviceTimeRange(id, name, config)
 {
-	check_config_parameters(config, {"ht_device_id", "max_temperature"});
+	check_config_parameters(config, {"ht_device_id", "force_max_temperature", "offload_max_temperature"});
 
 	ht_device_id = config["ht_device_id"];
-	max_temperature = config["max_temperature"];
+	force_max_temperature = config["force_max_temperature"];
+	offload_max_temperature = config["offload_max_temperature"];
 }
 
 bool DeviceHeater::state_on_condition() const
 {
 	auto ht = DevicesHT::GetInstance()->GetByID(ht_device_id);
-	return (ht->GetTemperature()<max_temperature);
+
+	if(IsForced())
+		return (ht->GetTemperature()<force_max_temperature);
+
+	if(WantOffload())
+		return (ht->GetTemperature()<offload_max_temperature);
+
+	return false;
 }
 
 }

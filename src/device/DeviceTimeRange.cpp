@@ -23,6 +23,7 @@
 #include <logs/State.hpp>
 
 #include <stdexcept>
+#include <set>
 
 using namespace std;
 using nlohmann::json;
@@ -41,15 +42,15 @@ DeviceTimeRange::DeviceTimeRange(unsigned int id, const string &name, const json
 	prio = config["prio"];
 
 	for(auto it : config["force"])
-		force.push_back(datetime::TimeRange(datetime::HourMinuteSecond(it["from"]), datetime::HourMinuteSecond(it["to"])));
+		force.push_back(datetime::TimeRange(it));
 
 	for(auto it : config["offload"])
-		offload.push_back(datetime::TimeRange(datetime::HourMinuteSecond(it["from"]), datetime::HourMinuteSecond(it["to"])));
+		offload.push_back(datetime::TimeRange(it));
 
 	expected_consumption = config["expected_consumption"];
 
 	for(auto it : config["remainder"])
-		remainder.push_back(datetime::TimeRange(datetime::HourMinuteSecond(it["from"]), datetime::HourMinuteSecond(it["to"])));
+		remainder.push_back(datetime::TimeRange(it));
 
 	min_on_time = config["min_on_time"];
 	min_on_for_last = config["min_on_for_last"];

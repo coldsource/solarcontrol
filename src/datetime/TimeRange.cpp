@@ -20,17 +20,42 @@
 #include <datetime/TimeRange.hpp>
 #include <datetime/DateTime.hpp>
 
+#include <stdexcept>
+
+using namespace std;
+using nlohmann::json;
+
 namespace datetime {
 
-TimeRange::TimeRange(const HourMinuteSecond &start, const HourMinuteSecond &end, int day_of_week): start(start), end(end)
+TimeRange::TimeRange(const HourMinuteSecond &start, const HourMinuteSecond &end, const set<int> &days_of_week): start(start), end(end)
 {
-	this->day_of_week = day_of_week;
+	this->days_of_week = days_of_week;
+}
+
+TimeRange::TimeRange(const json &j)
+{
+	if(!j.contains("from"))
+		throw invalid_argument("Missing « from » in time range");
+
+	if(!j.contains("to"))
+		throw invalid_argument("Missing « to » in time range");
+
+	start = HourMinuteSecond(j["from"]);
+	end = HourMinuteSecond(j["to"]);
+
+	if(!j.contains("days_of_week"))
+		return;
+
+	if(j["days_of_week"].type()!=json::value_t::array)
+		throw invalid_argument("« days_of_week » must be an array");
+
+	days_of_week = set<int>(j["days_of_week"]);
 }
 
 bool TimeRange::IsActive() const
 {
 	DateTime t;
-	if(day_of_week!=-1 && t.GetEUWeekDay()!=day_of_week)
+	if(days_of_week.size()>0 && !days_of_week.contains(t.GetEUWeekDay()))
 		return false;
 
 	bool after_start =
@@ -42,6 +67,7 @@ bool TimeRange::IsActive() const
 		t.GetHour()<end.GetHour()
 		|| (t.GetHour()==end.GetHour() && t.GetMinute()<end.GetMinute())
 		|| (t.GetHour()==end.GetHour() && t.GetMinute()==end.GetMinute() && t.GetSecond()<=end.GetSecond());
+
 
 	return (after_start && before_end);
 }

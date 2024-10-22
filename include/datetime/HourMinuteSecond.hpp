@@ -32,6 +32,7 @@ class HourMinuteSecond
 
 	public:
 		HourMinuteSecond(const std::string &s);
+		HourMinuteSecond();
 
 		int GetHour() const { return hour; }
 		int GetMinute() const { return minute; }

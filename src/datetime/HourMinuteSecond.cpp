@@ -39,4 +39,11 @@ HourMinuteSecond::HourMinuteSecond(const string &s)
 	second = stoi(matches[3]);
 }
 
+HourMinuteSecond::HourMinuteSecond()
+{
+	hour = 0;
+	minute = 0;
+	second = 0;
+}
+
 }

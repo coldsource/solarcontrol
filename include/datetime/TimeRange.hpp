@@ -21,6 +21,9 @@
 #define __DATETIME_TIMERANGE_HPP__
 
 #include <datetime/HourMinuteSecond.hpp>
+#include <nlohmann/json.hpp>
+
+#include <set>
 
 namespace datetime {
 
@@ -28,10 +31,11 @@ class TimeRange
 {
 	HourMinuteSecond start;
 	HourMinuteSecond end;
-	int day_of_week;
+	std::set<int> days_of_week;
 
 	public:
-		TimeRange(const HourMinuteSecond &start, const HourMinuteSecond &end, int day_of_week = -1);
+		TimeRange(const HourMinuteSecond &start, const HourMinuteSecond &end, const std::set<int> &days_of_week = {});
+		TimeRange(const nlohmann::json &j);
 
 		bool IsActive() const;
 };

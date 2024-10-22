@@ -47,6 +47,9 @@ string Dispatcher::Dispatch(const std::string &message)
 {
 	json j;
 
+	if(message=="") // Keepalive from JS
+		return "";
+
 	try
 	{
 		j = json::parse(message);

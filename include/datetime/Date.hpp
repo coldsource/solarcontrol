@@ -17,48 +17,31 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __QUERY_HPP__
-#define __QUERY_HPP__
+#ifndef __DATETIME_DATE_HPP__
+#define __DATETIME_DATE_HPP__
+
+#include <datetime/DateTime.hpp>
 
 #include <string>
-#include <vector>
 
-namespace database {
+namespace datetime {
 
-class Query
+class Timestamp;
+
+class Date: public DateTime
 {
-	private:
-		std::string query;
-
 	public:
-		enum en_query_param_type {STRING, INT, FLOAT};
-		struct st_query_param
-		{
-			en_query_param_type type;
-			std::string val_string;
-			int val_int = 0;
-			double val_float = 0;
-		};
+		Date();
+		Date(const Timestamp &ts);
+		Date(const std::string &str);
 
-	private:
-		std::vector<st_query_param> params;
+		Date operator-(int days) const;
 
-	public:
-		Query(const std::string &query);
-
-		Query & operator<<(const std::string &s);
-		Query &operator<<(int n);
-		Query &operator<<(unsigned int n) { return operator<<((int)n); }
-		Query &operator<<(double f);
-
-		void Dump();
-
-		std::string GetQuery() const { return query; }
-		st_query_param GetParam(int n) const;
+		operator std::string() const;
 };
 
 }
 
-database::Query operator ""_sql(const char *str, size_t len);
-
 #endif
+
+

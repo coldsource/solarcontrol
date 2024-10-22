@@ -42,6 +42,8 @@ class ResultField
 
 		operator std::string() const { return value; }
 		operator int() const { return std::stoi(value); }
+		operator unsigned int() const { return std::stoi(value); }
+		operator double() const { return std::stod(value); }
 };
 
 class Result

@@ -33,6 +33,7 @@ namespace energy {
 GlobalMeter * GlobalMeter::instance = 0;
 
 GlobalMeter::GlobalMeter()
+:grid("grid", "grid-excess"), pv("pv"), hws("hws")
 {
 	string topic = ConfigurationSolarControl::GetInstance()->Get("energy.mqtt.id") + "/events/rpc";
 	hws_min_energy = configuration::ConfigurationSolarControl::GetInstance()->GetInt("energy.hws.min");
@@ -121,6 +122,13 @@ double GlobalMeter::GetHWSEnergy() const
 	unique_lock<recursive_mutex> llock(lock);
 
 	return hws.GetEnergyConsumption();
+}
+
+void GlobalMeter::SaveHistory()
+{
+	grid.SaveHistory();
+	pv.SaveHistory();
+	hws.SaveHistory();
 }
 
 void GlobalMeter::HandleMessage(const std::string &message)

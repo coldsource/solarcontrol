@@ -20,24 +20,34 @@
 #ifndef __ENERGY_COUNTER_HPP__
 #define __ENERGY_COUNTER_HPP__
 
+#include <energy/History.hpp>
+
 namespace energy {
 
 class Counter
 {
 	double last_ts;
-	double last_yday;
+	int last_yday;
 
 	double power;
 	double energy_consumption;
 	double energy_excess;
 
+	History consumption_history;
+	History excess_history;
+
 	public:
-		Counter();
+		Counter(const std::string &consumption_history_type = "", const std::string &excess_history_type = "");
 
 		void SetPower(double v);
 		double GetPower() const;
 		double GetEnergyConsumption()  const;
 		double GetEnergyExcess()  const;
+
+		double GetTotalConsumptionForLast(int ndays) const { return consumption_history.GetTotalForLast(ndays); }
+		double GetTotalExcessForLast(int ndays) const { return excess_history.GetTotalForLast(ndays); }
+
+		void SaveHistory();
 };
 
 }

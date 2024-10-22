@@ -4,6 +4,7 @@
 #include <signal.h>
 
 #include <datetime/DateTime.hpp>
+#include <datetime/Date.hpp>
 #include <mqtt/Client.hpp>
 #include <datetime/Timestamp.hpp>
 #include <datetime/HourMinuteSecond.hpp>
@@ -11,6 +12,7 @@
 #include <datetime/TimespanHistory.hpp>
 #include <energy/Counter.hpp>
 #include <energy/GlobalMeter.hpp>
+#include <energy/History.hpp>
 #include <control/Plug.hpp>
 #include <device/Device.hpp>
 #include <device/Devices.hpp>
@@ -125,6 +127,8 @@ int main(int argc, char **argv)
 
 	lcd.Shutdown();
 	lcd.WaitForShutdown();
+
+	globalmeter.SaveHistory(); // Backup latest data to database
 
 	delete config;
 

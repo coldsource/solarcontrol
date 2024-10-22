@@ -30,20 +30,22 @@ class Timestamp;
 
 class DateTime
 {
-	struct tm tm;
+	protected:
+		struct tm tm;
 
 	public:
 		DateTime();
 		DateTime(const Timestamp &ts);
 
-		int GetHour() { return tm.tm_hour; }
-		int GetMinute() { return tm.tm_min; }
-		int GetSecond() { return tm.tm_sec; }
+		int GetHour() const { return tm.tm_hour; }
+		int GetMinute() const { return tm.tm_min; }
+		int GetSecond() const { return tm.tm_sec; }
 
-		int GetWeekDay() { return tm.tm_wday; }
-		int GetEUWeekDay() { return (tm.tm_wday + 6)%7; }
-		int GetMonthDay() { return tm.tm_mday; }
-		int GetYearDay() { return tm.tm_yday; }
+		int GetWeekDay() const { return tm.tm_wday; }
+		int GetEUWeekDay() const { return (tm.tm_wday + 6)%7; }
+		int GetMonthDay() const { return tm.tm_mday; }
+		int GetMonth() const { return tm.tm_mon; }
+		int GetYearDay() const { return tm.tm_yday; }
 
 		bool IsSameDay(const DateTime &dt) const ;
 		void ToNoon();

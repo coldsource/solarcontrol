@@ -69,7 +69,7 @@ void DB::StopThread(void)
 
 Result DB::Query(const database::Query &q)
 {
-	regex prct_regex("%(c|s|i|l)");
+	regex prct_regex("%(s|i|f)");
 
 	string query = q.GetQuery();
 
@@ -112,6 +112,9 @@ string DB::get_query_value(char type, int idx, const database::Query &q)
 		case 'i':
 			if(param.type!=Query::INT) throw invalid_argument("Invalid database parameter number " + to_string(idx) + ", expecting int");
 			return to_string(param.val_int);
+		case 'f':
+			if(param.type!=Query::FLOAT) throw invalid_argument("Invalid database parameter number " + to_string(idx) + ", expecting float");
+			return to_string(param.val_float);
 	}
 
 	return "";

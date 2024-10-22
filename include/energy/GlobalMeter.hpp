@@ -62,6 +62,10 @@ protected:
 		double GetPVEnergy() const; // Total produced energy
 		double GetHWSEnergy() const; // Total energy consummed by HWS
 
+		double GetTotalHWSConsuptionForLast(int ndays) { return hws.GetTotalConsumptionForLast(ndays); }
+
+		void SaveHistory();
+
 		void HandleMessage(const std::string &message);
 };
 

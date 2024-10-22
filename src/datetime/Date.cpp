@@ -17,61 +17,56 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#include <database/Query.hpp>
+#include <datetime/Date.hpp>
+#include <datetime/Timestamp.hpp>
 
+#include <string.h>
+
+#include <regex>
 #include <stdexcept>
 
 using namespace std;
 
-namespace database
-{
+namespace datetime {
 
-Query::Query(const string &query)
+Date::Date(): DateTime()
 {
-	this->query = query;
+	ToNoon();
 }
 
-Query & Query::operator<<(const std::string &s)
+Date::Date(const Timestamp &ts): DateTime(ts)
 {
-	st_query_param param;
-	param.type = STRING;
-	param.val_string = s;
-	params.push_back(param);
-
-	return *this;
+	ToNoon();
 }
 
-Query & Query::operator<<(int n)
+Date::Date(const string &str)
 {
-	st_query_param param;
-	param.type = INT;
-	param.val_int = n;
-	params.push_back(param);
+	regex hms("^([0-9]{4,4})-([0-9]{2,2})-([0-9]{2,2})$");
+	smatch matches;
 
-	return *this;
+	if(!regex_search(str, matches, hms))
+		throw invalid_argument("Invalid hour:minute:second format : « " + str + " »");
+
+	strptime(str.c_str(), "%Y-%m-%d", &tm);
+
+	ToNoon();
 }
 
-Query & Query::operator<<(double f)
+Date Date::operator-(int days) const
 {
-	st_query_param param;
-	param.type = FLOAT;
-	param.val_float = f;
-	params.push_back(param);
+	Date before_d(*this);
 
-	return *this;
+	before_d.tm.tm_mday -= days;
+	mktime(&before_d.tm);
+
+	return before_d;
 }
 
-Query::st_query_param Query::GetParam(int n) const
+Date::operator string() const
 {
-	if(n>=params.size())
-		throw out_of_range("Out of range query parameter");
-
-	return params[n];
+	char str[32];
+	size_t s = strftime(str, 32, "%Y-%m-%d", &tm);
+	return string(str, s);
 }
 
-}
-
-database::Query operator ""_sql(const char *str, size_t len)
-{
-	return database::Query(std::string(str, len));
 }

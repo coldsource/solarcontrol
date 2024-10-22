@@ -17,48 +17,35 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __QUERY_HPP__
-#define __QUERY_HPP__
+#ifndef __ENERGY_HISTORY_HPP__
+#define __ENERGY_HISTORY_HPP__
+
+#include <datetime/Date.hpp>
 
 #include <string>
-#include <vector>
+#include <map>
 
-namespace database {
+namespace energy {
 
-class Query
+class History
 {
-	private:
-		std::string query;
+	std::string type;
+	std::map<datetime::Date, double> history;
+
+	void purge(int ndays);
 
 	public:
-		enum en_query_param_type {STRING, INT, FLOAT};
-		struct st_query_param
-		{
-			en_query_param_type type;
-			std::string val_string;
-			int val_int = 0;
-			double val_float = 0;
-		};
+		History(const std::string &type = "");
+		~History();
 
-	private:
-		std::vector<st_query_param> params;
+		void Set(double energy);
+		void Add(double energy);
+		void Save();
 
-	public:
-		Query(const std::string &query);
-
-		Query & operator<<(const std::string &s);
-		Query &operator<<(int n);
-		Query &operator<<(unsigned int n) { return operator<<((int)n); }
-		Query &operator<<(double f);
-
-		void Dump();
-
-		std::string GetQuery() const { return query; }
-		st_query_param GetParam(int n) const;
+		double GetTotalForLast(int ndays) const;
 };
 
 }
 
-database::Query operator ""_sql(const char *str, size_t len);
-
 #endif
+

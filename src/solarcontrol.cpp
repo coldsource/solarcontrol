@@ -17,6 +17,7 @@
 #include <device/Device.hpp>
 #include <device/Devices.hpp>
 #include <device/DeviceTimeRange.hpp>
+#include <device/DeviceHWS.hpp>
 #include <thread/DevicesManager.hpp>
 #include <utils/signal.hpp>
 #include <configuration/Args.hpp>
@@ -107,8 +108,11 @@ int main(int argc, char **argv)
 	auto config_sc = configuration::ConfigurationSolarControl::GetInstance();
 	mqtt::Client mqtt(config_sc->Get("mqtt.host"), config_sc->GetInt("mqtt.port"));
 
+	// Create global energy meter (grid, pv, hws)
 	energy::GlobalMeter globalmeter;
-	control::HT ht("ht-bob");
+
+	// Create special HWS device if needed
+	device::DeviceHWS::CreateInDB();
 
 	device::Devices devices;
 

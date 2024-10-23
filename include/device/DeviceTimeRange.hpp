@@ -69,9 +69,9 @@ class DeviceTimeRange: public DeviceOnOff
 
 		std::string GetType() const { return "timerange-plug"; }
 
-		bool IsForced() const;
-		bool WantOffload() const;
-		bool WantRemainder() const;
+		virtual bool IsForced() const;
+		virtual bool WantOffload() const;
+		virtual bool WantRemainder() const;
 
 		double GetExpectedConsumption() const { return expected_consumption; }
 

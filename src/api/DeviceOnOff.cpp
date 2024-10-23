@@ -51,6 +51,12 @@ void DeviceOnOff::check_config(const nlohmann::json &j_config, const string &dev
 		check_param(j_config, "force_max_temperature", "float");
 		check_param(j_config, "offload_max_temperature", "float");
 	}
+
+	if(device_type=="hws")
+	{
+		check_param(j_config, "min_energy", "float");
+		check_param(j_config, "min_energy_for_last", "int");
+	}
 }
 
 json DeviceOnOff::HandleMessage(const string &cmd, const nlohmann::json &j_params)
@@ -67,6 +73,9 @@ json DeviceOnOff::HandleMessage(const string &cmd, const nlohmann::json &j_param
 		j_res = json::array();
 		for(auto device : devices)
 		{
+			if(device->GetType()=="hws")
+				continue; // Ignore HWS special device
+
 			json j_device;
 			j_device["device_id"] = device->GetID();
 			j_device["device_name"] = device->GetName();
@@ -80,12 +89,20 @@ json DeviceOnOff::HandleMessage(const string &cmd, const nlohmann::json &j_param
 
 		return j_res;
 	}
-	else if(cmd=="get")
+	else if(cmd=="get" || cmd=="gethws")
 	{
-		if(!j_params.contains("device_id"))
-			throw invalid_argument("Missing device_id");
+		database::Query query;
+		if(cmd=="get")
+		{
+			if(!j_params.contains("device_id"))
+				throw invalid_argument("Missing device_id");
 
-		auto res = db.Query("SELECT device_id, device_name, device_type, device_config FROM t_device WHERE device_id = %i"_sql <<(int)j_params["device_id"]);
+			query = "SELECT device_id, device_name, device_type, device_config FROM t_device WHERE device_id = %i"_sql <<(int)j_params["device_id"];
+		}
+		else
+			query = "SELECT device_id, device_name, device_type, device_config FROM t_device WHERE device_type = 'hws'"_sql;
+
+		auto res = db.Query(query);
 		if(!res.FetchRow())
 			throw invalid_argument("Uknown device_id : « " + string(j_params["device_id"]) + " »");
 

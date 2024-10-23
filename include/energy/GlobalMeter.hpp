@@ -63,6 +63,10 @@ protected:
 		double GetHWSEnergy() const; // Total energy consummed by HWS
 
 		double GetTotalHWSConsuptionForLast(int ndays) { return hws.GetTotalConsumptionForLast(ndays); }
+		const std::map<datetime::Date, double> &GetGridConsumptionHistory() const { return grid.GetConsumptionHistory(); }
+		const std::map<datetime::Date, double> &GetGridExcessHistory() const { return grid.GetExcessHistory(); }
+		const std::map<datetime::Date, double> &GetPVProductionHistory() const { return pv.GetConsumptionHistory(); }
+		const std::map<datetime::Date, double> &GetHWSConsumptionHistory() const { return hws.GetConsumptionHistory(); }
 
 		void SaveHistory();
 

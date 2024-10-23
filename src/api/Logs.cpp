@@ -19,6 +19,7 @@
 
 #include <api/Logs.hpp>
 #include <database/DB.hpp>
+#include <energy/GlobalMeter.hpp>
 
 #include <stdexcept>
 
@@ -56,6 +57,25 @@ json Logs::HandleMessage(const string &cmd, const nlohmann::json &j_params)
 
 			j_res.push_back(j_device);
 		}
+
+		return j_res;
+	}
+	else if(cmd=="energy")
+	{
+		auto global_meter = energy::GlobalMeter::GetInstance();
+		j_res = json::object();
+
+		for(auto grid_consumption : global_meter->GetGridConsumptionHistory())
+			j_res[string(grid_consumption.first)]["grid_consumption"] = grid_consumption.second;
+
+		for(auto grid_excess : global_meter->GetGridExcessHistory())
+			j_res[string(grid_excess.first)]["grid_excess"] = grid_excess.second;
+
+		for(auto pv_production : global_meter->GetPVProductionHistory())
+			j_res[string(pv_production.first)]["pv_production"] = pv_production.second;
+
+		for(auto hws_consumption : global_meter->GetHWSConsumptionHistory())
+			j_res[string(hws_consumption.first)]["hws_consumption"] = hws_consumption.second;
 
 		return j_res;
 	}

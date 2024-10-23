@@ -22,6 +22,8 @@
 
 #include <energy/History.hpp>
 
+#include <map>
+
 namespace energy {
 
 class Counter
@@ -48,6 +50,8 @@ class Counter
 		double GetTotalExcessForLast(int ndays) const { return excess_history.GetTotalForLast(ndays); }
 
 		void SaveHistory();
+		const std::map<datetime::Date, double> &GetConsumptionHistory() const { return consumption_history.Get(); }
+		const std::map<datetime::Date, double> &GetExcessHistory() const { return excess_history.Get(); }
 };
 
 }

@@ -36,6 +36,7 @@ class DateTime
 	public:
 		DateTime();
 		DateTime(const Timestamp &ts);
+		DateTime(const std::string &str);
 
 		int GetHour() const { return tm.tm_hour; }
 		int GetMinute() const { return tm.tm_min; }

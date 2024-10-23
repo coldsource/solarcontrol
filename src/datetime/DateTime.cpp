@@ -21,7 +21,9 @@
 #include <datetime/Timestamp.hpp>
 
 #include <time.h>
-#include <stdio.h>
+#include <string.h>
+
+#include <regex>
 
 using namespace std;
 
@@ -37,6 +39,21 @@ DateTime::DateTime(const Timestamp &ts)
 {
 	time_t t = ts;
 	localtime_r(&t, &tm);
+}
+
+DateTime::DateTime(const string &str)
+{
+	regex hms("^([0-9]{4,4})-([0-9]{2,2})-([0-9]{2,2}) ([0-9]{2,2}):([0-9]{2,2}):([0-9]{2,2})$");
+	smatch matches;
+
+	if(!regex_search(str, matches, hms))
+		throw invalid_argument("Invalid date time format : « " + str + " »");
+
+	// First init tm structure with local time zone
+	time_t t = time(0);
+	localtime_r(&t, &tm);
+
+	strptime(str.c_str(), "%Y-%m-%d %H:%M:%S", &tm);
 }
 
 bool DateTime::IsSameDay(const DateTime &dt) const

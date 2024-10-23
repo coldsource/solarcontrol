@@ -44,6 +44,7 @@ class Query
 		std::vector<st_query_param> params;
 
 	public:
+		Query() {}
 		Query(const std::string &query);
 
 		Query & operator<<(const std::string &s);

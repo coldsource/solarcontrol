@@ -31,6 +31,7 @@ class History
 {
 	std::string type;
 	std::map<datetime::Date, double> history;
+	int retention_days;
 
 	void purge(int ndays);
 

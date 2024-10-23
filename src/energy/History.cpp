@@ -19,6 +19,7 @@
 
 #include <energy/History.hpp>
 #include <database/DB.hpp>
+#include <configuration/ConfigurationSolarControl.hpp>
 
 using namespace std;
 using datetime::Date;
@@ -28,12 +29,14 @@ namespace energy
 
 History::History(const string &type): type(type)
 {
+	retention_days = configuration::ConfigurationSolarControl::GetInstance()->GetInt("core.history.maxdays");
+
 	if(type=="")
 		return;
 
 	database::DB db;
 
-	Date days_ago = Date() - 7;
+	Date days_ago = Date() - retention_days;
 	auto res = db.Query("SELECT log_energy_date, log_energy FROM t_log_energy WHERE log_energy_type=%s AND log_energy_date>=%s"_sql <<type<<string(days_ago));
 	while(res.FetchRow())
 		history[Date(res["log_energy_date"])] = (double)res["log_energy"];
@@ -83,7 +86,7 @@ void History::Add(double energy)
 	else
 		history[today] += energy;
 
-	purge(7);
+	purge(retention_days);
 }
 
 void History::Save()

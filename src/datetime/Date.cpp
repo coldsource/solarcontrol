@@ -45,8 +45,9 @@ Date::Date(const string &str)
 	smatch matches;
 
 	if(!regex_search(str, matches, hms))
-		throw invalid_argument("Invalid hour:minute:second format : « " + str + " »");
+		throw invalid_argument("Invalid date format : « " + str + " »");
 
+	memset(&tm, 0, sizeof(tm));
 	strptime(str.c_str(), "%Y-%m-%d", &tm);
 
 	ToNoon();

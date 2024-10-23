@@ -54,7 +54,8 @@ double GlobalMeter::GetPVPower() const
 {
 	unique_lock<recursive_mutex> llock(lock);
 
-	return pv.GetPower();
+	double power = pv.GetPower();
+	return power>=0?power:0;
 }
 
 double GlobalMeter::GetHWSPower() const

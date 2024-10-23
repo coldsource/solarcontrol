@@ -56,9 +56,10 @@ class DeviceTimeRange: public DeviceOnOff
 		double expected_consumption;
 
 		datetime::TimeRanges remainder;
-		datetime::TimespanHistory on_history;
 		int min_on_time;
 		int min_on_for_last;
+
+		datetime::TimespanHistory on_history;
 
 		virtual bool state_on_condition() const { return true; }
 

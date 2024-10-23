@@ -31,7 +31,7 @@ using datetime::Timestamp;
 
 namespace device {
 
-DeviceTimeRange::DeviceTimeRange(unsigned int id, const string &name, const json &config): DeviceOnOff(id, name)
+DeviceTimeRange::DeviceTimeRange(unsigned int id, const string &name, const json &config): DeviceOnOff(id, name), on_history(id)
 {
 	this->global_meter = energy::GlobalMeter::GetInstance();
 

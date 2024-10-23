@@ -20,7 +20,9 @@
 #include <datetime/TimespanHistory.hpp>
 #include <datetime/DateTimeRange.hpp>
 #include <datetime/DateTime.hpp>
+#include <datetime/Date.hpp>
 #include <datetime/Timestamp.hpp>
+#include <database/DB.hpp>
 #include <configuration/ConfigurationSolarControl.hpp>
 
 #include <stdexcept>
@@ -30,9 +32,34 @@ using namespace std;
 namespace datetime
 {
 
-TimespanHistory::TimespanHistory()
+TimespanHistory::TimespanHistory(unsigned int device_id)
 {
 	retention_days = configuration::ConfigurationSolarControl::GetInstance()->GetInt("core.history.maxdays");
+
+	if(device_id!=0)
+	{
+		// Reload database on/off history if device_id is provided
+		database::DB db;
+		Date days_ago = Date() - retention_days;
+		auto res = db.Query(
+			"SELECT log_state_date, log_state FROM t_log_state  WHERE device_id=%i AND log_state IS NOT NULL AND log_state_date>=%s ORDER BY log_state_date"_sql
+			<<device_id<<string(days_ago)
+		);
+
+		while(res.FetchRow())
+		{
+			try
+			{
+				Timestamp ts = DateTime(res["log_state_date"]);
+				int state = res["log_state"];
+				if(state)
+					ClockIn(ts);
+				else
+					ClockOut(ts);
+			}
+			catch(...) {} // Ignore clickin/clockout matching error cause logs retention can break cycles
+		}
+	}
 }
 
 

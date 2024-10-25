@@ -121,4 +121,15 @@ double History::GetTotalForLast(int ndays) const
 	return sum;
 }
 
+double History::GetTotalForToday() const
+{
+	Date today;
+
+	auto it = history.find(today);
+	if(it==history.end())
+		return 0;
+
+	return it->second;
+}
+
 }

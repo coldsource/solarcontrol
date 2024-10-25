@@ -44,6 +44,7 @@ class History
 		void Save();
 
 		double GetTotalForLast(int ndays) const;
+		double GetTotalForToday() const;
 		const std::map<datetime::Date, double> &Get() const { return history; }
 };
 

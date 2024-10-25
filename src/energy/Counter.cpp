@@ -32,8 +32,8 @@ Counter::Counter(const string &consumption_history_type, const string &excess_hi
 	last_yday = datetime::DateTime().GetYearDay();
 
 	power = 0;
-	energy_consumption = 0;
-	energy_excess = 0;
+	energy_consumption = consumption_history.GetTotalForToday();
+	energy_excess = excess_history.GetTotalForToday();
 }
 
 void Counter::SetPower(double v)

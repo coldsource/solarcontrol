@@ -41,7 +41,7 @@ class DevicesOnOff: public std::multiset<DeviceOnOff *, DevicesPtrComparator>
 
 	std::map<unsigned int, DeviceOnOff *> id_device;
 
-	std::mutex d_mutex;
+	mutable std::mutex d_mutex;
 
 	void free();
 

@@ -40,6 +40,8 @@ DevicesHT::DevicesHT()
 
 DeviceHT *DevicesHT::GetByID(unsigned int id) const
 {
+	unique_lock<mutex> llock(d_mutex);
+
 	auto it = id_device.find(id);
 	if(it==id_device.end())
 		throw invalid_argument("Unknown HT device ID « " + to_string(id) + " »");

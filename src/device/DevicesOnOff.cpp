@@ -43,6 +43,8 @@ DevicesOnOff::DevicesOnOff()
 
 DeviceOnOff *DevicesOnOff::GetByID(unsigned int id) const
 {
+	unique_lock<mutex> llock(d_mutex);
+
 	auto it = id_device.find(id);
 	if(it==id_device.end())
 		throw invalid_argument("Unknown OnOff device ID « " + to_string(id) + " »");

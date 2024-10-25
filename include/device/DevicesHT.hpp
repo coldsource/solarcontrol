@@ -33,7 +33,7 @@ class DevicesHT: public std::unordered_set<DeviceHT *>
 
 	std::map<unsigned int, DeviceHT *> id_device;
 
-	std::mutex d_mutex;
+	mutable std::mutex d_mutex;
 
 	void free();
 

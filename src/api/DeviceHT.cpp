@@ -30,15 +30,24 @@ using database::DB;
 namespace api
 {
 
+void DeviceHT::check_config(const nlohmann::json &j_config, const string &device_type)
+{
+	if(device_type=="ht")
+		check_param(j_config, "mqtt_id", "string");
+
+	if(device_type=="htmini")
+		check_param(j_config, "ble_addr", "string");
+}
+
 json DeviceHT::HandleMessage(const string &cmd, const nlohmann::json &j_params)
 {
 	json j_res;
 	DB db;
 
+	device::DevicesHT &devices = device::Devices::GetInstance()->GetHT();
+
 	if(cmd=="list")
 	{
-		device::DevicesHT &devices = device::Devices::GetInstance()->GetHT();
-
 		devices.Lock();
 
 		j_res = json::array();
@@ -56,6 +65,84 @@ json DeviceHT::HandleMessage(const string &cmd, const nlohmann::json &j_params)
 		devices.Unlock();
 
 		return j_res;
+	}
+	else if(cmd=="get")
+	{
+		if(!j_params.contains("device_id"))
+			throw invalid_argument("Missing device_id");
+		auto res = db.Query("SELECT device_id, device_name, device_type, device_config FROM t_device WHERE device_id = %i"_sql <<(int)j_params["device_id"]);
+		if(!res.FetchRow())
+			throw invalid_argument("Uknown device_id : « " + string(j_params["device_id"]) + " »");
+
+		json device;
+		device["device_id"] = res["device_id"];
+		device["device_name"] = res["device_name"];
+		device["device_type"] = res["device_type"];
+		device["device_config"] = json::parse(string(res["device_config"]));
+
+		return device;
+	}
+	else if(cmd=="set")
+	{
+		check_param(j_params, "device_id", "int");
+		check_param(j_params, "device_name", "string");
+		check_param(j_params, "device_config", "object");
+
+		int device_id =j_params["device_id"];
+		string device_name = j_params["device_name"];
+		string device_config = j_params["device_config"].dump();
+
+		string device_type = devices.GetByID(device_id)->GetType();
+
+		auto j_config = j_params["device_config"];
+		check_config(j_config, device_type);
+
+		db.Query(
+			"UPDATE t_device SET device_name=%s, device_config=%s WHERE device_id=%i"_sql
+			<<device_name<<device_config<<device_id
+		);
+
+		devices.Reload();
+
+		return json();
+	}
+	else if(cmd=="create")
+	{
+		check_param(j_params, "device_name", "string");
+		check_param(j_params, "device_type", "string");
+		check_param(j_params, "device_config", "object");
+
+		string device_name = j_params["device_name"];
+		string device_type = j_params["device_type"];
+
+		if(device_type!="ht" && device_type!="htmini")
+			throw invalid_argument("Invalid device type : « " + device_type + " »");
+
+		auto j_config = j_params["device_config"];
+		check_config(j_config, device_type);
+
+		string device_config = j_params["device_config"].dump();
+
+		db.Query(
+			"INSERT INTO t_device (device_type, device_name, device_config) VALUES(%s, %s, %s)"_sql
+			<<device_type<<device_name<<device_config
+		);
+
+		devices.Reload();
+
+		return json();
+	}
+	else if(cmd=="delete")
+	{
+		check_param(j_params, "device_id", "int");
+
+		int device_id = j_params["device_id"];
+
+		db.Query("DELETE FROM t_device WHERE device_id=%i"_sql<<device_id);
+
+		devices.Reload();
+
+		return json();
 	}
 
 	throw invalid_argument("Unknown command « " + cmd + " » in module « deviceht »");

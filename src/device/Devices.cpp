@@ -32,6 +32,7 @@ Devices::Devices()
 void Devices::Reload()
 {
 	devices_onoff.Reload();
+	devices_ht.Reload();
 }
 
 }

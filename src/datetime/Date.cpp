@@ -49,6 +49,8 @@ Date::Date(const string &str)
 	time_t t = time(0);
 	localtime_r(&t, &tm);
 
+	strptime(str.c_str(), "%Y-%m-%d", &tm);
+
 	ToNoon();
 }
 

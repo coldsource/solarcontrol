@@ -28,7 +28,8 @@ namespace control {
 
 class HTTP
 {
-	std::string ip;
+	protected:
+		std::string ip;
 
 	public:
 		HTTP(const std::string &ip);

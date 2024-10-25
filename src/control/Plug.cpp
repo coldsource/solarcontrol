@@ -33,6 +33,9 @@ Plug::Plug(const std::string &ip): HTTP(ip)
 
 void Plug::Switch(bool new_state)
 {
+	if(ip=="")
+		return;
+
 	json j;
 	j["id"] = 1;
 	j["method"] = "Switch.Set";
@@ -54,6 +57,9 @@ void Plug::Switch(bool new_state)
 
 bool Plug::get_output() const
 {
+	if(ip=="")
+		return false;
+
 	json j;
 	j["id"] = 1;
 	j["method"] = "Switch.GetStatus";

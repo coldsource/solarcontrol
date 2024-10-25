@@ -31,7 +31,7 @@ namespace datetime {
 
 DateTime::DateTime()
 {
-	time_t t = time(NULL);
+	time_t t = time(0);
 	localtime_r(&t, &tm);
 }
 
@@ -66,6 +66,14 @@ void DateTime::ToNoon()
 	tm.tm_hour = 0;
 	tm.tm_min = 0;
 	tm.tm_sec = 0;
+}
+
+bool DateTime::operator==(const DateTime& r) const
+{
+	time_t l_t = (time_t)(Timestamp)*this;
+	time_t r_t = (time_t)(Timestamp)r;
+	printf("%ld ?= %ld\n", l_t, r_t);
+	return l_t==r_t;
 }
 
 bool DateTime::operator<(const DateTime& r) const

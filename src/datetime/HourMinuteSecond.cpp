@@ -19,16 +19,16 @@
 
 #include <datetime/HourMinuteSecond.hpp>
 
-#include <regex>
 #include <stdexcept>
 
 using namespace std;
 
 namespace datetime {
 
+const regex HourMinuteSecond::hms("^([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,2})$");
+
 HourMinuteSecond::HourMinuteSecond(const string &s)
 {
-	regex hms("^([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,2})$");
 	smatch matches;
 
 	if(!regex_search(s, matches, hms))

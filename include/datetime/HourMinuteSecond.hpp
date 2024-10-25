@@ -21,11 +21,14 @@
 #define __DATETIME_HOURMINUTESECOND_HPP__
 
 #include <string>
+#include <regex>
 
 namespace datetime {
 
 class HourMinuteSecond
 {
+	const static std::regex hms;
+
 	int hour;
 	int minute;
 	int second;

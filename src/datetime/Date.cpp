@@ -27,6 +27,8 @@ using namespace std;
 
 namespace datetime {
 
+const regex Date::ymd("^([0-9]{4,4})-([0-9]{2,2})-([0-9]{2,2})$");
+
 Date::Date(): DateTime()
 {
 	ToNoon();
@@ -39,10 +41,9 @@ Date::Date(const Timestamp &ts): DateTime(ts)
 
 Date::Date(const string &str)
 {
-	regex hms("^([0-9]{4,4})-([0-9]{2,2})-([0-9]{2,2})$");
 	smatch matches;
 
-	if(!regex_search(str, matches, hms))
+	if(!regex_search(str, matches, ymd))
 		throw invalid_argument("Invalid date format : « " + str + " »");
 
 	// First init tm structure with local time zone

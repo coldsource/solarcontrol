@@ -23,11 +23,11 @@
 #include <time.h>
 #include <string.h>
 
-#include <regex>
-
 using namespace std;
 
 namespace datetime {
+
+const regex DateTime::ymdhms("^([0-9]{4,4})-([0-9]{2,2})-([0-9]{2,2}) ([0-9]{2,2}):([0-9]{2,2}):([0-9]{2,2})$");
 
 DateTime::DateTime()
 {
@@ -43,10 +43,9 @@ DateTime::DateTime(const Timestamp &ts)
 
 DateTime::DateTime(const string &str)
 {
-	regex hms("^([0-9]{4,4})-([0-9]{2,2})-([0-9]{2,2}) ([0-9]{2,2}):([0-9]{2,2}):([0-9]{2,2})$");
 	smatch matches;
 
-	if(!regex_search(str, matches, hms))
+	if(!regex_search(str, matches, ymdhms))
 		throw invalid_argument("Invalid date time format : « " + str + " »");
 
 	// First init tm structure with local time zone

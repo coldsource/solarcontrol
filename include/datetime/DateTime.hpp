@@ -23,6 +23,7 @@
 #include <time.h>
 
 #include <string>
+#include <regex>
 
 namespace datetime {
 
@@ -32,6 +33,7 @@ class DateTime
 {
 	protected:
 		struct tm tm;
+		const static std::regex ymdhms;
 
 	public:
 		DateTime();

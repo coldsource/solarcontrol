@@ -23,6 +23,7 @@
 #include <datetime/DateTime.hpp>
 
 #include <string>
+#include <regex>
 
 namespace datetime {
 
@@ -30,6 +31,8 @@ class Timestamp;
 
 class Date: public DateTime
 {
+	const static std::regex ymd;
+
 	public:
 		Date();
 		Date(const Timestamp &ts);

@@ -20,8 +20,6 @@
 #include <datetime/Date.hpp>
 #include <datetime/Timestamp.hpp>
 
-#include <string.h>
-
 #include <regex>
 #include <stdexcept>
 
@@ -47,8 +45,9 @@ Date::Date(const string &str)
 	if(!regex_search(str, matches, hms))
 		throw invalid_argument("Invalid date format : « " + str + " »");
 
-	memset(&tm, 0, sizeof(tm));
-	strptime(str.c_str(), "%Y-%m-%d", &tm);
+	// First init tm structure with local time zone
+	time_t t = time(0);
+	localtime_r(&t, &tm);
 
 	ToNoon();
 }

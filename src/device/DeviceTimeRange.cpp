@@ -71,7 +71,13 @@ bool DeviceTimeRange::IsForced() const
 
 bool DeviceTimeRange::WantOffload() const
 {
-	return (offload.IsActive() && global_meter->GetNetAvailablePower()>expected_consumption);
+	if(!offload.IsActive())
+		return false;
+
+	if(GetState())
+		return (global_meter->GetNetAvailablePower()>0); // We are already on, so stay on as long as we have power to offload
+
+	return (global_meter->GetNetAvailablePower()>expected_consumption); // We are off, turn on only if we have enough power to offload
 }
 
 bool DeviceTimeRange::WantRemainder() const

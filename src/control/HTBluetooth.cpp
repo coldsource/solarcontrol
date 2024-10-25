@@ -17,7 +17,7 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#include <control/HT.hpp>
+#include <control/HTBluetooth.hpp>
 #include <mqtt/Client.hpp>
 #include <nlohmann/json.hpp>
 
@@ -27,35 +27,35 @@ using nlohmann::json;
 namespace control
 {
 
-HT::HT(const string &mqtt_id)
+HTBluetooth::HTBluetooth(const string &ble_addr)
 {
 	auto mqtt = mqtt::Client::GetInstance();
-	mqtt->Subscribe(mqtt_id + "/events/rpc", this);
+	mqtt->Subscribe("blegateway/" + ble_addr + "/sensor", this);
 }
 
-double HT::GetTemperature() const
+double HTBluetooth::GetTemperature() const
 {
 	unique_lock<mutex> llock(lock);
 
 	return temperature;
 }
 
-double HT::GetHumidity() const
+double HTBluetooth::GetHumidity() const
 {
 	unique_lock<mutex> llock(lock);
 
 	return humidity;
 }
 
-void HT::HandleMessage(const string &message)
+void HTBluetooth::HandleMessage(const string &message)
 {
 	unique_lock<mutex> llock(lock);
 
 	try
 	{
 		json j = json::parse(message);
-		humidity = j["params"]["humidity:0"]["rh"];
-		temperature = j["params"]["temperature:0"]["tC"];
+		humidity = j["humidity"];
+		temperature = j["temperature"];
 	}
 	catch(json::exception &e)
 	{
@@ -64,3 +64,4 @@ void HT::HandleMessage(const string &message)
 }
 
 }
+

@@ -17,26 +17,31 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __DEVICE_DEVICEHT_HPP__
-#define __DEVICE_DEVICEHT_HPP__
+#ifndef __DEVICE_DEVICEHTBLUETOOTH_HPP__
+#define __DEVICE_DEVICEHTBLUETOOTH_HPP__
 
-#include <device/Device.hpp>
+#include <device/DeviceHT.hpp>
+#include <control/HTBluetooth.hpp>
+#include <nlohmann/json.hpp>
 
+#include <string>
 
 namespace device {
 
-class DeviceHT: public Device
+class DeviceHTBluetooth: public DeviceHT
 {
-	public:
-		DeviceHT(unsigned int id, const std::string &name): Device(id, name) {}
+	control::HTBluetooth *ctrl;
 
-		virtual double GetTemperature() const = 0;
-		virtual double GetHumidity() const = 0;
+	public:
+		DeviceHTBluetooth(unsigned int id, const std::string &name, const nlohmann::json &config);
+		virtual ~DeviceHTBluetooth();
+
+		std::string GetType() const { return "htmini"; }
+
+		double GetTemperature() const;
+		double GetHumidity() const;
 };
 
 }
 
 #endif
-
-
-

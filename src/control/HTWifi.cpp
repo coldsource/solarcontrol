@@ -17,26 +17,50 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __DEVICE_DEVICEHT_HPP__
-#define __DEVICE_DEVICEHT_HPP__
+#include <control/HTWifi.hpp>
+#include <mqtt/Client.hpp>
+#include <nlohmann/json.hpp>
 
-#include <device/Device.hpp>
+using namespace std;
+using nlohmann::json;
 
-
-namespace device {
-
-class DeviceHT: public Device
+namespace control
 {
-	public:
-		DeviceHT(unsigned int id, const std::string &name): Device(id, name) {}
 
-		virtual double GetTemperature() const = 0;
-		virtual double GetHumidity() const = 0;
-};
-
+HTWifi::HTWifi(const string &mqtt_id)
+{
+	auto mqtt = mqtt::Client::GetInstance();
+	mqtt->Subscribe(mqtt_id + "/events/rpc", this);
 }
 
-#endif
+double HTWifi::GetTemperature() const
+{
+	unique_lock<mutex> llock(lock);
 
+	return temperature;
+}
 
+double HTWifi::GetHumidity() const
+{
+	unique_lock<mutex> llock(lock);
 
+	return humidity;
+}
+
+void HTWifi::HandleMessage(const string &message)
+{
+	unique_lock<mutex> llock(lock);
+
+	try
+	{
+		json j = json::parse(message);
+		humidity = j["params"]["humidity:0"]["rh"];
+		temperature = j["params"]["temperature:0"]["tC"];
+	}
+	catch(json::exception &e)
+	{
+		return;
+	}
+}
+
+}

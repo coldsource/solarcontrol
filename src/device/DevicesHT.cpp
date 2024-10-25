@@ -18,7 +18,8 @@
  */
 
 #include <device/DevicesHT.hpp>
-#include <device/DeviceHT.hpp>
+#include <device/DeviceHTWifi.hpp>
+#include <device/DeviceHTBluetooth.hpp>
 #include <database/DB.hpp>
 #include <logs/Logger.hpp>
 #include <nlohmann/json.hpp>
@@ -56,14 +57,16 @@ void DevicesHT::Reload()
 
 	database::DB db;
 
-	auto res = db.Query("SELECT device_id, device_name, device_type, device_config FROM t_device WHERE device_type IN('ht')"_sql);
+	auto res = db.Query("SELECT device_id, device_name, device_type, device_config FROM t_device WHERE device_type IN('ht', 'htmini')"_sql);
 	while(res.FetchRow())
 	{
 		auto config = json::parse((string)res["device_config"]);
 
 		DeviceHT *device;
 		if((string)res["device_type"]=="ht")
-			device = new DeviceHT(res["device_id"], res["device_name"], config);
+			device = new DeviceHTWifi(res["device_id"], res["device_name"], config);
+		else if((string)res["device_type"]=="htmini")
+			device = new DeviceHTBluetooth(res["device_id"], res["device_name"], config);
 
 		insert(device);
 		id_device.insert(pair<unsigned int, DeviceHT *>(res["device_id"], device));

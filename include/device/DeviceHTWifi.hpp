@@ -17,31 +17,29 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __CONTROL_HT_HPP__
-#define __CONTROL_HT_HPP__
+#ifndef __DEVICE_DEVICEHTWIFI_HPP__
+#define __DEVICE_DEVICEHTWIFI_HPP__
 
-#include <mqtt/Subscriber.hpp>
+#include <device/DeviceHT.hpp>
+#include <control/HTWifi.hpp>
+#include <nlohmann/json.hpp>
 
 #include <string>
-#include <mutex>
 
-namespace control {
+namespace device {
 
-class HT: public mqtt::Subscriber
+class DeviceHTWifi: public DeviceHT
 {
-	double temperature = 0;
-	double humidity = 0;
-
-	mutable std::mutex lock;
+	control::HTWifi *ctrl;
 
 	public:
-		HT(const std::string &mqtt_id);
-		virtual ~HT() {}
+		DeviceHTWifi(unsigned int id, const std::string &name, const nlohmann::json &config);
+		virtual ~DeviceHTWifi();
+
+		std::string GetType() const { return "ht"; }
 
 		double GetTemperature() const;
 		double GetHumidity() const;
-
-		void HandleMessage(const std::string &message);
 };
 
 }

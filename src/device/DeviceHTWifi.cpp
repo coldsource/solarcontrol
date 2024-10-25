@@ -17,26 +17,34 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __DEVICE_DEVICEHT_HPP__
-#define __DEVICE_DEVICEHT_HPP__
 
-#include <device/Device.hpp>
+#include <device/DeviceHTWifi.hpp>
 
+using namespace std;
 
-namespace device {
-
-class DeviceHT: public Device
+namespace device
 {
-	public:
-		DeviceHT(unsigned int id, const std::string &name): Device(id, name) {}
 
-		virtual double GetTemperature() const = 0;
-		virtual double GetHumidity() const = 0;
-};
+DeviceHTWifi::DeviceHTWifi(unsigned int id, const string &name, const nlohmann::json &config): DeviceHT(id, name)
+{
+	check_config_parameters(config, {"mqtt_id"});
 
+	ctrl = new control::HTWifi(config["mqtt_id"]);
 }
 
-#endif
+DeviceHTWifi::~DeviceHTWifi()
+{
+	delete ctrl;
+}
 
+double DeviceHTWifi::GetTemperature() const
+{
+	return ctrl->GetTemperature();
+}
 
+double DeviceHTWifi::GetHumidity() const
+{
+	return ctrl->GetHumidity();
+}
 
+}

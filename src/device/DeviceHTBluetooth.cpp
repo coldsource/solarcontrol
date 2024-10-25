@@ -18,33 +18,34 @@
  */
 
 
-#include <device/DeviceHT.hpp>
+#include <device/DeviceHTBluetooth.hpp>
 
 using namespace std;
 
 namespace device
 {
 
-DeviceHT::DeviceHT(unsigned int id, const string &name, const nlohmann::json &config): Device(id, name)
+DeviceHTBluetooth::DeviceHTBluetooth(unsigned int id, const string &name, const nlohmann::json &config): DeviceHT(id, name)
 {
-	check_config_parameters(config, {"mqtt_id"});
+	check_config_parameters(config, {"ble_addr"});
 
-	ctrl = new control::HT(config["mqtt_id"]);
+	ctrl = new control::HTBluetooth(config["ble_addr"]);
 }
 
-DeviceHT::~DeviceHT()
+DeviceHTBluetooth::~DeviceHTBluetooth()
 {
 	delete ctrl;
 }
 
-double DeviceHT::GetTemperature() const
+double DeviceHTBluetooth::GetTemperature() const
 {
 	return ctrl->GetTemperature();
 }
 
-double DeviceHT::GetHumidity() const
+double DeviceHTBluetooth::GetHumidity() const
 {
 	return ctrl->GetHumidity();
 }
 
 }
+

@@ -28,7 +28,6 @@
 #include <database/Query.hpp>
 #include <websocket/SolarControl.hpp>
 #include <thread/LCD.hpp>
-#include <control/HT.hpp>
 
 #include <nlohmann/json.hpp>
 

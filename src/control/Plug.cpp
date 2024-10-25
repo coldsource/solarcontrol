@@ -28,7 +28,7 @@ namespace control {
 
 Plug::Plug(const std::string &ip): HTTP(ip)
 {
-	state = get_output();
+	state = false;
 }
 
 void Plug::Switch(bool new_state)

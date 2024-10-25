@@ -53,7 +53,7 @@ void DevicesManager::main()
 
 	double start_cooldown = config->GetInt("control.cooldown.on");
 	double last_start_ts = 0;
-	datetime::Timestamp last_state_update(TS_MONOTONIC);
+	datetime::Timestamp last_state_update;
 	while(true)
 	{
 		devices.Lock();
@@ -61,15 +61,19 @@ void DevicesManager::main()
 		try
 		{
 			datetime::Timestamp now(TS_MONOTONIC);
+
+			if(now-last_state_update>state_update_interval)
+			{
+				// Update all devices' state
+				for(auto it = devices.begin(); it!=devices.end(); ++it)
+					(*it)->UpdateState();
+
+				last_state_update = now;
+			}
+
 			for(auto it = devices.begin(); it!=devices.end(); ++it)
 			{
 				device::DeviceOnOff *device = *it;
-
-				if(now-last_state_update>state_update_interval)
-				{
-					device->UpdateState();
-					last_state_update = now;
-				}
 
 				bool new_state = device->WantedState();
 				if(new_state==device->GetState())

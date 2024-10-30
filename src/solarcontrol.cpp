@@ -89,49 +89,60 @@ int main(int argc, char **argv)
 		return -1;
 	}
 
+	configuration::Configuration *config = 0;
+	short exit_code = 0;
+
 	mosquitto_lib_init();
 	curl_global_init(CURL_GLOBAL_ALL);
 	database::DB::InitLibrary();
 
-	// Position signal handlers
-	utils::set_sighandler(signal_callback_handler, {SIGINT, SIGTERM, SIGHUP});
+	try
+	{
+		// Position signal handlers
+		utils::set_sighandler(signal_callback_handler, {SIGINT, SIGTERM, SIGHUP});
 
-	// Read configuration
-	configuration::Configuration *config = configuration::Configuration::GetInstance();
-	config->Merge();
+		// Read configuration
+		config = configuration::Configuration::GetInstance();
+		config->Merge();
 
-	configuration::ConfigurationReader::Read(config_filename, config);
-	config->Split();
-	config->CheckAll();
+		configuration::ConfigurationReader::Read(config_filename, config);
+		config->Split();
+		config->CheckAll();
 
-	auto config_sc = configuration::ConfigurationSolarControl::GetInstance();
-	mqtt::Client mqtt(config_sc->Get("mqtt.host"), config_sc->GetInt("mqtt.port"));
+		auto config_sc = configuration::ConfigurationSolarControl::GetInstance();
+		mqtt::Client mqtt(config_sc->Get("mqtt.host"), config_sc->GetInt("mqtt.port"));
 
-	// Create global energy meter (grid, pv, hws)
-	energy::GlobalMeter globalmeter;
+		// Create global energy meter (grid, pv, hws)
+		energy::GlobalMeter globalmeter;
 
-	// Create special HWS device if needed
-	device::DeviceHWS::CreateInDB();
+		// Create special HWS device if needed
+		device::DeviceHWS::CreateInDB();
 
-	device::Devices devices;
+		device::Devices devices;
 
-	websocket::SolarControl ws;
-	ws.Start();
+		websocket::SolarControl ws;
+		ws.Start();
 
-	::thread::LCD lcd;
+		::thread::LCD lcd;
 
-	::thread::DevicesManager dev_manager;
-	dev_manager.WaitForShutdown();
+		::thread::DevicesManager dev_manager;
+		dev_manager.WaitForShutdown();
 
-	mqtt.Shutdown();
-	mqtt.WaitForShutdown();
+		mqtt.Shutdown();
+		mqtt.WaitForShutdown();
 
-	ws.Shutdown();
+		ws.Shutdown();
 
-	lcd.Shutdown();
-	lcd.WaitForShutdown();
+		lcd.Shutdown();
+		lcd.WaitForShutdown();
 
-	globalmeter.SaveHistory(); // Backup latest data to database
+		globalmeter.SaveHistory(); // Backup latest data to database
+	}
+	catch(exception &e)
+	{
+		fprintf(stderr, "%s\n", e.what());
+		exit_code = 1;
+	}
 
 	delete config;
 
@@ -139,5 +150,5 @@ int main(int argc, char **argv)
 	curl_global_cleanup();
 	database::DB::FreeLibrary();
 
-	return 0;
+	return exit_code;
 }

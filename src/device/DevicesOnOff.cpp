@@ -63,13 +63,13 @@ void DevicesOnOff::Reload()
 
 	database::DB db;
 
-	auto res = db.Query("SELECT device_id, device_name, device_type, device_config FROM t_device WHERE device_type IN('timerange-plug', 'heater', 'hws')"_sql);
+	auto res = db.Query("SELECT device_id, device_name, device_type, device_config FROM t_device WHERE device_type IN('timerange', 'heater', 'hws')"_sql);
 	while(res.FetchRow())
 	{
 		configuration::Json config((string)res["device_config"]);
 
 		DeviceOnOff *device;
-		if((string)res["device_type"]=="timerange-plug")
+		if((string)res["device_type"]=="timerange")
 			device = new DeviceTimeRange(res["device_id"], res["device_name"], config);
 		else if((string)res["device_type"]=="heater")
 			device = new DeviceHeater(res["device_id"], res["device_name"], config);

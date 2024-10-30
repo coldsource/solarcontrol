@@ -139,7 +139,7 @@ json DeviceOnOff::HandleMessage(const string &cmd, const configuration::Json &j_
 		string device_name = j_params.GetString("device_name");
 		string device_type = j_params.GetString("device_type");
 
-		if(device_type!="timerange-plug" && device_type!="heater")
+		if(device_type!="timerange" && device_type!="heater")
 			throw invalid_argument("Invalid device type : « " + device_type + " »");
 
 		auto j_config = j_params.GetObject("device_config");

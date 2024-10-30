@@ -112,6 +112,7 @@ json DeviceOnOff::HandleMessage(const string &cmd, const configuration::Json &j_
 		device["device_name"] = res["device_name"];
 		device["device_type"] = res["device_type"];
 		device["device_config"] = json::parse(string(res["device_config"]));
+		device["state"] = devices.GetByID(res["device_id"])->GetState();
 
 		return device;
 	}

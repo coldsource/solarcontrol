@@ -55,6 +55,7 @@ DeviceTimeRange::DeviceTimeRange(unsigned int id, const string &name, const conf
 	min_on_for_last = config.GetInt("min_on_for_last", 0);
 
 	min_on = config.GetInt("min_on", 0);
+	max_on = config.GetInt("max_on", 0);
 	min_off = config.GetInt("min_off", 0);
 }
 
@@ -91,10 +92,13 @@ bool DeviceTimeRange::WantedState() const
 
 	Timestamp now(TS_MONOTONIC);
 	if(GetState() && now-last_on<min_on)
-		return true;
+		return true; // Stay on at least 'min_on' seconds
+
+	if(GetState() && max_on>0 && now-last_on>max_on)
+		return false; // Stay on no longer than 'max_on' seconds
 
 	if(!GetState() && now-last_off<min_off)
-		return false;
+		return false; // Stay of at least 'min_off' seconds
 
 	if(state_on_condition())
 		return (IsForced() || WantOffload() || WantRemainder());

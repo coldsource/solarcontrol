@@ -51,6 +51,7 @@ class DeviceTimeRange: public DeviceOnOff
 		bool need_update = true; // Force state update on reload
 
 		int min_on = 0;
+		int max_on = 0;
 		int min_off = 0;
 		datetime::Timestamp last_on;
 		datetime::Timestamp last_off;

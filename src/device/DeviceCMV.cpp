@@ -33,8 +33,10 @@ DeviceCMV::DeviceCMV(unsigned int id, const string &name, const configuration::J
 {
 	for(auto device_id : config.GetArray("ht_device_ids"))
 		ht_device_ids.insert((unsigned int)device_id);
+
 	force_max_moisture = config.GetFloat("force_max_moisture");
 	offload_max_moisture = config.GetFloat("offload_max_moisture");
+	max_on = config.GetFloat("max_on");
 }
 
 // CMV Devices are based on Gross Available Power (other devices are based on Net)

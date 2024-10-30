@@ -71,6 +71,13 @@ void DevicesManager::main()
 				last_state_update = now;
 			}
 
+			// Update devices that have been reloaded
+			for(auto it = devices.begin(); it!=devices.end(); ++it)
+			{
+				if((*it)->NeedStateUpdate())
+					(*it)->UpdateState();
+			}
+
 			for(auto it = devices.begin(); it!=devices.end(); ++it)
 			{
 				device::DeviceOnOff *device = *it;

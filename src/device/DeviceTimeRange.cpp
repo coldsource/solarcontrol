@@ -146,6 +146,8 @@ void DeviceTimeRange::UpdateState()
 
 	if(new_state!=cur_state)
 		SetState(new_state);
+
+	need_update = false;
 }
 
 }

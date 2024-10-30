@@ -48,6 +48,7 @@ class DeviceTimeRange: public DeviceOnOff
 
 		bool manual = false;
 
+		bool need_update = true; // Force state update on reload
 
 		int min_on = 0;
 		int min_off = 0;
@@ -86,6 +87,7 @@ class DeviceTimeRange: public DeviceOnOff
 		void SetAutoState();
 		bool IsManual() { return manual; }
 		void UpdateState();
+		bool NeedStateUpdate() { return need_update; }
 };
 
 }

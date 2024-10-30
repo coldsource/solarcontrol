@@ -43,6 +43,7 @@ class DeviceOnOff: public Device
 		virtual void SetAutoState() = 0;
 		virtual bool IsManual() = 0;
 		virtual void UpdateState() = 0;
+		virtual bool NeedStateUpdate() = 0;
 };
 
 }

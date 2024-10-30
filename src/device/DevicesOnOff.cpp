@@ -20,6 +20,7 @@
 #include <device/DevicesOnOff.hpp>
 #include <device/DeviceTimeRange.hpp>
 #include <device/DeviceHeater.hpp>
+#include <device/DeviceCMV.hpp>
 #include <device/DeviceHWS.hpp>
 #include <configuration/Json.hpp>
 #include <database/DB.hpp>
@@ -63,7 +64,7 @@ void DevicesOnOff::Reload()
 
 	database::DB db;
 
-	auto res = db.Query("SELECT device_id, device_name, device_type, device_config FROM t_device WHERE device_type IN('timerange', 'heater', 'hws')"_sql);
+	auto res = db.Query("SELECT device_id, device_name, device_type, device_config FROM t_device WHERE device_type IN('timerange', 'heater', 'hws', 'cmv')"_sql);
 	while(res.FetchRow())
 	{
 		configuration::Json config((string)res["device_config"]);
@@ -73,6 +74,8 @@ void DevicesOnOff::Reload()
 			device = new DeviceTimeRange(res["device_id"], res["device_name"], config);
 		else if((string)res["device_type"]=="heater")
 			device = new DeviceHeater(res["device_id"], res["device_name"], config);
+		else if((string)res["device_type"]=="cmv")
+			device = new DeviceCMV(res["device_id"], res["device_name"], config);
 		else if((string)res["device_type"]=="hws")
 			device = new DeviceHWS(res["device_id"], res["device_name"], config);
 

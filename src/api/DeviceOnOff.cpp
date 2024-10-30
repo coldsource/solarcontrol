@@ -53,6 +53,13 @@ void DeviceOnOff::check_config(const configuration::Json &j_config, const string
 		j_config.Check("offload_max_temperature", "float");
 	}
 
+	if(device_type=="cmv")
+	{
+		j_config.Check("ht_device_ids", "array");
+		j_config.Check("force_max_moisture", "float");
+		j_config.Check("offload_max_moisture", "float");
+	}
+
 	if(device_type=="hws")
 	{
 		j_config.Check("min_energy", "float");
@@ -140,7 +147,7 @@ json DeviceOnOff::HandleMessage(const string &cmd, const configuration::Json &j_
 		string device_name = j_params.GetString("device_name");
 		string device_type = j_params.GetString("device_type");
 
-		if(device_type!="timerange" && device_type!="heater")
+		if(device_type!="timerange" && device_type!="heater" && device_type!="cmv")
 			throw invalid_argument("Invalid device type : « " + device_type + " »");
 
 		auto j_config = j_params.GetObject("device_config");

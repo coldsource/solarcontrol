@@ -44,6 +44,7 @@ class Client
 	static void loop(Client *mqtt);
 
 	static Client *instance;
+	bool clean_shutdown = false;
 
 	public:
 		Client(const std::string &host, unsigned int port);

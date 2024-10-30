@@ -45,6 +45,9 @@ Client::Client(const string &host, unsigned int port)
 
 Client::~Client()
 {
+	Shutdown();
+	WaitForShutdown();
+
 	mosquitto_destroy(mosqh);
 }
 
@@ -58,12 +61,19 @@ void Client::Subscribe(const string &topic, Subscriber *subscriber)
 
 void Client::Shutdown()
 {
+	if(clean_shutdown)
+		return;
+
 	mosquitto_disconnect(mosqh);
 }
 
 void Client::WaitForShutdown()
 {
+	if(clean_shutdown)
+		return;
+
 	loop_handle.join();
+	clean_shutdown = true;
 }
 
 void Client::message_callback(struct mosquitto *mosq, void *obj, const struct mosquitto_message *message)

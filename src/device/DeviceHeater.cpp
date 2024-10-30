@@ -18,6 +18,7 @@
  */
 
 #include <device/DeviceHeater.hpp>
+#include <configuration/Json.hpp>
 #include <datetime/Timestamp.hpp>
 #include <device/DevicesHT.hpp>
 
@@ -27,13 +28,11 @@ using nlohmann::json;
 namespace device
 {
 
-DeviceHeater::DeviceHeater(unsigned int id, const string &name, const json &config):DeviceTimeRange(id, name, config)
+DeviceHeater::DeviceHeater(unsigned int id, const string &name, const configuration::Json &config):DeviceTimeRange(id, name, config)
 {
-	check_config_parameters(config, {"ht_device_id", "force_max_temperature", "offload_max_temperature"});
-
-	ht_device_id = config["ht_device_id"];
-	force_max_temperature = config["force_max_temperature"];
-	offload_max_temperature = config["offload_max_temperature"];
+	ht_device_id = config.GetInt("ht_device_id");
+	force_max_temperature = config.GetFloat("force_max_temperature");
+	offload_max_temperature = config.GetFloat("offload_max_temperature");
 }
 
 bool DeviceHeater::state_on_condition() const

@@ -19,17 +19,16 @@
 
 
 #include <device/DeviceHTBluetooth.hpp>
+#include <configuration/Json.hpp>
 
 using namespace std;
 
 namespace device
 {
 
-DeviceHTBluetooth::DeviceHTBluetooth(unsigned int id, const string &name, const nlohmann::json &config): DeviceHT(id, name)
+DeviceHTBluetooth::DeviceHTBluetooth(unsigned int id, const string &name, const configuration::Json &config): DeviceHT(id, name)
 {
-	check_config_parameters(config, {"ble_addr"});
-
-	ctrl = new control::HTBluetooth(config["ble_addr"]);
+	ctrl = new control::HTBluetooth(config.GetString("ble_addr"));
 }
 
 DeviceHTBluetooth::~DeviceHTBluetooth()

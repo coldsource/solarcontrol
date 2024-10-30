@@ -20,6 +20,7 @@
 #include <api/Logs.hpp>
 #include <database/DB.hpp>
 #include <energy/GlobalMeter.hpp>
+#include <configuration/Json.hpp>
 
 #include <stdexcept>
 
@@ -30,7 +31,7 @@ using database::DB;
 namespace api
 {
 
-json Logs::HandleMessage(const string &cmd, const nlohmann::json &j_params)
+json Logs::HandleMessage(const string &cmd, const configuration::Json &j_params)
 {
 	json j_res;
 	DB db;

@@ -24,12 +24,16 @@
 
 #include <string>
 
+namespace configuration {
+	class Json;
+}
+
 namespace api {
 
 class Logs: public Handler
 {
 	public:
-		 nlohmann::json HandleMessage(const std::string &cmd, const nlohmann::json &j_params);
+		 nlohmann::json HandleMessage(const std::string &cmd, const configuration::Json &j_params);
 };
 
 }

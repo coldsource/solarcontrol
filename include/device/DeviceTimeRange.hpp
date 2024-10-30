@@ -34,6 +34,10 @@ namespace energy {
 	class GlobalMeter;
 }
 
+namespace configuration {
+	class Json;
+}
+
 namespace device {
 
 class DeviceTimeRange: public DeviceOnOff
@@ -64,7 +68,7 @@ class DeviceTimeRange: public DeviceOnOff
 		virtual bool state_on_condition() const { return true; }
 
 	public:
-		DeviceTimeRange(unsigned int id, const std::string &name, const nlohmann::json &config);
+		DeviceTimeRange(unsigned int id, const std::string &name, const configuration::Json &config);
 		virtual ~DeviceTimeRange();
 
 		std::string GetType() const { return "timerange-plug"; }

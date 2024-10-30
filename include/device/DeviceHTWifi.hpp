@@ -26,6 +26,10 @@
 
 #include <string>
 
+namespace configuration {
+	class Json;
+}
+
 namespace device {
 
 class DeviceHTWifi: public DeviceHT
@@ -33,7 +37,7 @@ class DeviceHTWifi: public DeviceHT
 	control::HTWifi *ctrl;
 
 	public:
-		DeviceHTWifi(unsigned int id, const std::string &name, const nlohmann::json &config);
+		DeviceHTWifi(unsigned int id, const std::string &name, const configuration::Json &config);
 		virtual ~DeviceHTWifi();
 
 		std::string GetType() const { return "ht"; }

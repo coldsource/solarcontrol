@@ -22,6 +22,10 @@
 
 #include <device/DeviceTimeRange.hpp>
 
+namespace configuration {
+	class Json;
+}
+
 namespace device {
 
 class DeviceHWS: public DeviceTimeRange
@@ -31,7 +35,7 @@ class DeviceHWS: public DeviceTimeRange
 		int min_energy_for_last; // Days
 
 	public:
-		DeviceHWS(unsigned int id, const std::string &name, const nlohmann::json &config);
+		DeviceHWS(unsigned int id, const std::string &name, const configuration::Json &config);
 		virtual ~DeviceHWS() {}
 
 		bool WantRemainder() const;

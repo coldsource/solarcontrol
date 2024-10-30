@@ -21,6 +21,7 @@
 #include <device/DeviceTimeRange.hpp>
 #include <device/DeviceHeater.hpp>
 #include <device/DeviceHWS.hpp>
+#include <configuration/Json.hpp>
 #include <database/DB.hpp>
 #include <logs/Logger.hpp>
 #include <nlohmann/json.hpp>
@@ -65,7 +66,7 @@ void DevicesOnOff::Reload()
 	auto res = db.Query("SELECT device_id, device_name, device_type, device_config FROM t_device WHERE device_type IN('timerange-plug', 'heater', 'hws')"_sql);
 	while(res.FetchRow())
 	{
-		auto config = json::parse((string)res["device_config"]);
+		configuration::Json config((string)res["device_config"]);
 
 		DeviceOnOff *device;
 		if((string)res["device_type"]=="timerange-plug")

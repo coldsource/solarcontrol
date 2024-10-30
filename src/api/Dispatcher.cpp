@@ -21,6 +21,7 @@
 #include <api/DeviceOnOff.hpp>
 #include <api/DeviceHT.hpp>
 #include <api/Logs.hpp>
+#include <configuration/Json.hpp>
 
 #include <stdexcept>
 
@@ -69,13 +70,13 @@ string Dispatcher::Dispatch(const std::string &message)
 	if(handler==handlers.end())
 		throw invalid_argument("Uknown module « " + string(j["module"]) + " »" );
 
-	json j_params;
+	configuration::Json params;
 	if(j.contains("parameters"))
-		j_params = j["parameters"];
+		params = configuration::Json(j["parameters"]);
 
 	try
 	{
-		auto j_res = handler->second->HandleMessage(j["cmd"], j_params);
+		auto j_res = handler->second->HandleMessage(j["cmd"], params);
 		return j_res.dump();
 	}
 	catch(exception &e)

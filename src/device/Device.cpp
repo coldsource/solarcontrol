@@ -30,13 +30,4 @@ Device::Device(unsigned int id, const string &name)
 	this->name = name;
 }
 
-void Device::check_config_parameters(const json &config, const vector<string> &names)
-{
-	for(auto name : names)
-	{
-		if(!config.contains(name))
-			throw runtime_error("Unable to load configuration for device : missing parameter « " + name + " »");
-	}
-}
-
 }

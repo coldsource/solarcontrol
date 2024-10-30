@@ -20,26 +20,16 @@
 #ifndef __CONTROL_PLUG_HPP__
 #define __CONTROL_PLUG_HPP__
 
-#include <control/HTTP.hpp>
-#include <control/OnOff.hpp>
+#include <control/Relay.hpp>
 
 #include <string>
 
 namespace control {
 
-class Plug: public HTTP, public OnOff
+class Plug: public Relay
 {
-	bool state = false;
-
-	protected:
-		bool get_output() const;
-
 	public:
 		Plug(const std::string &ip);
-
-		void Switch(bool state);
-		bool GetState() const { return state; }
-		void UpdateState();
 };
 
 }

@@ -17,8 +17,8 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef _CONFIGURATIONREADER_H_
-#define _CONFIGURATIONREADER_H_
+#ifndef  __CONFIGURATION_CONFIGURATIONREADER_H__
+#define  __CONFIGURATION_CONFIGURATIONREADER_H__
 
 #define CONFIGURATION_LINE_MAXLEN           4096
 

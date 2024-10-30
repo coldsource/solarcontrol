@@ -18,6 +18,7 @@
  */
 
 #include <device/DeviceHWS.hpp>
+#include <configuration/Json.hpp>
 #include <energy/GlobalMeter.hpp>
 #include <database/DB.hpp>
 
@@ -27,12 +28,10 @@ using nlohmann::json;
 namespace device
 {
 
-DeviceHWS::DeviceHWS(unsigned int id, const string &name, const json &config):DeviceTimeRange(id, name, config)
+DeviceHWS::DeviceHWS(unsigned int id, const string &name, const configuration::Json &config):DeviceTimeRange(id, name, config)
 {
-	check_config_parameters(config, {"min_energy", "min_energy_for_last"});
-
-	min_energy = config["min_energy"];
-	min_energy_for_last = config["min_energy_for_last"];
+	min_energy = config.GetInt("min_energy");
+	min_energy_for_last = config.GetInt("min_energy_for_last");
 }
 
 bool DeviceHWS::WantRemainder() const

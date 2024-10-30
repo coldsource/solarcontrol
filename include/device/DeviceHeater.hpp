@@ -22,6 +22,10 @@
 
 #include <device/DeviceTimeRange.hpp>
 
+namespace configuration {
+	class Json;
+}
+
 namespace device {
 
 class DeviceHeater: public DeviceTimeRange
@@ -34,7 +38,7 @@ class DeviceHeater: public DeviceTimeRange
 		bool state_on_condition() const;
 
 	public:
-		DeviceHeater(unsigned int id, const std::string &name, const nlohmann::json &config);
+		DeviceHeater(unsigned int id, const std::string &name, const configuration::Json &config);
 		virtual ~DeviceHeater() {}
 
 		std::string GetType() const { return "heater"; }

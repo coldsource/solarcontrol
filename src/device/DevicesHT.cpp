@@ -20,6 +20,7 @@
 #include <device/DevicesHT.hpp>
 #include <device/DeviceHTWifi.hpp>
 #include <device/DeviceHTBluetooth.hpp>
+#include <configuration/Json.hpp>
 #include <database/DB.hpp>
 #include <logs/Logger.hpp>
 #include <nlohmann/json.hpp>
@@ -62,7 +63,7 @@ void DevicesHT::Reload()
 	auto res = db.Query("SELECT device_id, device_name, device_type, device_config FROM t_device WHERE device_type IN('ht', 'htmini')"_sql);
 	while(res.FetchRow())
 	{
-		auto config = json::parse((string)res["device_config"]);
+		configuration::Json config((string)res["device_config"]);
 
 		DeviceHT *device;
 		if((string)res["device_type"]=="ht")

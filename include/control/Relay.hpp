@@ -17,29 +17,34 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __API_HANDLER_HPP__
-#define __API_HANDLER_HPP__
+#ifndef __CONTROL_RELAY_HPP__
+#define __CONTROL_RELAY_HPP__
 
-#include <nlohmann/json.hpp>
+#include <control/HTTP.hpp>
+#include <control/OnOff.hpp>
 
 #include <string>
 
-namespace configuration {
-	class Json;
-}
+namespace control {
 
-namespace api {
-
-class Handler
+class Relay: public HTTP, public OnOff
 {
-	public:
-		Handler() {}
-		virtual ~Handler() {}
+	bool state = false;
+	int outlet = 0;
 
-		virtual nlohmann::json HandleMessage(const std::string &cmd, const configuration::Json &j) = 0;
+	protected:
+		bool get_output() const;
+
+	public:
+		Relay(const std::string &ip, int outlet);
+
+		void Switch(bool state);
+		bool GetState() const { return state; }
+		void UpdateState();
 };
 
 }
 
 #endif
+
 

@@ -17,8 +17,8 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef _CONFIGURATIONEVQUEUE_H_
-#define _CONFIGURATIONEVQUEUE_H_
+#ifndef  __CONFIGURATION_CONFIGURATIONSOLARCONTROL_H__
+#define  __CONFIGURATION_CONFIGURATIONSOLARCONTROL_H__
 
 #include <string>
 #include <map>

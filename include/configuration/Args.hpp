@@ -17,8 +17,8 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef _ARGS_H_
-#define _ARGS_H_
+#ifndef  __CONFIGURATION_ARGS_H__
+#define  __CONFIGURATION_ARGS_H__
 
 #include <string>
 #include <map>

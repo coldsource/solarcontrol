@@ -26,6 +26,10 @@
 
 #include <string>
 
+namespace configuration {
+	class Json;
+}
+
 namespace device {
 
 class DeviceHTBluetooth: public DeviceHT
@@ -33,7 +37,7 @@ class DeviceHTBluetooth: public DeviceHT
 	control::HTBluetooth *ctrl;
 
 	public:
-		DeviceHTBluetooth(unsigned int id, const std::string &name, const nlohmann::json &config);
+		DeviceHTBluetooth(unsigned int id, const std::string &name, const configuration::Json &config);
 		virtual ~DeviceHTBluetooth();
 
 		std::string GetType() const { return "htmini"; }

@@ -19,17 +19,16 @@
 
 
 #include <device/DeviceHTWifi.hpp>
+#include <configuration/Json.hpp>
 
 using namespace std;
 
 namespace device
 {
 
-DeviceHTWifi::DeviceHTWifi(unsigned int id, const string &name, const nlohmann::json &config): DeviceHT(id, name)
+DeviceHTWifi::DeviceHTWifi(unsigned int id, const string &name, const configuration::Json &config): DeviceHT(id, name)
 {
-	check_config_parameters(config, {"mqtt_id"});
-
-	ctrl = new control::HTWifi(config["mqtt_id"]);
+	ctrl = new control::HTWifi(config.GetString("mqtt_id"));
 }
 
 DeviceHTWifi::~DeviceHTWifi()

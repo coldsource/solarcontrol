@@ -18,9 +18,10 @@
  */
 
 #include <device/DeviceTimeRange.hpp>
-#include <control/Plug.hpp>
+#include <control/OnOff.hpp>
 #include <energy/GlobalMeter.hpp>
 #include <logs/State.hpp>
+#include <configuration/Json.hpp>
 
 #include <stdexcept>
 #include <set>
@@ -31,32 +32,30 @@ using datetime::Timestamp;
 
 namespace device {
 
-DeviceTimeRange::DeviceTimeRange(unsigned int id, const string &name, const json &config): DeviceOnOff(id, name), on_history(id)
+DeviceTimeRange::DeviceTimeRange(unsigned int id, const string &name, const configuration::Json &config): DeviceOnOff(id, name), on_history(id)
 {
 	this->global_meter = energy::GlobalMeter::GetInstance();
 
-	check_config_parameters(config, {"prio", "ip", "force", "offload", "expected_consumption", "remainder", "min_on_time", "min_on_for_last", "min_on", "min_off"});
+	ctrl = control::OnOff::GetFromConfig(config.GetObject("control"));
 
-	ctrl = new control::Plug(config["ip"]);
+	prio = config.GetInt("prio");
 
-	prio = config["prio"];
-
-	for(auto it : config["force"])
+	for(auto it : config.GetArray("force", json::array()))
 		force.push_back(datetime::TimeRange(it));
 
-	for(auto it : config["offload"])
+	for(auto it : config.GetArray("offload", json::array()))
 		offload.push_back(datetime::TimeRange(it));
 
-	expected_consumption = config["expected_consumption"];
+	expected_consumption = config.GetInt("expected_consumption");
 
-	for(auto it : config["remainder"])
+	for(auto it : config.GetArray("remainder", json::array()))
 		remainder.push_back(datetime::TimeRange(it));
 
-	min_on_time = config["min_on_time"];
-	min_on_for_last = config["min_on_for_last"];
+	min_on_time = config.GetInt("min_on_time");
+	min_on_for_last = config.GetInt("min_on_for_last");
 
-	min_on = config["min_on"];
-	min_off = config["min_off"];
+	min_on = config.GetInt("min_on");
+	min_off = config.GetInt("min_off");
 }
 
 DeviceTimeRange::~DeviceTimeRange()

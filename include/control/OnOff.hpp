@@ -20,12 +20,18 @@
 #ifndef __CONTROL_ONOFF_HPP__
 #define __CONTROL_ONOFF_HPP__
 
+namespace configuration {
+	class Json;
+}
+
 namespace control {
 
 class OnOff
 {
 	public:
 		virtual ~OnOff() {}
+
+		static OnOff *GetFromConfig(const configuration::Json &conf);
 
 		virtual void Switch(bool) = 0;
 		virtual bool GetState() const = 0;

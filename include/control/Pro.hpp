@@ -17,29 +17,23 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __API_HANDLER_HPP__
-#define __API_HANDLER_HPP__
+#ifndef __CONTROL_PRO_HPP__
+#define __CONTROL_PRO_HPP__
 
-#include <nlohmann/json.hpp>
+#include <control/Relay.hpp>
 
 #include <string>
 
-namespace configuration {
-	class Json;
-}
+namespace control {
 
-namespace api {
-
-class Handler
+class Pro: public Relay
 {
 	public:
-		Handler() {}
-		virtual ~Handler() {}
-
-		virtual nlohmann::json HandleMessage(const std::string &cmd, const configuration::Json &j) = 0;
+		Pro(const std::string &ip, int outlet);
 };
 
 }
 
 #endif
+
 

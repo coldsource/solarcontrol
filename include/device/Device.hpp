@@ -31,9 +31,6 @@ class Device
 	unsigned int id;
 	std::string name;
 
-	protected:
-		void check_config_parameters( const nlohmann::json &config, const std::vector<std::string> &names);
-
 	public:
 		Device(unsigned int id, const std::string &name);
 		Device(const Device&) = delete;

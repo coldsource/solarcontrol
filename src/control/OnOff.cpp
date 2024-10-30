@@ -17,29 +17,28 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __API_HANDLER_HPP__
-#define __API_HANDLER_HPP__
-
-#include <nlohmann/json.hpp>
+#include <control/OnOff.hpp>
+#include <control/Plug.hpp>
+#include <control/Pro.hpp>
+#include <configuration/Json.hpp>
 
 #include <string>
+#include <stdexcept>
 
-namespace configuration {
-	class Json;
-}
+using namespace std;
 
-namespace api {
-
-class Handler
+namespace control
 {
-	public:
-		Handler() {}
-		virtual ~Handler() {}
 
-		virtual nlohmann::json HandleMessage(const std::string &cmd, const configuration::Json &j) = 0;
-};
+OnOff *OnOff::GetFromConfig(const configuration::Json &conf)
+{
+	string type = conf.GetString("type");
+	if(type=="plug")
+		return new Plug(conf.GetString("ip"));
+	if(type=="pro")
+		return new Pro(conf.GetString("ip"), conf.GetInt("outlet"));
 
+	throw invalid_argument("Unknown control type « " + type + " »");
 }
 
-#endif
-
+}

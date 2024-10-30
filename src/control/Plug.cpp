@@ -26,60 +26,8 @@ using nlohmann::json;
 
 namespace control {
 
-Plug::Plug(const std::string &ip): HTTP(ip)
+Plug::Plug(const string &ip): Relay(ip, 0)
 {
-	state = false;
-}
-
-void Plug::Switch(bool new_state)
-{
-	if(ip=="")
-		return;
-
-	json j;
-	j["id"] = 1;
-	j["method"] = "Switch.Set";
-	j["params"]["id"] = 0;
-	j["params"]["on"] = new_state;
-
-	try
-	{
-		Post(j);
-	}
-	catch(exception &e)
-	{
-		logs::Logger::Log(LOG_WARNING, "Unable to set plug state : « " + string(e.what()) + " »");
-		return;
-	}
-
-	state = new_state;
-}
-
-bool Plug::get_output() const
-{
-	if(ip=="")
-		return false;
-
-	json j;
-	j["id"] = 1;
-	j["method"] = "Switch.GetStatus";
-	j["params"]["id"] = 0;
-
-	try
-	{
-		auto out = Post(j);
-		return out["result"]["output"];
-	}
-	catch(exception &e)
-	{
-		logs::Logger::Log(LOG_WARNING, "Unable to get plug state : « " + string(e.what()) + " »");
-		return false;
-	}
-}
-
-void Plug::UpdateState()
-{
-	state = get_output();
 }
 
 }

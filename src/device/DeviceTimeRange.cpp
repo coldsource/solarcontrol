@@ -46,16 +46,16 @@ DeviceTimeRange::DeviceTimeRange(unsigned int id, const string &name, const conf
 	for(auto it : config.GetArray("offload", json::array()))
 		offload.push_back(datetime::TimeRange(it));
 
-	expected_consumption = config.GetInt("expected_consumption");
+	expected_consumption = config.GetInt("expected_consumption", 0);
 
 	for(auto it : config.GetArray("remainder", json::array()))
 		remainder.push_back(datetime::TimeRange(it));
 
-	min_on_time = config.GetInt("min_on_time");
-	min_on_for_last = config.GetInt("min_on_for_last");
+	min_on_time = config.GetInt("min_on_time", 0);
+	min_on_for_last = config.GetInt("min_on_for_last", 0);
 
-	min_on = config.GetInt("min_on");
-	min_off = config.GetInt("min_off");
+	min_on = config.GetInt("min_on", 0);
+	min_off = config.GetInt("min_off", 0);
 }
 
 DeviceTimeRange::~DeviceTimeRange()

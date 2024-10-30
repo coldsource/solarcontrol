@@ -47,8 +47,21 @@ void DeviceHWS::CreateInDB()
 	if(res.FetchRow())
 		return; // Already in database
 
-	string config = "{\"prio\": 0, \"ip\": \"192.168.16.21\", \"min_energy\": 0, \"min_energy_for_last\": 1, \"force\": [], \"offload\": [], \"remainder\": [], \"expected_consumption\": 0, \"min_on_time\": 0, \"min_off_time\": 0, \"min_on_for_last\": 0, \"min_on\": 0, \"min_off\": 0}";
-	db.Query("INSERT INTO t_device(device_type, device_name, device_config) VALUES('hws', 'hws', %s)"_sql<<config);
+	json config;
+	config["prio"] = 0;
+
+	json control;
+	control["type"] = "pro";
+	control["ip"] = "";
+	control["outlet"] = 0;
+	config["control"] = control;
+
+	config["force"] = json::array();
+	config["remainder"] = json::array();
+	config["min_energy"] = 0;
+	config["min_energy_for_last"] = 0;
+
+	db.Query("INSERT INTO t_device(device_type, device_name, device_config) VALUES('hws', 'hws', %s)"_sql<<config.dump());
 }
 
 }

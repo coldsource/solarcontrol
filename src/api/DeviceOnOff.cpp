@@ -37,14 +37,14 @@ void DeviceOnOff::check_config(const configuration::Json &j_config, const string
 {
 	j_config.Check("prio", "int");
 	j_config.Check("control", "object");
-	j_config.Check("expected_consumption", "int");
-	j_config.Check("offload", "array");
-	j_config.Check("force", "array");
-	j_config.Check("remainder", "array");
-	j_config.Check("min_on_time", "int");
-	j_config.Check("min_on_for_last", "int");
-	j_config.Check("min_on", "int");
-	j_config.Check("min_off", "int");
+	j_config.Check("expected_consumption", "int", false);
+	j_config.Check("offload", "array", false);
+	j_config.Check("force", "array", false);
+	j_config.Check("remainder", "array", false);
+	j_config.Check("min_on_time", "int", false);
+	j_config.Check("min_on_for_last", "int", false);
+	j_config.Check("min_on", "int", false);
+	j_config.Check("min_off", "int", false);
 
 	if(device_type=="heater")
 	{

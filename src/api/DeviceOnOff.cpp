@@ -114,14 +114,17 @@ json DeviceOnOff::HandleMessage(const string &cmd, const configuration::Json &j_
 		if(!res.FetchRow())
 			throw invalid_argument("Uknown device_id : « " + to_string(device_id) + " »");
 
-		json device;
-		device["device_id"] = res["device_id"];
-		device["device_name"] = res["device_name"];
-		device["device_type"] = res["device_type"];
-		device["device_config"] = json::parse(string(res["device_config"]));
-		device["state"] = devices.GetByID(res["device_id"])->GetState();
+		json j_device;
+		j_device["device_id"] = stoi(res["device_id"]);
+		j_device["device_name"] = res["device_name"];
+		j_device["device_type"] = res["device_type"];
+		j_device["device_config"] = json::parse(string(res["device_config"]));
 
-		return device;
+		auto device = devices.GetByID(res["device_id"]);
+		j_device["state"] = device->GetState();
+		j_device["manual"] = device->IsManual();
+
+		return j_device;
 	}
 	else if(cmd=="set")
 	{

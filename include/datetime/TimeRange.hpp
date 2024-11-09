@@ -32,6 +32,7 @@ class TimeRange
 	HourMinuteSecond start;
 	HourMinuteSecond end;
 	std::set<int> days_of_week;
+	bool offpeak = false;
 
 	public:
 		TimeRange(const HourMinuteSecond &start, const HourMinuteSecond &end, const std::set<int> &days_of_week = {});

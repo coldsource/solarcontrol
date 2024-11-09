@@ -19,6 +19,7 @@
 
 #include <datetime/TimeRange.hpp>
 #include <datetime/DateTime.hpp>
+#include <energy/GlobalMeter.hpp>
 
 #include <stdexcept>
 
@@ -43,17 +44,28 @@ TimeRange::TimeRange(const json &j)
 	start = HourMinuteSecond(j["from"]);
 	end = HourMinuteSecond(j["to"]);
 
-	if(!j.contains("days_of_week"))
-		return;
+	if(j.contains("offpeak"))
+	{
+		if(j["offpeak"].type()!=json::value_t::boolean)
+			throw invalid_argument("« offpeak » must be a boolean");
 
-	if(j["days_of_week"].type()!=json::value_t::array)
-		throw invalid_argument("« days_of_week » must be an array");
+		offpeak = j["offpeak"];
+	}
 
-	days_of_week = set<int>(j["days_of_week"]);
+	if(j.contains("days_of_week"))
+	{
+		if(j["days_of_week"].type()!=json::value_t::array)
+			throw invalid_argument("« days_of_week » must be an array");
+
+		days_of_week = set<int>(j["days_of_week"]);
+	}
 }
 
 bool TimeRange::IsActive() const
 {
+	if(offpeak && !energy::GlobalMeter::GetInstance()->GetOffPeak())
+		return false;
+
 	DateTime t;
 	if(days_of_week.size()>0 && !days_of_week.contains(t.GetEUWeekDay()))
 		return false;

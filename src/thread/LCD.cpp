@@ -62,7 +62,7 @@ void LCD::main()
 	auto config = configuration::ConfigurationSolarControl::GetInstance();
 
 	string path = config->Get("display.lcd.path");
-	int address = 0x27;//config->Get("display.lcd.address");
+	int address = config->GetInt("display.lcd.address");
 	int line_size = config->GetInt("display.lcd.linesize");
 
 	display::LCDDisplay lcd(path, address, line_size);

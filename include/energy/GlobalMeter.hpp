@@ -29,6 +29,10 @@ namespace energy {
 	class Counter;
 }
 
+namespace control {
+	class Input;
+}
+
 namespace energy {
 
 class GlobalMeter: public mqtt::Subscriber
@@ -36,6 +40,11 @@ class GlobalMeter: public mqtt::Subscriber
 	Counter grid;
 	Counter pv;
 	Counter hws;
+	Counter peak;
+	Counter offpeak;
+
+	std::string topic_em;
+	control::Input *offpeak_ctrl = 0;
 
 	double hws_min_energy = 0;
 
@@ -45,6 +54,7 @@ class GlobalMeter: public mqtt::Subscriber
 protected:
 	public:
 		GlobalMeter();
+		~GlobalMeter();
 
 		static GlobalMeter *GetInstance() { return instance; }
 
@@ -62,11 +72,17 @@ protected:
 		double GetPVEnergy() const; // Total produced energy
 		double GetHWSEnergy() const; // Total energy consummed by HWS
 
+		bool GetOffPeak() const;
+		bool GetOffPeakEnergy() const;
+		bool GetPeakEnergy() const;
+
 		double GetTotalHWSConsuptionForLast(int ndays) { return hws.GetTotalConsumptionForLast(ndays); }
 		const std::map<datetime::Date, double> &GetGridConsumptionHistory() const { return grid.GetConsumptionHistory(); }
 		const std::map<datetime::Date, double> &GetGridExcessHistory() const { return grid.GetExcessHistory(); }
 		const std::map<datetime::Date, double> &GetPVProductionHistory() const { return pv.GetConsumptionHistory(); }
 		const std::map<datetime::Date, double> &GetHWSConsumptionHistory() const { return hws.GetConsumptionHistory(); }
+		const std::map<datetime::Date, double> &GetOffPeakConsumptionHistory() const { return offpeak.GetConsumptionHistory(); }
+		const std::map<datetime::Date, double> &GetPeakConsumptionHistory() const { return peak.GetConsumptionHistory(); }
 
 		void SaveHistory();
 

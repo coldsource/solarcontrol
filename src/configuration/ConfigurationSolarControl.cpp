@@ -42,6 +42,9 @@ ConfigurationSolarControl::ConfigurationSolarControl(void)
 	entries["core.history.maxdays"] = "30";
 	entries["energy.hws.min"] = "3000";
 	entries["energy.mqtt.id"] = "";
+	entries["offpeak.mqtt.id"] = "";
+	entries["offpeak.input"] = "0";
+	entries["offpeak.ip"] = "";
 	entries["mqtt.id"] = "solarcontrol";
 	entries["mqtt.host"] = "127.0.0.1";
 	entries["mqtt.port"] = "1883";
@@ -63,6 +66,7 @@ void ConfigurationSolarControl::Check(void)
 {
 	check_int_entry("control.cooldown.on");
 	check_int_entry("core.history.maxdays");
+	check_int_entry("offpeak.input");
 
 	if(GetInt("control.cooldown.on")<0)
 		throw invalid_argument("control.cooldown.on : must be greater than 0");

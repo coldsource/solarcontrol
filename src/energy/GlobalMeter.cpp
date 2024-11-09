@@ -19,6 +19,7 @@
 
 #include <energy/GlobalMeter.hpp>
 #include <energy/Counter.hpp>
+#include <control/Input.hpp>
 #include <nlohmann/json.hpp>
 #include <configuration/ConfigurationSolarControl.hpp>
 #include <mqtt/Client.hpp>
@@ -33,14 +34,28 @@ namespace energy {
 GlobalMeter * GlobalMeter::instance = 0;
 
 GlobalMeter::GlobalMeter()
-:grid("grid", "grid-excess"), pv("pv"), hws("hws")
+:grid("grid", "grid-excess"), pv("pv"), hws("hws"), peak("peak"), offpeak("offpeak")
 {
-	string topic = ConfigurationSolarControl::GetInstance()->Get("energy.mqtt.id") + "/events/rpc";
+	topic_em = ConfigurationSolarControl::GetInstance()->Get("energy.mqtt.id") + "/events/rpc";
 	hws_min_energy = configuration::ConfigurationSolarControl::GetInstance()->GetInt("energy.hws.min");
+	mqtt::Client::GetInstance()->Subscribe(topic_em, this);
 
-	mqtt::Client::GetInstance()->Subscribe(topic, this);
+	string offpeak_mqtt_id = ConfigurationSolarControl::GetInstance()->Get("offpeak.mqtt.id");
+	if(offpeak_mqtt_id!="")
+	{
+		string ip = ConfigurationSolarControl::GetInstance()->Get("offpeak.ip");
+		int input = ConfigurationSolarControl::GetInstance()->GetInt("offpeak.input");
+		offpeak_ctrl = new control::Input(offpeak_mqtt_id, input, ip);
+		offpeak_ctrl->UpdateState();
+	}
 
 	instance = this;
+}
+
+GlobalMeter::~GlobalMeter()
+{
+	if(offpeak_ctrl)
+		delete offpeak_ctrl;
 }
 
 double GlobalMeter::GetGridPower() const
@@ -125,14 +140,40 @@ double GlobalMeter::GetHWSEnergy() const
 	return hws.GetEnergyConsumption();
 }
 
+bool GlobalMeter::GetOffPeak() const
+{
+	unique_lock<recursive_mutex> llock(lock);
+
+	if(!offpeak_ctrl)
+		return false;
+
+	return offpeak_ctrl->GetState();
+}
+
+bool GlobalMeter::GetOffPeakEnergy() const
+{
+	unique_lock<recursive_mutex> llock(lock);
+
+	return peak.GetEnergyConsumption();
+}
+
+bool GlobalMeter::GetPeakEnergy() const
+{
+	unique_lock<recursive_mutex> llock(lock);
+
+	return offpeak.GetEnergyConsumption();
+}
+
 void GlobalMeter::SaveHistory()
 {
 	grid.SaveHistory();
 	pv.SaveHistory();
 	hws.SaveHistory();
+	peak.SaveHistory();
+	offpeak.SaveHistory();
 }
 
-void GlobalMeter::HandleMessage(const std::string &message)
+void GlobalMeter::HandleMessage(const string &message)
 {
 	unique_lock<recursive_mutex> llock(lock);
 
@@ -141,6 +182,7 @@ void GlobalMeter::HandleMessage(const std::string &message)
 	try
 	{
 		json j = json::parse(message);
+
 		power_grid = j["params"]["em:0"]["a_act_power"];
 		power_pv = j["params"]["em:0"]["b_act_power"];
 		power_hws = j["params"]["em:0"]["c_act_power"];
@@ -153,6 +195,15 @@ void GlobalMeter::HandleMessage(const std::string &message)
 	grid.SetPower(power_grid);
 	pv.SetPower(power_pv);
 	hws.SetPower(power_hws);
+
+	if(offpeak_ctrl)
+	{
+		if(offpeak_ctrl->GetState())
+			offpeak.SetPower(power_grid);
+		else
+			peak.SetPower(power_grid);
+	}
 }
+
 
 }

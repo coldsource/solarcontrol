@@ -127,6 +127,8 @@ std::string SolarControl::lws_callback_server_writeable(struct lws *wsi, unsigne
 		j["pv_energy"] = global->GetPVEnergy();
 		j["hws_energy"] = global->GetHWSEnergy();
 
+		j["offpeak"] = global->GetOffPeak();
+
 		return string(j.dump());
 	}
 

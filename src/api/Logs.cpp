@@ -78,6 +78,12 @@ json Logs::HandleMessage(const string &cmd, const configuration::Json &j_params)
 		for(auto hws_consumption : global_meter->GetHWSConsumptionHistory())
 			j_res[string(hws_consumption.first)]["hws_consumption"] = hws_consumption.second;
 
+		for(auto offpeak_consumption : global_meter->GetOffPeakConsumptionHistory())
+			j_res[string(offpeak_consumption.first)]["offpeak_consumption"] = offpeak_consumption.second;
+
+		for(auto peak_consumption : global_meter->GetPeakConsumptionHistory())
+			j_res[string(peak_consumption.first)]["peak_consumption"] = peak_consumption.second;
+
 		return j_res;
 	}
 

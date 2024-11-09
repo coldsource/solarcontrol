@@ -3,20 +3,9 @@
 #include <curl/curl.h>
 #include <signal.h>
 
-#include <datetime/DateTime.hpp>
-#include <datetime/Date.hpp>
 #include <mqtt/Client.hpp>
-#include <datetime/Timestamp.hpp>
-#include <datetime/HourMinuteSecond.hpp>
-#include <datetime/DateTimeRange.hpp>
-#include <datetime/TimespanHistory.hpp>
-#include <energy/Counter.hpp>
 #include <energy/GlobalMeter.hpp>
-#include <energy/History.hpp>
-#include <control/Plug.hpp>
-#include <device/Device.hpp>
 #include <device/Devices.hpp>
-#include <device/DeviceTimeRange.hpp>
 #include <device/DeviceHWS.hpp>
 #include <thread/DevicesManager.hpp>
 #include <utils/signal.hpp>
@@ -25,14 +14,11 @@
 #include <configuration/ConfigurationReader.hpp>
 #include <configuration/ConfigurationSolarControl.hpp>
 #include <database/DB.hpp>
-#include <database/Query.hpp>
 #include <websocket/SolarControl.hpp>
 #include <thread/LCD.hpp>
 
 #include <nlohmann/json.hpp>
 
-#include <vector>
-#include <set>
 #include <map>
 
 using nlohmann::json;

@@ -25,7 +25,6 @@
 #include <datetime/TimespanHistory.hpp>
 #include <datetime/Timestamp.hpp>
 #include <control/OnOff.hpp>
-#include <nlohmann/json.hpp>
 
 #include <string>
 #include <vector>

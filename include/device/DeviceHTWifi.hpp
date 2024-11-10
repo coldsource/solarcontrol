@@ -22,7 +22,6 @@
 
 #include <device/DeviceHT.hpp>
 #include <control/HTWifi.hpp>
-#include <nlohmann/json.hpp>
 
 #include <string>
 

@@ -48,7 +48,8 @@ class DevicesHT: public std::unordered_set<DeviceHT *>
 		void Lock() { d_mutex.lock(); }
 		void Unlock() { d_mutex.unlock(); }
 
-		void Reload();
+		void Reload(bool notify = true);
+		void Unload();
 };
 
 }

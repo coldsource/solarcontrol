@@ -20,6 +20,9 @@
 #include <websocket/SolarControl.hpp>
 #include <database/DB.hpp>
 #include <energy/GlobalMeter.hpp>
+#include <device/Devices.hpp>
+#include <device/DevicesOnOff.hpp>
+#include <device/DevicesHT.hpp>
 #include <nlohmann/json.hpp>
 
 using namespace std;
@@ -42,7 +45,7 @@ SolarControl::~SolarControl()
 
 void SolarControl::NotifyAll(unsigned int protocol)
 {
-	unique_lock<mutex> llock(lock);
+	unique_lock<recursive_mutex> llock(lock);
 
 	for(auto client : clients[protocol])
 		lws_callback_on_writable(client);
@@ -55,6 +58,7 @@ map<string, unsigned int> SolarControl::get_protocols()
 	map<string, unsigned int> protocols;
 	protocols["api"] = en_protocols::API;
 	protocols["meter"] = en_protocols::METER;
+	protocols["device"] = en_protocols::DEVICE;
 	return protocols;
 }
 
@@ -75,16 +79,19 @@ void SolarControl::stop_thread(void)
 
 void *SolarControl::lws_callback_established(struct lws *wsi, unsigned int protocol)
 {
-	unique_lock<mutex> llock(lock);
+	unique_lock<recursive_mutex> llock(lock);
 
 	clients[protocol].insert(wsi);
 
-	return new st_api_context();;
+	if(protocol==DEVICE || protocol==METER)
+		NotifyAll(protocol);
+
+	return new st_api_context();
 }
 
 void SolarControl::lws_callback_closed(struct lws *wsi, unsigned int protocol, void *user_data)
 {
-	unique_lock<mutex> llock(lock);
+	unique_lock<recursive_mutex> llock(lock);
 
 	clients[protocol].erase(wsi);
 	delete (st_api_context *)user_data;
@@ -130,6 +137,41 @@ std::string SolarControl::lws_callback_server_writeable(struct lws *wsi, unsigne
 		j["offpeak"] = global->GetOffPeak();
 
 		return string(j.dump());
+	}
+	else if(protocol==DEVICE)
+	{
+		json j_devices = json::array();
+
+		device::DevicesOnOff &devices_onoff = device::Devices::GetInstance()->GetOnOff();
+		for(auto device : devices_onoff)
+		{
+			json j_device;
+			j_device["device_id"] = device->GetID();
+			j_device["device_type"] = device->GetType();
+			j_device["device_name"] = device->GetName();
+			j_device["device_config"] = (json)device->GetConfig();
+			j_device["state"] = device->GetState();
+			j_device["manual"] = device->IsManual();
+
+			j_devices.push_back(j_device);
+		}
+
+		device::DevicesHT &devices_ht = device::Devices::GetInstance()->GetHT();
+		for(auto device : devices_ht)
+		{
+			json j_device;
+
+			j_device["device_id"] = device->GetID();
+			j_device["device_type"] = device->GetType();
+			j_device["device_name"] = device->GetName();
+			j_device["device_config"] = (json)device->GetConfig();
+			j_device["temperature"] = device->GetTemperature();
+			j_device["humidity"] = device->GetHumidity();
+
+			j_devices.push_back(j_device);
+		}
+
+		return string(j_devices.dump());
 	}
 
 	return "";

@@ -32,7 +32,7 @@ using datetime::Timestamp;
 
 namespace device {
 
-DeviceTimeRange::DeviceTimeRange(unsigned int id, const string &name, const configuration::Json &config): DeviceOnOff(id, name), on_history(id)
+DeviceTimeRange::DeviceTimeRange(unsigned int id, const string &name, const configuration::Json &config): DeviceOnOff(id, name,config), on_history(id)
 {
 	this->global_meter = energy::GlobalMeter::GetInstance();
 
@@ -148,7 +148,8 @@ void DeviceTimeRange::UpdateState()
 
 	bool new_state = ctrl->GetState();
 
-	if(new_state!=cur_state)
+	// If we are reloading we do not need to clock in/out as data has already been reloaded from database
+	if(new_state!=cur_state && !need_update)
 		SetState(new_state);
 
 	need_update = false;

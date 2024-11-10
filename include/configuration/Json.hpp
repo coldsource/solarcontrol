@@ -54,6 +54,7 @@ class Json
 		const Json GetObject(const std::string &name) const;
 
 		const std::string ToString() const { return json.dump(); }
+		operator nlohmann::json() const { return json; }
 };
 
 }

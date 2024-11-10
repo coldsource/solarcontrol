@@ -30,6 +30,8 @@ namespace control {
 
 class Input: public HTTP, public mqtt::Subscriber
 {
+	std::string topic;
+
 	bool state = false;
 	int input = 0;
 
@@ -40,7 +42,7 @@ class Input: public HTTP, public mqtt::Subscriber
 
 	public:
 		Input(const std::string &mqtt_id, int input, const std::string &ip = "");
-		virtual ~Input() {}
+		virtual ~Input();
 
 		bool GetState() const { return state; }
 		void UpdateState();

@@ -22,13 +22,12 @@
 
 #include <device/Device.hpp>
 
-
 namespace device {
 
 class DeviceHT: public Device
 {
 	public:
-		DeviceHT(unsigned int id, const std::string &name): Device(id, name) {}
+		DeviceHT(unsigned int id, const std::string &name, const configuration::Json &config): Device(id, name, config) {}
 
 		virtual double GetTemperature() const = 0;
 		virtual double GetHumidity() const = 0;

@@ -24,6 +24,7 @@
 
 #include <string>
 #include <map>
+#include <set>
 #include <thread>
 #include <mutex>
 
@@ -38,7 +39,7 @@ class Client
 	std::thread loop_handle;
 	std::mutex lock;
 
-	std::map<std::string, Subscriber *> subscribers;
+	std::map<std::string, std::set<Subscriber *>> subscribers;
 
 	static void message_callback(struct mosquitto *mosq, void *obj, const struct mosquitto_message *message);
 	static void loop(Client *mqtt);
@@ -53,6 +54,7 @@ class Client
 		static Client *GetInstance() { return instance; }
 
 		void Subscribe(const std::string &topic, Subscriber *subscriber);
+		void Unsubscribe(const std::string &topic, Subscriber *subscriber);
 
 		void Shutdown();
 		void WaitForShutdown();

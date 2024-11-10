@@ -20,7 +20,7 @@
 #ifndef __DEVICE_DEVICE_HPP__
 #define __DEVICE_DEVICE_HPP__
 
-#include <nlohmann/json.hpp>
+#include <configuration/Json.hpp>
 
 #include <string>
 
@@ -30,9 +30,10 @@ class Device
 {
 	unsigned int id;
 	std::string name;
+	configuration::Json config;
 
 	public:
-		Device(unsigned int id, const std::string &name);
+		Device(unsigned int id, const std::string &name, const configuration::Json &config);
 		Device(const Device&) = delete;
 		virtual ~Device() {}
 
@@ -40,6 +41,7 @@ class Device
 
 		unsigned int GetID() const { return id; }
 		std::string GetName() const { return name; }
+		const configuration::Json GetConfig() const { return config; }
 };
 
 }

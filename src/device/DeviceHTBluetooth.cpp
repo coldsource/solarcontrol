@@ -26,7 +26,7 @@ using namespace std;
 namespace device
 {
 
-DeviceHTBluetooth::DeviceHTBluetooth(unsigned int id, const string &name, const configuration::Json &config): DeviceHT(id, name)
+DeviceHTBluetooth::DeviceHTBluetooth(unsigned int id, const string &name, const configuration::Json &config): DeviceHT(id, name, config)
 {
 	ctrl = new control::HTBluetooth(config.GetString("ble_addr"));
 }

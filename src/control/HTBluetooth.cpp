@@ -19,6 +19,7 @@
 
 #include <control/HTBluetooth.hpp>
 #include <mqtt/Client.hpp>
+#include <websocket/SolarControl.hpp>
 #include <nlohmann/json.hpp>
 
 using namespace std;
@@ -30,7 +31,14 @@ namespace control
 HTBluetooth::HTBluetooth(const string &ble_addr)
 {
 	auto mqtt = mqtt::Client::GetInstance();
-	mqtt->Subscribe("blegateway/" + ble_addr + "/sensor", this);
+	topic = "blegateway/" + ble_addr + "/sensor";
+	mqtt->Subscribe(topic, this);
+}
+
+HTBluetooth::~HTBluetooth()
+{
+	auto mqtt = mqtt::Client::GetInstance();
+	mqtt->Unsubscribe(topic, this);
 }
 
 double HTBluetooth::GetTemperature() const
@@ -49,18 +57,23 @@ double HTBluetooth::GetHumidity() const
 
 void HTBluetooth::HandleMessage(const string &message)
 {
-	unique_lock<mutex> llock(lock);
+	{
+		unique_lock<mutex> llock(lock);
 
-	try
-	{
-		json j = json::parse(message);
-		humidity = j["humidity"];
-		temperature = j["temperature"];
+		try
+		{
+			json j = json::parse(message);
+			humidity = j["humidity"];
+			temperature = j["temperature"];
+		}
+		catch(json::exception &e)
+		{
+			return;
+		}
 	}
-	catch(json::exception &e)
-	{
-		return;
-	}
+
+	if(websocket::SolarControl::GetInstance())
+		websocket::SolarControl::GetInstance()->NotifyAll(websocket::SolarControl::en_protocols::DEVICE);
 }
 
 }

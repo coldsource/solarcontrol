@@ -40,6 +40,7 @@ class Devices
 		static Devices *GetInstance() { return instance; }
 
 		void Reload();
+		void Unload();
 
 		DevicesOnOff &GetOnOff() { return devices_onoff; }
 		DevicesHT &GetHT() { return devices_ht; }

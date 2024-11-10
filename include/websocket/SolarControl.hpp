@@ -33,7 +33,7 @@ namespace websocket
 class SolarControl: public Server
 {
 	static SolarControl *instance;
-	std::mutex lock;
+	std::recursive_mutex lock;
 
 	std::map<unsigned int, std::set<struct lws *>> clients;
 
@@ -49,6 +49,7 @@ class SolarControl: public Server
 		{
 			API,
 			METER,
+			DEVICE
 		};
 
 		SolarControl();

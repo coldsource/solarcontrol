@@ -26,6 +26,7 @@
 #include <database/DB.hpp>
 #include <logs/Logger.hpp>
 #include <nlohmann/json.hpp>
+#include <websocket/SolarControl.hpp>
 
 #include <stdexcept>
 
@@ -54,34 +55,45 @@ DeviceOnOff *DevicesOnOff::GetByID(unsigned int id) const
 	return it->second;
 }
 
-void DevicesOnOff::Reload()
+void DevicesOnOff::Reload(bool notify)
+{
+	{
+		unique_lock<mutex> llock(d_mutex);
+
+		logs::Logger::Log(LOG_NOTICE, "Loading devices OnOff");
+
+		free();
+
+		database::DB db;
+
+		auto res = db.Query("SELECT device_id, device_name, device_type, device_config FROM t_device WHERE device_type IN('timerange', 'heater', 'hws', 'cmv')"_sql);
+		while(res.FetchRow())
+		{
+			configuration::Json config((string)res["device_config"]);
+
+			DeviceOnOff *device;
+			if((string)res["device_type"]=="timerange")
+				device = new DeviceTimeRange(res["device_id"], res["device_name"], config);
+			else if((string)res["device_type"]=="heater")
+				device = new DeviceHeater(res["device_id"], res["device_name"], config);
+			else if((string)res["device_type"]=="cmv")
+				device = new DeviceCMV(res["device_id"], res["device_name"], config);
+			else if((string)res["device_type"]=="hws")
+				device = new DeviceHWS(res["device_id"], res["device_name"], config);
+
+			insert(device);
+			id_device.insert(pair<unsigned int, DeviceOnOff *>(res["device_id"], device));
+		}
+	}
+
+	if(notify && websocket::SolarControl::GetInstance())
+		websocket::SolarControl::GetInstance()->NotifyAll(websocket::SolarControl::en_protocols::DEVICE);
+}
+
+void DevicesOnOff::Unload()
 {
 	unique_lock<mutex> llock(d_mutex);
-
-	logs::Logger::Log(LOG_NOTICE, "Loading devices OnOff");
-
 	free();
-
-	database::DB db;
-
-	auto res = db.Query("SELECT device_id, device_name, device_type, device_config FROM t_device WHERE device_type IN('timerange', 'heater', 'hws', 'cmv')"_sql);
-	while(res.FetchRow())
-	{
-		configuration::Json config((string)res["device_config"]);
-
-		DeviceOnOff *device;
-		if((string)res["device_type"]=="timerange")
-			device = new DeviceTimeRange(res["device_id"], res["device_name"], config);
-		else if((string)res["device_type"]=="heater")
-			device = new DeviceHeater(res["device_id"], res["device_name"], config);
-		else if((string)res["device_type"]=="cmv")
-			device = new DeviceCMV(res["device_id"], res["device_name"], config);
-		else if((string)res["device_type"]=="hws")
-			device = new DeviceHWS(res["device_id"], res["device_name"], config);
-
-		insert(device);
-		id_device.insert(pair<unsigned int, DeviceOnOff *>(res["device_id"], device));
-	}
 }
 
 void DevicesOnOff::free()

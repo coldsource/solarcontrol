@@ -73,7 +73,7 @@ class DeviceTimeRange: public DeviceOnOff
 		DeviceTimeRange(unsigned int id, const std::string &name, const configuration::Json &config);
 		virtual ~DeviceTimeRange();
 
-		std::string GetType() const { return "timerange-plug"; }
+		std::string GetType() const { return "timerange"; }
 
 		virtual bool IsForced() const;
 		virtual bool WantOffload() const;

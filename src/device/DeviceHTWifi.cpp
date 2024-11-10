@@ -26,7 +26,7 @@ using namespace std;
 namespace device
 {
 
-DeviceHTWifi::DeviceHTWifi(unsigned int id, const string &name, const configuration::Json &config): DeviceHT(id, name)
+DeviceHTWifi::DeviceHTWifi(unsigned int id, const string &name, const configuration::Json &config): DeviceHT(id, name, config)
 {
 	ctrl = new control::HTWifi(config.GetString("mqtt_id"));
 }

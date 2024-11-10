@@ -56,7 +56,8 @@ class DevicesOnOff: public std::multiset<DeviceOnOff *, DevicesPtrComparator>
 		void Lock() { d_mutex.lock(); }
 		void Unlock() { d_mutex.unlock(); }
 
-		void Reload();
+		void Reload(bool notify = true);
+		void Unload();
 };
 
 }

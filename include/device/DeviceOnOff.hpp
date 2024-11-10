@@ -32,7 +32,7 @@ class DeviceOnOff: public Device
 		int prio = 0;
 
 	public:
-		DeviceOnOff(unsigned int id, const std::string &name): Device(id, name) {}
+		DeviceOnOff(unsigned int id, const std::string &name, const configuration::Json &config): Device(id, name, config) {}
 
 		int GetPrio() const { return prio; }
 

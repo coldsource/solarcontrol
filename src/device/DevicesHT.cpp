@@ -23,6 +23,7 @@
 #include <configuration/Json.hpp>
 #include <database/DB.hpp>
 #include <logs/Logger.hpp>
+#include <websocket/SolarControl.hpp>
 #include <nlohmann/json.hpp>
 
 using namespace std;
@@ -50,30 +51,41 @@ DeviceHT *DevicesHT::GetByID(unsigned int id) const
 	return it->second;
 }
 
-void DevicesHT::Reload()
+void DevicesHT::Reload(bool notify)
+{
+	{
+		unique_lock<mutex> llock(d_mutex);
+
+		logs::Logger::Log(LOG_NOTICE, "Loading devices HT");
+
+		free();
+
+		database::DB db;
+
+		auto res = db.Query("SELECT device_id, device_name, device_type, device_config FROM t_device WHERE device_type IN('ht', 'htmini')"_sql);
+		while(res.FetchRow())
+		{
+			configuration::Json config((string)res["device_config"]);
+
+			DeviceHT *device;
+			if((string)res["device_type"]=="ht")
+				device = new DeviceHTWifi(res["device_id"], res["device_name"], config);
+			else if((string)res["device_type"]=="htmini")
+				device = new DeviceHTBluetooth(res["device_id"], res["device_name"], config);
+
+			insert(device);
+			id_device.insert(pair<unsigned int, DeviceHT *>(res["device_id"], device));
+		}
+	}
+
+	if(notify && websocket::SolarControl::GetInstance())
+		websocket::SolarControl::GetInstance()->NotifyAll(websocket::SolarControl::en_protocols::DEVICE);
+}
+
+void DevicesHT::Unload()
 {
 	unique_lock<mutex> llock(d_mutex);
-
-	logs::Logger::Log(LOG_NOTICE, "Loading devices HT");
-
 	free();
-
-	database::DB db;
-
-	auto res = db.Query("SELECT device_id, device_name, device_type, device_config FROM t_device WHERE device_type IN('ht', 'htmini')"_sql);
-	while(res.FetchRow())
-	{
-		configuration::Json config((string)res["device_config"]);
-
-		DeviceHT *device;
-		if((string)res["device_type"]=="ht")
-			device = new DeviceHTWifi(res["device_id"], res["device_name"], config);
-		else if((string)res["device_type"]=="htmini")
-			device = new DeviceHTBluetooth(res["device_id"], res["device_name"], config);
-
-		insert(device);
-		id_device.insert(pair<unsigned int, DeviceHT *>(res["device_id"], device));
-	}
 }
 
 void DevicesHT::free()

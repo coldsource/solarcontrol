@@ -44,8 +44,6 @@ DevicesManager::DevicesManager()
 
 void DevicesManager::main()
 {
-	auto global = energy::GlobalMeter::GetInstance();
-
 	device::DevicesOnOff &devices = device::Devices::GetInstance()->GetOnOff();
 
 	auto config = configuration::ConfigurationSolarControl::GetInstance();
@@ -57,6 +55,7 @@ void DevicesManager::main()
 	while(true)
 	{
 		devices.Lock();
+		bool state_changed = false;
 
 		try
 		{
@@ -90,6 +89,7 @@ void DevicesManager::main()
 					continue;
 
 				device->SetState(new_state);
+				state_changed = true;
 				if(new_state)
 					last_start_ts = now;
 			}
@@ -101,8 +101,8 @@ void DevicesManager::main()
 
 		devices.Unlock();
 
-		if(websocket::SolarControl::GetInstance())
-			websocket::SolarControl::GetInstance()->NotifyAll(websocket::SolarControl::en_protocols::METER);
+		if(websocket::SolarControl::GetInstance() && state_changed)
+			websocket::SolarControl::GetInstance()->NotifyAll(websocket::SolarControl::en_protocols::DEVICE);
 
 		if(!wait(1))
 			return;

@@ -20,14 +20,14 @@
 #include <device/Device.hpp>
 
 using namespace std;
-using nlohmann::json;
 
 namespace device {
 
-Device::Device(unsigned int id, const string &name)
+Device::Device(unsigned int id, const string &name, const configuration::Json &config)
 {
 	this->id = id;
 	this->name = name;
+	this->config = config;
 }
 
 }

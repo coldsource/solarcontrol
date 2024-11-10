@@ -19,6 +19,7 @@
 
 #include <control/HTWifi.hpp>
 #include <mqtt/Client.hpp>
+#include <websocket/SolarControl.hpp>
 #include <nlohmann/json.hpp>
 
 using namespace std;
@@ -30,7 +31,14 @@ namespace control
 HTWifi::HTWifi(const string &mqtt_id)
 {
 	auto mqtt = mqtt::Client::GetInstance();
-	mqtt->Subscribe(mqtt_id + "/events/rpc", this);
+	topic = mqtt_id + "/events/rpc";
+	mqtt->Subscribe(topic, this);
+}
+
+HTWifi::~HTWifi()
+{
+	auto mqtt = mqtt::Client::GetInstance();
+	mqtt->Unsubscribe(topic, this);
 }
 
 double HTWifi::GetTemperature() const
@@ -49,18 +57,23 @@ double HTWifi::GetHumidity() const
 
 void HTWifi::HandleMessage(const string &message)
 {
-	unique_lock<mutex> llock(lock);
+	{
+		unique_lock<mutex> llock(lock);
 
-	try
-	{
-		json j = json::parse(message);
-		humidity = j["params"]["humidity:0"]["rh"];
-		temperature = j["params"]["temperature:0"]["tC"];
+		try
+		{
+			json j = json::parse(message);
+			humidity = j["params"]["humidity:0"]["rh"];
+			temperature = j["params"]["temperature:0"]["tC"];
+		}
+		catch(json::exception &e)
+		{
+			return;
+		}
 	}
-	catch(json::exception &e)
-	{
-		return;
-	}
+
+	if(websocket::SolarControl::GetInstance())
+		websocket::SolarControl::GetInstance()->NotifyAll(websocket::SolarControl::en_protocols::DEVICE);
 }
 
 }

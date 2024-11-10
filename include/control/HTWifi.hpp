@@ -29,6 +29,8 @@ namespace control {
 
 class HTWifi: public mqtt::Subscriber
 {
+	std::string topic;
+
 	double temperature = 0;
 	double humidity = 0;
 
@@ -36,7 +38,7 @@ class HTWifi: public mqtt::Subscriber
 
 	public:
 		HTWifi(const std::string &mqtt_id);
-		virtual ~HTWifi() {}
+		virtual ~HTWifi();
 
 		double GetTemperature() const;
 		double GetHumidity() const;

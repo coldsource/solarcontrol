@@ -21,6 +21,7 @@
 #include <database/DB.hpp>
 #include <device/Devices.hpp>
 #include <configuration/Json.hpp>
+#include <websocket/SolarControl.hpp>
 
 #include <stdexcept>
 
@@ -74,59 +75,7 @@ json DeviceOnOff::HandleMessage(const string &cmd, const configuration::Json &j_
 
 	DevicesOnOff &devices = Devices::GetInstance()->GetOnOff();
 
-	if(cmd=="list")
-	{
-		devices.Lock();
-
-		j_res = json::array();
-		for(auto device : devices)
-		{
-			if(device->GetType()=="hws")
-				continue; // Ignore HWS special device
-
-			json j_device;
-			j_device["device_id"] = device->GetID();
-			j_device["device_name"] = device->GetName();
-			j_device["state"] = device->GetState();
-			j_device["manual"] = device->IsManual();
-
-			j_res.push_back(j_device);
-		}
-
-		devices.Unlock();
-
-		return j_res;
-	}
-	else if(cmd=="get" || cmd=="gethws")
-	{
-		database::Query query;
-		int device_id = 0;
-		if(cmd=="get")
-		{
-			device_id = j_params.GetInt("device_id");
-
-			query = "SELECT device_id, device_name, device_type, device_config FROM t_device WHERE device_id = %i"_sql <<device_id;
-		}
-		else
-			query = "SELECT device_id, device_name, device_type, device_config FROM t_device WHERE device_type = 'hws'"_sql;
-
-		auto res = db.Query(query);
-		if(!res.FetchRow())
-			throw invalid_argument("Uknown device_id : « " + to_string(device_id) + " »");
-
-		json j_device;
-		j_device["device_id"] = stoi(res["device_id"]);
-		j_device["device_name"] = res["device_name"];
-		j_device["device_type"] = res["device_type"];
-		j_device["device_config"] = json::parse(string(res["device_config"]));
-
-		auto device = devices.GetByID(res["device_id"]);
-		j_device["state"] = device->GetState();
-		j_device["manual"] = device->IsManual();
-
-		return j_device;
-	}
-	else if(cmd=="set")
+	if(cmd=="set")
 	{
 		int device_id =j_params.GetInt("device_id");
 		string device_name = j_params.GetString("device_name");
@@ -189,6 +138,8 @@ json DeviceOnOff::HandleMessage(const string &cmd, const configuration::Json &j_
 			device->SetAutoState();
 		else
 			device->SetManualState(state=="on"?true:false);
+
+		websocket::SolarControl::GetInstance()->NotifyAll(websocket::SolarControl::en_protocols::DEVICE);
 
 		return json();
 	}

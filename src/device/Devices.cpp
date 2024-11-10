@@ -18,6 +18,7 @@
  */
 
 #include <device/Devices.hpp>
+#include <websocket/SolarControl.hpp>
 
 namespace device
 {
@@ -31,8 +32,17 @@ Devices::Devices()
 
 void Devices::Reload()
 {
-	devices_onoff.Reload();
-	devices_ht.Reload();
+	devices_onoff.Reload(false);
+	devices_ht.Reload(false);
+
+	if(websocket::SolarControl::GetInstance())
+		websocket::SolarControl::GetInstance()->NotifyAll(websocket::SolarControl::en_protocols::DEVICE);
+}
+
+void Devices::Unload()
+{
+	devices_onoff.Unload();
+	devices_ht.Unload();
 }
 
 }

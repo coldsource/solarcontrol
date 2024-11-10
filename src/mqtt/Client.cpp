@@ -56,7 +56,19 @@ void Client::Subscribe(const string &topic, Subscriber *subscriber)
 	unique_lock<mutex> llock(lock);
 
 	mosquitto_subscribe(mosqh, 0, topic.c_str(), 0);
-	subscribers[topic] = subscriber;
+	subscribers[topic].insert(subscriber);
+}
+
+void Client::Unsubscribe(const string &topic, Subscriber *subscriber)
+{
+	unique_lock<mutex> llock(lock);
+
+	mosquitto_subscribe(mosqh, 0, topic.c_str(), 0);
+	auto it = subscribers.find(topic);
+	if(it==subscribers.end())
+		return;
+
+	it->second.erase(subscriber);
 }
 
 void Client::Shutdown()
@@ -87,7 +99,8 @@ void Client::message_callback(struct mosquitto *mosq, void *obj, const struct mo
 	if(it==mqtt->subscribers.end())
 		return;
 
-	it->second->HandleMessage((const char *)message->payload);
+	for(auto subscriber : it->second)
+		subscriber->HandleMessage((const char *)message->payload);
 }
 
 void Client::loop(Client *mqtt)

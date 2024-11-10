@@ -23,6 +23,7 @@
 #include <nlohmann/json.hpp>
 #include <configuration/ConfigurationSolarControl.hpp>
 #include <mqtt/Client.hpp>
+#include <websocket/SolarControl.hpp>
 
 using namespace std;
 using configuration::ConfigurationSolarControl;
@@ -56,6 +57,8 @@ GlobalMeter::~GlobalMeter()
 {
 	if(offpeak_ctrl)
 		delete offpeak_ctrl;
+
+	mqtt::Client::GetInstance()->Unsubscribe(topic_em, this);
 }
 
 double GlobalMeter::GetGridPower() const
@@ -175,34 +178,39 @@ void GlobalMeter::SaveHistory()
 
 void GlobalMeter::HandleMessage(const string &message)
 {
-	unique_lock<recursive_mutex> llock(lock);
-
-	double power_grid, power_pv, power_hws;
-
-	try
 	{
-		json j = json::parse(message);
+		unique_lock<recursive_mutex> llock(lock);
 
-		power_grid = j["params"]["em:0"]["a_act_power"];
-		power_pv = j["params"]["em:0"]["b_act_power"];
-		power_hws = j["params"]["em:0"]["c_act_power"];
-	}
-	catch(json::exception &e)
-	{
-		return;
+		double power_grid, power_pv, power_hws;
+
+		try
+		{
+			json j = json::parse(message);
+
+			power_grid = j["params"]["em:0"]["a_act_power"];
+			power_pv = j["params"]["em:0"]["b_act_power"];
+			power_hws = j["params"]["em:0"]["c_act_power"];
+		}
+		catch(json::exception &e)
+		{
+			return;
+		}
+
+		grid.SetPower(power_grid);
+		pv.SetPower(power_pv);
+		hws.SetPower(power_hws);
+
+		if(offpeak_ctrl)
+		{
+			if(offpeak_ctrl->GetState())
+				offpeak.SetPower(power_grid);
+			else
+				peak.SetPower(power_grid);
+		}
 	}
 
-	grid.SetPower(power_grid);
-	pv.SetPower(power_pv);
-	hws.SetPower(power_hws);
-
-	if(offpeak_ctrl)
-	{
-		if(offpeak_ctrl->GetState())
-			offpeak.SetPower(power_grid);
-		else
-			peak.SetPower(power_grid);
-	}
+	if(websocket::SolarControl::GetInstance())
+		websocket::SolarControl::GetInstance()->NotifyAll(websocket::SolarControl::en_protocols::METER);
 }
 
 

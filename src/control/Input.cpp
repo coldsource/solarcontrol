@@ -20,6 +20,7 @@
 #include <control/Input.hpp>
 #include <logs/Logger.hpp>
 #include <mqtt/Client.hpp>
+#include <websocket/SolarControl.hpp>
 #include <nlohmann/json.hpp>
 
 using namespace std;
@@ -32,7 +33,14 @@ Input::Input(const string &mqtt_id, int input, const string &ip): HTTP(ip), inpu
 	state = false;
 
 	auto mqtt = mqtt::Client::GetInstance();
-	mqtt->Subscribe(mqtt_id + "/events/rpc", this);
+	topic = mqtt_id + "/events/rpc";
+	mqtt->Subscribe(topic, this);
+}
+
+Input::~Input()
+{
+	auto mqtt = mqtt::Client::GetInstance();
+	mqtt->Subscribe(topic, this);
 }
 
 bool Input::get_input() const
@@ -66,17 +74,22 @@ void Input::UpdateState()
 
 void Input::HandleMessage(const string &message)
 {
-	unique_lock<mutex> llock(lock);
+	{
+		unique_lock<mutex> llock(lock);
 
-	try
-	{
-		json j = json::parse(message);
-		state = j["params"]["input:" + to_string(input)]["state"];
+		try
+		{
+			json j = json::parse(message);
+			state = j["params"]["input:" + to_string(input)]["state"];
+		}
+		catch(json::exception &e)
+		{
+			return;
+		}
 	}
-	catch(json::exception &e)
-	{
-		return;
-	}
+
+	if(websocket::SolarControl::GetInstance())
+		websocket::SolarControl::GetInstance()->NotifyAll(websocket::SolarControl::en_protocols::DEVICE);
 }
 
 }

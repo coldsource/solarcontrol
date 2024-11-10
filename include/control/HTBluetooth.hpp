@@ -29,6 +29,8 @@ namespace control {
 
 class HTBluetooth: public mqtt::Subscriber
 {
+	std::string topic;
+
 	double temperature = 0;
 	double humidity = 0;
 
@@ -36,7 +38,7 @@ class HTBluetooth: public mqtt::Subscriber
 
 	public:
 		HTBluetooth(const std::string &ble_addr);
-		virtual ~HTBluetooth() {}
+		virtual ~HTBluetooth();
 
 		double GetTemperature() const;
 		double GetHumidity() const;

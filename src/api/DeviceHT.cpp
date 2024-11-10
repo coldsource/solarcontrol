@@ -47,43 +47,7 @@ json DeviceHT::HandleMessage(const string &cmd, const configuration::Json &j_par
 
 	device::DevicesHT &devices = device::Devices::GetInstance()->GetHT();
 
-	if(cmd=="list")
-	{
-		devices.Lock();
-
-		j_res = json::array();
-		for(auto device : devices)
-		{
-			json j_device;
-			j_device["device_id"] = device->GetID();
-			j_device["device_name"] = device->GetName();
-			j_device["temperature"] = device->GetTemperature();
-			j_device["humidity"] = device->GetHumidity();
-
-			j_res.push_back(j_device);
-		}
-
-		devices.Unlock();
-
-		return j_res;
-	}
-	else if(cmd=="get")
-	{
-		int device_id = j_params.GetInt("device_id");
-
-		auto res = db.Query("SELECT device_id, device_name, device_type, device_config FROM t_device WHERE device_id = %i"_sql <<device_id);
-		if(!res.FetchRow())
-			throw invalid_argument("Uknown device_id : « " + to_string(device_id) + " »");
-
-		json device;
-		device["device_id"] = res["device_id"];
-		device["device_name"] = res["device_name"];
-		device["device_type"] = res["device_type"];
-		device["device_config"] = json::parse(string(res["device_config"]));
-
-		return device;
-	}
-	else if(cmd=="set")
+	if(cmd=="set")
 	{
 		int device_id =j_params.GetInt("device_id");
 		string device_name = j_params.GetString("device_name");

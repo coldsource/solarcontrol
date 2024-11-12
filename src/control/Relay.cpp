@@ -19,6 +19,8 @@
 
 #include <control/Relay.hpp>
 #include <logs/Logger.hpp>
+#include <mqtt/Client.hpp>
+#include <websocket/SolarControl.hpp>
 #include <nlohmann/json.hpp>
 
 using namespace std;
@@ -26,13 +28,26 @@ using nlohmann::json;
 
 namespace control {
 
-Relay::Relay(const std::string &ip, int outlet): HTTP(ip), outlet(outlet)
+Relay::Relay(const std::string &ip, int outlet, const string &mqtt_id): HTTP(ip), outlet(outlet)
 {
 	state = false;
+
+	auto mqtt = mqtt::Client::GetInstance();
+	topic = mqtt_id + "/events/rpc";
+	mqtt->Subscribe(topic, this);
+}
+
+Relay::~Relay()
+{
+	auto mqtt = mqtt::Client::GetInstance();
+	if(mqtt)
+		mqtt->Unsubscribe(topic, this);
 }
 
 void Relay::Switch(bool new_state)
 {
+	unique_lock<mutex> llock(lock);
+
 	if(ip=="")
 		return;
 
@@ -79,7 +94,36 @@ bool Relay::get_output() const
 
 void Relay::UpdateState()
 {
+	unique_lock<mutex> llock(lock);
+
 	state = get_output();
+}
+
+double Relay::GetPower() const
+{
+	unique_lock<mutex> llock(lock);
+
+	return power;
+}
+
+void Relay::HandleMessage(const string &message)
+{
+	{
+		unique_lock<mutex> llock(lock);
+
+		try
+		{
+			json j = json::parse(message);
+			power = j["params"]["switch:" + to_string(outlet)]["apower"];
+		}
+		catch(json::exception &e)
+		{
+			return;
+		}
+	}
+
+	if(websocket::SolarControl::GetInstance())
+		websocket::SolarControl::GetInstance()->NotifyAll(websocket::SolarControl::en_protocols::DEVICE);
 }
 
 }

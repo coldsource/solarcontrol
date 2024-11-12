@@ -91,6 +91,7 @@ class DeviceTimeRange: public DeviceOnOff
 		bool IsManual() { return manual; }
 		void UpdateState();
 		bool NeedStateUpdate() { return need_update; }
+		double GetPower() const;
 };
 
 }

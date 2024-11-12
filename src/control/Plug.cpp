@@ -26,7 +26,7 @@ using nlohmann::json;
 
 namespace control {
 
-Plug::Plug(const string &ip): Relay(ip, 0)
+Plug::Plug(const string &ip, const string &mqtt_id): Relay(ip, 0, mqtt_id)
 {
 }
 

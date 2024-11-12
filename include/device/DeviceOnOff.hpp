@@ -44,6 +44,7 @@ class DeviceOnOff: public Device
 		virtual bool IsManual() = 0;
 		virtual void UpdateState() = 0;
 		virtual bool NeedStateUpdate() = 0;
+		virtual double GetPower() const = 0;
 };
 
 }

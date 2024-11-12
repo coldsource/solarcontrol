@@ -160,4 +160,9 @@ void DeviceTimeRange::UpdateState()
 	need_update = false;
 }
 
+double DeviceTimeRange::GetPower() const
+{
+	return ctrl->GetPower();
+}
+
 }

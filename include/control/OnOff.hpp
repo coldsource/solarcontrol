@@ -35,6 +35,7 @@ class OnOff
 
 		virtual void Switch(bool) = 0;
 		virtual bool GetState() const = 0;
+		virtual double GetPower() const = 0;
 		virtual void UpdateState() = 0;
 };
 

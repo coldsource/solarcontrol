@@ -26,7 +26,7 @@ using nlohmann::json;
 
 namespace control {
 
-Pro::Pro(const string &ip, int outlet): Relay(ip, outlet)
+Pro::Pro(const string &ip, int outlet, const string &mqtt_id): Relay(ip, outlet, mqtt_id)
 {
 }
 

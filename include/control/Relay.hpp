@@ -22,25 +22,36 @@
 
 #include <control/HTTP.hpp>
 #include <control/OnOff.hpp>
+#include <mqtt/Subscriber.hpp>
 
 #include <string>
+#include <mutex>
 
 namespace control {
 
-class Relay: public HTTP, public OnOff
+class Relay: public HTTP, public OnOff, public mqtt::Subscriber
 {
 	bool state = false;
+	double power = 0;
 	int outlet = 0;
+
+	std::string topic;
+
+	mutable std::mutex lock;
 
 	protected:
 		bool get_output() const;
 
 	public:
-		Relay(const std::string &ip, int outlet);
+		Relay(const std::string &ip, int outlet, const std::string &mqtt_id);
+		virtual ~Relay();
 
 		void Switch(bool state);
 		bool GetState() const { return state; }
+		double GetPower() const;
 		void UpdateState();
+
+		void HandleMessage(const std::string &message);
 };
 
 }

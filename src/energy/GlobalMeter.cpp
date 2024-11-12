@@ -90,29 +90,33 @@ double GlobalMeter::GetPower() const
 	return grid.GetPower() + (pv.GetPower()>0?pv.GetPower():0);
 }
 
-double GlobalMeter::GetNetAvailablePower() const
+double GlobalMeter::GetNetAvailablePower(bool allow_neg) const
 {
 	unique_lock<recursive_mutex> llock(lock);
 
 	if(hws.GetEnergyConsumption()>hws_min_energy)
-		return GetGrossAvailablePower();
-	return GetExcessPower();
+		return GetGrossAvailablePower(allow_neg);
+	return GetExcessPower(allow_neg);
 }
 
-double GlobalMeter::GetGrossAvailablePower() const
+double GlobalMeter::GetGrossAvailablePower(bool allow_neg) const
 {
 	unique_lock<recursive_mutex> llock(lock);
 
 	double available = hws.GetPower()-grid.GetPower();
-	return (available<0)?0:available;
+	if(!allow_neg && available<0)
+		return 0;
+	return available;
 }
 
-double GlobalMeter::GetExcessPower() const
+double GlobalMeter::GetExcessPower(bool allow_neg) const
 {
 	unique_lock<recursive_mutex> llock(lock);
 
 	double grid_power = grid.GetPower();
-	return (grid_power>0)?0:-grid_power;
+	if(!allow_neg && grid_power>0)
+		return 0;
+	return -grid_power;
 }
 
 double GlobalMeter::GetGridEnergy() const

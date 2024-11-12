@@ -22,6 +22,7 @@
 #include <energy/GlobalMeter.hpp>
 #include <logs/State.hpp>
 #include <configuration/Json.hpp>
+#include <configuration/ConfigurationSolarControl.hpp>
 
 #include <stdexcept>
 #include <set>
@@ -37,6 +38,10 @@ DeviceTimeRange::DeviceTimeRange(unsigned int id, const string &name, const conf
 	this->global_meter = energy::GlobalMeter::GetInstance();
 
 	ctrl = control::OnOff::GetFromConfig(config.GetObject("control"));
+
+	auto scconfig = configuration::ConfigurationSolarControl::GetInstance();
+	hysteresis_export = scconfig->GetInt("control.hysteresis.export");
+	hysteresis_import = scconfig->GetInt("control.hysteresis.import");
 
 	prio = config.GetInt("prio");
 
@@ -75,9 +80,9 @@ bool DeviceTimeRange::WantOffload() const
 		return false;
 
 	if(GetState())
-		return (global_meter->GetNetAvailablePower()>0); // We are already on, so stay on as long as we have power to offload
+		return (global_meter->GetNetAvailablePower(true) > -hysteresis_import); // We are already on, so stay on as long as we have power to offload
 
-	return (global_meter->GetNetAvailablePower()>expected_consumption); // We are off, turn on only if we have enough power to offload
+	return ((global_meter->GetNetAvailablePower() - hysteresis_export) > expected_consumption); // We are off, turn on only if we have enough power to offload
 }
 
 bool DeviceTimeRange::WantRemainder() const

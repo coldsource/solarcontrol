@@ -40,7 +40,8 @@ Input::Input(const string &mqtt_id, int input, const string &ip): HTTP(ip), inpu
 Input::~Input()
 {
 	auto mqtt = mqtt::Client::GetInstance();
-	mqtt->Subscribe(topic, this);
+	if(mqtt)
+		mqtt->Unsubscribe(topic, this);
 }
 
 bool Input::get_input() const

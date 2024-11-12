@@ -58,7 +58,9 @@ GlobalMeter::~GlobalMeter()
 	if(offpeak_ctrl)
 		delete offpeak_ctrl;
 
-	mqtt::Client::GetInstance()->Unsubscribe(topic_em, this);
+	auto mqtt = mqtt::Client::GetInstance();
+	if(mqtt)
+		mqtt->Unsubscribe(topic_em, this);
 }
 
 double GlobalMeter::GetGridPower() const

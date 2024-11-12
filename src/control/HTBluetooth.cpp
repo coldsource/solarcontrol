@@ -38,7 +38,8 @@ HTBluetooth::HTBluetooth(const string &ble_addr)
 HTBluetooth::~HTBluetooth()
 {
 	auto mqtt = mqtt::Client::GetInstance();
-	mqtt->Unsubscribe(topic, this);
+	if(mqtt)
+		mqtt->Unsubscribe(topic, this);
 }
 
 double HTBluetooth::GetTemperature() const

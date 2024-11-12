@@ -38,7 +38,8 @@ HTWifi::HTWifi(const string &mqtt_id)
 HTWifi::~HTWifi()
 {
 	auto mqtt = mqtt::Client::GetInstance();
-	mqtt->Unsubscribe(topic, this);
+	if(mqtt)
+		mqtt->Unsubscribe(topic, this);
 }
 
 double HTWifi::GetTemperature() const

@@ -49,6 +49,8 @@ Client::~Client()
 	WaitForShutdown();
 
 	mosquitto_destroy(mosqh);
+
+	instance = 0;
 }
 
 void Client::Subscribe(const string &topic, Subscriber *subscriber)

@@ -32,7 +32,7 @@ namespace control {
 class Relay: public HTTP, public OnOff, public mqtt::Subscriber
 {
 	bool state = false;
-	double power = 0;
+	double power = -1;
 	int outlet = 0;
 
 	std::string topic;

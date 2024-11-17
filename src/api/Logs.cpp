@@ -44,6 +44,7 @@ json Logs::HandleMessage(const string &cmd, const configuration::Json &j_params)
 			SELECT dev.device_name, ls.log_state_date, ls.log_state_mode, ls.log_state \
 			FROM t_log_state ls \
 			INNER JOIN t_device dev ON ls.device_id=dev.device_id \
+			WHERE ls.log_state IS NOT NULL \
 			ORDER BY log_state_date DESC \
 			LIMIT 100"_sql);
 

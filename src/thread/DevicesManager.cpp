@@ -109,81 +109,80 @@ bool DevicesManager::offload(const vector<device::DeviceOnOff *> &devices)
 
 void DevicesManager::main()
 {
-	DevicesOnOff &devices = device::Devices::GetInstance()->GetOnOff();
-
 	Timestamp last_change_ts;
 	Timestamp last_state_update;
 	Timestamp last_power_update;
 
 	while(true)
 	{
-		devices.Lock();
 		bool state_changed = false;
 
-		try
 		{
-			Timestamp now(TS_MONOTONIC);
+			DevicesOnOff devices;
 
-			if(now-last_state_update>state_update_interval)
+			try
 			{
-				// Update all devices' state
-				for(auto it = devices.begin(); it!=devices.end(); ++it)
-					(*it)->UpdateState();
+				Timestamp now(TS_MONOTONIC);
 
-				last_state_update = now;
-				state_changed |= true;
-			}
-
-			// Update devices that have been reloaded
-			for(auto it = devices.begin(); it!=devices.end(); ++it)
-			{
-				if((*it)->NeedStateUpdate())
+				if(now-last_state_update>state_update_interval)
 				{
-					(*it)->UpdateState();
+					// Update all devices' state
+					for(auto it = devices.begin(); it!=devices.end(); ++it)
+						(*it)->UpdateState();
+
+					last_state_update = now;
 					state_changed |= true;
 				}
+
+				// Update devices that have been reloaded
+				for(auto it = devices.begin(); it!=devices.end(); ++it)
+				{
+					if((*it)->NeedStateUpdate())
+					{
+						(*it)->UpdateState();
+						state_changed |= true;
+					}
+				}
+
+				// Fetch all devices wanted state
+				map<DeviceOnOff *, bool> forced_devices;
+				vector<DeviceOnOff *> offload_devices;
+
+				for(auto it = devices.begin(); it!=devices.end(); ++it)
+				{
+					DeviceOnOff *device = *it;
+
+					en_wanted_state new_state = device->GetWantedState();
+					if(new_state==ON || new_state==OFF)
+						forced_devices.insert({device, new_state==ON?true:false});
+					else if(new_state==OFFLOAD)
+						offload_devices.push_back(device);
+				}
+
+				// Change all forced devices (no cool down between forced actions)
+				state_changed |= force(forced_devices);
+
+				// Apply cooldown time for offload devices
+				if(now-last_change_ts>=cooldown && !state_changed)
+				{
+					// Compute moving average of available power (we dont't want to count during cooldown to let power be accurate)
+					available_power_avg.Add(global_meter->GetNetAvailablePower(true), now - last_state_update);
+					last_state_update = now;
+
+					state_changed |= offload(offload_devices);
+				}
+
+				if(state_changed)
+				{
+					last_change_ts = now;
+					available_power_avg.Reset(); // We have made changes, state is no longer stable
+				}
 			}
-
-			// Fetch all devices wanted state
-			map<DeviceOnOff *, bool> forced_devices;
-			vector<DeviceOnOff *> offload_devices;
-
-			for(auto it = devices.begin(); it!=devices.end(); ++it)
+			catch(exception &e)
 			{
-				DeviceOnOff *device = *it;
-
-				en_wanted_state new_state = device->GetWantedState();
-				if(new_state==ON || new_state==OFF)
-					forced_devices.insert({device, new_state==ON?true:false});
-				else if(new_state==OFFLOAD)
-					offload_devices.push_back(device);
-			}
-
-			// Change all forced devices (no cool down between forced actions)
-			state_changed |= force(forced_devices);
-
-			// Apply cooldown time for offload devices
-			if(now-last_change_ts>=cooldown && !state_changed)
-			{
-				// Compute moving average of available power (we dont't want to count during cooldown to let power be accurate)
-				available_power_avg.Add(global_meter->GetNetAvailablePower(true), now - last_state_update);
-				last_state_update = now;
-
-				state_changed |= offload(offload_devices);
-			}
-
-			if(state_changed)
-			{
-				last_change_ts = now;
-				available_power_avg.Reset(); // We have made changes, state is no longer stable
+				logs::Logger::Log(LOG_ERR, e.what());
 			}
 		}
-		catch(exception &e)
-		{
-			logs::Logger::Log(LOG_ERR, e.what());
-		}
-
-		devices.Unlock();
 
 		if(websocket::SolarControl::GetInstance() && state_changed)
 			websocket::SolarControl::GetInstance()->NotifyAll(websocket::SolarControl::en_protocols::DEVICE);

@@ -20,8 +20,8 @@
 #ifndef __DEVICE_DEVICES_HPP__
 #define __DEVICE_DEVICES_HPP__
 
-#include <device/DevicesOnOff.hpp>
-#include <device/DevicesHT.hpp>
+#include <device/DevicesOnOffImpl.hpp>
+#include <device/DevicesHTImpl.hpp>
 
 #include <string>
 
@@ -31,8 +31,8 @@ class Devices
 {
 	static Devices *instance;
 
-	DevicesOnOff devices_onoff;
-	DevicesHT devices_ht;
+	DevicesOnOffImpl devices_onoff;
+	DevicesHTImpl devices_ht;
 
 	public:
 		Devices();
@@ -41,9 +41,6 @@ class Devices
 
 		void Reload();
 		void Unload();
-
-		DevicesOnOff &GetOnOff() { return devices_onoff; }
-		DevicesHT &GetHT() { return devices_ht; }
 };
 
 }

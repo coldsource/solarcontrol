@@ -19,7 +19,7 @@
 
 #include <api/DeviceOnOff.hpp>
 #include <database/DB.hpp>
-#include <device/Devices.hpp>
+#include <device/DevicesOnOff.hpp>
 #include <configuration/Json.hpp>
 #include <websocket/SolarControl.hpp>
 
@@ -28,7 +28,6 @@
 using namespace std;
 using nlohmann::json;
 using database::DB;
-using device::Devices;
 using device::DevicesOnOff;
 
 namespace api
@@ -73,7 +72,7 @@ json DeviceOnOff::HandleMessage(const string &cmd, const configuration::Json &j_
 	json j_res;
 	DB db;
 
-	DevicesOnOff &devices = Devices::GetInstance()->GetOnOff();
+	DevicesOnOff devices;
 
 	if(cmd=="set")
 	{

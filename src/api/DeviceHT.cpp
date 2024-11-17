@@ -19,7 +19,7 @@
 
 #include <api/DeviceHT.hpp>
 #include <database/DB.hpp>
-#include <device/Devices.hpp>
+#include <device/DevicesHT.hpp>
 #include <configuration/Json.hpp>
 
 #include <stdexcept>
@@ -45,7 +45,7 @@ json DeviceHT::HandleMessage(const string &cmd, const configuration::Json &j_par
 	json j_res;
 	DB db;
 
-	device::DevicesHT &devices = device::Devices::GetInstance()->GetHT();
+	device::DevicesHT devices;
 
 	if(cmd=="set")
 	{

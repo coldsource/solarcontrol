@@ -17,27 +17,48 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __DEVICE_DEVICESHT_HPP__
-#define __DEVICE_DEVICESHT_HPP__
+#ifndef __DEVICE_DEVICESONOFFIMPL_HPP__
+#define __DEVICE_DEVICESONOFFIMPL_HPP__
 
-#include <device/DevicesHTImpl.hpp>
 #include <device/DeviceOnOff.hpp>
+
+#include <set>
+#include <map>
+#include <mutex>
 
 namespace device {
 
-class DevicesHT
+class DevicesOnOff;
+class Devices;
+
+struct DevicesPtrComparator {
+	bool operator()(DeviceOnOff *a, DeviceOnOff *b) const
+	{
+		return a->GetPrio() < b->GetPrio();
+	}
+};
+
+class DevicesOnOffImpl: public std::multiset<DeviceOnOff *, DevicesPtrComparator>
 {
-	DevicesHTImpl *instance;
+	friend class DevicesOnOff;
+	friend class Devices;
+
+	static DevicesOnOffImpl *instance;
+
+	std::map<unsigned int, DeviceOnOff *> id_device;
+
+	mutable std::recursive_mutex d_mutex;
+
+	void free();
 
 	public:
-		DevicesHT();
-		~DevicesHT();
+		DevicesOnOffImpl();
+		~DevicesOnOffImpl();
 
-		DeviceHT *GetByID(unsigned int id) const;
-		void Reload();
-
-		auto begin() { return instance->begin(); }
-		auto end() { return instance->end(); }
+	private:
+		DeviceOnOff *get_by_id(unsigned int id) const;
+		void reload(bool notify = true);
+		void unload();
 };
 
 }

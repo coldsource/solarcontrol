@@ -20,47 +20,26 @@
 #ifndef __DEVICE_DEVICESONOFF_HPP__
 #define __DEVICE_DEVICESONOFF_HPP__
 
+#include <device/DevicesOnOffImpl.hpp>
 #include <device/DeviceOnOff.hpp>
-
-#include <set>
-#include <map>
-#include <mutex>
 
 namespace device {
 
-struct DevicesPtrComparator {
-	bool operator()(DeviceOnOff *a, DeviceOnOff *b) const
-	{
-		return a->GetPrio() < b->GetPrio();
-	}
-};
-
-class DevicesOnOff: public std::multiset<DeviceOnOff *, DevicesPtrComparator>
+class DevicesOnOff
 {
-	static DevicesOnOff *instance;
-
-	std::map<unsigned int, DeviceOnOff *> id_device;
-
-	mutable std::mutex d_mutex;
-
-	void free();
+	DevicesOnOffImpl *instance;
 
 	public:
 		DevicesOnOff();
 		~DevicesOnOff();
 
-		static DevicesOnOff *GetInstance() { return instance; }
-
 		DeviceOnOff *GetByID(unsigned int id) const;
+		void Reload();
 
-		void Lock() { d_mutex.lock(); }
-		void Unlock() { d_mutex.unlock(); }
-
-		void Reload(bool notify = true);
-		void Unload();
+		auto begin() { return instance->begin(); }
+		auto end() { return instance->end(); }
 };
 
 }
 
 #endif
-

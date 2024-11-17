@@ -37,7 +37,8 @@ DeviceHeater::DeviceHeater(unsigned int id, const string &name, const configurat
 
 en_wanted_state DeviceHeater::GetWantedState() const
 {
-	auto ht = DevicesHT::GetInstance()->GetByID(ht_device_id);
+	DevicesHT devices;
+	auto ht = devices.GetByID(ht_device_id);
 
 	en_wanted_state wanted_state = DeviceTimeRange::GetWantedState();
 	if(wanted_state==ON)

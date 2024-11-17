@@ -17,31 +17,44 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#include <device/DevicesHT.hpp>
-#include <device/DevicesHTImpl.hpp>
+#ifndef __DEVICE_DEVICESHTIMPL_HPP__
+#define __DEVICE_DEVICESHTIMPL_HPP__
+
+#include <device/DeviceHT.hpp>
+
+#include <unordered_set>
+#include <mutex>
 
 namespace device {
 
-DevicesHT::DevicesHT()
+class DevicesHT;
+class Devices;
+
+class DevicesHTImpl: public std::unordered_set<DeviceHT *>
 {
-	instance = DevicesHTImpl::instance;
-	instance->d_mutex.lock();
+	friend class DevicesHT;
+	friend class Devices;
+
+	static DevicesHTImpl *instance;
+
+	std::map<unsigned int, DeviceHT *> id_device;
+
+	mutable std::recursive_mutex d_mutex;
+
+	void free();
+
+	public:
+		DevicesHTImpl();
+		~DevicesHTImpl();
+
+	private:
+		DeviceHT *get_by_id(unsigned int id) const;
+		void reload(bool notify = true);
+		void unload();
+};
+
 }
 
-DevicesHT::~DevicesHT()
-{
-	instance->d_mutex.unlock();
-}
+#endif
 
-DeviceHT *DevicesHT::GetByID(unsigned int id) const
-{
-	return instance->get_by_id(id);
-}
-
-void DevicesHT::Reload()
-{
-	return instance->reload();
-}
-
-}
 

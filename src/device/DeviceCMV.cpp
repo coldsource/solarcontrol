@@ -41,10 +41,12 @@ DeviceCMV::DeviceCMV(unsigned int id, const string &name, const configuration::J
 
 en_wanted_state DeviceCMV::GetWantedState() const
 {
+	DevicesHT devices;
+
 	double max_moisture = 0;
 	for(auto ht_device_id : ht_device_ids)
 	{
-		auto ht = DevicesHT::GetInstance()->GetByID(ht_device_id);
+		auto ht = devices.GetByID(ht_device_id);
 		if(ht->GetHumidity()>max_moisture)
 			max_moisture = ht->GetHumidity();
 	}

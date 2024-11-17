@@ -142,7 +142,7 @@ std::string SolarControl::lws_callback_server_writeable(struct lws *wsi, unsigne
 	{
 		json j_devices = json::array();
 
-		device::DevicesOnOff &devices_onoff = device::Devices::GetInstance()->GetOnOff();
+		device::DevicesOnOff devices_onoff;
 		for(auto device : devices_onoff)
 		{
 			json j_device;
@@ -157,7 +157,7 @@ std::string SolarControl::lws_callback_server_writeable(struct lws *wsi, unsigne
 			j_devices.push_back(j_device);
 		}
 
-		device::DevicesHT &devices_ht = device::Devices::GetInstance()->GetHT();
+		device::DevicesHT devices_ht;
 		for(auto device : devices_ht)
 		{
 			json j_device;

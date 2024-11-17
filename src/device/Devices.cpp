@@ -32,17 +32,20 @@ Devices::Devices()
 
 void Devices::Reload()
 {
-	devices_onoff.Reload(false);
-	devices_ht.Reload(false);
+	devices_onoff.d_mutex.lock();
+	devices_onoff.reload();
+	devices_onoff.d_mutex.unlock();
 
-	if(websocket::SolarControl::GetInstance())
-		websocket::SolarControl::GetInstance()->NotifyAll(websocket::SolarControl::en_protocols::DEVICE);
+	devices_ht.d_mutex.lock();
+	devices_ht.reload();
+	devices_ht.d_mutex.unlock();
+
 }
 
 void Devices::Unload()
 {
-	devices_onoff.Unload();
-	devices_ht.Unload();
+	devices_onoff.unload();
+	devices_ht.unload();
 }
 
 }

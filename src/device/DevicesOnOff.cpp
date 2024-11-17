@@ -18,99 +18,29 @@
  */
 
 #include <device/DevicesOnOff.hpp>
-#include <device/DeviceTimeRange.hpp>
-#include <device/DeviceHeater.hpp>
-#include <device/DeviceCMV.hpp>
-#include <device/DeviceHWS.hpp>
-#include <configuration/Json.hpp>
-#include <database/DB.hpp>
-#include <logs/Logger.hpp>
-#include <nlohmann/json.hpp>
-#include <websocket/SolarControl.hpp>
-
-#include <stdexcept>
-
-using namespace std;
-using nlohmann::json;
+#include <device/DevicesOnOffImpl.hpp>
 
 namespace device {
 
-DevicesOnOff * DevicesOnOff::instance = 0;
-
 DevicesOnOff::DevicesOnOff()
 {
-	Reload();
-
-	instance = this;
-}
-
-DeviceOnOff *DevicesOnOff::GetByID(unsigned int id) const
-{
-	unique_lock<mutex> llock(d_mutex);
-
-	auto it = id_device.find(id);
-	if(it==id_device.end())
-		throw invalid_argument("Unknown OnOff device ID « " + to_string(id) + " »");
-
-	return it->second;
-}
-
-void DevicesOnOff::Reload(bool notify)
-{
-	{
-		unique_lock<mutex> llock(d_mutex);
-
-		logs::Logger::Log(LOG_NOTICE, "Loading devices OnOff");
-
-		free();
-
-		database::DB db;
-
-		auto res = db.Query("SELECT device_id, device_name, device_type, device_config FROM t_device WHERE device_type IN('timerange', 'heater', 'hws', 'cmv')"_sql);
-		while(res.FetchRow())
-		{
-			configuration::Json config((string)res["device_config"]);
-
-			DeviceOnOff *device;
-			if((string)res["device_type"]=="timerange")
-				device = new DeviceTimeRange(res["device_id"], res["device_name"], config);
-			else if((string)res["device_type"]=="heater")
-				device = new DeviceHeater(res["device_id"], res["device_name"], config);
-			else if((string)res["device_type"]=="cmv")
-				device = new DeviceCMV(res["device_id"], res["device_name"], config);
-			else if((string)res["device_type"]=="hws")
-				device = new DeviceHWS(res["device_id"], res["device_name"], config);
-
-			insert(device);
-			id_device.insert(pair<unsigned int, DeviceOnOff *>(res["device_id"], device));
-		}
-	}
-
-	if(notify && websocket::SolarControl::GetInstance())
-		websocket::SolarControl::GetInstance()->NotifyAll(websocket::SolarControl::en_protocols::DEVICE);
-}
-
-void DevicesOnOff::Unload()
-{
-	unique_lock<mutex> llock(d_mutex);
-	free();
-}
-
-void DevicesOnOff::free()
-{
-	for(auto it = begin(); it!=end(); ++it)
-	{
-		Device *device = *it;
-		delete device;
-	}
-
-	clear();
-	id_device.clear();
+	instance = DevicesOnOffImpl::instance;
+	instance->d_mutex.lock();
 }
 
 DevicesOnOff::~DevicesOnOff()
 {
-	free();
+	instance->d_mutex.unlock();
+}
+
+DeviceOnOff *DevicesOnOff::GetByID(unsigned int id) const
+{
+	return instance->get_by_id(id);
+}
+
+void DevicesOnOff::Reload()
+{
+	return instance->reload();
 }
 
 }

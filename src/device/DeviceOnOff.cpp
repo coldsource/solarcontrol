@@ -58,6 +58,7 @@ void DeviceOnOff::SetState(bool new_state)
 void DeviceOnOff::SetManualState(bool new_state)
 {
 	manual = true;
+	manual_state_changed = true;
 	SetState(new_state);
 }
 

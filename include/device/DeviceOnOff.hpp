@@ -41,6 +41,7 @@ class DeviceOnOff: public Device
 	protected:
 		control::OnOff *ctrl;
 		bool need_update = true; // Force state update on reload
+		bool manual_state_changed = false; // Notify we have a change from API
 		bool manual = false;
 
 		datetime::Timestamp last_on;
@@ -63,6 +64,9 @@ class DeviceOnOff: public Device
 		void SetManualState(bool new_state);
 		void SetAutoState();
 		bool IsManual() { return manual; }
+
+		bool WasChanged() const { return manual_state_changed; }
+		void AckChanged() { manual_state_changed = false; }
 
 		bool NeedStateUpdate() const { return need_update; }
 		void UpdateState();

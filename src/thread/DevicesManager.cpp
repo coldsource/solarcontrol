@@ -131,16 +131,22 @@ void DevicesManager::main()
 						(*it)->UpdateState();
 
 					last_state_update = now;
-					state_changed |= true;
+					state_changed = true;
 				}
 
-				// Update devices that have been reloaded
+				// Update devices that have been reloaded or have had a manuel change
 				for(auto it = devices.begin(); it!=devices.end(); ++it)
 				{
 					if((*it)->NeedStateUpdate())
 					{
 						(*it)->UpdateState();
-						state_changed |= true;
+						state_changed = true;
+					}
+
+					if((*it)->WasChanged())
+					{
+						(*it)->AckChanged();
+						state_changed = true;
 					}
 				}
 

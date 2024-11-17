@@ -34,6 +34,7 @@ class DevicesOnOff
 		~DevicesOnOff();
 
 		DeviceOnOff *GetByID(unsigned int id) const;
+		DeviceOnOff *GetHWS() const;
 		void Reload();
 
 		auto begin() { return instance->begin(); }

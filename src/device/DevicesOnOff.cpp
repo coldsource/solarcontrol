@@ -38,6 +38,11 @@ DeviceOnOff *DevicesOnOff::GetByID(unsigned int id) const
 	return instance->get_by_id(id);
 }
 
+DeviceOnOff *DevicesOnOff::GetHWS() const
+{
+	return instance->get_by_id(instance->hws_id);
+}
+
 void DevicesOnOff::Reload()
 {
 	return instance->reload();

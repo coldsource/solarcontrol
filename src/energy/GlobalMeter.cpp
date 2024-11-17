@@ -20,6 +20,7 @@
 #include <energy/GlobalMeter.hpp>
 #include <energy/Counter.hpp>
 #include <control/Input.hpp>
+#include <device/DevicesOnOff.hpp>
 #include <nlohmann/json.hpp>
 #include <configuration/ConfigurationSolarControl.hpp>
 #include <mqtt/Client.hpp>
@@ -105,7 +106,10 @@ double GlobalMeter::GetGrossAvailablePower(bool allow_neg) const
 {
 	unique_lock<recursive_mutex> llock(lock);
 
-	double available = hws.GetPower()-grid.GetPower();
+	device::DevicesOnOff devices;
+	double hws_offload = devices.GetHWS()->GetState()?0:hws.GetPower(); // No hws offload when in forced mode
+
+	double available = hws_offload-grid.GetPower();
 	if(!allow_neg && available<0)
 		return 0;
 	return available;

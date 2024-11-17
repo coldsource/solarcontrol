@@ -46,6 +46,7 @@ class DevicesOnOffImpl: public std::multiset<DeviceOnOff *, DevicesPtrComparator
 	static DevicesOnOffImpl *instance;
 
 	std::map<unsigned int, DeviceOnOff *> id_device;
+	unsigned int hws_id;
 
 	mutable std::recursive_mutex d_mutex;
 

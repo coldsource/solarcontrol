@@ -74,7 +74,10 @@ void DevicesOnOffImpl::reload(bool notify)
 		else if((string)res["device_type"]=="cmv")
 			device = new DeviceCMV(res["device_id"], res["device_name"], config);
 		else if((string)res["device_type"]=="hws")
+		{
 			device = new DeviceHWS(res["device_id"], res["device_name"], config);
+			hws_id = device->GetID();
+		}
 
 		insert(device);
 		id_device.insert(pair<unsigned int, DeviceOnOff *>(res["device_id"], device));

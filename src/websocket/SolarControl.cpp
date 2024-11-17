@@ -123,6 +123,7 @@ std::string SolarControl::lws_callback_server_writeable(struct lws *wsi, unsigne
 		json j;
 		j["grid"] = global->GetGridPower();
 		j["pv"] = global->GetPVPower();
+		j["hws"] = global->GetHWSPower();
 
 		j["total"] = global->GetPower();
 		j["net_available"] = global->GetNetAvailablePower();

@@ -35,13 +35,13 @@ class DeviceHeater: public DeviceTimeRange
 		double force_max_temperature;
 		double offload_max_temperature;
 
-		bool state_on_condition() const;
-
 	public:
 		DeviceHeater(unsigned int id, const std::string &name, const configuration::Json &config);
 		virtual ~DeviceHeater() {}
 
 		std::string GetType() const { return "heater"; }
+
+		en_wanted_state GetWantedState() const;
 };
 
 }

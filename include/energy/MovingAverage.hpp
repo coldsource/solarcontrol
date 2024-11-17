@@ -17,38 +17,41 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __DEVICE_DEVICECMV_HPP__
-#define __DEVICE_DEVICECMV_HPP__
+#ifndef __ENERGY_MOVINGAVERAGE_HPP__
+#define __ENERGY_MOVINGAVERAGE_HPP__
 
-#include <device/DeviceTimeRange.hpp>
+#include <list>
 
-#include <set>
+namespace energy {
 
-namespace configuration {
-	class Json;
-}
-
-namespace device {
-
-class DeviceCMV: public DeviceTimeRange
+class MovingAverage
 {
 	protected:
-		std::set<unsigned int> ht_device_ids;
-		double force_max_moisture;
-		double offload_max_moisture;
+		// Store values in integer to avoid rounding errors
+		struct st_point
+		{
+			int value;
+			int duration;
+		};
+
+		int value_sum = 0;
+		int duration_sum = 0;
+		double avg = 0;
+		int period;
+
+		std::list<st_point> data;
 
 	public:
-		DeviceCMV(unsigned int id, const std::string &name, const configuration::Json &config);
-		virtual ~DeviceCMV() {}
+		MovingAverage(int period): period(period * 1000) {}
 
-		std::string GetType() const { return "cmv"; }
+		void Add(double value, double duration);
+		double Get() const;
 
-		en_wanted_state GetWantedState() const;
+		void Reset();
 };
 
 }
 
 #endif
-
 
 

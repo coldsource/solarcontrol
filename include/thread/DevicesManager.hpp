@@ -21,6 +21,18 @@
 #define __THREAD_DEVICESMANAGER_HPP__
 
 #include <thread/WaiterThread.hpp>
+#include <energy/MovingAverage.hpp>
+
+#include <vector>
+#include <map>
+
+namespace energy {
+	class GlobalMeter;
+}
+
+namespace device {
+	class DeviceOnOff;
+}
 
 namespace thread {
 
@@ -29,6 +41,18 @@ class DevicesManager: public WaiterThread
 	static DevicesManager *instance;
 
 	protected:
+		energy::GlobalMeter *global_meter;
+		energy::MovingAverage available_power_avg;
+
+		int hysteresis_export = 0;
+		int hysteresis_import = 0;
+		unsigned long long state_update_interval;
+		double cooldown;
+
+		bool hysteresis(double available_power, const device::DeviceOnOff *device) const;
+		bool force(const std::map<device::DeviceOnOff *, bool> &devices);
+		bool offload(const std::vector<device::DeviceOnOff *> &devices);
+
 		void main(void);
 
 	public:

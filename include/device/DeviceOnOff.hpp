@@ -21,30 +21,53 @@
 #define __DEVICE_DEVICEONOFF_HPP__
 
 #include <device/Device.hpp>
+#include <control/OnOff.hpp>
+#include <datetime/TimespanHistory.hpp>
+#include <datetime/Timestamp.hpp>
 
 #include <string>
 
 namespace device {
 
+enum en_wanted_state
+{
+	ON,
+	OFF,
+	OFFLOAD
+};
+
 class DeviceOnOff: public Device
 {
 	protected:
+		control::OnOff *ctrl;
+		bool need_update = true; // Force state update on reload
+		bool manual = false;
+
+		datetime::Timestamp last_on;
+		datetime::Timestamp last_off;
+
 		int prio = 0;
+		double expected_consumption;
+
+		datetime::TimespanHistory on_history;
 
 	public:
-		DeviceOnOff(unsigned int id, const std::string &name, const configuration::Json &config): Device(id, name, config) {}
+		DeviceOnOff(unsigned int id, const std::string &name, const configuration::Json &config);
 
 		int GetPrio() const { return prio; }
 
-		virtual bool WantedState() const = 0;
-		virtual bool GetState() const = 0;
-		virtual void SetState(bool new_state) = 0;
-		virtual void SetManualState(bool new_state) = 0;
-		virtual void SetAutoState() = 0;
-		virtual bool IsManual() = 0;
-		virtual void UpdateState() = 0;
-		virtual bool NeedStateUpdate() = 0;
-		virtual double GetPower() const = 0;
+		virtual en_wanted_state GetWantedState() const = 0;
+
+		bool GetState() const;
+		void SetState(bool new_state);
+		void SetManualState(bool new_state);
+		void SetAutoState();
+		bool IsManual() { return manual; }
+
+		bool NeedStateUpdate() const { return need_update; }
+		void UpdateState();
+		double GetExpectedConsumption() const;
+		double GetPower() const;
 };
 
 }

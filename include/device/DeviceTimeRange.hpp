@@ -22,16 +22,9 @@
 
 #include <device/DeviceOnOff.hpp>
 #include <datetime/TimeRanges.hpp>
-#include <datetime/TimespanHistory.hpp>
-#include <datetime/Timestamp.hpp>
-#include <control/OnOff.hpp>
 
 #include <string>
 #include <vector>
-
-namespace energy {
-	class GlobalMeter;
-}
 
 namespace configuration {
 	class Json;
@@ -42,34 +35,17 @@ namespace device {
 class DeviceTimeRange: public DeviceOnOff
 {
 	protected:
-		const energy::GlobalMeter *global_meter;
-		control::OnOff *ctrl;
-
-		bool manual = false;
-
-		bool need_update = true; // Force state update on reload
-
-		int hysteresis_export = 0;
-		int hysteresis_import = 0;
-
 		int min_on = 0;
 		int max_on = 0;
 		int min_off = 0;
-		datetime::Timestamp last_on;
-		datetime::Timestamp last_off;
 
 		datetime::TimeRanges force;
 
 		datetime::TimeRanges offload;
-		double expected_consumption;
 
 		datetime::TimeRanges remainder;
 		int min_on_time;
 		int min_on_for_last;
-
-		datetime::TimespanHistory on_history;
-
-		virtual bool state_on_condition() const { return true; }
 
 	public:
 		DeviceTimeRange(unsigned int id, const std::string &name, const configuration::Json &config);
@@ -81,17 +57,7 @@ class DeviceTimeRange: public DeviceOnOff
 		virtual bool WantOffload() const;
 		virtual bool WantRemainder() const;
 
-		double GetExpectedConsumption() const { return expected_consumption; }
-
-		bool WantedState() const;
-		bool GetState() const;
-		void SetState(bool new_state);
-		void SetManualState(bool new_state);
-		void SetAutoState();
-		bool IsManual() { return manual; }
-		void UpdateState();
-		bool NeedStateUpdate() { return need_update; }
-		double GetPower() const;
+		virtual en_wanted_state GetWantedState() const;
 };
 
 }

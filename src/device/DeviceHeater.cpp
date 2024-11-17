@@ -35,17 +35,18 @@ DeviceHeater::DeviceHeater(unsigned int id, const string &name, const configurat
 	offload_max_temperature = config.GetFloat("offload_max_temperature");
 }
 
-bool DeviceHeater::state_on_condition() const
+en_wanted_state DeviceHeater::GetWantedState() const
 {
 	auto ht = DevicesHT::GetInstance()->GetByID(ht_device_id);
 
-	if(IsForced())
-		return (ht->GetTemperature()<force_max_temperature);
+	en_wanted_state wanted_state = DeviceTimeRange::GetWantedState();
+	if(wanted_state==ON)
+		return (ht->GetTemperature()<force_max_temperature)?ON:OFF;
 
-	if(WantOffload())
-		return (ht->GetTemperature()<offload_max_temperature);
+	if(wanted_state==OFFLOAD)
+		return (ht->GetTemperature()<offload_max_temperature)?OFFLOAD:OFF;
 
-	return false;
+	return OFF;
 }
 
 }

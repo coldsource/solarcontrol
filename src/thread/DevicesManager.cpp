@@ -30,28 +30,91 @@
 #include <stdexcept>
 
 using namespace std;
+using namespace device;
+using datetime::Timestamp;
 
 namespace thread {
 
 DevicesManager *DevicesManager::instance = 0;
 
-DevicesManager::DevicesManager()
+DevicesManager::DevicesManager():
+available_power_avg(configuration::ConfigurationSolarControl::GetInstance()->GetInt("control.hysteresis.smoothing") * 60)
 {
 	start();
+
+	auto config = configuration::ConfigurationSolarControl::GetInstance();
+	hysteresis_export = config->GetInt("control.hysteresis.export");
+	hysteresis_import = config->GetInt("control.hysteresis.import");
+	state_update_interval = config->GetInt("control.state.update_interval");
+	cooldown = config->GetInt("control.cooldown");
+
+	global_meter = energy::GlobalMeter::GetInstance();
 
 	instance = this;
 }
 
+bool DevicesManager::hysteresis(double available_power, const DeviceOnOff *device) const
+{
+	double consumption = device->GetExpectedConsumption();
+
+	if(device->GetState())
+		return (available_power - consumption > -hysteresis_import); // We are already on, so stay on as long as we have power to offload
+
+	return ((available_power - hysteresis_export) > consumption); // We are off, turn on only if we have enough power to offload
+}
+
+bool DevicesManager::force(const map<device::DeviceOnOff *, bool> &devices)
+{
+	bool state_changed = false;
+
+	// Change all forced devices (no cool down between forced actions)
+	for(auto device : devices)
+	{
+		if(device.first->GetState()!=device.second)
+		{
+			device.first->SetState(device.second);
+			state_changed = true;
+		}
+	}
+
+	return state_changed;
+}
+
+bool DevicesManager::offload(const vector<device::DeviceOnOff *> &devices)
+{
+	bool state_changed = false;
+
+	double available_power = available_power_avg.Get();
+
+	// Compute theoretical available power with all devices off
+	for(auto device : devices)
+		available_power += device->GetState()?device->GetExpectedConsumption():0;
+
+	// Offload based of priorities
+	for(auto device : devices)
+	{
+		bool new_state = hysteresis(available_power, device);
+		if(new_state)
+			available_power -= device->GetExpectedConsumption();
+
+		if(new_state!=device->GetState())
+		{
+			device->SetState(new_state);
+			state_changed = true;
+		}
+	}
+
+	return state_changed;
+}
+
 void DevicesManager::main()
 {
-	device::DevicesOnOff &devices = device::Devices::GetInstance()->GetOnOff();
+	DevicesOnOff &devices = device::Devices::GetInstance()->GetOnOff();
 
-	auto config = configuration::ConfigurationSolarControl::GetInstance();
-	unsigned long long state_update_interval = config->GetInt("control.state.update_interval");
+	Timestamp last_change_ts;
+	Timestamp last_state_update;
+	Timestamp last_power_update;
 
-	double start_cooldown = config->GetInt("control.cooldown.on");
-	double last_start_ts = 0;
-	datetime::Timestamp last_state_update;
 	while(true)
 	{
 		devices.Lock();
@@ -59,7 +122,7 @@ void DevicesManager::main()
 
 		try
 		{
-			datetime::Timestamp now(TS_MONOTONIC);
+			Timestamp now(TS_MONOTONIC);
 
 			if(now-last_state_update>state_update_interval)
 			{
@@ -68,30 +131,51 @@ void DevicesManager::main()
 					(*it)->UpdateState();
 
 				last_state_update = now;
+				state_changed |= true;
 			}
 
 			// Update devices that have been reloaded
 			for(auto it = devices.begin(); it!=devices.end(); ++it)
 			{
 				if((*it)->NeedStateUpdate())
+				{
 					(*it)->UpdateState();
+					state_changed |= true;
+				}
 			}
+
+			// Fetch all devices wanted state
+			map<DeviceOnOff *, bool> forced_devices;
+			vector<DeviceOnOff *> offload_devices;
 
 			for(auto it = devices.begin(); it!=devices.end(); ++it)
 			{
-				device::DeviceOnOff *device = *it;
+				DeviceOnOff *device = *it;
 
-				bool new_state = device->WantedState();
-				if(new_state==device->GetState())
-					continue;
+				en_wanted_state new_state = device->GetWantedState();
+				if(new_state==ON || new_state==OFF)
+					forced_devices.insert({device, new_state==ON?true:false});
+				else if(new_state==OFFLOAD)
+					offload_devices.push_back(device);
+			}
 
-				if(new_state && (double)now-last_start_ts<start_cooldown)
-					continue;
+			// Change all forced devices (no cool down between forced actions)
+			state_changed |= force(forced_devices);
 
-				device->SetState(new_state);
-				state_changed = true;
-				if(new_state)
-					last_start_ts = now;
+			// Apply cooldown time for offload devices
+			if(now-last_change_ts>=cooldown && !state_changed)
+			{
+				// Compute moving average of available power (we dont't want to count during cooldown to let power be accurate)
+				available_power_avg.Add(global_meter->GetNetAvailablePower(true), now - last_state_update);
+				last_state_update = now;
+
+				state_changed |= offload(offload_devices);
+			}
+
+			if(state_changed)
+			{
+				last_change_ts = now;
+				available_power_avg.Reset(); // We have made changes, state is no longer stable
 			}
 		}
 		catch(exception &e)

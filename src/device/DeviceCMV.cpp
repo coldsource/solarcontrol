@@ -39,19 +39,7 @@ DeviceCMV::DeviceCMV(unsigned int id, const string &name, const configuration::J
 	max_on = config.GetFloat("max_on");
 }
 
-// CMV Devices are based on Gross Available Power (other devices are based on Net)
-bool DeviceCMV::WantOffload() const
-{
-	if(!offload.IsActive())
-		return false;
-
-	if(GetState())
-		return (global_meter->GetGrossAvailablePower()>0); // We are already on, so stay on as long as we have power to offload
-
-	return (global_meter->GetGrossAvailablePower()>expected_consumption); // We are off, turn on only if we have enough power to offload
-}
-
-bool DeviceCMV::state_on_condition() const
+en_wanted_state DeviceCMV::GetWantedState() const
 {
 	double max_moisture = 0;
 	for(auto ht_device_id : ht_device_ids)
@@ -61,13 +49,15 @@ bool DeviceCMV::state_on_condition() const
 			max_moisture = ht->GetHumidity();
 	}
 
-	if(IsForced())
-		return (max_moisture>force_max_moisture);
+	en_wanted_state wanted_state = DeviceTimeRange::GetWantedState();
 
-	if(WantOffload())
-		return (max_moisture>offload_max_moisture);
+	if(wanted_state==ON)
+		return (max_moisture>force_max_moisture)?ON:OFF;
 
-	return false;
+	if(wanted_state==OFFLOAD)
+		return (max_moisture>offload_max_moisture)?OFFLOAD:OFF;
+
+	return OFF;
 }
 
 }

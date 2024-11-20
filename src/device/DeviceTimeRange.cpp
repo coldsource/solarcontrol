@@ -62,7 +62,6 @@ bool DeviceTimeRange::IsForced() const
 bool DeviceTimeRange::WantOffload() const
 {
 	return offload.IsActive();
-	// return hysteresis(global_meter->GetNetAvailablePower(true, true), expected_consumption);
 }
 
 bool DeviceTimeRange::WantRemainder() const

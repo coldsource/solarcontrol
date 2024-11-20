@@ -49,6 +49,8 @@ class DevicesManager: public WaiterThread
 		unsigned long long state_update_interval;
 		double cooldown;
 
+		bool hws_full = false;
+
 		bool hysteresis(double available_power, const device::DeviceOnOff *device) const;
 		bool force(const std::map<device::DeviceOnOff *, bool> &devices);
 		bool offload(const std::vector<device::DeviceOnOff *> &devices);

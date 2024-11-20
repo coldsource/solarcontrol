@@ -87,6 +87,7 @@ protected:
 
 		void SaveHistory();
 		void SetHWSState(bool new_state);
+		bool HWSIsFull() const;
 
 		void HandleMessage(const std::string &message);
 };

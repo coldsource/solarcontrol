@@ -97,7 +97,7 @@ double GlobalMeter::GetNetAvailablePower(bool allow_neg) const
 {
 	unique_lock<recursive_mutex> llock(lock);
 
-	if(hws.GetEnergyConsumption()>hws_min_energy)
+	if(HWSIsFull())
 		return GetGrossAvailablePower(allow_neg);
 	return GetExcessPower(allow_neg);
 }
@@ -190,6 +190,13 @@ void GlobalMeter::SetHWSState(bool new_state)
 	unique_lock<recursive_mutex> llock(lock);
 
 	hws_state = new_state;
+}
+
+bool GlobalMeter::HWSIsFull() const
+{
+	unique_lock<recursive_mutex> llock(lock);
+
+	return hws.GetEnergyConsumption()>hws_min_energy;
 }
 
 void GlobalMeter::HandleMessage(const string &message)

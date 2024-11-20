@@ -125,6 +125,7 @@ void DevicesManager::main()
 		last_power_update = now;
 
 		{
+			// Lock devices during computations
 			DevicesOnOff devices;
 
 			try

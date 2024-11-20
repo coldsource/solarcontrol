@@ -82,10 +82,6 @@ bool DevicesManager::force(const map<device::DeviceOnOff *, bool> &devices)
 
 bool DevicesManager::offload(const vector<device::DeviceOnOff *> &devices)
 {
-	// No offload until HWS is full
-	if(!hws_full)
-		return false;
-
 	bool state_changed = false;
 
 	double available_power = available_power_avg.Get();
@@ -127,9 +123,6 @@ void DevicesManager::main()
 		if(now-last_change_ts>=cooldown)
 			available_power_avg.Add(global_meter->GetNetAvailablePower(true), now - last_power_update);
 		last_power_update = now;
-
-		// Check if HWS if full
-		hws_full = global_meter->HWSIsFull();
 
 		{
 			// Lock devices during computations

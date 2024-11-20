@@ -42,6 +42,8 @@ class GlobalMeter: public mqtt::Subscriber
 	Counter hws;
 	Counter peak;
 	Counter offpeak;
+	Counter hws_forced;
+	Counter hws_offload;
 
 	std::string topic_em;
 	control::Input *offpeak_ctrl = 0;
@@ -84,6 +86,8 @@ protected:
 		const std::map<datetime::Date, double> &GetHWSConsumptionHistory() const { return hws.GetConsumptionHistory(); }
 		const std::map<datetime::Date, double> &GetOffPeakConsumptionHistory() const { return offpeak.GetConsumptionHistory(); }
 		const std::map<datetime::Date, double> &GetPeakConsumptionHistory() const { return peak.GetConsumptionHistory(); }
+		const std::map<datetime::Date, double> &GetHWSForcedConsumptionHistory() const { return hws_forced.GetConsumptionHistory(); }
+		const std::map<datetime::Date, double> &GetHWSOffloadConsumptionHistory() const { return hws_offload.GetConsumptionHistory(); }
 
 		void SaveHistory();
 		void SetHWSState(bool new_state);

@@ -36,7 +36,7 @@ namespace energy {
 GlobalMeter * GlobalMeter::instance = 0;
 
 GlobalMeter::GlobalMeter()
-:grid("grid", "grid-excess"), pv("pv"), hws("hws"), peak("peak"), offpeak("offpeak")
+:grid("grid", "grid-excess"), pv("pv"), hws("hws"), peak("peak"), offpeak("offpeak"), hws_forced("hws-forced"), hws_offload("hws-offload")
 {
 	topic_em = ConfigurationSolarControl::GetInstance()->Get("energy.mqtt.id") + "/events/rpc";
 	hws_min_energy = configuration::ConfigurationSolarControl::GetInstance()->GetInt("energy.hws.min");
@@ -166,14 +166,14 @@ bool GlobalMeter::GetOffPeakEnergy() const
 {
 	unique_lock<recursive_mutex> llock(lock);
 
-	return peak.GetEnergyConsumption();
+	return offpeak.GetEnergyConsumption();
 }
 
 bool GlobalMeter::GetPeakEnergy() const
 {
 	unique_lock<recursive_mutex> llock(lock);
 
-	return offpeak.GetEnergyConsumption();
+	return peak.GetEnergyConsumption();
 }
 
 void GlobalMeter::SaveHistory()
@@ -183,6 +183,8 @@ void GlobalMeter::SaveHistory()
 	hws.SaveHistory();
 	peak.SaveHistory();
 	offpeak.SaveHistory();
+	hws_forced.SaveHistory();
+	hws_offload.SaveHistory();
 }
 
 void GlobalMeter::SetHWSState(bool new_state)
@@ -230,6 +232,11 @@ void GlobalMeter::HandleMessage(const string &message)
 			else
 				peak.SetPower(power_grid);
 		}
+
+		if(hws_state)
+			hws_forced.SetPower(power_hws);
+		else
+			hws_offload.SetPower(power_hws);
 	}
 
 	if(websocket::SolarControl::GetInstance())

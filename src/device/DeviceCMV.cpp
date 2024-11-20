@@ -21,7 +21,6 @@
 #include <configuration/Json.hpp>
 #include <datetime/Timestamp.hpp>
 #include <device/DevicesHT.hpp>
-#include <energy/GlobalMeter.hpp>
 
 using namespace std;
 using nlohmann::json;

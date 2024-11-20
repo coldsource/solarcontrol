@@ -109,7 +109,7 @@ bool DevicesManager::offload(const vector<device::DeviceOnOff *> &devices)
 
 void DevicesManager::main()
 {
-	Timestamp last_change_ts;
+	Timestamp last_change_ts(TS_MONOTONIC);
 	Timestamp last_state_update(TS_MONOTONIC);
 	Timestamp last_power_update(TS_MONOTONIC);
 

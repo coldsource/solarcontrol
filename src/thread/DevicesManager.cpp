@@ -110,8 +110,8 @@ bool DevicesManager::offload(const vector<device::DeviceOnOff *> &devices)
 void DevicesManager::main()
 {
 	Timestamp last_change_ts;
-	Timestamp last_state_update;
-	Timestamp last_power_update;
+	Timestamp last_state_update(TS_MONOTONIC);
+	Timestamp last_power_update(TS_MONOTONIC);
 
 	while(true)
 	{
@@ -131,18 +131,16 @@ void DevicesManager::main()
 						(*it)->UpdateState();
 
 					last_state_update = now;
-					state_changed = true;
 				}
 
 				// Update devices that have been reloaded or have had a manuel change
 				for(auto it = devices.begin(); it!=devices.end(); ++it)
 				{
+					// Reloaded device
 					if((*it)->NeedStateUpdate())
-					{
 						(*it)->UpdateState();
-						state_changed = true;
-					}
 
+					// Manual change
 					if((*it)->WasChanged())
 					{
 						(*it)->AckChanged();
@@ -171,9 +169,8 @@ void DevicesManager::main()
 				// Apply cooldown time for offload devices
 				if(now-last_change_ts>=cooldown && !state_changed)
 				{
-					// Compute moving average of available power (we dont't want to count during cooldown to let power be accurate)
-					available_power_avg.Add(global_meter->GetNetAvailablePower(true), now - last_state_update);
-					last_state_update = now;
+					// Compute moving average of available power (we don't want to count during cooldown to let power be accurate)
+					available_power_avg.Add(global_meter->GetNetAvailablePower(true), now - last_power_update);
 
 					state_changed |= offload(offload_devices);
 				}
@@ -183,6 +180,8 @@ void DevicesManager::main()
 					last_change_ts = now;
 					available_power_avg.Reset(); // We have made changes, state is no longer stable
 				}
+
+				last_power_update = now;
 			}
 			catch(exception &e)
 			{

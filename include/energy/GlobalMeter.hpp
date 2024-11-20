@@ -47,6 +47,7 @@ class GlobalMeter: public mqtt::Subscriber
 	control::Input *offpeak_ctrl = 0;
 
 	double hws_min_energy = 0;
+	bool hws_state = false;
 
 	static GlobalMeter *instance;
 	mutable std::recursive_mutex lock;
@@ -85,6 +86,7 @@ protected:
 		const std::map<datetime::Date, double> &GetPeakConsumptionHistory() const { return peak.GetConsumptionHistory(); }
 
 		void SaveHistory();
+		void SetHWSState(bool new_state);
 
 		void HandleMessage(const std::string &message);
 };

@@ -106,8 +106,7 @@ double GlobalMeter::GetGrossAvailablePower(bool allow_neg) const
 {
 	unique_lock<recursive_mutex> llock(lock);
 
-	device::DevicesOnOff devices;
-	double hws_offload = devices.GetHWS()->GetState()?0:hws.GetPower(); // No hws offload when in forced mode
+	double hws_offload = hws_state?0:hws.GetPower(); // No hws offload when in forced mode
 
 	double available = hws_offload-grid.GetPower();
 	if(!allow_neg && available<0)
@@ -184,6 +183,13 @@ void GlobalMeter::SaveHistory()
 	hws.SaveHistory();
 	peak.SaveHistory();
 	offpeak.SaveHistory();
+}
+
+void GlobalMeter::SetHWSState(bool new_state)
+{
+	unique_lock<recursive_mutex> llock(lock);
+
+	hws_state = new_state;
 }
 
 void GlobalMeter::HandleMessage(const string &message)

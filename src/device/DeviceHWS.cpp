@@ -64,5 +64,12 @@ void DeviceHWS::CreateInDB()
 	db.Query("INSERT INTO t_device(device_type, device_name, device_config) VALUES('hws', 'hws', %s)"_sql<<config.dump());
 }
 
+void DeviceHWS::SetState(bool new_state)
+{
+	DeviceTimeRange::SetState(new_state);
+
+	energy::GlobalMeter::GetInstance()->SetHWSState(new_state);
+}
+
 }
 

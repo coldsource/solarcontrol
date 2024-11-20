@@ -60,7 +60,7 @@ class DeviceOnOff: public Device
 		virtual en_wanted_state GetWantedState() const = 0;
 
 		bool GetState() const;
-		void SetState(bool new_state);
+		virtual void SetState(bool new_state);
 		void SetManualState(bool new_state);
 		void SetAutoState();
 		bool IsManual() { return manual; }

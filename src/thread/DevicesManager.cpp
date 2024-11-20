@@ -117,6 +117,7 @@ void DevicesManager::main()
 	{
 		Timestamp now(TS_MONOTONIC);
 		bool state_changed = false;
+		bool state_updated = false;
 
 		// Compute moving average of available power (we don't want to count during cooldown to let power be accurate)
 		// global_meter is locked before locking devices (and never locked after)
@@ -135,7 +136,10 @@ void DevicesManager::main()
 				{
 					// Update all devices' state
 					for(auto it = devices.begin(); it!=devices.end(); ++it)
+					{
 						(*it)->UpdateState();
+						state_updated = true;
+					}
 
 					last_state_update = now;
 				}
@@ -145,7 +149,10 @@ void DevicesManager::main()
 				{
 					// Reloaded device
 					if((*it)->NeedStateUpdate())
+					{
 						(*it)->UpdateState();
+						state_updated = true;
+					}
 
 					// Manual change
 					if((*it)->WasChanged())
@@ -189,7 +196,7 @@ void DevicesManager::main()
 			}
 		}
 
-		if(websocket::SolarControl::GetInstance() && state_changed)
+		if(websocket::SolarControl::GetInstance() && (state_changed || state_updated))
 			websocket::SolarControl::GetInstance()->NotifyAll(websocket::SolarControl::en_protocols::DEVICE);
 
 		if(!wait(1))

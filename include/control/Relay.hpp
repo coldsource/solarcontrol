@@ -47,7 +47,7 @@ class Relay: public HTTP, public OnOff, public mqtt::Subscriber
 		virtual ~Relay();
 
 		void Switch(bool state);
-		bool GetState() const { return state; }
+		bool GetState() const;
 		double GetPower() const;
 		void UpdateState();
 

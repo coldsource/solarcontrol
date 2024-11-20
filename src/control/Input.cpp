@@ -73,6 +73,13 @@ void Input::UpdateState()
 	state = get_input();
 }
 
+bool Input::GetState() const
+{
+	unique_lock<mutex> llock(lock);
+
+	return state;
+}
+
 void Input::HandleMessage(const string &message)
 {
 	{

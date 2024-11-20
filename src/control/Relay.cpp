@@ -70,6 +70,13 @@ void Relay::Switch(bool new_state)
 	state = new_state;
 }
 
+bool Relay::GetState() const
+{
+	unique_lock<mutex> llock(lock);
+
+	return state;
+}
+
 bool Relay::get_output() const
 {
 	if(ip=="")

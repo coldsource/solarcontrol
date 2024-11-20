@@ -44,7 +44,7 @@ class Input: public HTTP, public mqtt::Subscriber
 		Input(const std::string &mqtt_id, int input, const std::string &ip = "");
 		virtual ~Input();
 
-		bool GetState() const { return state; }
+		bool GetState() const;
 		void UpdateState();
 
 		void HandleMessage(const std::string &message);

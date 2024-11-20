@@ -71,7 +71,6 @@ bool DateTime::operator==(const DateTime& r) const
 {
 	time_t l_t = (time_t)(Timestamp)*this;
 	time_t r_t = (time_t)(Timestamp)r;
-	printf("%ld ?= %ld\n", l_t, r_t);
 	return l_t==r_t;
 }
 

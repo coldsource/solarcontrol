@@ -19,12 +19,6 @@
 
 #include <configuration/ConfigurationSolarControl.hpp>
 
-#include <string.h>
-#include <stdlib.h>
-#include <stdlib.h>
-#include <sys/stat.h>
-#include <unistd.h>
-
 #include <stdexcept>
 
 using namespace std;

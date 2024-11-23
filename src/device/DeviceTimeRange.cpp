@@ -72,17 +72,17 @@ bool DeviceTimeRange::WantRemainder() const
 en_wanted_state DeviceTimeRange::GetWantedState() const
 {
 	if(manual)
-		return GetState()?ON:OFF;
+		return UNCHANGED;
 
 	Timestamp now(TS_MONOTONIC);
 	if(GetState() && now-last_on<min_on)
-		return ON; // Stay on at least 'min_on' seconds
+		return UNCHANGED; // Stay on at least 'min_on' seconds
 
 	if(GetState() && max_on>0 && now-last_on>max_on)
 		return OFF; // Stay on no longer than 'max_on' seconds
 
 	if(!GetState() && now-last_off<min_off)
-		return OFF; // Stay of at least 'min_off' seconds
+		return UNCHANGED; // Stay of at least 'min_off' seconds
 
 	if(IsForced() || WantRemainder())
 		return ON;

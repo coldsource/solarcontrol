@@ -41,6 +41,9 @@ en_wanted_state DeviceHeater::GetWantedState() const
 	auto ht = devices.GetByID(ht_device_id);
 
 	en_wanted_state wanted_state = DeviceTimeRange::GetWantedState();
+	if(wanted_state==UNCHANGED)
+		return UNCHANGED;
+
 	if(wanted_state==ON)
 		return (ht->GetTemperature()<force_max_temperature)?ON:OFF;
 

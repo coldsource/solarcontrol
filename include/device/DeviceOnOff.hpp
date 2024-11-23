@@ -33,7 +33,8 @@ enum en_wanted_state
 {
 	ON,
 	OFF,
-	OFFLOAD
+	OFFLOAD,
+	UNCHANGED
 };
 
 class DeviceOnOff: public Device

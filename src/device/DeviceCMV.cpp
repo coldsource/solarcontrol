@@ -51,6 +51,8 @@ en_wanted_state DeviceCMV::GetWantedState() const
 	}
 
 	en_wanted_state wanted_state = DeviceTimeRange::GetWantedState();
+	if(wanted_state==UNCHANGED)
+		return UNCHANGED;
 
 	if(wanted_state==ON)
 		return (max_moisture>force_max_moisture)?ON:OFF;

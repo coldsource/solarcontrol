@@ -16,6 +16,20 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Table structure for table `t_config`
+--
+
+DROP TABLE IF EXISTS `t_config`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `t_config` (
+  `config_name` varchar(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+  `config_value` varchar(128) NOT NULL,
+  UNIQUE KEY `config_name` (`config_name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `t_device`
 --
 
@@ -28,7 +42,7 @@ CREATE TABLE `t_device` (
   `device_name` varchar(64) NOT NULL,
   `device_config` mediumtext NOT NULL,
   PRIMARY KEY (`device_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=50 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=54 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -71,4 +85,4 @@ CREATE TABLE `t_log_state` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-11-20 15:30:47
+-- Dump completed on 2024-11-23 17:10:21

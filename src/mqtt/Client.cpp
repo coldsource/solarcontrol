@@ -65,11 +65,11 @@ void Client::Unsubscribe(const string &topic, Subscriber *subscriber)
 {
 	unique_lock<mutex> llock(lock);
 
-	mosquitto_subscribe(mosqh, 0, topic.c_str(), 0);
 	auto it = subscribers.find(topic);
 	if(it==subscribers.end())
 		return;
 
+	mosquitto_unsubscribe(mosqh, 0, topic.c_str());
 	it->second.erase(subscriber);
 }
 

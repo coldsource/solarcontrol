@@ -12,6 +12,7 @@
 #include <configuration/Args.hpp>
 #include <configuration/Configuration.hpp>
 #include <configuration/ConfigurationReader.hpp>
+#include <configuration/ConfigurationReaderDB.hpp>
 #include <configuration/ConfigurationSolarControl.hpp>
 #include <database/DB.hpp>
 #include <websocket/SolarControl.hpp>
@@ -94,6 +95,8 @@ int main(int argc, char **argv)
 		configuration::ConfigurationReader::Read(config_filename, config);
 		config->Split();
 		config->CheckAll();
+
+		configuration::ConfigurationReaderDB::Read(config);
 
 		auto config_sc = configuration::ConfigurationSolarControl::GetInstance();
 		mqtt::Client mqtt(config_sc->Get("mqtt.host"), config_sc->GetInt("mqtt.port"));

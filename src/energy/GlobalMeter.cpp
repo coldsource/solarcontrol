@@ -22,12 +22,12 @@
 #include <control/Input.hpp>
 #include <device/DevicesOnOff.hpp>
 #include <nlohmann/json.hpp>
-#include <configuration/ConfigurationSolarControl.hpp>
+#include <energy/ConfigurationEnergy.hpp>
 #include <mqtt/Client.hpp>
 #include <websocket/SolarControl.hpp>
 
 using namespace std;
-using configuration::ConfigurationSolarControl;
+using configuration::ConfigurationEnergy;
 
 using nlohmann::json;
 
@@ -38,30 +38,74 @@ GlobalMeter * GlobalMeter::instance = 0;
 GlobalMeter::GlobalMeter()
 :grid("grid", "grid-excess"), pv("pv"), hws("hws"), peak("peak"), offpeak("offpeak"), hws_forced("hws-forced"), hws_offload("hws-offload")
 {
-	topic_em = ConfigurationSolarControl::GetInstance()->Get("energy.mqtt.id") + "/events/rpc";
-	hws_min_energy = configuration::ConfigurationSolarControl::GetInstance()->GetInt("energy.hws.min");
-	mqtt::Client::GetInstance()->Subscribe(topic_em, this);
-
-	string offpeak_mqtt_id = ConfigurationSolarControl::GetInstance()->Get("offpeak.mqtt.id");
-	if(offpeak_mqtt_id!="")
-	{
-		string ip = ConfigurationSolarControl::GetInstance()->Get("offpeak.ip");
-		int input = ConfigurationSolarControl::GetInstance()->GetInt("offpeak.input");
-		offpeak_ctrl = new control::Input(offpeak_mqtt_id, input, ip);
-		offpeak_ctrl->UpdateState();
-	}
+	Reload();
 
 	instance = this;
 }
 
 GlobalMeter::~GlobalMeter()
 {
+	free();
+}
+
+void GlobalMeter::free()
+{
 	if(offpeak_ctrl)
+	{
 		delete offpeak_ctrl;
+		offpeak_ctrl = 0;
+	}
 
 	auto mqtt = mqtt::Client::GetInstance();
-	if(mqtt)
+	if(mqtt && topic_em!="")
+	{
 		mqtt->Unsubscribe(topic_em, this);
+		topic_em = "";
+	}
+}
+
+void GlobalMeter::Reload()
+{
+	{
+		unique_lock<recursive_mutex> llock(lock);
+
+		free();
+
+		auto config = ConfigurationEnergy::GetInstance();
+
+		topic_em = "";
+		if(config->Get("energy.mqtt.id")!="")
+			topic_em = config->Get("energy.mqtt.id") + "/events/rpc";
+
+		hws_min_energy = config->GetInt("energy.hws.min");
+
+		if(topic_em!="")
+			mqtt::Client::GetInstance()->Subscribe(topic_em, this);
+
+		string offpeak_mqtt_id = config->Get("offpeak.mqtt.id");
+		if(offpeak_mqtt_id!="")
+		{
+			string ip = config->Get("offpeak.ip");
+			int input = config->GetInt("offpeak.input");
+			offpeak_ctrl = new control::Input(offpeak_mqtt_id, input, ip);
+			offpeak_ctrl->UpdateState();
+		}
+
+		debug = config->GetBool("energy.debug.enabled");
+		debug_grid = config->GetInt("energy.debug.grid");
+		debug_pv= config->GetInt("energy.debug.pv");
+		debug_hws = config->GetInt("energy.debug.hws");
+
+		if(debug)
+		{
+			grid.SetPower(debug_grid);
+			pv.SetPower(debug_pv);
+			hws.SetPower(debug_hws);
+		}
+	}
+
+	if(debug && websocket::SolarControl::GetInstance())
+		websocket::SolarControl::GetInstance()->NotifyAll(websocket::SolarControl::en_protocols::METER);
 }
 
 double GlobalMeter::GetGridPower() const
@@ -205,6 +249,9 @@ void GlobalMeter::HandleMessage(const string &message)
 {
 	{
 		unique_lock<recursive_mutex> llock(lock);
+
+		if(debug)
+			return;
 
 		double power_grid, power_pv, power_hws;
 

@@ -1,24 +1,24 @@
 /*
- * This file is part of evQueue
+ * This file is part of SolarControl
  *
- * evQueue is free software: you can redistribute it and/or modify
+ * SolarControl is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * evQueue is distributed in the hope that it will be useful,
+ * SolarControl is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with evQueue. If not, see <http://www.gnu.org/licenses/>.
+ * along with SolarControl. If not, see <http://www.gnu.org/licenses/>.
  *
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef  __CONFIGURATION_CONFIGURATIONSOLARCONTROL_H__
-#define  __CONFIGURATION_CONFIGURATIONSOLARCONTROL_H__
+#ifndef  __ENERGY_CONFIGURATIONENERGY_H__
+#define  __ENERGY_CONFIGURATIONENERGY_H__
 
 #include <string>
 #include <map>
@@ -28,13 +28,15 @@
 namespace configuration
 {
 
-class ConfigurationSolarControl:public Configuration
+class ConfigurationEnergy:public Configuration
 {
-	public:
-		ConfigurationSolarControl(void);
-		virtual ~ConfigurationSolarControl(void);
+	static ConfigurationEnergy *instance_energy;
 
-		static ConfigurationSolarControl *GetInstance() { return (ConfigurationSolarControl *)instance; }
+	public:
+		ConfigurationEnergy(void);
+		virtual ~ConfigurationEnergy(void);
+
+		static ConfigurationEnergy *GetInstance() { return instance_energy; }
 
 		void Check(void);
 };
@@ -42,3 +44,4 @@ class ConfigurationSolarControl:public Configuration
 }
 
 #endif
+

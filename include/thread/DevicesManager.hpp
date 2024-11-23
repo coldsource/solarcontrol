@@ -25,6 +25,7 @@
 
 #include <vector>
 #include <map>
+#include <mutex>
 
 namespace energy {
 	class GlobalMeter;
@@ -40,14 +41,18 @@ class DevicesManager: public WaiterThread
 {
 	static DevicesManager *instance;
 
+	std::mutex lock;
+
+	void free();
+
 	protected:
-		energy::GlobalMeter *global_meter;
-		energy::MovingAverage available_power_avg;
+		energy::GlobalMeter *global_meter = 0;
+		energy::MovingAverage *available_power_avg = 0;
 
 		int hysteresis_export = 0;
 		int hysteresis_import = 0;
 		unsigned long long state_update_interval;
-		double cooldown;
+		int cooldown;
 
 		bool hysteresis(double available_power, const device::DeviceOnOff *device) const;
 		bool force(const std::map<device::DeviceOnOff *, bool> &devices);
@@ -57,8 +62,11 @@ class DevicesManager: public WaiterThread
 
 	public:
 		DevicesManager();
+		virtual ~DevicesManager();
 
 		static DevicesManager *GetInstance() { return instance; }
+
+		void Reload();
 };
 
 }

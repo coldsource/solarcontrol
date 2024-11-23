@@ -51,8 +51,15 @@ class GlobalMeter: public mqtt::Subscriber
 	double hws_min_energy = 0;
 	bool hws_state = false;
 
+	bool debug = false;
+	double debug_grid = 0;
+	double debug_pv = 0;
+	double debug_hws = 0;
+
 	static GlobalMeter *instance;
 	mutable std::recursive_mutex lock;
+
+	void free();
 
 protected:
 	public:
@@ -60,6 +67,8 @@ protected:
 		~GlobalMeter();
 
 		static GlobalMeter *GetInstance() { return instance; }
+
+		void Reload();
 
 		double GetGridPower() const; // Grid power (>0 if importing, <0 if exporting)
 		double GetPVPower() const; // Solar production (>0 if producting)

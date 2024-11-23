@@ -23,6 +23,7 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <mutex>
 
 namespace configuration
 {
@@ -31,6 +32,8 @@ class Configuration
 {
 	private:
 		std::vector<Configuration *> configs;
+
+		mutable std::recursive_mutex lock;
 
 	protected:
 		static Configuration *instance;
@@ -49,16 +52,21 @@ class Configuration
 
 		void Substitute(void);
 
+		std::vector<Configuration *> GetConfigs() { return configs; }
+
 		virtual void Check(void) {}
 		void CheckAll(void);
 
 		bool Set(const std::string &entry,const std::string &value);
+		bool SetCheck(const std::string &entry,const std::string &value);
+		const std::map<std::string,std::string> GetAll() const { return entries; }
 		const std::string &Get(const std::string &entry) const;
 		int GetInt(const std::string &entry) const;
 		int GetSize(const std::string &entry) const;
 		bool GetBool(const std::string &entry) const;
 		int GetUID(const std::string &entry) const;
 		int GetGID(const std::string &entry) const;
+		bool Exists(const std::string &name) const;
 
 	protected:
 		void check_f_is_exec(const std::string &filename);

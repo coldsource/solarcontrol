@@ -21,6 +21,7 @@
 #include <api/DeviceOnOff.hpp>
 #include <api/DeviceHT.hpp>
 #include <api/Logs.hpp>
+#include <api/Config.hpp>
 #include <configuration/Json.hpp>
 
 #include <stdexcept>
@@ -36,6 +37,7 @@ Dispatcher::Dispatcher()
 	handlers["deviceonoff"] = new DeviceOnOff();
 	handlers["deviceht"] = new DeviceHT();
 	handlers["logs"] = new Logs();
+	handlers["config"] = new Config();
 }
 
 Dispatcher::~Dispatcher()

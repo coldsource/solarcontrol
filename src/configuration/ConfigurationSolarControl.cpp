@@ -31,17 +31,7 @@ static auto init = Configuration::GetInstance()->RegisterConfig(new Configuratio
 ConfigurationSolarControl::ConfigurationSolarControl(void)
 {
 	// Load default configuration
-	entries["control.hysteresis.smoothing"] = "3";
-	entries["control.hysteresis.export"] = "50";
-	entries["control.hysteresis.import"] = "30";
-	entries["control.cooldown"] = "10";
-	entries["control.state.update_interval"] = "60";
 	entries["core.history.maxdays"] = "30";
-	entries["energy.hws.min"] = "3000";
-	entries["energy.mqtt.id"] = "";
-	entries["offpeak.mqtt.id"] = "";
-	entries["offpeak.input"] = "0";
-	entries["offpeak.ip"] = "";
 	entries["mqtt.id"] = "solarcontrol";
 	entries["mqtt.host"] = "127.0.0.1";
 	entries["mqtt.port"] = "1883";
@@ -61,20 +51,11 @@ ConfigurationSolarControl::~ConfigurationSolarControl(void)
 
 void ConfigurationSolarControl::Check(void)
 {
-	check_int_entry("control.hysteresis.export");
-	check_int_entry("control.hysteresis.import");
-	check_int_entry("control.cooldown");
 	check_int_entry("core.history.maxdays");
-	check_int_entry("offpeak.input");
-
-	if(GetInt("control.cooldown")<0)
-		throw invalid_argument("control.cooldown : must be greater than 0");
+	check_int_entry("mqtt.port");
 
 	if(GetInt("core.history.maxdays")<0)
 		throw invalid_argument("core.history.maxdays : must be greater than 0");
-
-	if(Get("energy.mqtt.id")=="")
-		throw invalid_argument("energy.mqtt.id : can't be empty");
 }
 
 }

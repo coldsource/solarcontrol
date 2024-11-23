@@ -24,7 +24,7 @@
 #include <device/DeviceOnOff.hpp>
 #include <energy/GlobalMeter.hpp>
 #include <websocket/SolarControl.hpp>
-#include <configuration/ConfigurationSolarControl.hpp>
+#include <control/ConfigurationControl.hpp>
 #include <logs/Logger.hpp>
 
 #include <stdexcept>
@@ -37,20 +37,44 @@ namespace thread {
 
 DevicesManager *DevicesManager::instance = 0;
 
-DevicesManager::DevicesManager():
-available_power_avg(configuration::ConfigurationSolarControl::GetInstance()->GetInt("control.hysteresis.smoothing") * 60)
+DevicesManager::DevicesManager()
 {
+	Reload();
+
 	start();
 
-	auto config = configuration::ConfigurationSolarControl::GetInstance();
+	global_meter = energy::GlobalMeter::GetInstance();
+
+	instance = this;
+}
+
+DevicesManager::~DevicesManager()
+{
+	free();
+}
+
+void DevicesManager::Reload()
+{
+	unique_lock<mutex> llock(lock);
+
+	free();
+
+	auto config = configuration::ConfigurationControl::GetInstance();
 	hysteresis_export = config->GetInt("control.hysteresis.export");
 	hysteresis_import = config->GetInt("control.hysteresis.import");
 	state_update_interval = config->GetInt("control.state.update_interval");
 	cooldown = config->GetInt("control.cooldown");
 
-	global_meter = energy::GlobalMeter::GetInstance();
+	available_power_avg = new energy::MovingAverage(config->GetInt("control.hysteresis.smoothing") * 60);
+}
 
-	instance = this;
+void DevicesManager::free()
+{
+	if(available_power_avg)
+	{
+		delete available_power_avg;
+		available_power_avg = 0;
+	}
 }
 
 bool DevicesManager::hysteresis(double available_power, const DeviceOnOff *device) const
@@ -84,7 +108,7 @@ bool DevicesManager::offload(const vector<device::DeviceOnOff *> &devices)
 {
 	bool state_changed = false;
 
-	double available_power = available_power_avg.Get();
+	double available_power = available_power_avg->Get();
 
 	// Compute theoretical available power with all devices off
 	for(auto device : devices)
@@ -122,12 +146,15 @@ void DevicesManager::main()
 		// Compute moving average of available power (we don't want to count during cooldown to let power be accurate)
 		// global_meter is locked before locking devices (and never locked after)
 		if(now-last_change_ts>=cooldown)
-			available_power_avg.Add(global_meter->GetNetAvailablePower(true), now - last_power_update);
+			available_power_avg->Add(global_meter->GetNetAvailablePower(true), now - last_power_update);
 		last_power_update = now;
 
 		{
 			// Lock devices during computations
 			DevicesOnOff devices;
+
+			// Lock our config
+			unique_lock<mutex> llock(lock);
 
 			try
 			{
@@ -187,7 +214,7 @@ void DevicesManager::main()
 				if(state_changed)
 				{
 					last_change_ts = now;
-					available_power_avg.Reset(); // We have made changes, state is no longer stable
+					available_power_avg->Reset(); // We have made changes, state is no longer stable
 				}
 			}
 			catch(exception &e)

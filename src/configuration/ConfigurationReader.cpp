@@ -129,7 +129,7 @@ void ConfigurationReader::Read(const string &filename, Configuration *config)
 			value=line+i;
 			while(line[i]!='\0')
 			{
-				if(quoted==0 && line[i]==' ' || line[i]=='\t' || line[i]=='#')
+				if(quoted==0 && (line[i]==' ' || line[i]=='\t' || line[i]=='#'))
 					break;
 				else if(quoted==1 && line[i]=='\'')
 					break;

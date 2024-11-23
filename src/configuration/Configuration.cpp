@@ -125,6 +125,8 @@ void Configuration::CheckAll()
 
 bool Configuration::Set(const string &entry,const string &value)
 {
+	unique_lock<recursive_mutex> llock(lock);
+
 	if(entries.count(entry)==0)
 		return false;
 
@@ -132,8 +134,33 @@ bool Configuration::Set(const string &entry,const string &value)
 	return true;
 }
 
+bool Configuration::SetCheck(const string &entry,const string &value)
+{
+	unique_lock<recursive_mutex> llock(lock);
+
+	if(entries.count(entry)==0)
+		return false;
+
+	string old_value = entries[entry];
+	entries[entry] = value;
+
+	try
+	{
+		Check();
+	}
+	catch(exception &e)
+	{
+		entries[entry] = old_value;
+		throw;
+	}
+
+	return true;
+}
+
 const string &Configuration::Get(const string &entry) const
 {
+	unique_lock<recursive_mutex> llock(lock);
+
 	map<string,string>::const_iterator it = entries.find(entry);
 	if(it==entries.end())
 		throw runtime_error("Unknown configuration entry: "+entry);
@@ -173,11 +200,11 @@ int Configuration::GetUID(const string &entry) const
 {
 	try
 	{
-		return std::stoi(Get("core.uid"));
+		return std::stoi(Get(entry));
 	}
 	catch(const std::invalid_argument& excpt)
 	{
-		struct passwd *user_entry = getpwnam(Get("core.uid").c_str());
+		struct passwd *user_entry = getpwnam(Get(entry).c_str());
 		if(!user_entry)
 			throw runtime_error("Unable to find user");
 
@@ -189,11 +216,16 @@ int Configuration::GetUID(const string &entry) const
 	}
 }
 
+bool Configuration::Exists(const std::string &name) const
+{
+	return entries.contains(name);
+}
+
 int Configuration::GetGID(const string &entry) const
 {
 	try
 	{
-		return std::stoi(Get("core.gid"));
+		return std::stoi(Get(entry));
 	}
 	catch(const std::invalid_argument& excpt)
 	{

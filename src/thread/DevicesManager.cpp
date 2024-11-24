@@ -197,6 +197,8 @@ void DevicesManager::main()
 				{
 					DeviceOnOff *device = *it;
 
+					device->LogEnergy();
+
 					en_wanted_state new_state = device->GetWantedState();
 					if(new_state==ON || new_state==OFF)
 						forced_devices.insert({device, new_state==ON?true:false});

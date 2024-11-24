@@ -25,7 +25,8 @@ using datetime::Timestamp;
 
 namespace device {
 
-DeviceOnOff::DeviceOnOff(unsigned int id, const std::string &name, const configuration::Json &config): Device(id, name, config), on_history(id)
+DeviceOnOff::DeviceOnOff(unsigned int id, const std::string &name, const configuration::Json &config):
+Device(id, name, config), consumption(id, "device"), on_history(id)
 {
 	prio = config.GetInt("prio");
 	expected_consumption = config.GetInt("expected_consumption", 0);
@@ -94,6 +95,13 @@ double DeviceOnOff::GetExpectedConsumption() const
 double DeviceOnOff::GetPower() const
 {
 	return ctrl->GetPower();
+}
+
+void DeviceOnOff::LogEnergy()
+{
+	double power = ctrl->GetPower();
+	if(power>=0)
+		consumption.SetPower(power);
 }
 
 }

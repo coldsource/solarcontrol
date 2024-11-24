@@ -24,6 +24,7 @@
 #include <control/OnOff.hpp>
 #include <datetime/TimespanHistory.hpp>
 #include <datetime/Timestamp.hpp>
+#include <energy/Counter.hpp>
 
 #include <string>
 
@@ -44,6 +45,7 @@ class DeviceOnOff: public Device
 		bool need_update = true; // Force state update on reload
 		bool manual_state_changed = false; // Notify we have a change from API
 		bool manual = false;
+		energy::Counter consumption;
 
 		datetime::Timestamp last_on;
 		datetime::Timestamp last_off;
@@ -73,6 +75,8 @@ class DeviceOnOff: public Device
 		void UpdateState();
 		double GetExpectedConsumption() const;
 		double GetPower() const;
+
+		void LogEnergy();
 };
 
 }

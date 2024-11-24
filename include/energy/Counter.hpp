@@ -20,7 +20,8 @@
 #ifndef __ENERGY_COUNTER_HPP__
 #define __ENERGY_COUNTER_HPP__
 
-#include <energy/History.hpp>
+#include <energy/HistoryDay.hpp>
+#include <energy/HistoryQuarterHour.hpp>
 
 #include <map>
 
@@ -35,11 +36,13 @@ class Counter
 	double energy_consumption;
 	double energy_excess;
 
-	History consumption_history;
-	History excess_history;
+	HistoryDay consumption_history;
+	HistoryDay excess_history;
+	HistoryQuarterHour consumption_history_detail;
+	HistoryQuarterHour excess_history_detail;
 
 	public:
-		Counter(const std::string &consumption_history_type = "", const std::string &excess_history_type = "");
+		Counter(unsigned int device_id = 0, const std::string &consumption_history_type = "", const std::string &excess_history_type = "");
 
 		void SetPower(double v);
 		double GetPower() const;

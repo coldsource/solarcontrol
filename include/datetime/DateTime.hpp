@@ -52,6 +52,7 @@ class DateTime
 
 		bool IsSameDay(const DateTime &dt) const ;
 		void ToNoon();
+		void ToQuarter();
 
 		bool operator==(const DateTime& r) const;
 		bool operator<(const DateTime& r) const;

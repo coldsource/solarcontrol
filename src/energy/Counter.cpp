@@ -25,8 +25,11 @@ using namespace std;
 
 namespace energy {
 
-Counter::Counter(const string &consumption_history_type, const string &excess_history_type)
-:consumption_history(consumption_history_type),excess_history(excess_history_type)
+Counter::Counter(unsigned int device_id, const string &consumption_history_type, const string &excess_history_type):
+consumption_history(consumption_history_type),
+excess_history(excess_history_type),
+consumption_history_detail(device_id, consumption_history_type),
+excess_history_detail(device_id, excess_history_type)
 {
 	last_ts = 0;
 	last_yday = datetime::DateTime().GetYearDay();
@@ -59,11 +62,13 @@ void Counter::SetPower(double v)
 		{
 			energy_consumption += energy_delta;
 			consumption_history.Add(energy_delta);
+			consumption_history_detail.Add(energy_delta);
 		}
 		else
 		{
 			energy_excess += -energy_delta;
 			excess_history.Add(-energy_delta);
+			excess_history_detail.Add(-energy_delta);
 		}
 	}
 

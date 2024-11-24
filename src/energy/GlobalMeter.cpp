@@ -36,7 +36,7 @@ namespace energy {
 GlobalMeter * GlobalMeter::instance = 0;
 
 GlobalMeter::GlobalMeter()
-:grid("grid", "grid-excess"), pv("pv"), hws("hws"), peak("peak"), offpeak("offpeak"), hws_forced("hws-forced"), hws_offload("hws-offload")
+:grid(0, "grid", "grid-excess"), pv(0, "pv"), hws(0, "hws"), peak(0, "peak"), offpeak(0, "offpeak"), hws_forced(0, "hws-forced"), hws_offload(0, "hws-offload")
 {
 	Reload();
 
@@ -239,9 +239,6 @@ void GlobalMeter::HandleMessage(const string &message)
 	{
 		unique_lock<recursive_mutex> llock(lock);
 
-		if(debug)
-			return;
-
 		double power_grid, power_pv, power_hws;
 
 		try
@@ -255,6 +252,13 @@ void GlobalMeter::HandleMessage(const string &message)
 		catch(json::exception &e)
 		{
 			return;
+		}
+
+		if(debug)
+		{
+			power_grid = debug_grid;
+			power_pv = debug_pv;
+			power_hws = debug_hws;
 		}
 
 		grid.SetPower(power_grid);

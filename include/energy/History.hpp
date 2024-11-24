@@ -20,36 +20,92 @@
 #ifndef __ENERGY_HISTORY_HPP__
 #define __ENERGY_HISTORY_HPP__
 
-#include <datetime/Date.hpp>
-
 #include <string>
 #include <map>
 
 namespace energy {
 
+template<typename Period>
 class History
 {
-	std::string type;
-	std::map<datetime::Date, double> history;
-	int retention_days;
+	protected:
+		std::string type;
+		std::map<Period, double> history;
+		int retention;
 
-	void purge(int ndays);
-	void save();
+		virtual void store_entry(const Period period, double value) = 0;
+
+		void purge()
+		{
+			Period period_ago = Period() - retention;
+
+			auto it = history.begin();
+			while(it!=history.end())
+			{
+				if(it->first<period_ago)
+				{
+					if(type!="")
+						store_entry(it->first, it->second);
+
+					it = history.erase(it);
+				}
+				else
+					++it;
+			}
+		}
 
 	public:
-		History(const std::string &type = "");
+		History(int retention, const std::string &type = ""): type(type), retention(retention) {}
+
 		History(const History &h) = delete;
-		~History();
 
-		void Set(double energy);
-		void Add(double energy);
+		void Set(double energy)
+		{
+			Period now;
+			history[now] = energy;
+		}
 
-		double GetTotalForLast(int ndays) const;
-		double GetTotalForToday() const;
-		const std::map<datetime::Date, double> &Get() const { return history; }
+		void Add(double energy)
+		{
+			Period now;
+			if(!history.contains(now))
+				history[now] = energy;
+			else
+				history[now] += energy;
+
+			purge();
+		}
+
+		double GetTotalForLast(int nperiods) const
+		{
+			Period start_date = Period() - nperiods;
+			double sum = 0;
+
+			for(auto it=history.begin(); it!=history.end(); ++it)
+			{
+				if(it->first<start_date)
+					continue;
+
+				sum += it->second;
+			}
+
+			return sum;
+		}
+
+		double GetTotalForCurrent() const
+		{
+			Period now;
+
+			auto it = history.find(now);
+			if(it==history.end())
+				return 0;
+
+			return it->second;
+		}
+
+		const std::map<Period, double> &Get() const { return history; }
 };
 
 }
 
 #endif
-

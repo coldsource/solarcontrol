@@ -61,6 +61,22 @@ CREATE TABLE `t_log_energy` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `t_log_energy_detail`
+--
+
+DROP TABLE IF EXISTS `t_log_energy_detail`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `t_log_energy_detail` (
+  `log_energy_detail_date` datetime NOT NULL,
+  `device_id` int(10) unsigned NOT NULL,
+  `log_energy_detail_type` enum('grid','grid-excess','pv','hws','peak','offpeak','hws-forced','hws-offload','device') CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+  `log_energy_detail` double NOT NULL,
+  UNIQUE KEY `log_energy_date` (`log_energy_detail_date`,`device_id`,`log_energy_detail_type`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `t_log_state`
 --
 
@@ -85,4 +101,4 @@ CREATE TABLE `t_log_state` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-11-23 17:10:21
+-- Dump completed on 2024-11-24 18:43:47

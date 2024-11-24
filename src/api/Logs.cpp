@@ -93,6 +93,37 @@ json Logs::HandleMessage(const string &cmd, const configuration::Json &j_params)
 
 		return j_res;
 	}
+	else if(cmd=="energydetail")
+	{
+		DB db;
+
+		auto res = db.Query(" \
+			SELECT detail.device_id, device.device_name, detail.log_energy_detail_date, detail.log_energy_detail_type, detail.log_energy_detail \
+			FROM t_log_energy_detail detail \
+			LEFT JOIN t_device device ON(detail.device_id=device.device_id) \
+			WHERE detail.log_energy_detail_date >= NOW() - 86400 \
+		"_sql);
+
+		j_res = json::object();
+		while(res.FetchRow())
+		{
+			string device_id = res["device_id"];
+			string date = res["log_energy_detail_date"];
+			string type = res["log_energy_detail_type"];
+
+			if(!j_res.contains(date))
+				j_res[date] = json::object();
+
+			if(!j_res[string(res["log_energy_detail_date"])].contains(device_id))
+				j_res[string(res["log_energy_detail_date"])][device_id] = json::object();
+
+			json &j_entry = j_res[string(res["log_energy_detail_date"])][device_id];
+			j_entry[type] = (double)res["log_energy_detail"];
+			j_entry["name"] = string(res["device_name"]);
+		}
+
+		return j_res;
+	}
 
 	throw invalid_argument("Unknown command « " + cmd + " » in module « logs »");
 }

@@ -85,10 +85,4 @@ double Counter::GetEnergyExcess() const
 	return energy_excess;
 }
 
-void Counter::SaveHistory()
-{
-	consumption_history.Save();
-	excess_history.Save();
-}
-
 }

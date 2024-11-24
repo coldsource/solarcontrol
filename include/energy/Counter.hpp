@@ -49,7 +49,6 @@ class Counter
 		double GetTotalConsumptionForLast(int ndays) const { return consumption_history.GetTotalForLast(ndays); }
 		double GetTotalExcessForLast(int ndays) const { return excess_history.GetTotalForLast(ndays); }
 
-		void SaveHistory();
 		const std::map<datetime::Date, double> &GetConsumptionHistory() const { return consumption_history.Get(); }
 		const std::map<datetime::Date, double> &GetExcessHistory() const { return excess_history.Get(); }
 };

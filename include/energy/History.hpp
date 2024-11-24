@@ -34,14 +34,15 @@ class History
 	int retention_days;
 
 	void purge(int ndays);
+	void save();
 
 	public:
 		History(const std::string &type = "");
+		History(const History &h) = delete;
 		~History();
 
 		void Set(double energy);
 		void Add(double energy);
-		void Save();
 
 		double GetTotalForLast(int ndays) const;
 		double GetTotalForToday() const;

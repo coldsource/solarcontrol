@@ -98,7 +98,6 @@ protected:
 		const std::map<datetime::Date, double> &GetHWSForcedConsumptionHistory() const { return hws_forced.GetConsumptionHistory(); }
 		const std::map<datetime::Date, double> &GetHWSOffloadConsumptionHistory() const { return hws_offload.GetConsumptionHistory(); }
 
-		void SaveHistory();
 		void SetHWSState(bool new_state);
 		bool HWSIsFull() const;
 

@@ -44,6 +44,7 @@ History::History(const string &type): type(type)
 
 History::~History()
 {
+	save();
 }
 
 void History::purge(int ndays)
@@ -89,7 +90,7 @@ void History::Add(double energy)
 	purge(retention_days);
 }
 
-void History::Save()
+void History::save()
 {
 	if(type=="")
 		return;

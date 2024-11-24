@@ -220,17 +220,6 @@ bool GlobalMeter::GetPeakEnergy() const
 	return peak.GetEnergyConsumption();
 }
 
-void GlobalMeter::SaveHistory()
-{
-	grid.SaveHistory();
-	pv.SaveHistory();
-	hws.SaveHistory();
-	peak.SaveHistory();
-	offpeak.SaveHistory();
-	hws_forced.SaveHistory();
-	hws_offload.SaveHistory();
-}
-
 void GlobalMeter::SetHWSState(bool new_state)
 {
 	unique_lock<recursive_mutex> llock(lock);

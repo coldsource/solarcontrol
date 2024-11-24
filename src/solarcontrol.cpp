@@ -125,8 +125,6 @@ int main(int argc, char **argv)
 		lcd.Shutdown();
 		lcd.WaitForShutdown();
 
-		globalmeter.SaveHistory(); // Backup latest data to database
-
 		devices.Unload(); // Unload all devices to ensure MQTT Unsubscription before destructor is called on MQTT client
 	}
 	catch(exception &e)

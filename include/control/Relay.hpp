@@ -35,7 +35,7 @@ class Relay: public HTTP, public OnOff, public mqtt::Subscriber
 	double power = -1;
 	int outlet = 0;
 
-	std::string topic;
+	std::string topic = "";
 
 	mutable std::mutex lock;
 

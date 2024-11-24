@@ -34,13 +34,14 @@ Relay::Relay(const std::string &ip, int outlet, const string &mqtt_id): HTTP(ip)
 
 	auto mqtt = mqtt::Client::GetInstance();
 	topic = mqtt_id + "/events/rpc";
-	mqtt->Subscribe(topic, this);
+	if(topic!="")
+		mqtt->Subscribe(topic, this);
 }
 
 Relay::~Relay()
 {
 	auto mqtt = mqtt::Client::GetInstance();
-	if(mqtt)
+	if(mqtt && topic!="")
 		mqtt->Unsubscribe(topic, this);
 }
 

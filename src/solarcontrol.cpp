@@ -65,7 +65,7 @@ int main(int argc, char **argv)
 
 	if(args["--version"])
 	{
-		printf("SolarControl version 0.1");
+		printf("1.0");
 		return 0;
 	}
 

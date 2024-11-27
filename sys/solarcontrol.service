@@ -1,0 +1,12 @@
+[Unit]
+Description=Solar control core daemon
+After=multi-user.target
+
+[Service]
+Type=simple
+User=solarcontrol
+Group=solarcontrol
+ExecStart=/usr/local/bin/solarcontrol --config /etc/solarcontrol.conf
+
+[Install]
+WantedBy=multi-user.target

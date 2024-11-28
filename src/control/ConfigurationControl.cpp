@@ -37,7 +37,7 @@ ConfigurationControl::ConfigurationControl(void)
 	entries["control.hysteresis.export"] = "50";
 	entries["control.hysteresis.import"] = "30";
 	entries["control.cooldown"] = "10";
-	entries["control.state.update_interval"] = "60";
+	entries["control.state.update_interval"] = "1m";
 
 	instance_control = this;
 }
@@ -51,8 +51,8 @@ void ConfigurationControl::Check(void)
 	check_int_entry("control.hysteresis.smoothing");
 	check_int_entry("control.hysteresis.export");
 	check_int_entry("control.hysteresis.import");
-	check_int_entry("control.cooldown");
-	check_int_entry("control.state.update_interval");
+	check_time_entry("control.cooldown");
+	check_time_entry("control.state.update_interval");
 }
 
 }

@@ -62,8 +62,8 @@ void DevicesManager::Reload()
 	auto config = configuration::ConfigurationControl::GetInstance();
 	hysteresis_export = config->GetInt("control.hysteresis.export");
 	hysteresis_import = config->GetInt("control.hysteresis.import");
-	state_update_interval = config->GetInt("control.state.update_interval");
-	cooldown = config->GetInt("control.cooldown");
+	state_update_interval = config->GetTime("control.state.update_interval");
+	cooldown = config->GetTime("control.cooldown");
 
 	available_power_avg = new energy::MovingAverage(config->GetInt("control.hysteresis.smoothing") * 60);
 }

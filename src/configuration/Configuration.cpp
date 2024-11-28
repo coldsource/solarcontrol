@@ -188,6 +188,19 @@ int Configuration::GetSize(const string &entry) const
 		return strtol(value.c_str(),0,10);
 }
 
+int Configuration::GetTime(const string &entry) const
+{
+	const string value = Get(entry);
+	if(value.substr(value.length()-1,1)=="d")
+		return strtol(value.c_str(),0,10)*86400;
+	else if(value.substr(value.length()-1,1)=="h")
+		return strtol(value.c_str(),0,10)*3600;
+	else if(value.substr(value.length()-1,1)=="m")
+		return strtol(value.c_str(),0,10)*60;
+	else
+		return strtol(value.c_str(),0,10);
+}
+
 bool Configuration::GetBool(const string &entry) const
 {
 	const string value = Get(entry);
@@ -334,6 +347,25 @@ void Configuration::check_size_entry(const string &name)
 	catch(...)
 	{
 		throw runtime_error(name+": invalid size value '"+entries[name]+"'");
+	}
+}
+
+void Configuration::check_time_entry(const string &name)
+{
+	try
+	{
+		size_t l;
+		stoi(entries[name],&l);
+		if(l==entries[name].length())
+			return;
+
+		string unit = entries[name].substr(l);
+		if(unit!="d" && unit!="h" && unit!="m" && unit!="s")
+			throw 1;
+	}
+	catch(...)
+	{
+		throw runtime_error(name+": invalid time value '"+entries[name]+"'");
 	}
 }
 

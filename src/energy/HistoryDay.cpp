@@ -47,6 +47,11 @@ HistoryDay::~HistoryDay()
 	if(type=="" || type=="device")
 		return;
 
+	save();
+}
+
+void HistoryDay::save()
+{
 	for(auto it=history.begin(); it!=history.end(); ++it)
 		store_entry(it->first, it->second);
 }

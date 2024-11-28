@@ -20,6 +20,9 @@
 #ifndef __STAT_HISTORY_HPP__
 #define __STAT_HISTORY_HPP__
 
+#include <datetime/Timestamp.hpp>
+#include <configuration/ConfigurationSolarControl.hpp>
+
 #include <string>
 #include <map>
 
@@ -33,7 +36,11 @@ class History
 		std::map<Period, DataType> history;
 		int retention;
 
+		int sync_interval;
+		datetime::Timestamp last_save_ts;
+
 		virtual void store_entry(const Period period, DataType value) = 0;
+		virtual void save() = 0;
 
 		void purge()
 		{
@@ -54,8 +61,23 @@ class History
 			}
 		}
 
+		void sync()
+		{
+			datetime::Timestamp now(TS_MONOTONIC);
+			if(now - last_save_ts < sync_interval)
+				return;
+
+			save();
+
+			last_save_ts = now;
+		}
+
 	public:
-		History(int retention, const std::string &type = ""): type(type), retention(retention) {}
+		History(int retention, const std::string &type = ""): type(type), retention(retention)
+		{
+			sync_interval = configuration::ConfigurationSolarControl::GetInstance()->GetTime("core.history.sync");
+			last_save_ts = datetime::Timestamp(TS_MONOTONIC);
+		}
 
 		History(const History &h) = delete;
 
@@ -63,6 +85,8 @@ class History
 		{
 			Period now;
 			history[now] = val;
+
+			sync();
 		}
 
 		void Add(DataType val)
@@ -74,6 +98,7 @@ class History
 				history[now] += val;
 
 			purge();
+			sync();
 		}
 
 		DataType GetTotalForLast(int nperiods) const

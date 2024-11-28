@@ -47,12 +47,20 @@ HistoryQuarterHour::~HistoryQuarterHour()
 	if(type=="")
 		return;
 
+	save();
+}
+
+void HistoryQuarterHour::save()
+{
 	for(auto it=history.begin(); it!=history.end(); ++it)
 		store_entry(it->first, it->second);
 }
 
 void HistoryQuarterHour::store_entry(const QuarterHour period, double value)
 {
+	if(type=="")
+		return;
+
 	DB db;
 
 	db.Query(

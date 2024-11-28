@@ -34,6 +34,7 @@ class HistoryQuarterHour: public stat::History<datetime::QuarterHour, double>
 		unsigned int device_id;
 
 		virtual void store_entry(const datetime::QuarterHour period, double value);
+		virtual void save();
 
 	public:
 		HistoryQuarterHour(unsigned int device_id, const std::string &type = "");

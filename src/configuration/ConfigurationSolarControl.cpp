@@ -32,6 +32,7 @@ ConfigurationSolarControl::ConfigurationSolarControl(void)
 {
 	// Load default configuration
 	entries["core.history.maxdays"] = "30";
+	entries["core.history.sync"] = "3h";
 	entries["mqtt.id"] = "solarcontrol";
 	entries["mqtt.host"] = "127.0.0.1";
 	entries["mqtt.port"] = "1883";
@@ -52,6 +53,7 @@ ConfigurationSolarControl::~ConfigurationSolarControl(void)
 void ConfigurationSolarControl::Check(void)
 {
 	check_int_entry("core.history.maxdays");
+	check_time_entry("core.history.sync");
 	check_int_entry("mqtt.port");
 
 	if(GetInt("core.history.maxdays")<0)

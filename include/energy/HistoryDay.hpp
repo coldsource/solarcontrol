@@ -32,6 +32,7 @@ class HistoryDay: public stat::History<datetime::Date, double>
 {
 	protected:
 		virtual void store_entry(const datetime::Date period, double value);
+		virtual void save();
 
 	public:
 		HistoryDay(const std::string &type = "");

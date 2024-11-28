@@ -20,7 +20,7 @@
 #ifndef __ENERGY_HISTORYQUARTERHOUR_HPP__
 #define __ENERGY_HISTORYQUARTERHOUR_HPP__
 
-#include <energy/History.hpp>
+#include <stat/History.hpp>
 #include <datetime/QuarterHour.hpp>
 
 #include <string>
@@ -28,7 +28,7 @@
 
 namespace energy {
 
-class HistoryQuarterHour: public History<datetime::QuarterHour>
+class HistoryQuarterHour: public stat::History<datetime::QuarterHour, double>
 {
 	protected:
 		unsigned int device_id;

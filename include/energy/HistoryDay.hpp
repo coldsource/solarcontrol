@@ -20,7 +20,7 @@
 #ifndef __ENERGY_HISTORYDAY_HPP__
 #define __ENERGY_HISTORYDAY_HPP__
 
-#include <energy/History.hpp>
+#include <stat/History.hpp>
 #include <datetime/Date.hpp>
 
 #include <string>
@@ -28,7 +28,7 @@
 
 namespace energy {
 
-class HistoryDay: public History<datetime::Date>
+class HistoryDay: public stat::History<datetime::Date, double>
 {
 	protected:
 		virtual void store_entry(const datetime::Date period, double value);

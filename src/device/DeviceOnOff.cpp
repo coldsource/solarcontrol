@@ -100,7 +100,7 @@ double DeviceOnOff::GetPower() const
 void DeviceOnOff::LogEnergy()
 {
 	double power = ctrl->GetPower();
-	if(power>=0)
+	if(power>0)
 		consumption.SetPower(power);
 }
 

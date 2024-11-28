@@ -28,7 +28,7 @@ namespace energy
 {
 
 HistoryQuarterHour::HistoryQuarterHour(unsigned int device_id, const std::string &type)
-:History(0), device_id(device_id), type(type)
+:History(0), type(type), device_id(device_id)
 {
 	if(type=="")
 		return;

@@ -30,6 +30,8 @@ namespace energy {
 
 class HistoryQuarterHour: public stat::History<datetime::QuarterHour, double>
 {
+	std::string type;
+
 	protected:
 		unsigned int device_id;
 

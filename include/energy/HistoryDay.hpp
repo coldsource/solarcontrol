@@ -30,6 +30,8 @@ namespace energy {
 
 class HistoryDay: public stat::History<datetime::Date, double>
 {
+	std::string type;
+
 	protected:
 		virtual void store_entry(const datetime::Date period, double value);
 		virtual void save();

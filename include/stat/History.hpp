@@ -32,7 +32,6 @@ template<typename Period, typename DataType>
 class History
 {
 	protected:
-		std::string type;
 		std::map<Period, DataType> history;
 		int retention;
 
@@ -51,9 +50,7 @@ class History
 			{
 				if(it->first<period_ago)
 				{
-					if(type!="")
-						store_entry(it->first, it->second);
-
+					store_entry(it->first, it->second);
 					it = history.erase(it);
 				}
 				else
@@ -73,7 +70,7 @@ class History
 		}
 
 	public:
-		History(int retention, const std::string &type = ""): type(type), retention(retention)
+		History(int retention):retention(retention)
 		{
 			sync_interval = configuration::ConfigurationSolarControl::GetInstance()->GetTime("core.history.sync");
 			last_save_ts = datetime::Timestamp(TS_MONOTONIC);

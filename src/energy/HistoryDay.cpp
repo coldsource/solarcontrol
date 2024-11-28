@@ -29,7 +29,7 @@ namespace energy
 {
 
 HistoryDay::HistoryDay(const std::string &type)
-:History(configuration::ConfigurationSolarControl::GetInstance()->GetInt("core.history.maxdays"), type)
+:History(configuration::ConfigurationSolarControl::GetInstance()->GetInt("core.history.maxdays")), type(type)
 {
 	if(type=="" || type=="device")
 		return;

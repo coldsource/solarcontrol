@@ -19,7 +19,6 @@
 
 #include <energy/HistoryQuarterHour.hpp>
 #include <database/DB.hpp>
-#include <configuration/ConfigurationSolarControl.hpp>
 
 using namespace std;
 using datetime::QuarterHour;

@@ -38,9 +38,5 @@ sassc htdocs/css/src/main.scss htdocs/css/dist/main.css
 
 rsync -r htdocs/ /var/www/html
 
-# Set IP
-IP=$(ip addr | egrep -o 'inet[ ]+[0-9\.]+' | egrep -o '[0-9\.]+' | grep -v 127 | head -n1)
-echo -e "{\n  \"websocket\": \"ws://$IP:7000\"\n}" >/var/www/html/conf/global.json
-
 # Clean
 rm -rf /tmp/solarcontrol-react

@@ -90,9 +90,9 @@ class History
 		{
 			Period now;
 			if(!history.contains(now))
-				history[now] = val;
+				history.insert(std::pair<Period, DataType>(now, val));
 			else
-				history[now] += val;
+				history.find(now)->second += val;
 
 			purge();
 			sync();

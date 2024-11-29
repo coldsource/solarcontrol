@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_BUILD_TYPE Release)
 
 project(solarcontrol)
 
@@ -17,6 +17,7 @@ aux_source_directory(src/websocket srcWebsocket)
 aux_source_directory(src/api srcAPI)
 aux_source_directory(src/display srcDisplay)
 aux_source_directory(src/logs srcLogs)
+aux_source_directory(src/ht srcHT)
 
 add_executable(solarcontrol
 	${srcMQTT}
@@ -32,6 +33,7 @@ add_executable(solarcontrol
 	${srcAPI}
 	${srcDisplay}
 	${srcLogs}
+	${srcHT}
 	
 	src/solarcontrol.cpp
 	)

@@ -17,37 +17,21 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __CONTROL_HTWIFI_HPP__
-#define __CONTROL_HTWIFI_HPP__
+#include <device/DeviceHT.hpp>
 
-#include <mqtt/Subscriber.hpp>
+namespace device {
 
-#include <string>
-#include <mutex>
-
-namespace control {
-
-class HTWifi: public mqtt::Subscriber
+void DeviceHT::LogHT()
 {
-	std::string topic;
+	double h = GetHumidity();
+	double t = GetTemperature();
 
-	double temperature = std::numeric_limits<double>::quiet_NaN();
-	double humidity = std::numeric_limits<double>::quiet_NaN();
+	if( std::isnan(h) ||  std::isnan(t))
+		return;
 
-	mutable std::mutex lock;
+	ht::MinMax ht(GetHumidity(), GetTemperature());
 
-	public:
-		HTWifi(const std::string &mqtt_id);
-		virtual ~HTWifi();
-
-		double GetTemperature() const;
-		double GetHumidity() const;
-
-		void HandleMessage(const std::string &message);
-};
-
+	history.Add(ht);
 }
 
-#endif
-
-
+}

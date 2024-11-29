@@ -21,16 +21,25 @@
 #define __DEVICE_DEVICEHT_HPP__
 
 #include <device/Device.hpp>
+#include <ht/HistoryQuarterHour.hpp>
+#include <datetime/Date.hpp>
+#include <datetime/QuarterHour.hpp>
 
 namespace device {
 
 class DeviceHT: public Device
 {
+	protected:
+		ht::HistoryQuarterHour history;
+
 	public:
-		DeviceHT(unsigned int id, const std::string &name, const configuration::Json &config): Device(id, name, config) {}
+		DeviceHT(unsigned int id, const std::string &name, const configuration::Json &config):
+		Device(id, name, config), history(id) {}
 
 		virtual double GetTemperature() const = 0;
 		virtual double GetHumidity() const = 0;
+
+		void LogHT();
 };
 
 }

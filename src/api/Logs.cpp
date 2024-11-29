@@ -101,7 +101,7 @@ json Logs::HandleMessage(const string &cmd, const configuration::Json &j_params)
 			SELECT detail.device_id, device.device_name, detail.log_energy_detail_date, detail.log_energy_detail_type, detail.log_energy_detail \
 			FROM t_log_energy_detail detail \
 			LEFT JOIN t_device device ON(detail.device_id=device.device_id) \
-			WHERE detail.log_energy_detail_date >= NOW() - 86400 \
+			WHERE detail.log_energy_detail_date >= DATE_SUB( NOW() , INTERVAL 1 DAY ) \
 		"_sql);
 
 		j_res = json::object();
@@ -114,12 +114,46 @@ json Logs::HandleMessage(const string &cmd, const configuration::Json &j_params)
 			if(!j_res.contains(date))
 				j_res[date] = json::object();
 
-			if(!j_res[string(res["log_energy_detail_date"])].contains(device_id))
-				j_res[string(res["log_energy_detail_date"])][device_id] = json::object();
+			if(!j_res[date].contains(device_id))
+				j_res[date][device_id] = json::object();
 
-			json &j_entry = j_res[string(res["log_energy_detail_date"])][device_id];
+			json &j_entry = j_res[date][device_id];
 			j_entry[type] = (double)res["log_energy_detail"];
 			j_entry["name"] = string(res["device_name"]);
+		}
+
+		return j_res;
+	}
+	else if(cmd=="ht")
+	{
+		DB db;
+
+		int device_id = j_params.GetInt("device_id");
+
+		auto res = db.Query(" \
+			SELECT ht.log_ht_date, ht.log_ht_min_h, ht.log_ht_max_h, ht.log_ht_min_t, ht.log_ht_max_t \
+			FROM t_log_ht ht \
+			WHERE ht.device_id=%i \
+			AND ht.log_ht_date >= DATE_SUB( NOW() , INTERVAL 1 DAY ) \
+		"_sql << device_id);
+
+		j_res = json::object();
+		while(res.FetchRow())
+		{
+			string date = res["log_ht_date"];
+			double hmin = res["log_ht_min_h"];
+			double hmax = res["log_ht_max_h"];
+			double tmin = res["log_ht_min_t"];
+			double tmax = res["log_ht_max_t"];
+
+			if(!j_res.contains(date))
+				j_res[date] = json::object();
+
+			json &j_entry = j_res[date];
+			j_entry["hmin"] = hmin;
+			j_entry["hmax"] = hmax;
+			j_entry["tmin"] = tmin;
+			j_entry["tmax"] = tmax;
 		}
 
 		return j_res;

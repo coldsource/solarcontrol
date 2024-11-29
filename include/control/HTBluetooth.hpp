@@ -31,8 +31,8 @@ class HTBluetooth: public mqtt::Subscriber
 {
 	std::string topic;
 
-	double temperature = 0;
-	double humidity = 0;
+	double temperature = std::numeric_limits<double>::quiet_NaN();
+	double humidity = std::numeric_limits<double>::quiet_NaN();
 
 	mutable std::mutex lock;
 

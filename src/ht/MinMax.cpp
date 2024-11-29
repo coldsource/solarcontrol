@@ -17,37 +17,20 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __CONTROL_HTWIFI_HPP__
-#define __CONTROL_HTWIFI_HPP__
+#include <ht/MinMax.hpp>
 
-#include <mqtt/Subscriber.hpp>
+namespace ht {
 
-#include <string>
-#include <mutex>
-
-namespace control {
-
-class HTWifi: public mqtt::Subscriber
+MinMax MinMax::operator+(const MinMax &r) const
 {
-	std::string topic;
-
-	double temperature = std::numeric_limits<double>::quiet_NaN();
-	double humidity = std::numeric_limits<double>::quiet_NaN();
-
-	mutable std::mutex lock;
-
-	public:
-		HTWifi(const std::string &mqtt_id);
-		virtual ~HTWifi();
-
-		double GetTemperature() const;
-		double GetHumidity() const;
-
-		void HandleMessage(const std::string &message);
-};
-
+	return MinMax(h + r.h, t + r.t);
 }
 
-#endif
+MinMax &MinMax::operator+=(const MinMax &r)
+{
+	h += r.h;
+	t += r.t;
+	return *this;
+}
 
-
+}

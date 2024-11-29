@@ -17,33 +17,30 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __CONTROL_HTWIFI_HPP__
-#define __CONTROL_HTWIFI_HPP__
+#ifndef __HT_HISTORYQUARTERHOUR_HPP__
+#define __HT_HISTORYQUARTERHOUR_HPP__
 
-#include <mqtt/Subscriber.hpp>
+#include <stat/History.hpp>
+#include <datetime/QuarterHour.hpp>
+#include <ht/MinMax.hpp>
 
 #include <string>
-#include <mutex>
 
-namespace control {
+namespace ht {
 
-class HTWifi: public mqtt::Subscriber
+class HistoryQuarterHour: public stat::History<datetime::QuarterHour, ht::MinMax>
 {
-	std::string topic;
+	protected:
+		std::string type;
 
-	double temperature = std::numeric_limits<double>::quiet_NaN();
-	double humidity = std::numeric_limits<double>::quiet_NaN();
+		unsigned int device_id;
 
-	mutable std::mutex lock;
+		virtual void store_entry(const datetime::QuarterHour period, ht::MinMax value);
+		virtual void save();
 
 	public:
-		HTWifi(const std::string &mqtt_id);
-		virtual ~HTWifi();
-
-		double GetTemperature() const;
-		double GetHumidity() const;
-
-		void HandleMessage(const std::string &message);
+		HistoryQuarterHour(unsigned int device_id);
+		~HistoryQuarterHour();
 };
 
 }

@@ -22,6 +22,7 @@
 #include <device/Devices.hpp>
 #include <device/DevicesOnOff.hpp>
 #include <device/DeviceOnOff.hpp>
+#include <device/DevicesHT.hpp>
 #include <energy/GlobalMeter.hpp>
 #include <websocket/SolarControl.hpp>
 #include <control/ConfigurationControl.hpp>
@@ -148,6 +149,12 @@ void DevicesManager::main()
 		if(now-last_change_ts>=cooldown)
 			available_power_avg->Add(global_meter->GetNetAvailablePower(true), now - last_power_update);
 		last_power_update = now;
+
+		{
+			DevicesHT devices;
+			for(auto it = devices.begin(); it!=devices.end(); ++it)
+				(*it)->LogHT();
+		}
 
 		{
 			// Lock devices during computations

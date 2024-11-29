@@ -15,6 +15,7 @@
 #include <configuration/ConfigurationReaderDB.hpp>
 #include <configuration/ConfigurationSolarControl.hpp>
 #include <database/DB.hpp>
+#include <database/DBConfig.hpp>
 #include <websocket/SolarControl.hpp>
 #include <thread/LCD.hpp>
 
@@ -95,6 +96,9 @@ int main(int argc, char **argv)
 		configuration::ConfigurationReader::Read(config_filename, config);
 		config->Split();
 		config->CheckAll();
+
+		// Init database tables
+		database::DBConfig::GetInstance()->InitTables();
 
 		configuration::ConfigurationReaderDB::Read(config);
 

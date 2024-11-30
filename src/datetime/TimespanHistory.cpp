@@ -24,6 +24,7 @@
 #include <datetime/Timestamp.hpp>
 #include <database/DB.hpp>
 #include <configuration/ConfigurationSolarControl.hpp>
+#include <logs/Logger.hpp>
 
 #include <stdexcept>
 
@@ -86,16 +87,23 @@ void TimespanHistory::ClockIn(const Timestamp &ts)
 {
 	time_t from_t = ts;
 
-	if(history.size()>0)
+	try
 	{
-		if(history.back().to==0)
-			throw logic_error("Can't clock in, last period is not closed");
+		if(history.size()>0)
+		{
+			if(history.back().to==0)
+				throw logic_error("Can't clock in, last period is not closed");
 
-		if(history.back().to>from_t)
-			throw logic_error("Timespans may not overlap");
+			if(history.back().to>from_t)
+				throw logic_error("Timespans may not overlap");
+		}
+
+		history.push_back({from_t, 0});
 	}
-
-	history.push_back({from_t, 0});
+	catch(exception &e)
+	{
+		logs::Logger::Log(LOG_ERR, e.what());
+	}
 }
 
 void TimespanHistory::ClockOut()
@@ -107,15 +115,22 @@ void TimespanHistory::ClockOut(const Timestamp &ts)
 {
 	time_t to_t = ts;
 
-	if(history.size()==0 || history.back().to!=0)
-		throw logic_error("Can't clock out, last period is already closed");
+	try
+	{
+		if(history.size()==0 || history.back().to!=0)
+			throw logic_error("Can't clock out, last period is already closed");
 
-	if(history.back().from>to_t)
-		throw logic_error("Can't clock out before click in time");
+		if(history.back().from>to_t)
+			throw logic_error("Can't clock out before click in time");
 
-	history.back().to = to_t;
+		history.back().to = to_t;
 
-	purge();
+		purge();
+	}
+	catch(exception &e)
+	{
+		logs::Logger::Log(LOG_ERR, e.what());
+	}
 }
 
 unsigned long TimespanHistory::GetTotalForLast(int nseconds) const

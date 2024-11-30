@@ -118,22 +118,23 @@ double Relay::GetPower() const
 
 void Relay::HandleMessage(const string &message)
 {
+	try
 	{
-		unique_lock<mutex> llock(lock);
-
-		try
 		{
+			unique_lock<mutex> llock(lock);
+
 			json j = json::parse(message);
-			power = j["params"]["switch:" + to_string(outlet)]["apower"];
+			auto ev = j["params"]["switch:" + to_string(outlet)];
+			if(ev.contains("power"))
+				power = ev["apower"];
+			if(ev.contains("output"))
+				state = ev["output"];
 		}
-		catch(json::exception &e)
-		{
-			return;
-		}
-	}
 
-	if(websocket::SolarControl::GetInstance())
-		websocket::SolarControl::GetInstance()->NotifyAll(websocket::SolarControl::en_protocols::DEVICE);
+		if(websocket::SolarControl::GetInstance())
+			websocket::SolarControl::GetInstance()->NotifyAll(websocket::SolarControl::en_protocols::DEVICE);
+	}
+	catch(json::exception &e) {}
 }
 
 }

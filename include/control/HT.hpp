@@ -17,29 +17,36 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __DEVICE_DEVICEHTBLUETOOTH_HPP__
-#define __DEVICE_DEVICEHTBLUETOOTH_HPP__
+#ifndef __CONTROL_HT_HPP__
+#define __CONTROL_HT_HPP__
 
-#include <device/DeviceHT.hpp>
-#include <control/HTBluetooth.hpp>
+#include <mqtt/Subscriber.hpp>
 
 #include <string>
+#include <mutex>
 
-namespace configuration {
-	class Json;
-}
+namespace control {
 
-namespace device {
-
-class DeviceHTBluetooth: public DeviceHT
+class HT
 {
-	public:
-		DeviceHTBluetooth(unsigned int id, const std::string &name, const configuration::Json &config);
-		virtual ~DeviceHTBluetooth();
+	protected:
+		double temperature = std::numeric_limits<double>::quiet_NaN();
+		double humidity = std::numeric_limits<double>::quiet_NaN();
 
-		std::string GetType() const { return "htmini"; }
+		mutable std::mutex lock;
+
+	public:
+		HT();
+		virtual ~HT();
+
+		double GetTemperature() const;
+		double GetHumidity() const;
+
+		void SetHT(double h, double t);
 };
 
 }
 
 #endif
+
+

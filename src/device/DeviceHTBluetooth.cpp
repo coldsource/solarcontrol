@@ -26,24 +26,13 @@ using namespace std;
 namespace device
 {
 
-DeviceHTBluetooth::DeviceHTBluetooth(unsigned int id, const string &name, const configuration::Json &config): DeviceHT(id, name, config)
+DeviceHTBluetooth::DeviceHTBluetooth(unsigned int id, const string &name, const configuration::Json &config):
+DeviceHT(id, name, config, new control::HTBluetooth(config.GetString("ble_addr")))
 {
-	ctrl = new control::HTBluetooth(config.GetString("ble_addr"));
 }
 
 DeviceHTBluetooth::~DeviceHTBluetooth()
 {
-	delete ctrl;
-}
-
-double DeviceHTBluetooth::GetTemperature() const
-{
-	return ctrl->GetTemperature();
-}
-
-double DeviceHTBluetooth::GetHumidity() const
-{
-	return ctrl->GetHumidity();
 }
 
 }

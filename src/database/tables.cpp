@@ -38,6 +38,13 @@ map<string,string> solarcontrol_tables = {
   UNIQUE KEY `log_ht_date` (`log_ht_date`,`device_id`) USING BTREE \
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci \
 "},
+{"t_device_state",
+"CREATE TABLE `t_device_state` ( \
+  `device_id` int(10) unsigned NOT NULL, \
+  `device_state` mediumtext NOT NULL, \
+  PRIMARY KEY (`device_id`) \
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci \
+"}
 };
 
 static auto init = DBConfig::GetInstance()->RegisterTables(solarcontrol_tables);

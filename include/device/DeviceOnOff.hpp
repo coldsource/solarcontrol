@@ -57,6 +57,7 @@ class DeviceOnOff: public Device
 
 	public:
 		DeviceOnOff(unsigned int id, const std::string &name, const configuration::Json &config);
+		virtual ~DeviceOnOff();
 
 		int GetPrio() const { return prio; }
 

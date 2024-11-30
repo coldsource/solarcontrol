@@ -26,24 +26,13 @@ using namespace std;
 namespace device
 {
 
-DeviceHTWifi::DeviceHTWifi(unsigned int id, const string &name, const configuration::Json &config): DeviceHT(id, name, config)
+DeviceHTWifi::DeviceHTWifi(unsigned int id, const string &name, const configuration::Json &config):
+DeviceHT(id, name, config, new control::HTWifi(config.GetString("mqtt_id")))
 {
-	ctrl = new control::HTWifi(config.GetString("mqtt_id"));
 }
 
 DeviceHTWifi::~DeviceHTWifi()
 {
-	delete ctrl;
-}
-
-double DeviceHTWifi::GetTemperature() const
-{
-	return ctrl->GetTemperature();
-}
-
-double DeviceHTWifi::GetHumidity() const
-{
-	return ctrl->GetHumidity();
 }
 
 }

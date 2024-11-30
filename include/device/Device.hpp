@@ -32,6 +32,10 @@ class Device
 	std::string name;
 	configuration::Json config;
 
+	protected:
+		void state_backup(const configuration::Json &state);
+		const configuration::Json state_restore();
+
 	public:
 		Device(unsigned int id, const std::string &name, const configuration::Json &config);
 		Device(const Device&) = delete;

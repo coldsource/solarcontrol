@@ -20,6 +20,7 @@
 #ifndef __CONTROL_HTWIFI_HPP__
 #define __CONTROL_HTWIFI_HPP__
 
+#include <control/HT.hpp>
 #include <mqtt/Subscriber.hpp>
 
 #include <string>
@@ -27,21 +28,13 @@
 
 namespace control {
 
-class HTWifi: public mqtt::Subscriber
+class HTWifi: public HT, public mqtt::Subscriber
 {
 	std::string topic;
-
-	double temperature = std::numeric_limits<double>::quiet_NaN();
-	double humidity = std::numeric_limits<double>::quiet_NaN();
-
-	mutable std::mutex lock;
 
 	public:
 		HTWifi(const std::string &mqtt_id);
 		virtual ~HTWifi();
-
-		double GetTemperature() const;
-		double GetHumidity() const;
 
 		void HandleMessage(const std::string &message);
 };

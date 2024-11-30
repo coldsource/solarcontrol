@@ -18,8 +18,47 @@
  */
 
 #include <device/DeviceHT.hpp>
+#include <configuration/Json.hpp>
+#include <nlohmann/json.hpp>
+
+using nlohmann::json;
 
 namespace device {
+
+DeviceHT::DeviceHT(unsigned int id, const std::string &name, const configuration::Json &config, control::HT *ctrl):
+Device(id, name, config), ctrl(ctrl), history(id)
+{
+	auto state = state_restore();
+
+	double h = state.GetFloat("humidity", std::numeric_limits<double>::quiet_NaN());
+	double t = state.GetFloat("temperature", std::numeric_limits<double>::quiet_NaN());
+
+	ctrl->SetHT(h, t);
+}
+
+DeviceHT::~DeviceHT()
+{
+	json state;
+	if(!std::isnan(GetHumidity()))
+		state["humidity"] = GetHumidity();
+
+	if(!std::isnan(GetTemperature()))
+		state["temperature"] = GetTemperature();
+
+	state_backup(configuration::Json(state));
+
+	delete ctrl;
+}
+
+double DeviceHT::GetTemperature() const
+{
+	return ctrl->GetTemperature();
+}
+
+double DeviceHT::GetHumidity() const
+{
+	return ctrl->GetHumidity();
+}
 
 void DeviceHT::LogHT()
 {

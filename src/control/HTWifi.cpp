@@ -42,20 +42,6 @@ HTWifi::~HTWifi()
 		mqtt->Unsubscribe(topic, this);
 }
 
-double HTWifi::GetTemperature() const
-{
-	unique_lock<mutex> llock(lock);
-
-	return temperature;
-}
-
-double HTWifi::GetHumidity() const
-{
-	unique_lock<mutex> llock(lock);
-
-	return humidity;
-}
-
 void HTWifi::HandleMessage(const string &message)
 {
 	{

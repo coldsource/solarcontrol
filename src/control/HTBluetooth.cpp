@@ -42,20 +42,6 @@ HTBluetooth::~HTBluetooth()
 		mqtt->Unsubscribe(topic, this);
 }
 
-double HTBluetooth::GetTemperature() const
-{
-	unique_lock<mutex> llock(lock);
-
-	return temperature;
-}
-
-double HTBluetooth::GetHumidity() const
-{
-	unique_lock<mutex> llock(lock);
-
-	return humidity;
-}
-
 void HTBluetooth::HandleMessage(const string &message)
 {
 	{

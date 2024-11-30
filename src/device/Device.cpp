@@ -18,8 +18,10 @@
  */
 
 #include <device/Device.hpp>
+#include <database/DB.hpp>
 
 using namespace std;
+using database::DB;
 
 namespace device {
 
@@ -28,6 +30,23 @@ Device::Device(unsigned int id, const string &name, const configuration::Json &c
 	this->id = id;
 	this->name = name;
 	this->config = config;
+}
+
+void Device::state_backup(const configuration::Json &state)
+{
+	DB db;
+
+	db.Query("REPLACE INTO t_device_state(device_id, device_state) VALUES(%i, %s)"_sql<<id<<state.ToString());
+}
+
+const configuration::Json Device::state_restore()
+{
+	DB db;
+
+	auto res = db.Query("SELECT device_state FROM t_device_state WHERE device_id=%i"_sql<<id);
+	if(res.FetchRow())
+		return configuration::Json(string(res["device_state"]));
+	return configuration::Json();
 }
 
 }

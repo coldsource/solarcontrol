@@ -18,10 +18,13 @@
  */
 
 #include <device/DeviceOnOff.hpp>
+#include <configuration/Json.hpp>
+#include <nlohmann/json.hpp>
 #include <logs/State.hpp>
 
 using namespace std;
 using datetime::Timestamp;
+using nlohmann::json;
 
 namespace device {
 
@@ -32,6 +35,16 @@ Device(id, name, config), consumption(id, "device"), on_history(id)
 	expected_consumption = config.GetInt("expected_consumption", 0);
 
 	ctrl = control::OnOff::GetFromConfig(config.GetObject("control"));
+
+	auto state = state_restore();
+	manual = state.GetBool("manual", false);
+}
+
+DeviceOnOff::~DeviceOnOff()
+{
+	json state;
+	state["manual"] = manual;
+	state_backup(configuration::Json(state));
 }
 
 bool DeviceOnOff::GetState() const

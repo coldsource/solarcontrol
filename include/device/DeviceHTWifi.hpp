@@ -33,16 +33,11 @@ namespace device {
 
 class DeviceHTWifi: public DeviceHT
 {
-	control::HTWifi *ctrl;
-
 	public:
 		DeviceHTWifi(unsigned int id, const std::string &name, const configuration::Json &config);
 		virtual ~DeviceHTWifi();
 
 		std::string GetType() const { return "ht"; }
-
-		double GetTemperature() const;
-		double GetHumidity() const;
 };
 
 }

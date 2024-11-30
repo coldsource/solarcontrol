@@ -125,7 +125,7 @@ void Relay::HandleMessage(const string &message)
 
 			json j = json::parse(message);
 			auto ev = j["params"]["switch:" + to_string(outlet)];
-			if(ev.contains("power"))
+			if(ev.contains("apower"))
 				power = ev["apower"];
 			if(ev.contains("output"))
 				state = ev["output"];

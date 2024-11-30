@@ -98,7 +98,9 @@ int main(int argc, char **argv)
 		config->CheckAll();
 
 		// Init database tables
-		database::DBConfig::GetInstance()->InitTables();
+		auto dbconfig = database::DBConfig::GetInstance();
+		dbconfig->InitTables();
+		delete dbconfig;
 
 		configuration::ConfigurationReaderDB::Read(config);
 

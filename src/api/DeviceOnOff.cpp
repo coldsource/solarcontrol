@@ -65,6 +65,22 @@ void DeviceOnOff::check_config(const configuration::Json &j_config, const string
 		j_config.Check("min_energy", "float");
 		j_config.Check("min_energy_for_last", "int");
 	}
+
+	check_config_control(j_config.GetObject("control"));
+}
+
+void DeviceOnOff::check_config_control(const configuration::Json &j_config)
+{
+	j_config.Check("type", "string");
+
+	string control_type = j_config.GetString("type");
+	if(control_type!="plug" && control_type!="pro")
+		throw invalid_argument("Invalid control type : « " + control_type + " »");
+
+	j_config.Check("ip", "string");
+
+	if(control_type=="pro")
+		j_config.Check("outlet", "int");
 }
 
 json DeviceOnOff::HandleMessage(const string &cmd, const configuration::Json &j_params)

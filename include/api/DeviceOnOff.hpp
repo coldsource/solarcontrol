@@ -33,6 +33,7 @@ namespace api {
 class DeviceOnOff: public Handler
 {
 	void check_config(const configuration::Json &j_config, const std::string &device_type);
+	void check_config_control(const configuration::Json &j_config);
 
 	public:
 		 nlohmann::json HandleMessage(const std::string &cmd, const configuration::Json &j_params);

@@ -135,6 +135,7 @@ json Logs::HandleMessage(const string &cmd, const configuration::Json &j_params)
 			FROM t_log_ht ht \
 			WHERE ht.device_id=%i \
 			AND ht.log_ht_date >= DATE_SUB( NOW() , INTERVAL 1 DAY ) \
+			ORDER BY ht.log_ht_date \
 		"_sql << device_id);
 
 		j_res = json::object();

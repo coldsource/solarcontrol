@@ -74,6 +74,14 @@ void DateTime::ToQuarter()
 	tm.tm_sec = 0;
 }
 
+void DateTime::ToMonth()
+{
+	tm.tm_mday = 1;
+	tm.tm_hour = 0;
+	tm.tm_min = 0;
+	tm.tm_sec = 0;
+}
+
 bool DateTime::operator==(const DateTime& r) const
 {
 	time_t l_t = (time_t)(Timestamp)*this;

@@ -22,13 +22,16 @@
 #include <energy/GlobalMeter.hpp>
 #include <configuration/Json.hpp>
 #include <datetime/Date.hpp>
+#include <datetime/Month.hpp>
 
+#include <map>
 #include <stdexcept>
 
 using namespace std;
 using nlohmann::json;
 using database::DB;
 using datetime::Date;
+using datetime::Month;
 
 namespace api
 {
@@ -66,34 +69,78 @@ json Logs::HandleMessage(const string &cmd, const configuration::Json &j_params)
 	}
 	else if(cmd=="energy")
 	{
-		auto global_meter = energy::GlobalMeter::GetInstance();
-		j_res = json::object();
+		int months_before = j_params.GetInt("mbefore", -1);
+		if(months_before==-1)
+		{
+			auto global_meter = energy::GlobalMeter::GetInstance();
+			j_res = json::object();
 
-		for(auto grid_consumption : global_meter->GetGridConsumptionHistory())
-			j_res[string(grid_consumption.first)]["grid_consumption"] = grid_consumption.second;
+			for(auto grid_consumption : global_meter->GetGridConsumptionHistory())
+				j_res[string(grid_consumption.first)]["grid_consumption"] = grid_consumption.second;
 
-		for(auto grid_excess : global_meter->GetGridExcessHistory())
-			j_res[string(grid_excess.first)]["grid_excess"] = grid_excess.second;
+			for(auto grid_excess : global_meter->GetGridExcessHistory())
+				j_res[string(grid_excess.first)]["grid_excess"] = grid_excess.second;
 
-		for(auto pv_production : global_meter->GetPVProductionHistory())
-			j_res[string(pv_production.first)]["pv_production"] = pv_production.second;
+			for(auto pv_production : global_meter->GetPVProductionHistory())
+				j_res[string(pv_production.first)]["pv_production"] = pv_production.second;
 
-		for(auto hws_consumption : global_meter->GetHWSConsumptionHistory())
-			j_res[string(hws_consumption.first)]["hws_consumption"] = hws_consumption.second;
+			for(auto hws_consumption : global_meter->GetHWSConsumptionHistory())
+				j_res[string(hws_consumption.first)]["hws_consumption"] = hws_consumption.second;
 
-		for(auto offpeak_consumption : global_meter->GetOffPeakConsumptionHistory())
-			j_res[string(offpeak_consumption.first)]["offpeak_consumption"] = offpeak_consumption.second;
+			for(auto offpeak_consumption : global_meter->GetOffPeakConsumptionHistory())
+				j_res[string(offpeak_consumption.first)]["offpeak_consumption"] = offpeak_consumption.second;
 
-		for(auto peak_consumption : global_meter->GetPeakConsumptionHistory())
-			j_res[string(peak_consumption.first)]["peak_consumption"] = peak_consumption.second;
+			for(auto peak_consumption : global_meter->GetPeakConsumptionHistory())
+				j_res[string(peak_consumption.first)]["peak_consumption"] = peak_consumption.second;
 
-		for(auto hws_forced_consumption : global_meter->GetHWSForcedConsumptionHistory())
-			j_res[string(hws_forced_consumption.first)]["hws_forced_consumption"] = hws_forced_consumption.second;
+			for(auto hws_forced_consumption : global_meter->GetHWSForcedConsumptionHistory())
+				j_res[string(hws_forced_consumption.first)]["hws_forced_consumption"] = hws_forced_consumption.second;
 
-		for(auto hws_offload_consumption : global_meter->GetHWSOffloadConsumptionHistory())
-			j_res[string(hws_offload_consumption.first)]["hws_offload_consumption"] = hws_offload_consumption.second;
+			for(auto hws_offload_consumption : global_meter->GetHWSOffloadConsumptionHistory())
+				j_res[string(hws_offload_consumption.first)]["hws_offload_consumption"] = hws_offload_consumption.second;
 
-		return j_res;
+			return j_res;
+		}
+		else
+		{
+			DB db;
+
+			Month m;
+			Month from = m - months_before;
+			Month to = from + 1;
+
+			auto res = db.Query(" \
+				SELECT log_energy_date, log_energy_type, log_energy \
+				FROM t_log_energy  detail \
+				WHERE log_energy_date >= %s \
+				AND log_energy_date < %s \
+			"_sql<<string(from)<<string(to));
+
+			map<string, string> type_mapping = {
+				{"grid", "grid_consumption"},
+				{"grid-excess", "grid_excess"},
+				{"pv", "pv_production"},
+				{"hws", "hws_consumption"},
+				{"peak", "peak_consumption"},
+				{"offpeak", "offpeak_consumption"},
+				{"hws-forced", "hws_forced_consumption"},
+				{"hws-offload", "hws_offload_consumption"},
+			};
+
+			j_res = json::object();
+			while(res.FetchRow())
+			{
+				string date = res["log_energy_date"];
+				string type = res["log_energy_type"];
+
+				if(!j_res.contains(date))
+					j_res[date] = json::object();
+
+				j_res[date][type_mapping[type]] = (double)res["log_energy"];
+			}
+
+			return j_res;
+		}
 	}
 	else if(cmd=="energydetail")
 	{

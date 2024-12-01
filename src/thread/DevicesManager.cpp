@@ -66,7 +66,7 @@ void DevicesManager::Reload()
 	state_update_interval = config->GetTime("control.state.update_interval");
 	cooldown = config->GetTime("control.cooldown");
 
-	available_power_avg = new energy::MovingAverage(config->GetInt("control.hysteresis.smoothing") * 60);
+	available_power_avg = new energy::MovingAverage(config->GetTime("control.hysteresis.smoothing"));
 }
 
 void DevicesManager::free()

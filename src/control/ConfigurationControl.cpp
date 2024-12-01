@@ -33,10 +33,10 @@ static auto init = Configuration::GetInstance()->RegisterConfig(new Configuratio
 ConfigurationControl::ConfigurationControl(void)
 {
 	// Load default configuration
-	entries["control.hysteresis.smoothing"] = "3";
+	entries["control.hysteresis.smoothing"] = "3m";
 	entries["control.hysteresis.export"] = "50";
 	entries["control.hysteresis.import"] = "30";
-	entries["control.cooldown"] = "10";
+	entries["control.cooldown"] = "10s";
 	entries["control.state.update_interval"] = "1m";
 
 	instance_control = this;
@@ -48,7 +48,7 @@ ConfigurationControl::~ConfigurationControl(void)
 
 void ConfigurationControl::Check(void)
 {
-	check_int_entry("control.hysteresis.smoothing");
+	check_time_entry("control.hysteresis.smoothing");
 	check_int_entry("control.hysteresis.export");
 	check_int_entry("control.hysteresis.import");
 	check_time_entry("control.cooldown");

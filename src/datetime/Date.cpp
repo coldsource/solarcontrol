@@ -67,12 +67,12 @@ Date Date::operator-(int days) const
 
 Date Date::operator+(int days) const
 {
-	Date before_d(*this);
+	Date after_d(*this);
 
-	before_d.tm.tm_mday += days;
-	mktime(&before_d.tm);
+	after_d.tm.tm_mday += days;
+	mktime(&after_d.tm);
 
-	return before_d;
+	return after_d;
 }
 
 Date::operator string() const

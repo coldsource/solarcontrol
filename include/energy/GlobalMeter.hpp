@@ -56,6 +56,10 @@ class GlobalMeter: public mqtt::Subscriber
 	double debug_pv = 0;
 	double debug_hws = 0;
 
+	std::string phase_grid;
+	std::string phase_pv;
+	std::string phase_hws;
+
 	static GlobalMeter *instance;
 	mutable std::recursive_mutex lock;
 

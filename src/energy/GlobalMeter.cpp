@@ -102,6 +102,10 @@ void GlobalMeter::Reload()
 			pv.SetPower(debug_pv);
 			hws.SetPower(debug_hws);
 		}
+
+		phase_grid = config->Get("energy.grid.phase");
+		phase_pv = config->Get("energy.pv.phase");
+		phase_hws = config->Get("energy.hws.phase");
 	}
 
 	if(debug && websocket::SolarControl::GetInstance())
@@ -245,9 +249,9 @@ void GlobalMeter::HandleMessage(const string &message)
 		{
 			json j = json::parse(message);
 
-			power_grid = j["params"]["em:0"]["a_act_power"];
-			power_pv = j["params"]["em:0"]["b_act_power"];
-			power_hws = j["params"]["em:0"]["c_act_power"];
+			power_grid = j["params"]["em:0"][phase_grid + "_act_power"];
+			power_pv = j["params"]["em:0"][phase_pv + "_act_power"];
+			power_hws = j["params"]["em:0"][phase_hws + "_act_power"];
 		}
 		catch(json::exception &e)
 		{

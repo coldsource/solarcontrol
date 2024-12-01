@@ -39,6 +39,7 @@ class Date: public DateTime
 		Date(const std::string &str);
 
 		Date operator-(int days) const;
+		Date operator+(int days) const;
 
 		operator std::string() const;
 };

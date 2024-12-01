@@ -45,7 +45,6 @@ void tools_print_usage()
 	fprintf(stderr,"  Show version         : solarcontrol --version\n");
 }
 
-
 int main(int argc, char **argv)
 {
 	const map<string, string> args_config = {

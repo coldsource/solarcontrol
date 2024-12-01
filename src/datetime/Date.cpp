@@ -65,6 +65,16 @@ Date Date::operator-(int days) const
 	return before_d;
 }
 
+Date Date::operator+(int days) const
+{
+	Date before_d(*this);
+
+	before_d.tm.tm_mday += days;
+	mktime(&before_d.tm);
+
+	return before_d;
+}
+
 Date::operator string() const
 {
 	char str[32];

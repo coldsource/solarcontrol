@@ -21,12 +21,14 @@
 #include <database/DB.hpp>
 #include <energy/GlobalMeter.hpp>
 #include <configuration/Json.hpp>
+#include <datetime/Date.hpp>
 
 #include <stdexcept>
 
 using namespace std;
 using nlohmann::json;
 using database::DB;
+using datetime::Date;
 
 namespace api
 {
@@ -97,12 +99,21 @@ json Logs::HandleMessage(const string &cmd, const configuration::Json &j_params)
 	{
 		DB db;
 
+		Date from;
+
+		string day_str = j_params.GetString("day", "");
+		if(day_str!="")
+			from = Date(day_str);
+
+		Date to = from + 1;
+
 		auto res = db.Query(" \
 			SELECT detail.device_id, device.device_name, detail.log_energy_detail_date, detail.log_energy_detail_type, detail.log_energy_detail \
 			FROM t_log_energy_detail detail \
 			LEFT JOIN t_device device ON(detail.device_id=device.device_id) \
-			WHERE detail.log_energy_detail_date >= DATE_SUB( NOW() , INTERVAL 1 DAY ) \
-		"_sql);
+			WHERE detail.log_energy_detail_date >= %s \
+			AND log_energy_detail_date < %s \
+		"_sql<<string(from)<<string(to));
 
 		j_res = json::object();
 		while(res.FetchRow())

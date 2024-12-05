@@ -187,14 +187,35 @@ json Logs::HandleMessage(const string &cmd, const configuration::Json &j_params)
 		DB db;
 
 		int device_id = j_params.GetInt("device_id");
+		string day_str = j_params.GetString("day", "");
 
-		auto res = db.Query(" \
-			SELECT ht.log_ht_date, ht.log_ht_min_h, ht.log_ht_max_h, ht.log_ht_min_t, ht.log_ht_max_t \
-			FROM t_log_ht ht \
-			WHERE ht.device_id=%i \
-			AND ht.log_ht_date >= DATE_SUB( NOW() , INTERVAL 1 DAY ) \
-			ORDER BY ht.log_ht_date \
-		"_sql << device_id);
+		database::Query query;
+		if(day_str=="")
+		{
+			query = " \
+				SELECT ht.log_ht_date, ht.log_ht_min_h, ht.log_ht_max_h, ht.log_ht_min_t, ht.log_ht_max_t \
+				FROM t_log_ht ht \
+				WHERE ht.device_id=%i \
+				AND ht.log_ht_date >= DATE_SUB( NOW() , INTERVAL 1 DAY ) \
+				ORDER BY ht.log_ht_date \
+			"_sql << device_id;
+		}
+		else
+		{
+			Date from = Date(day_str);
+			Date to = from + 1;
+
+			query = " \
+				SELECT ht.log_ht_date, ht.log_ht_min_h, ht.log_ht_max_h, ht.log_ht_min_t, ht.log_ht_max_t \
+				FROM t_log_ht ht \
+				WHERE ht.device_id=%i \
+				AND ht.log_ht_date >= %s \
+				AND ht.log_ht_date < %s \
+				ORDER BY ht.log_ht_date \
+			"_sql << device_id << string(from) << string(to);
+		}
+
+		auto res = db.Query(query);
 
 		j_res = json::object();
 		while(res.FetchRow())

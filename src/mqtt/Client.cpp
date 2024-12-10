@@ -71,6 +71,9 @@ void Client::Unsubscribe(const string &topic, Subscriber *subscriber)
 
 	mosquitto_unsubscribe(mosqh, 0, topic.c_str());
 	it->second.erase(subscriber);
+
+	if(it->second.size()==0)
+		subscribers.erase(topic);
 }
 
 void Client::Shutdown()

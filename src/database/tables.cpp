@@ -27,6 +27,46 @@ using namespace std;
 namespace database {
 
 map<string,string> solarcontrol_tables = {
+{"t_config",
+"CREATE TABLE `t_config` ( \
+  `config_name` varchar(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL, \
+  `config_value` varchar(128) NOT NULL, \
+  UNIQUE KEY `config_name` (`config_name`) \
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci \
+"},
+{"t_device",
+"CREATE TABLE `t_device` ( \
+  `device_id` int(10) unsigned NOT NULL AUTO_INCREMENT, \
+  `device_type` enum('ht','heater','hws','htmini','timerange','cmv','passive') CHARACTER SET ascii COLLATE ascii_bin NOT NULL, \
+  `device_name` varchar(64) NOT NULL, \
+  `device_config` mediumtext NOT NULL, \
+  PRIMARY KEY (`device_id`) \
+) ENGINE=InnoDB AUTO_INCREMENT=64 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci \
+"},
+{"t_device_state",
+"CREATE TABLE `t_device_state` ( \
+  `device_id` int(10) unsigned NOT NULL, \
+  `device_state` mediumtext NOT NULL, \
+  PRIMARY KEY (`device_id`) \
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci \
+"},
+{"t_log_energy",
+"CREATE TABLE `t_log_energy` ( \
+  `log_energy_date` date NOT NULL, \
+  `log_energy_type` enum('grid','grid-excess','pv','hws','peak','offpeak','hws-forced','hws-offload') CHARACTER SET ascii COLLATE ascii_bin NOT NULL, \
+  `log_energy` double NOT NULL, \
+  UNIQUE KEY `log_energy_date` (`log_energy_date`,`log_energy_type`) USING BTREE \
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci \
+"},
+{"t_log_energy_detail",
+"CREATE TABLE `t_log_energy_detail` ( \
+  `log_energy_detail_date` datetime NOT NULL, \
+  `device_id` int(10) unsigned NOT NULL, \
+  `log_energy_detail_type` enum('grid','grid-excess','pv','hws','peak','offpeak','hws-forced','hws-offload','device') CHARACTER SET ascii COLLATE ascii_bin NOT NULL, \
+  `log_energy_detail` double NOT NULL, \
+  UNIQUE KEY `log_energy_date` (`log_energy_detail_date`,`device_id`,`log_energy_detail_type`) USING BTREE \
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci \
+"},
 {"t_log_ht",
 "CREATE TABLE `t_log_ht` ( \
   `log_ht_date` datetime NOT NULL, \
@@ -38,11 +78,13 @@ map<string,string> solarcontrol_tables = {
   UNIQUE KEY `log_ht_date` (`log_ht_date`,`device_id`) USING BTREE \
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci \
 "},
-{"t_device_state",
-"CREATE TABLE `t_device_state` ( \
+{"t_log_state",
+"CREATE TABLE `t_log_state` ( \
   `device_id` int(10) unsigned NOT NULL, \
-  `device_state` mediumtext NOT NULL, \
-  PRIMARY KEY (`device_id`) \
+  `log_state_date` datetime NOT NULL DEFAULT current_timestamp(), \
+  `log_state_mode` enum('manual','automatic') NOT NULL, \
+  `log_state` tinyint(1) DEFAULT NULL, \
+  KEY `log_state_date` (`log_state_date`) \
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci \
 "}
 };

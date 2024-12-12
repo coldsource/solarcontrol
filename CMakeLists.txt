@@ -18,6 +18,7 @@ aux_source_directory(src/api srcAPI)
 aux_source_directory(src/display srcDisplay)
 aux_source_directory(src/logs srcLogs)
 aux_source_directory(src/ht srcHT)
+aux_source_directory(src/meter srcMeter)
 
 add_executable(solarcontrol
 	${srcMQTT}
@@ -34,6 +35,7 @@ add_executable(solarcontrol
 	${srcDisplay}
 	${srcLogs}
 	${srcHT}
+	${srcMeter}
 	
 	src/solarcontrol.cpp
 	)

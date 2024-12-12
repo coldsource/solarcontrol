@@ -35,6 +35,7 @@ Device(id, name, config), consumption(id, "device"), on_history(id)
 	expected_consumption = config.GetInt("expected_consumption", 0);
 
 	ctrl = control::OnOff::GetFromConfig(config.GetObject("control"));
+	meter = meter::Meter::GetFromConfig(config.GetObject("control"));
 
 	auto state = state_restore();
 	manual = state.GetBool("manual", false);
@@ -45,6 +46,9 @@ DeviceOnOff::~DeviceOnOff()
 	json state;
 	state["manual"] = manual;
 	state_backup(configuration::Json(state));
+
+	delete ctrl;
+	delete meter;
 }
 
 bool DeviceOnOff::GetState() const
@@ -99,20 +103,20 @@ void DeviceOnOff::UpdateState()
 
 double DeviceOnOff::GetExpectedConsumption() const
 {
-	if(ctrl->GetState() && ctrl->GetPower()>=0)
-		return ctrl->GetPower();
+	if(ctrl->GetState() && meter->GetPower()>=0)
+		return meter->GetPower();
 
 	return expected_consumption;
 }
 
 double DeviceOnOff::GetPower() const
 {
-	return ctrl->GetPower();
+	return meter->GetPower();
 }
 
 void DeviceOnOff::LogEnergy()
 {
-	double power = ctrl->GetPower();
+	double power = meter->GetPower();
 	if(power>0)
 		consumption.SetPower(power);
 }

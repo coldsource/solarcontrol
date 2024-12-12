@@ -40,12 +40,17 @@ void Devices::Reload()
 	devices_ht.reload();
 	devices_ht.d_mutex.unlock();
 
+	devices_passive.d_mutex.lock();
+	devices_passive.reload();
+	devices_passive.d_mutex.unlock();
+
 }
 
 void Devices::Unload()
 {
 	devices_onoff.unload();
 	devices_ht.unload();
+	devices_passive.unload();
 }
 
 }

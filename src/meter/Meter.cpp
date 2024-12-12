@@ -17,35 +17,36 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __DEVICE_DEVICES_HPP__
-#define __DEVICE_DEVICES_HPP__
+#include <meter/Meter.hpp>
+#include <meter/Dummy.hpp>
+#include <meter/Plug.hpp>
+#include <meter/Pro3EM.hpp>
+#include <configuration/Json.hpp>
 
-#include <device/DevicesOnOffImpl.hpp>
-#include <device/DevicesHTImpl.hpp>
-#include <device/DevicesPassiveImpl.hpp>
+#include <stdexcept>
 
-#include <string>
+using namespace std;
 
-namespace device {
+namespace meter {
 
-class Devices
+Meter *Meter::GetFromConfig(const configuration::Json &conf)
 {
-	static Devices *instance;
+	string type = conf.GetString("type");
+	if(type=="plug")
+		return new Plug(conf.GetString("mqtt_id"));
+	if(type=="pro")
+		return new Dummy(); // Shelly Pro has no energy measurement
+	if(type=="3em")
+		return new Pro3EM(conf.GetString("mqtt_id"), conf.GetString("phase"));
 
-	DevicesOnOffImpl devices_onoff;
-	DevicesHTImpl devices_ht;
-	DevicesPassiveImpl devices_passive;
-
-	public:
-		Devices();
-
-		static Devices *GetInstance() { return instance; }
-
-		void Reload();
-		void Unload();
-};
-
+	throw invalid_argument("Unknown meter type « " + type + " »");
 }
 
-#endif
+double Meter::GetPower() const
+{
+	unique_lock<mutex> llock(lock);
 
+	return power;
+}
+
+}

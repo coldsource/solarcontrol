@@ -17,35 +17,35 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __DEVICE_DEVICES_HPP__
-#define __DEVICE_DEVICES_HPP__
+#ifndef __DEVICE_DEVICEPASSIVE_HPP__
+#define __DEVICE_DEVICEPASSIVE_HPP__
 
-#include <device/DevicesOnOffImpl.hpp>
-#include <device/DevicesHTImpl.hpp>
-#include <device/DevicesPassiveImpl.hpp>
+#include <device/Device.hpp>
+#include <meter/Meter.hpp>
+#include <energy/Counter.hpp>
 
 #include <string>
 
 namespace device {
 
-class Devices
+class DevicePassive: public Device
 {
-	static Devices *instance;
-
-	DevicesOnOffImpl devices_onoff;
-	DevicesHTImpl devices_ht;
-	DevicesPassiveImpl devices_passive;
+	protected:
+		meter::Meter *meter;
+		energy::Counter consumption;
 
 	public:
-		Devices();
+		DevicePassive(unsigned int id, const std::string &name, const configuration::Json &config);
+		virtual ~DevicePassive();
 
-		static Devices *GetInstance() { return instance; }
+		std::string GetType() const { return "passive"; }
 
-		void Reload();
-		void Unload();
+		double GetPower() const;
+		void LogEnergy();
 };
 
 }
 
 #endif
+
 

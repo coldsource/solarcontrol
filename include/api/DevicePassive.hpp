@@ -17,35 +17,33 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __DEVICE_DEVICES_HPP__
-#define __DEVICE_DEVICES_HPP__
+#ifndef __API_DEVICEPASSIVE_HPP__
+#define __API_DEVICEPASSIVE_HPP__
 
-#include <device/DevicesOnOffImpl.hpp>
-#include <device/DevicesHTImpl.hpp>
-#include <device/DevicesPassiveImpl.hpp>
+#include <api/Handler.hpp>
 
 #include <string>
 
-namespace device {
+namespace configuration {
+	class Json;
+}
 
-class Devices
+namespace api {
+
+class DevicePassive: public Handler
 {
-	static Devices *instance;
+	std::string ip;
 
-	DevicesOnOffImpl devices_onoff;
-	DevicesHTImpl devices_ht;
-	DevicesPassiveImpl devices_passive;
+	void check_config(const configuration::Json &j_config, const std::string &device_type);
+	void check_config_control(const configuration::Json &j_config);
 
 	public:
-		Devices();
-
-		static Devices *GetInstance() { return instance; }
-
-		void Reload();
-		void Unload();
+		 nlohmann::json HandleMessage(const std::string &cmd, const configuration::Json &j_params);
 };
 
 }
 
 #endif
+
+
 

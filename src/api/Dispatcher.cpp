@@ -20,6 +20,7 @@
 #include <api/Dispatcher.hpp>
 #include <api/DeviceOnOff.hpp>
 #include <api/DeviceHT.hpp>
+#include <api/DevicePassive.hpp>
 #include <api/Logs.hpp>
 #include <api/Config.hpp>
 #include <configuration/Json.hpp>
@@ -36,6 +37,7 @@ Dispatcher::Dispatcher()
 {
 	handlers["deviceonoff"] = new DeviceOnOff();
 	handlers["deviceht"] = new DeviceHT();
+	handlers["devicepassive"] = new DevicePassive();
 	handlers["logs"] = new Logs();
 	handlers["config"] = new Config();
 }

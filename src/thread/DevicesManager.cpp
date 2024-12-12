@@ -23,6 +23,7 @@
 #include <device/DevicesOnOff.hpp>
 #include <device/DeviceOnOff.hpp>
 #include <device/DevicesHT.hpp>
+#include <device/DevicesPassive.hpp>
 #include <energy/GlobalMeter.hpp>
 #include <websocket/SolarControl.hpp>
 #include <control/ConfigurationControl.hpp>
@@ -154,6 +155,12 @@ void DevicesManager::main()
 			DevicesHT devices;
 			for(auto it = devices.begin(); it!=devices.end(); ++it)
 				(*it)->LogHT();
+		}
+
+		{
+			DevicesPassive devices;
+			for(auto it = devices.begin(); it!=devices.end(); ++it)
+				(*it)->LogEnergy();
 		}
 
 		{

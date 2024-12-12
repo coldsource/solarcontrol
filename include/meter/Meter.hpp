@@ -17,35 +17,32 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __DEVICE_DEVICES_HPP__
-#define __DEVICE_DEVICES_HPP__
+#ifndef __METER_METER_HPP__
+#define __METER_METER_HPP__
 
-#include <device/DevicesOnOffImpl.hpp>
-#include <device/DevicesHTImpl.hpp>
-#include <device/DevicesPassiveImpl.hpp>
+#include <mutex>
 
-#include <string>
+namespace configuration {
+	class Json;
+}
 
-namespace device {
+namespace meter {
 
-class Devices
+class Meter
 {
-	static Devices *instance;
+	protected:
+		double power = -1;
 
-	DevicesOnOffImpl devices_onoff;
-	DevicesHTImpl devices_ht;
-	DevicesPassiveImpl devices_passive;
+		mutable std::mutex lock;
 
 	public:
-		Devices();
+		virtual ~Meter() {}
 
-		static Devices *GetInstance() { return instance; }
+		static Meter *GetFromConfig(const configuration::Json &conf);
 
-		void Reload();
-		void Unload();
+		double GetPower() const;
 };
 
 }
 
 #endif
-

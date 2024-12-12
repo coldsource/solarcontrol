@@ -48,7 +48,6 @@ class Relay: public HTTP, public OnOff, public mqtt::Subscriber
 
 		void Switch(bool state);
 		bool GetState() const;
-		double GetPower() const;
 		void UpdateState();
 
 		void HandleMessage(const std::string &message);

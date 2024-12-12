@@ -17,35 +17,32 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __DEVICE_DEVICES_HPP__
-#define __DEVICE_DEVICES_HPP__
-
-#include <device/DevicesOnOffImpl.hpp>
-#include <device/DevicesHTImpl.hpp>
+#include <device/DevicesPassive.hpp>
 #include <device/DevicesPassiveImpl.hpp>
-
-#include <string>
 
 namespace device {
 
-class Devices
+DevicesPassive::DevicesPassive()
 {
-	static Devices *instance;
+	instance = DevicesPassiveImpl::instance;
+	instance->d_mutex.lock();
+}
 
-	DevicesOnOffImpl devices_onoff;
-	DevicesHTImpl devices_ht;
-	DevicesPassiveImpl devices_passive;
+DevicesPassive::~DevicesPassive()
+{
+	instance->d_mutex.unlock();
+}
 
-	public:
-		Devices();
+DevicePassive *DevicesPassive::GetByID(unsigned int id) const
+{
+	return instance->get_by_id(id);
+}
 
-		static Devices *GetInstance() { return instance; }
-
-		void Reload();
-		void Unload();
-};
+void DevicesPassive::Reload()
+{
+	return instance->reload();
+}
 
 }
 
-#endif
 

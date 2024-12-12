@@ -17,35 +17,37 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __DEVICE_DEVICES_HPP__
-#define __DEVICE_DEVICES_HPP__
+#include <device/DevicePassive.hpp>
+#include <configuration/Json.hpp>
 
-#include <device/DevicesOnOffImpl.hpp>
-#include <device/DevicesHTImpl.hpp>
-#include <device/DevicesPassiveImpl.hpp>
-
-#include <string>
+using namespace std;
+using datetime::Timestamp;
+using nlohmann::json;
 
 namespace device {
 
-class Devices
+DevicePassive::DevicePassive(unsigned int id, const std::string &name, const configuration::Json &config):
+Device(id, name, config), consumption(id, "device")
 {
-	static Devices *instance;
-
-	DevicesOnOffImpl devices_onoff;
-	DevicesHTImpl devices_ht;
-	DevicesPassiveImpl devices_passive;
-
-	public:
-		Devices();
-
-		static Devices *GetInstance() { return instance; }
-
-		void Reload();
-		void Unload();
-};
-
+	meter = meter::Meter::GetFromConfig(config.GetObject("control"));
 }
 
-#endif
+DevicePassive::~DevicePassive()
+{
+	delete meter;
+}
+
+double DevicePassive::GetPower() const
+{
+	return meter->GetPower();
+}
+
+void DevicePassive::LogEnergy()
+{
+	double power = meter->GetPower();
+	if(power>0)
+		consumption.SetPower(power);
+}
+
+}
 

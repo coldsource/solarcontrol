@@ -17,35 +17,46 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __DEVICE_DEVICES_HPP__
-#define __DEVICE_DEVICES_HPP__
+#ifndef __DEVICE_DEVICESPASSIVEIMPL_HPP__
+#define __DEVICE_DEVICESPASSIVEIMPL_HPP__
 
-#include <device/DevicesOnOffImpl.hpp>
-#include <device/DevicesHTImpl.hpp>
-#include <device/DevicesPassiveImpl.hpp>
+#include <device/DevicePassive.hpp>
 
-#include <string>
+#include <unordered_set>
+#include <map>
+#include <mutex>
 
 namespace device {
 
-class Devices
-{
-	static Devices *instance;
+class DevicesPassive;
+class Devices;
 
-	DevicesOnOffImpl devices_onoff;
-	DevicesHTImpl devices_ht;
-	DevicesPassiveImpl devices_passive;
+class DevicesPassiveImpl: public std::unordered_set<DevicePassive *>
+{
+	friend class DevicesPassive;
+	friend class Devices;
+
+	static DevicesPassiveImpl *instance;
+
+	std::map<unsigned int, DevicePassive *> id_device;
+	unsigned int hws_id;
+
+	mutable std::recursive_mutex d_mutex;
+
+	void free();
 
 	public:
-		Devices();
+		DevicesPassiveImpl();
+		~DevicesPassiveImpl();
 
-		static Devices *GetInstance() { return instance; }
-
-		void Reload();
-		void Unload();
+	private:
+		DevicePassive *get_by_id(unsigned int id) const;
+		void reload(bool notify = true);
+		void unload();
 };
 
 }
 
 #endif
+
 

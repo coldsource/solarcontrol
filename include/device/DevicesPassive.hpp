@@ -17,32 +17,27 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __DEVICE_DEVICES_HPP__
-#define __DEVICE_DEVICES_HPP__
+#ifndef __DEVICE_DEVICESPASSIVE_HPP__
+#define __DEVICE_DEVICESPASSIVE_HPP__
 
-#include <device/DevicesOnOffImpl.hpp>
-#include <device/DevicesHTImpl.hpp>
 #include <device/DevicesPassiveImpl.hpp>
-
-#include <string>
+#include <device/DevicePassive.hpp>
 
 namespace device {
 
-class Devices
+class DevicesPassive
 {
-	static Devices *instance;
-
-	DevicesOnOffImpl devices_onoff;
-	DevicesHTImpl devices_ht;
-	DevicesPassiveImpl devices_passive;
+	DevicesPassiveImpl *instance;
 
 	public:
-		Devices();
+		DevicesPassive();
+		~DevicesPassive();
 
-		static Devices *GetInstance() { return instance; }
-
+		DevicePassive *GetByID(unsigned int id) const;
 		void Reload();
-		void Unload();
+
+		auto begin() { return instance->begin(); }
+		auto end() { return instance->end(); }
 };
 
 }

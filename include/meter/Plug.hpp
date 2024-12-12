@@ -17,35 +17,33 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __DEVICE_DEVICES_HPP__
-#define __DEVICE_DEVICES_HPP__
+#ifndef __METER_PLUG_HPP__
+#define __METER_PLUG_HPP__
 
-#include <device/DevicesOnOffImpl.hpp>
-#include <device/DevicesHTImpl.hpp>
-#include <device/DevicesPassiveImpl.hpp>
+#include <meter/Meter.hpp>
+#include <mqtt/Subscriber.hpp>
 
 #include <string>
 
-namespace device {
+namespace configuration {
+	class Json;
+}
 
-class Devices
+namespace meter {
+
+class Plug: public Meter, public mqtt::Subscriber
 {
-	static Devices *instance;
-
-	DevicesOnOffImpl devices_onoff;
-	DevicesHTImpl devices_ht;
-	DevicesPassiveImpl devices_passive;
+	std::string topic = "";
 
 	public:
-		Devices();
+		Plug(const std::string &mqtt_id);
+		virtual ~Plug();
 
-		static Devices *GetInstance() { return instance; }
-
-		void Reload();
-		void Unload();
+		void HandleMessage(const std::string &message);
 };
 
 }
 
 #endif
+
 

@@ -51,7 +51,6 @@ DeviceTimeRange::DeviceTimeRange(unsigned int id, const string &name, const conf
 
 DeviceTimeRange::~DeviceTimeRange()
 {
-	delete ctrl;
 }
 
 bool DeviceTimeRange::IsForced() const

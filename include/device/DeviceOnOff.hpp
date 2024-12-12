@@ -22,6 +22,7 @@
 
 #include <device/Device.hpp>
 #include <control/OnOff.hpp>
+#include <meter/Meter.hpp>
 #include <datetime/TimespanHistory.hpp>
 #include <datetime/Timestamp.hpp>
 #include <energy/Counter.hpp>
@@ -42,6 +43,8 @@ class DeviceOnOff: public Device
 {
 	protected:
 		control::OnOff *ctrl;
+		meter::Meter *meter;
+
 		bool need_update = true; // Force state update on reload
 		bool manual_state_changed = false; // Notify we have a change from API
 		bool manual = false;

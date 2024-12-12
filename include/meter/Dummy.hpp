@@ -17,35 +17,20 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __DEVICE_DEVICES_HPP__
-#define __DEVICE_DEVICES_HPP__
+#ifndef __METER_DUMMY_HPP__
+#define __METER_DUMMY_HPP__
 
-#include <device/DevicesOnOffImpl.hpp>
-#include <device/DevicesHTImpl.hpp>
-#include <device/DevicesPassiveImpl.hpp>
+#include <meter/Meter.hpp>
 
-#include <string>
+namespace meter {
 
-namespace device {
-
-class Devices
+class Dummy: public Meter
 {
-	static Devices *instance;
-
-	DevicesOnOffImpl devices_onoff;
-	DevicesHTImpl devices_ht;
-	DevicesPassiveImpl devices_passive;
-
-	public:
-		Devices();
-
-		static Devices *GetInstance() { return instance; }
-
-		void Reload();
-		void Unload();
 };
 
 }
 
 #endif
+
+
 

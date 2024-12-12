@@ -17,8 +17,7 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#include <control/Relay.hpp>
-#include <logs/Logger.hpp>
+#include <meter/Pro3EM.hpp>
 #include <mqtt/Client.hpp>
 #include <websocket/SolarControl.hpp>
 #include <nlohmann/json.hpp>
@@ -26,12 +25,10 @@
 using namespace std;
 using nlohmann::json;
 
-namespace control {
+namespace meter {
 
-Relay::Relay(const std::string &ip, int outlet, const string &mqtt_id): HTTP(ip), outlet(outlet)
+Pro3EM::Pro3EM(const string &mqtt_id, const string &phase): phase(phase)
 {
-	state = false;
-
 	auto mqtt = mqtt::Client::GetInstance();
 	if(mqtt_id!="")
 		topic = mqtt_id + "/events/rpc";
@@ -40,93 +37,31 @@ Relay::Relay(const std::string &ip, int outlet, const string &mqtt_id): HTTP(ip)
 		mqtt->Subscribe(topic, this);
 }
 
-Relay::~Relay()
+Pro3EM::~Pro3EM()
 {
 	auto mqtt = mqtt::Client::GetInstance();
 	if(mqtt && topic!="")
 		mqtt->Unsubscribe(topic, this);
 }
 
-void Relay::Switch(bool new_state)
-{
-	unique_lock<mutex> llock(lock);
-
-	if(ip=="")
-		return;
-
-	json j;
-	j["id"] = 1;
-	j["method"] = "Switch.Set";
-	j["params"]["id"] = outlet;
-	j["params"]["on"] = new_state;
-
-	try
-	{
-		Post(j);
-	}
-	catch(exception &e)
-	{
-		logs::Logger::Log(LOG_WARNING, "Unable to set plug state : « " + string(e.what()) + " »");
-		return;
-	}
-
-	state = new_state;
-}
-
-bool Relay::GetState() const
-{
-	unique_lock<mutex> llock(lock);
-
-	return state;
-}
-
-bool Relay::get_output() const
-{
-	if(ip=="")
-		return false;
-
-	json j;
-	j["id"] = 1;
-	j["method"] = "Switch.GetStatus";
-	j["params"]["id"] = outlet;
-
-	try
-	{
-		auto out = Post(j);
-		return out["result"]["output"];
-	}
-	catch(exception &e)
-	{
-		logs::Logger::Log(LOG_WARNING, "Unable to get plug state : « " + string(e.what()) + " »");
-		return false;
-	}
-}
-
-void Relay::UpdateState()
-{
-	unique_lock<mutex> llock(lock);
-
-	state = get_output();
-}
-
-void Relay::HandleMessage(const string &message)
+void Pro3EM::HandleMessage(const string &message)
 {
 	try
 	{
 		unique_lock<mutex> llock(lock);
 
 		json j = json::parse(message);
-		auto ev = j["params"]["switch:" + to_string(outlet)];
-		if(!ev.contains("output"))
-			return;
-
-		state = ev["output"];
+		power = j["params"]["em:0"][phase + "_act_power"];
 	}
-	catch(json::exception &e) {}
+	catch(json::exception &e)
+	{
+		return;
+	}
 
 	if(websocket::SolarControl::GetInstance())
 		websocket::SolarControl::GetInstance()->NotifyAll(websocket::SolarControl::en_protocols::DEVICE);
 }
 
 }
+
 

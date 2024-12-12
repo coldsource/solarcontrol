@@ -18,7 +18,6 @@
  */
 
 #include <api/DevicePassive.hpp>
-#include <database/DB.hpp>
 #include <device/DevicesPassive.hpp>
 #include <configuration/Json.hpp>
 
@@ -26,7 +25,6 @@
 
 using namespace std;
 using nlohmann::json;
-using database::DB;
 
 namespace api
 {
@@ -55,7 +53,6 @@ void DevicePassive::check_config_control(const configuration::Json &j_config)
 json DevicePassive::HandleMessage(const string &cmd, const configuration::Json &j_params)
 {
 	json j_res;
-	DB db;
 
 	device::DevicesPassive devices;
 
@@ -69,10 +66,7 @@ json DevicePassive::HandleMessage(const string &cmd, const configuration::Json &
 
 		check_config(device_config, device_type);
 
-		db.Query(
-			"UPDATE t_device SET device_name=%s, device_config=%s WHERE device_id=%i"_sql
-			<<device_name<<device_config.ToString()<<device_id
-		);
+		update_device(device_id, device_name, device_config);
 
 		devices.Reload();
 
@@ -89,12 +83,7 @@ json DevicePassive::HandleMessage(const string &cmd, const configuration::Json &
 		auto j_config = j_params.GetObject("device_config");
 		check_config(j_config, device_type);
 
-		string device_config = j_config.ToString();
-
-		db.Query(
-			"INSERT INTO t_device (device_type, device_name, device_config) VALUES(%s, %s, %s)"_sql
-			<<device_type<<device_name<<device_config
-		);
+		insert_device(device_type, device_name, j_config);
 
 		devices.Reload();
 
@@ -104,7 +93,7 @@ json DevicePassive::HandleMessage(const string &cmd, const configuration::Json &
 	{
 		int device_id = j_params.GetInt("device_id");
 
-		db.Query("DELETE FROM t_device WHERE device_id=%i"_sql<<device_id);
+		delete_device(device_id);
 
 		devices.Reload();
 

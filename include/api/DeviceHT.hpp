@@ -20,6 +20,7 @@
 #ifndef __API_DEVICEHT_HPP__
 #define __API_DEVICEHT_HPP__
 
+#include <api/Device.hpp>
 #include <api/Handler.hpp>
 
 #include <string>
@@ -30,7 +31,7 @@ namespace configuration {
 
 namespace api {
 
-class DeviceHT: public Handler
+class DeviceHT: public Device, public Handler
 {
 	std::string ip;
 

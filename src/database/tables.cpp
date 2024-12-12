@@ -84,7 +84,8 @@ map<string,string> solarcontrol_tables = {
   `log_state_date` datetime NOT NULL DEFAULT current_timestamp(), \
   `log_state_mode` enum('manual','automatic') NOT NULL, \
   `log_state` tinyint(1) DEFAULT NULL, \
-  KEY `log_state_date` (`log_state_date`) \
+  KEY `log_state_date` (`log_state_date`), \
+  KEY `device_id` (`device_id`) \
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci \
 "}
 };

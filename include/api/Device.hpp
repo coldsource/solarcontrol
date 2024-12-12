@@ -17,11 +17,8 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __API_DEVICEPASSIVE_HPP__
-#define __API_DEVICEPASSIVE_HPP__
-
-#include <api/Device.hpp>
-#include <api/Handler.hpp>
+#ifndef __API_DEVICE_HPP__
+#define __API_DEVICE_HPP__
 
 #include <string>
 
@@ -31,20 +28,18 @@ namespace configuration {
 
 namespace api {
 
-class DevicePassive: public Device, public Handler
+class Device
 {
-	std::string ip;
-
-	void check_config(const configuration::Json &j_config, const std::string &device_type);
-	void check_config_control(const configuration::Json &j_config);
-
-	public:
-		 nlohmann::json HandleMessage(const std::string &cmd, const configuration::Json &j_params);
+	protected:
+		void insert_device(const std::string &type, const std::string &name, const configuration::Json &config);
+		void update_device(unsigned int id, const std::string &name, const configuration::Json &config);
+		void delete_device(unsigned int id);
 };
 
 }
 
 #endif
+
 
 
 

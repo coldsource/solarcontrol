@@ -20,6 +20,7 @@
 #ifndef __API_DEVICEONOFF_HPP__
 #define __API_DEVICEONOFF_HPP__
 
+#include <api/Device.hpp>
 #include <api/Handler.hpp>
 
 #include <string>
@@ -30,7 +31,7 @@ namespace configuration {
 
 namespace api {
 
-class DeviceOnOff: public Handler
+class DeviceOnOff: public Device, public Handler
 {
 	void check_config(const configuration::Json &j_config, const std::string &device_type);
 	void check_config_control(const configuration::Json &j_config);

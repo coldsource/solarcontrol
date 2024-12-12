@@ -11,7 +11,6 @@ systemctl restart mosquitto
 
 # Configure database
 mysql <prepare-db.sql
-mysql sol <../doc/scheme.sql
 
 # Create user for solarcontrol
 mkdir /home/solarcontrol

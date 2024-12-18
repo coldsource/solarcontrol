@@ -44,9 +44,7 @@ double DevicePassive::GetPower() const
 
 void DevicePassive::LogEnergy()
 {
-	double power = meter->GetPower();
-	if(power>0)
-		consumption.SetPower(power);
+	consumption.AddEnergy(meter->GetConsumption(), meter->GetExcess());
 }
 
 }

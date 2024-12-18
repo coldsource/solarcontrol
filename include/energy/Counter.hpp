@@ -29,10 +29,8 @@ namespace energy {
 
 class Counter
 {
-	double last_ts;
 	int last_yday;
 
-	double power;
 	double energy_consumption;
 	double energy_excess;
 
@@ -44,8 +42,7 @@ class Counter
 	public:
 		Counter(unsigned int device_id = 0, const std::string &consumption_history_type = "", const std::string &excess_history_type = "");
 
-		void SetPower(double v);
-		double GetPower() const;
+		void AddEnergy(double consumption, double excess = 0);
 		double GetEnergyConsumption()  const;
 		double GetEnergyExcess()  const;
 

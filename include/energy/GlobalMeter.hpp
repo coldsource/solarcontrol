@@ -20,8 +20,8 @@
 #ifndef __ENERGY_GLOBALMETER_HPP__
 #define __ENERGY_GLOBALMETER_HPP__
 
-#include <mqtt/Subscriber.hpp>
 #include <energy/Counter.hpp>
+#include <meter/Pro3EM.hpp>
 
 #include <mutex>
 
@@ -35,8 +35,12 @@ namespace control {
 
 namespace energy {
 
-class GlobalMeter: public mqtt::Subscriber
+class GlobalMeter
 {
+	meter::Pro3EM *meter_grid = 0;
+	meter::Pro3EM *meter_pv = 0;
+	meter::Pro3EM *meter_hws = 0;
+
 	Counter grid;
 	Counter pv;
 	Counter hws;
@@ -45,7 +49,6 @@ class GlobalMeter: public mqtt::Subscriber
 	Counter hws_forced;
 	Counter hws_offload;
 
-	std::string topic_em;
 	control::Input *offpeak_ctrl = 0;
 
 	double hws_min_energy = 0;
@@ -55,10 +58,6 @@ class GlobalMeter: public mqtt::Subscriber
 	double debug_grid = 0;
 	double debug_pv = 0;
 	double debug_hws = 0;
-
-	std::string phase_grid;
-	std::string phase_pv;
-	std::string phase_hws;
 
 	static GlobalMeter *instance;
 	mutable std::recursive_mutex lock;
@@ -105,7 +104,7 @@ protected:
 		void SetHWSState(bool new_state);
 		bool HWSIsFull() const;
 
-		void HandleMessage(const std::string &message);
+		void LogEnergy();
 };
 
 }

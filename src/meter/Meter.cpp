@@ -49,4 +49,24 @@ double Meter::GetPower() const
 	return power;
 }
 
+double Meter::GetConsumption()
+{
+	unique_lock<mutex> llock(lock);
+
+	double ret_consumption = energy_consumption;
+	energy_consumption = 0;
+
+	return ret_consumption;
+}
+
+double Meter::GetExcess()
+{
+	unique_lock<mutex> llock(lock);
+
+	double ret_excess = energy_excess;
+	energy_excess = 0;
+
+	return ret_excess;
+}
+
 }

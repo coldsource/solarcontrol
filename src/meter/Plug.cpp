@@ -51,13 +51,22 @@ void Plug::HandleMessage(const string &message)
 		unique_lock<mutex> llock(lock);
 
 		json j = json::parse(message);
-		auto ev = j["params"]["switch:0"];
-		if(!ev.contains("apower"))
+
+		if(!j.contains("params") || !j["params"].contains("switch:0"))
 			return;
 
-		power = ev["apower"];
+		auto ev = j["params"]["switch:0"];
+
+		if(ev.contains("apower"))
+			power = ev["apower"];
+
+		if(ev.contains("aenergy"))
+			energy_consumption += (double)ev["aenergy"]["by_minute"][0] / 1000;
 	}
-	catch(json::exception &e) {}
+	catch(json::exception &e)
+	{
+		return;
+	}
 
 	if(websocket::SolarControl::GetInstance())
 		websocket::SolarControl::GetInstance()->NotifyAll(websocket::SolarControl::en_protocols::DEVICE);

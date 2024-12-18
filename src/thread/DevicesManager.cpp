@@ -145,6 +145,8 @@ void DevicesManager::main()
 		bool state_changed = false;
 		bool state_updated = false;
 
+		global_meter->LogEnergy();
+
 		// Compute moving average of available power (we don't want to count during cooldown to let power be accurate)
 		// global_meter is locked before locking devices (and never locked after)
 		if(now-last_change_ts>=cooldown)

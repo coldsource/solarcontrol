@@ -31,53 +31,36 @@ excess_history(excess_history_type),
 consumption_history_detail(device_id, consumption_history_type),
 excess_history_detail(device_id, excess_history_type)
 {
-	last_ts = 0;
 	last_yday = datetime::DateTime().GetYearDay();
 
-	power = 0;
 	energy_consumption = consumption_history.GetTotalForToday();
 	energy_excess = excess_history.GetTotalForToday();
 }
 
-void Counter::SetPower(double v)
+void Counter::AddEnergy(double consumption, double excess)
 {
-	power = v;
-
 	int yday = datetime::DateTime().GetYearDay();
 	if(last_yday!=yday)
 	{
 		last_yday = yday;
-		last_ts = 0;
 
 		energy_consumption = 0;
 		energy_excess = 0;
 	}
 
-	double ts = datetime::Timestamp(TS_MONOTONIC);
-
-	if(last_ts!=0 && ts-last_ts<=60)
+	if(consumption>0)
 	{
-		double energy_delta = v * (ts-last_ts) / 3600;
-		if(power>=0)
-		{
-			energy_consumption += energy_delta;
-			consumption_history.Add(energy_delta);
-			consumption_history_detail.Add(energy_delta);
-		}
-		else
-		{
-			energy_excess += -energy_delta;
-			excess_history.Add(-energy_delta);
-			excess_history_detail.Add(-energy_delta);
-		}
+		energy_consumption += consumption;
+		consumption_history.Add(consumption);
+		consumption_history_detail.Add(consumption);
 	}
 
-	last_ts = ts;
-}
-
-double Counter::GetPower() const
-{
-	return power;
+	if(excess>0)
+	{
+		energy_excess += excess;
+		excess_history.Add(excess);
+		excess_history_detail.Add(excess);
+	}
 }
 
 double Counter::GetEnergyConsumption() const

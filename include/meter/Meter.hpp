@@ -32,6 +32,8 @@ class Meter
 {
 	protected:
 		double power = -1;
+		double energy_consumption = 0;
+		double energy_excess = 0;
 
 		mutable std::mutex lock;
 
@@ -41,6 +43,8 @@ class Meter
 		static Meter *GetFromConfig(const configuration::Json &conf);
 
 		double GetPower() const;
+		double GetConsumption();
+		double GetExcess();
 };
 
 }

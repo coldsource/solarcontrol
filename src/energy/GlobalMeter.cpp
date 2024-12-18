@@ -56,11 +56,22 @@ void GlobalMeter::free()
 		offpeak_ctrl = 0;
 	}
 
-	auto mqtt = mqtt::Client::GetInstance();
-	if(mqtt && topic_em!="")
+	if(meter_grid)
 	{
-		mqtt->Unsubscribe(topic_em, this);
-		topic_em = "";
+		delete meter_grid;
+		meter_grid = 0;
+	}
+
+	if(meter_pv)
+	{
+		delete meter_pv;
+		meter_pv = 0;
+	}
+
+	if(meter_hws)
+	{
+		delete meter_hws;
+		meter_hws = 0;
 	}
 }
 
@@ -73,14 +84,16 @@ void GlobalMeter::Reload()
 
 		auto config = ConfigurationEnergy::GetInstance();
 
-		topic_em = "";
-		if(config->Get("energy.mqtt.id")!="")
-			topic_em = config->Get("energy.mqtt.id") + "/events/rpc";
+		string mqtt_id = config->Get("energy.mqtt.id");
+		string phase_grid = config->Get("energy.grid.phase");
+		string phase_pv = config->Get("energy.pv.phase");
+		string phase_hws = config->Get("energy.hws.phase");
+
+		meter_grid = new meter::Pro3EM(mqtt_id, phase_grid);
+		meter_pv = new meter::Pro3EM(mqtt_id, phase_pv);
+		meter_hws = new meter::Pro3EM(mqtt_id, phase_hws);
 
 		hws_min_energy = config->GetInt("energy.hws.min");
-
-		if(topic_em!="")
-			mqtt::Client::GetInstance()->Subscribe(topic_em, this);
 
 		string offpeak_mqtt_id = config->Get("offpeak.mqtt.id");
 		if(offpeak_mqtt_id!="")
@@ -95,20 +108,9 @@ void GlobalMeter::Reload()
 		debug_grid = config->GetInt("energy.debug.grid");
 		debug_pv= config->GetInt("energy.debug.pv");
 		debug_hws = config->GetInt("energy.debug.hws");
-
-		if(debug)
-		{
-			grid.SetPower(debug_grid);
-			pv.SetPower(debug_pv);
-			hws.SetPower(debug_hws);
-		}
-
-		phase_grid = config->Get("energy.grid.phase");
-		phase_pv = config->Get("energy.pv.phase");
-		phase_hws = config->Get("energy.hws.phase");
 	}
 
-	if(debug && websocket::SolarControl::GetInstance())
+	if(websocket::SolarControl::GetInstance())
 		websocket::SolarControl::GetInstance()->NotifyAll(websocket::SolarControl::en_protocols::METER);
 }
 
@@ -116,14 +118,20 @@ double GlobalMeter::GetGridPower() const
 {
 	unique_lock<recursive_mutex> llock(lock);
 
-	return grid.GetPower();
+	if(debug)
+		return debug_grid;
+
+	return meter_grid->GetPower();
 }
 
 double GlobalMeter::GetPVPower() const
 {
 	unique_lock<recursive_mutex> llock(lock);
 
-	double power = pv.GetPower();
+	if(debug)
+		return debug_pv;
+
+	double power = meter_pv->GetPower();
 	return power>=0?power:0;
 }
 
@@ -131,14 +139,17 @@ double GlobalMeter::GetHWSPower() const
 {
 	unique_lock<recursive_mutex> llock(lock);
 
-	return hws.GetPower();
+	if(debug)
+		return debug_hws;
+
+	return meter_hws->GetPower();
 }
 
 double GlobalMeter::GetPower() const
 {
 	unique_lock<recursive_mutex> llock(lock);
 
-	return grid.GetPower() + (pv.GetPower()>0?pv.GetPower():0);
+	return GetGridPower() + GetPVPower();
 }
 
 double GlobalMeter::GetNetAvailablePower(bool allow_neg) const
@@ -154,9 +165,9 @@ double GlobalMeter::GetGrossAvailablePower(bool allow_neg) const
 {
 	unique_lock<recursive_mutex> llock(lock);
 
-	double hws_offload = hws_state?0:hws.GetPower(); // No hws offload when in forced mode
+	double hws_offload = hws_state?0:GetHWSPower(); // No hws offload when in forced mode
 
-	double available = hws_offload-grid.GetPower();
+	double available = hws_offload-GetGridPower();
 	if(!allow_neg && available<0)
 		return 0;
 	return available;
@@ -166,7 +177,7 @@ double GlobalMeter::GetExcessPower(bool allow_neg) const
 {
 	unique_lock<recursive_mutex> llock(lock);
 
-	double grid_power = grid.GetPower();
+	double grid_power = GetGridPower();
 	if(!allow_neg && grid_power>0)
 		return 0;
 	return -grid_power;
@@ -238,49 +249,35 @@ bool GlobalMeter::HWSIsFull() const
 	return hws.GetEnergyConsumption()>hws_min_energy;
 }
 
-void GlobalMeter::HandleMessage(const string &message)
+void GlobalMeter::LogEnergy()
 {
 	{
 		unique_lock<recursive_mutex> llock(lock);
 
-		double power_grid, power_pv, power_hws;
-
-		try
-		{
-			json j = json::parse(message);
-
-			power_grid = j["params"]["em:0"][phase_grid + "_act_power"];
-			power_pv = j["params"]["em:0"][phase_pv + "_act_power"];
-			power_hws = j["params"]["em:0"][phase_hws + "_act_power"];
-		}
-		catch(json::exception &e)
-		{
-			return;
-		}
-
 		if(debug)
-		{
-			power_grid = debug_grid;
-			power_pv = debug_pv;
-			power_hws = debug_hws;
-		}
+			return;
 
-		grid.SetPower(power_grid);
-		pv.SetPower(power_pv);
-		hws.SetPower(power_hws);
+		double grid_consumption = meter_grid->GetConsumption();
+		double grid_excess = meter_grid->GetExcess();
+		double pv_production = meter_pv->GetConsumption();
+		double hws_consumption = meter_hws->GetConsumption();
+
+		grid.AddEnergy(grid_consumption, grid_excess);
+		pv.AddEnergy(pv_production);
+		hws.AddEnergy(hws_consumption);
 
 		if(offpeak_ctrl)
 		{
 			if(offpeak_ctrl->GetState())
-				offpeak.SetPower(power_grid);
+				offpeak.AddEnergy(grid_consumption);
 			else
-				peak.SetPower(power_grid);
+				peak.AddEnergy(grid_consumption);
 		}
 
 		if(hws_state)
-			hws_forced.SetPower(power_hws);
+			hws_forced.AddEnergy(hws_consumption);
 		else
-			hws_offload.SetPower(power_hws);
+			hws_offload.AddEnergy(hws_consumption);
 	}
 
 	if(websocket::SolarControl::GetInstance())

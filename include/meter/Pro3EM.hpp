@@ -36,6 +36,9 @@ class Pro3EM: public Meter, public mqtt::Subscriber
 	std::string topic = "";
 	std::string phase;
 
+	double last_energy_consumption = 0;
+	double last_energy_excess = 0;
+
 	public:
 		Pro3EM(const std::string &mqtt_id, const std::string &phase);
 		virtual ~Pro3EM();

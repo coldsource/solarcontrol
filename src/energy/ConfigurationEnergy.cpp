@@ -36,7 +36,7 @@ ConfigurationEnergy::ConfigurationEnergy(void)
 	entries["energy.grid.phase"] = "a";
 	entries["energy.pv.phase"] = "b";
 	entries["energy.hws.phase"] = "c";
-	entries["energy.hws.min"] = "3000";
+	entries["energy.hws.min"] = "3kWh";
 	entries["energy.mqtt.id"] = "";
 	entries["offpeak.mqtt.id"] = "";
 	entries["offpeak.input"] = "0";
@@ -56,12 +56,12 @@ ConfigurationEnergy::~ConfigurationEnergy(void)
 
 void ConfigurationEnergy::Check(void)
 {
-	check_int_entry("energy.hws.min");
+	check_energy_entry("energy.hws.min");
 	check_int_entry("offpeak.input");
 	check_bool_entry("energy.debug.enabled");
-	check_int_entry("energy.debug.grid", true);
-	check_int_entry("energy.debug.pv", true);
-	check_int_entry("energy.debug.hws", true);
+	check_power_entry("energy.debug.grid", true);
+	check_power_entry("energy.debug.pv", true);
+	check_power_entry("energy.debug.hws", true);
 }
 
 }

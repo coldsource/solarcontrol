@@ -64,6 +64,8 @@ class Configuration
 		int GetInt(const std::string &entry) const;
 		int GetSize(const std::string &entry) const;
 		int GetTime(const std::string &entry) const;
+		int GetPower(const std::string &entry) const;
+		int GetEnergy(const std::string &entry) const;
 		bool GetBool(const std::string &entry) const;
 		int GetUID(const std::string &entry) const;
 		int GetGID(const std::string &entry) const;
@@ -76,6 +78,8 @@ class Configuration
 		void check_int_entry(const std::string &name, bool signed_int=false);
 		void check_size_entry(const std::string &name);
 		void check_time_entry(const std::string &name);
+		void check_power_entry(const std::string &name, bool signed_int=false);
+		void check_energy_entry(const std::string &name, bool signed_int=false);
 };
 
 }

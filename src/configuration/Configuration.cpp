@@ -178,27 +178,61 @@ int Configuration::GetInt(const string &entry) const
 int Configuration::GetSize(const string &entry) const
 {
 	const string value = Get(entry);
+	int i = strtol(value.c_str(),0,10);
 	if(value.substr(value.length()-1,1)=="K")
-		return strtol(value.c_str(),0,10)*1024;
+		return i*1024;
 	else if(value.substr(value.length()-1,1)=="M")
-		return strtol(value.c_str(),0,10)*1024*1024;
+		return i*1024*1024;
 	else if(value.substr(value.length()-1,1)=="G")
-		return strtol(value.c_str(),0,10)*1024*1024*1024;
+		return i*1024*1024*1024;
 	else
-		return strtol(value.c_str(),0,10);
+		return i;
 }
 
 int Configuration::GetTime(const string &entry) const
 {
 	const string value = Get(entry);
+	int i = strtol(value.c_str(),0,10);
 	if(value.substr(value.length()-1,1)=="d")
-		return strtol(value.c_str(),0,10)*86400;
+		return i*86400;
 	else if(value.substr(value.length()-1,1)=="h")
-		return strtol(value.c_str(),0,10)*3600;
+		return i*3600;
 	else if(value.substr(value.length()-1,1)=="m")
-		return strtol(value.c_str(),0,10)*60;
+		return i*60;
 	else
-		return strtol(value.c_str(),0,10);
+		return i;
+}
+
+int Configuration::GetPower(const string &entry) const
+{
+	const string value = Get(entry);
+
+	size_t l;
+	int i = stoi(value, &l);
+	string unit = value.substr(l);
+
+	if(unit=="w" || unit=="W")
+		return i;
+	else if(unit=="kw" || unit=="kW")
+		return i*1000;
+	else
+		return i;
+}
+
+int Configuration::GetEnergy(const string &entry) const
+{
+	const string value = Get(entry);
+
+	size_t l;
+	int i = stoi(value, &l);
+	string unit = value.substr(l);
+
+	if(unit=="wh" || unit=="Wh")
+		return i;
+	else if(unit=="kwh" || unit=="kWh")
+		return i*1000;
+	else
+		return i;
 }
 
 bool Configuration::GetBool(const string &entry) const
@@ -366,6 +400,50 @@ void Configuration::check_time_entry(const string &name)
 	catch(...)
 	{
 		throw runtime_error(name+": invalid time value '"+entries[name]+"'");
+	}
+}
+
+void Configuration::check_power_entry(const string &name, bool signed_int)
+{
+	try
+	{
+		size_t l;
+		int val = stoi(entries[name],&l);
+		if(l==entries[name].length())
+			return;
+
+		string unit = entries[name].substr(l);
+		if(unit!="w" && unit!="kw" && unit!="W" && unit!="kW")
+			throw 1;
+
+		if(!signed_int && val<0)
+			throw 1;
+	}
+	catch(...)
+	{
+		throw runtime_error(name+": invalid power value '"+entries[name]+"'");
+	}
+}
+
+void Configuration::check_energy_entry(const string &name, bool signed_int)
+{
+	try
+	{
+		size_t l;
+		int val = stoi(entries[name],&l);
+		if(l==entries[name].length())
+			return;
+
+		string unit = entries[name].substr(l);
+		if(unit!="wh" && unit!="kwh" && unit!="Wh" && unit!="kWh")
+			throw 1;
+
+		if(!signed_int && val<0)
+			throw 1;
+	}
+	catch(...)
+	{
+		throw runtime_error(name+": invalid energy value '"+entries[name]+"'");
 	}
 }
 

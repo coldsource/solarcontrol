@@ -93,7 +93,7 @@ void GlobalMeter::Reload()
 		meter_pv = new meter::Pro3EM(mqtt_id, phase_pv);
 		meter_hws = new meter::Pro3EM(mqtt_id, phase_hws);
 
-		hws_min_energy = config->GetInt("energy.hws.min");
+		hws_min_energy = config->GetEnergy("energy.hws.min");
 
 		string offpeak_mqtt_id = config->Get("offpeak.mqtt.id");
 		if(offpeak_mqtt_id!="")
@@ -105,9 +105,9 @@ void GlobalMeter::Reload()
 		}
 
 		debug = config->GetBool("energy.debug.enabled");
-		debug_grid = config->GetInt("energy.debug.grid");
-		debug_pv= config->GetInt("energy.debug.pv");
-		debug_hws = config->GetInt("energy.debug.hws");
+		debug_grid = config->GetPower("energy.debug.grid");
+		debug_pv= config->GetPower("energy.debug.pv");
+		debug_hws = config->GetPower("energy.debug.hws");
 	}
 
 	if(websocket::SolarControl::GetInstance())

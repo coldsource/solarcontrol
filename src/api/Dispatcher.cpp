@@ -23,6 +23,7 @@
 #include <api/DevicePassive.hpp>
 #include <api/Logs.hpp>
 #include <api/Config.hpp>
+#include <api/Storage.hpp>
 #include <configuration/Json.hpp>
 
 #include <stdexcept>
@@ -40,6 +41,7 @@ Dispatcher::Dispatcher()
 	handlers["devicepassive"] = new DevicePassive();
 	handlers["logs"] = new Logs();
 	handlers["config"] = new Config();
+	handlers["storage"] = new Storage();
 }
 
 Dispatcher::~Dispatcher()

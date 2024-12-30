@@ -145,22 +145,46 @@ json Logs::HandleMessage(const string &cmd, const configuration::Json &j_params)
 	else if(cmd=="energydetail")
 	{
 		DB db;
-
-		Date from;
+		database::Query query;
 
 		string day_str = j_params.GetString("day", "");
-		if(day_str!="")
-			from = Date(day_str);
+		int months_before = j_params.GetInt("mbefore", -1);
 
-		Date to = from + 1;
+		if(months_before!=-1)
+		{
+			Month m;
+			Month from = m - months_before;
+			Month to = from + 1;
 
-		auto res = db.Query(" \
-			SELECT detail.device_id, device.device_name, detail.log_energy_detail_date, detail.log_energy_detail_type, detail.log_energy_detail \
-			FROM t_log_energy_detail detail \
-			LEFT JOIN t_device device ON(detail.device_id=device.device_id) \
-			WHERE detail.log_energy_detail_date >= %s \
-			AND log_energy_detail_date < %s \
-		"_sql<<string(from)<<string(to));
+			query = " \
+				SELECT detail.device_id, device.device_name, DATE(detail.log_energy_detail_date) AS log_energy_detail_date, detail.log_energy_detail_type, SUM(detail.log_energy_detail) AS log_energy_detail \
+				FROM t_log_energy_detail detail \
+				LEFT JOIN t_device device ON(detail.device_id=device.device_id) \
+				WHERE detail.log_energy_detail_date >= %s \
+				AND log_energy_detail_date < %s \
+				GROUP BY DATE(detail.log_energy_detail_date), detail.log_energy_detail_type, detail.device_id, device.device_name \
+				ORDER BY log_energy_detail_date \
+			"_sql<<string(from)<<string(to);
+		}
+		else
+		{
+			Date from;
+
+			if(day_str!="")
+				from = Date(day_str);
+
+			Date to = from + 1;
+
+			query = " \
+				SELECT detail.device_id, device.device_name, detail.log_energy_detail_date, detail.log_energy_detail_type, detail.log_energy_detail \
+				FROM t_log_energy_detail detail \
+				LEFT JOIN t_device device ON(detail.device_id=device.device_id) \
+				WHERE detail.log_energy_detail_date >= %s \
+				AND log_energy_detail_date < %s \
+			"_sql<<string(from)<<string(to);
+		}
+
+		auto res = db.Query(query);
 
 		j_res = json::object();
 		while(res.FetchRow())
@@ -188,19 +212,10 @@ json Logs::HandleMessage(const string &cmd, const configuration::Json &j_params)
 
 		int device_id = j_params.GetInt("device_id");
 		string day_str = j_params.GetString("day", "");
+		int months_before = j_params.GetInt("mbefore", -2);
 
 		database::Query query;
-		if(day_str=="")
-		{
-			query = " \
-				SELECT ht.log_ht_date, ht.log_ht_min_h, ht.log_ht_max_h, ht.log_ht_min_t, ht.log_ht_max_t \
-				FROM t_log_ht ht \
-				WHERE ht.device_id=%i \
-				AND ht.log_ht_date >= DATE_SUB( NOW() , INTERVAL 1 DAY ) \
-				ORDER BY ht.log_ht_date \
-			"_sql << device_id;
-		}
-		else
+		if(day_str!="")
 		{
 			Date from = Date(day_str);
 			Date to = from + 1;
@@ -213,6 +228,43 @@ json Logs::HandleMessage(const string &cmd, const configuration::Json &j_params)
 				AND ht.log_ht_date < %s \
 				ORDER BY ht.log_ht_date \
 			"_sql << device_id << string(from) << string(to);
+		}
+		else if(months_before!=-2)
+		{
+			Month m;
+			Month from;
+			Month to;
+
+			if(months_before>=0)
+			{
+				from = m - months_before;
+				to = from + 1;
+			}
+			else
+			{
+				from = m - 1;
+				to = m + 1;
+			}
+
+			query = " \
+				SELECT DATE(ht.log_ht_date) AS log_ht_date, MIN(ht.log_ht_min_h) AS log_ht_min_h, MAX(ht.log_ht_max_h) AS log_ht_max_h, MIN(ht.log_ht_min_t) AS log_ht_min_t, MAX(ht.log_ht_max_t) AS log_ht_max_t \
+				FROM t_log_ht ht \
+				WHERE ht.device_id=%i \
+				AND ht.log_ht_date >= %s \
+				AND ht.log_ht_date < %s \
+				GROUP BY DATE(ht.log_ht_date) \
+				ORDER BY log_ht_date \
+			"_sql << device_id << string(from) << string(to);
+		}
+		else
+		{
+			query = " \
+				SELECT ht.log_ht_date, ht.log_ht_min_h, ht.log_ht_max_h, ht.log_ht_min_t, ht.log_ht_max_t \
+				FROM t_log_ht ht \
+				WHERE ht.device_id=%i \
+				AND ht.log_ht_date >= DATE_SUB( NOW() , INTERVAL 1 DAY ) \
+				ORDER BY ht.log_ht_date \
+			"_sql << device_id;
 		}
 
 		auto res = db.Query(query);

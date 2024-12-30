@@ -87,6 +87,13 @@ map<string,string> solarcontrol_tables = {
   KEY `log_state_date` (`log_state_date`), \
   KEY `device_id` (`device_id`) \
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci \
+"},
+{"t_storage",
+"CREATE TABLE `t_storage` ( \
+  `storage_name` varchar(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL, \
+  `storage_value` mediumtext NOT NULL, \
+  PRIMARY KEY (`storage_name`) \
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci \
 "}
 };
 

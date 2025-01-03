@@ -86,6 +86,8 @@ protected:
 		double GetExportedEnergy() const; // Total engergy exported to grid
 		double GetPVEnergy() const; // Total produced energy
 		double GetHWSEnergy() const; // Total energy consummed by HWS
+		double GetHWSForcedEnergy() const; // Total energy consummed by HWS
+		double GetHWSOffloadEnergy() const; // Total energy consummed by HWS
 
 		bool GetOffPeak() const;
 		bool GetOffPeakEnergy() const;

@@ -211,6 +211,20 @@ double GlobalMeter::GetHWSEnergy() const
 	return hws.GetEnergyConsumption();
 }
 
+double GlobalMeter::GetHWSForcedEnergy() const
+{
+	unique_lock<recursive_mutex> llock(lock);
+
+	return hws_forced.GetEnergyConsumption();
+}
+
+double GlobalMeter::GetHWSOffloadEnergy() const
+{
+	unique_lock<recursive_mutex> llock(lock);
+
+	return hws_offload.GetEnergyConsumption();
+}
+
 bool GlobalMeter::GetOffPeak() const
 {
 	unique_lock<recursive_mutex> llock(lock);

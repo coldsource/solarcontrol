@@ -65,11 +65,17 @@ void Counter::AddEnergy(double consumption, double excess)
 
 double Counter::GetEnergyConsumption() const
 {
+	if(last_yday!=datetime::DateTime().GetYearDay())
+		return 0;
+
 	return energy_consumption;
 }
 
 double Counter::GetEnergyExcess() const
 {
+	if(last_yday!=datetime::DateTime().GetYearDay())
+		return 0;
+
 	return energy_excess;
 }
 

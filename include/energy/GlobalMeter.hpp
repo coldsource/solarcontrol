@@ -81,6 +81,7 @@ protected:
 		double GetNetAvailablePower(bool allow_neg = false) const; // Available power with HWS ON
 		double GetGrossAvailablePower(bool allow_neg = false) const; // Available power excluding HWS consuption
 		double GetExcessPower(bool allow_neg = false) const; // Power exported to grid
+		double GetPVPowerRatio() const; // Percentage of solar power consumption
 
 		double GetGridEnergy() const; // Energy taken from grid
 		double GetExportedEnergy() const; // Total engergy exported to grid

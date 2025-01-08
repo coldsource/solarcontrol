@@ -142,7 +142,8 @@ double GlobalMeter::GetHWSPower() const
 	if(debug)
 		return debug_hws;
 
-	return meter_hws->GetPower();
+	double power = meter_hws->GetPower();
+	return power>=0?power:0;
 }
 
 double GlobalMeter::GetPower() const
@@ -181,6 +182,21 @@ double GlobalMeter::GetExcessPower(bool allow_neg) const
 	if(!allow_neg && grid_power>0)
 		return 0;
 	return -grid_power;
+}
+
+double GlobalMeter::GetPVPowerRatio() const
+{
+	unique_lock<recursive_mutex> llock(lock);
+
+	double grid_power = GetGridPower();
+	if(grid_power<=0)
+		return 1;
+
+	double pv_power = GetPVPower();
+	double ratio = pv_power / (pv_power + grid_power);
+	if(ratio>1)
+		ratio = 1;
+	return ratio;
 }
 
 double GlobalMeter::GetGridEnergy() const
@@ -288,10 +304,9 @@ void GlobalMeter::LogEnergy()
 				peak.AddEnergy(grid_consumption);
 		}
 
-		if(hws_state)
-			hws_forced.AddEnergy(hws_consumption);
-		else
-			hws_offload.AddEnergy(hws_consumption);
+		double pv_ratio = GetPVPowerRatio();
+		hws_offload.AddEnergy(hws_consumption * pv_ratio);
+		hws_forced.AddEnergy(hws_consumption * (1 - pv_ratio));
 	}
 
 	if(websocket::SolarControl::GetInstance())

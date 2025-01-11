@@ -28,7 +28,7 @@ namespace device {
 
 class Device
 {
-	unsigned int id;
+	int id;
 	std::string name;
 	configuration::Json config;
 

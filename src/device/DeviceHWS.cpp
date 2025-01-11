@@ -18,6 +18,7 @@
  */
 
 #include <device/DeviceHWS.hpp>
+#include <device/Devices.hpp>
 #include <configuration/Json.hpp>
 #include <energy/GlobalMeter.hpp>
 #include <database/DB.hpp>
@@ -61,7 +62,7 @@ void DeviceHWS::CreateInDB()
 	config["min_energy"] = 0;
 	config["min_energy_for_last"] = 0;
 
-	db.Query("INSERT INTO t_device(device_type, device_name, device_config) VALUES('hws', 'hws', %s)"_sql<<config.dump());
+	db.Query("INSERT INTO t_device(device_id, device_type, device_name, device_config) VALUES(%i, 'hws', 'hws', %s)"_sql<<DEVICE_ID_HWS<<config.dump());
 }
 
 void DeviceHWS::SetState(bool new_state)

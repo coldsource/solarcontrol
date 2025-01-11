@@ -43,9 +43,9 @@ DevicesManager::DevicesManager()
 {
 	Reload();
 
-	start();
-
 	global_meter = energy::GlobalMeter::GetInstance();
+
+	start();
 
 	instance = this;
 }

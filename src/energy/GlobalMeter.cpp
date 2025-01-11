@@ -25,6 +25,7 @@
 #include <energy/ConfigurationEnergy.hpp>
 #include <mqtt/Client.hpp>
 #include <websocket/SolarControl.hpp>
+#include <device/Devices.hpp>
 
 using namespace std;
 using configuration::ConfigurationEnergy;
@@ -36,11 +37,14 @@ namespace energy {
 GlobalMeter * GlobalMeter::instance = 0;
 
 GlobalMeter::GlobalMeter()
-:grid(0, "grid", "grid-excess"), pv(0, "pv"), hws(0, "hws"), peak(0, "peak"), offpeak(0, "offpeak"), hws_forced(0, "hws-forced"), hws_offload(0, "hws-offload")
+:grid(DEVICE_ID_GRID, "consumption", "excess"),
+pv(DEVICE_ID_PV, "production"),
+hws(DEVICE_ID_HWS, "consumption"),
+hws_offload(DEVICE_ID_HWS, "offload")
 {
-	Reload();
-
 	instance = this;
+
+	Reload();
 }
 
 GlobalMeter::~GlobalMeter()
@@ -227,13 +231,6 @@ double GlobalMeter::GetHWSEnergy() const
 	return hws.GetEnergyConsumption();
 }
 
-double GlobalMeter::GetHWSForcedEnergy() const
-{
-	unique_lock<recursive_mutex> llock(lock);
-
-	return hws_forced.GetEnergyConsumption();
-}
-
 double GlobalMeter::GetHWSOffloadEnergy() const
 {
 	unique_lock<recursive_mutex> llock(lock);
@@ -249,20 +246,6 @@ bool GlobalMeter::GetOffPeak() const
 		return false;
 
 	return offpeak_ctrl->GetState();
-}
-
-bool GlobalMeter::GetOffPeakEnergy() const
-{
-	unique_lock<recursive_mutex> llock(lock);
-
-	return offpeak.GetEnergyConsumption();
-}
-
-bool GlobalMeter::GetPeakEnergy() const
-{
-	unique_lock<recursive_mutex> llock(lock);
-
-	return peak.GetEnergyConsumption();
 }
 
 void GlobalMeter::SetHWSState(bool new_state)
@@ -296,17 +279,8 @@ void GlobalMeter::LogEnergy()
 		pv.AddEnergy(pv_production);
 		hws.AddEnergy(hws_consumption);
 
-		if(offpeak_ctrl)
-		{
-			if(offpeak_ctrl->GetState())
-				offpeak.AddEnergy(grid_consumption);
-			else
-				peak.AddEnergy(grid_consumption);
-		}
-
 		double pv_ratio = GetPVPowerRatio();
 		hws_offload.AddEnergy(hws_consumption * pv_ratio);
-		hws_forced.AddEnergy(hws_consumption * (1 - pv_ratio));
 	}
 
 	if(websocket::SolarControl::GetInstance())

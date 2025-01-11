@@ -20,9 +20,13 @@
 #include <api/Logs.hpp>
 #include <database/DB.hpp>
 #include <energy/GlobalMeter.hpp>
+#include <energy/Amount.hpp>
 #include <configuration/Json.hpp>
 #include <datetime/Date.hpp>
 #include <datetime/Month.hpp>
+#include <device/Devices.hpp>
+#include <device/DevicesOnOff.hpp>
+#include <device/DevicesPassive.hpp>
 
 #include <map>
 #include <stdexcept>
@@ -76,28 +80,37 @@ json Logs::HandleMessage(const string &cmd, const configuration::Json &j_params)
 			j_res = json::object();
 
 			for(auto grid_consumption : global_meter->GetGridConsumptionHistory())
-				j_res[string(grid_consumption.first)]["grid_consumption"] = grid_consumption.second;
+				j_res[string(grid_consumption.first)][DEVICE_NAME_GRID]["consumption"] = grid_consumption.second;
 
 			for(auto grid_excess : global_meter->GetGridExcessHistory())
-				j_res[string(grid_excess.first)]["grid_excess"] = grid_excess.second;
+				j_res[string(grid_excess.first)][DEVICE_NAME_GRID]["excess"] = grid_excess.second;
 
 			for(auto pv_production : global_meter->GetPVProductionHistory())
-				j_res[string(pv_production.first)]["pv_production"] = pv_production.second;
+				j_res[string(pv_production.first)][DEVICE_NAME_PV]["production"] = pv_production.second;
 
 			for(auto hws_consumption : global_meter->GetHWSConsumptionHistory())
-				j_res[string(hws_consumption.first)]["hws_consumption"] = hws_consumption.second;
-
-			for(auto offpeak_consumption : global_meter->GetOffPeakConsumptionHistory())
-				j_res[string(offpeak_consumption.first)]["offpeak_consumption"] = offpeak_consumption.second;
-
-			for(auto peak_consumption : global_meter->GetPeakConsumptionHistory())
-				j_res[string(peak_consumption.first)]["peak_consumption"] = peak_consumption.second;
-
-			for(auto hws_forced_consumption : global_meter->GetHWSForcedConsumptionHistory())
-				j_res[string(hws_forced_consumption.first)]["hws_forced_consumption"] = hws_forced_consumption.second;
+				j_res[string(hws_consumption.first)][DEVICE_NAME_HWS]["consumption"] = hws_consumption.second;
 
 			for(auto hws_offload_consumption : global_meter->GetHWSOffloadConsumptionHistory())
-				j_res[string(hws_offload_consumption.first)]["hws_offload_consumption"] = hws_offload_consumption.second;
+				j_res[string(hws_offload_consumption.first)][DEVICE_NAME_HWS]["offload"] = hws_offload_consumption.second;
+
+			for(auto device : device::DevicesOnOff())
+			{
+				for(auto consumption : device->GetConsumptionHistory())
+					j_res[string(consumption.first)][device->GetName()]["consumption"] = consumption.second;
+
+				for(auto offload : device->GetOffloadHistory())
+					j_res[string(offload.first)][device->GetName()]["offload"] = offload.second;
+			}
+
+			for(auto device : device::DevicesPassive())
+			{
+				for(auto consumption : device->GetConsumptionHistory())
+					j_res[string(consumption.first)][device->GetName()]["consumption"] = consumption.second;
+
+				for(auto offload : device->GetOffloadHistory())
+					j_res[string(offload.first)][device->GetName()]["offload"] = offload.second;
+			}
 
 			return j_res;
 		}
@@ -110,33 +123,28 @@ json Logs::HandleMessage(const string &cmd, const configuration::Json &j_params)
 			Month to = from + 1;
 
 			auto res = db.Query(" \
-				SELECT log_energy_date, log_energy_type, log_energy \
+				SELECT log_energy_date, device_id, log_energy_type, log_energy, log_energy_peak, log_energy_offpeak \
 				FROM t_log_energy  detail \
 				WHERE log_energy_date >= %s \
 				AND log_energy_date < %s \
 			"_sql<<string(from)<<string(to));
 
-			map<string, string> type_mapping = {
-				{"grid", "grid_consumption"},
-				{"grid-excess", "grid_excess"},
-				{"pv", "pv_production"},
-				{"hws", "hws_consumption"},
-				{"peak", "peak_consumption"},
-				{"offpeak", "offpeak_consumption"},
-				{"hws-forced", "hws_forced_consumption"},
-				{"hws-offload", "hws_offload_consumption"},
-			};
-
 			j_res = json::object();
 			while(res.FetchRow())
 			{
 				string date = res["log_energy_date"];
+				int device_id = res["device_id"];
+				string device_name = device::Devices::GetInstance()->IDToName(device_id);
 				string type = res["log_energy_type"];
+				energy::Amount amount(res["log_energy"], res["log_energy_peak"], res["log_energy_offpeak"]);
 
 				if(!j_res.contains(date))
 					j_res[date] = json::object();
 
-				j_res[date][type_mapping[type]] = (double)res["log_energy"];
+				if(!j_res[date].contains(device_name))
+					j_res[date][device_name] = json::object();
+
+				j_res[date][device_name][type] = amount;
 			}
 
 			return j_res;
@@ -148,60 +156,39 @@ json Logs::HandleMessage(const string &cmd, const configuration::Json &j_params)
 		database::Query query;
 
 		string day_str = j_params.GetString("day", "");
-		int months_before = j_params.GetInt("mbefore", -1);
 
-		if(months_before!=-1)
-		{
-			Month m;
-			Month from = m - months_before;
-			Month to = from + 1;
+		Date from;
 
-			query = " \
-				SELECT detail.device_id, device.device_name, DATE(detail.log_energy_detail_date) AS log_energy_detail_date, detail.log_energy_detail_type, SUM(detail.log_energy_detail) AS log_energy_detail \
-				FROM t_log_energy_detail detail \
-				LEFT JOIN t_device device ON(detail.device_id=device.device_id) \
-				WHERE detail.log_energy_detail_date >= %s \
-				AND log_energy_detail_date < %s \
-				GROUP BY DATE(detail.log_energy_detail_date), detail.log_energy_detail_type, detail.device_id, device.device_name \
-				ORDER BY log_energy_detail_date \
-			"_sql<<string(from)<<string(to);
-		}
-		else
-		{
-			Date from;
+		if(day_str!="")
+			from = Date(day_str);
 
-			if(day_str!="")
-				from = Date(day_str);
+		Date to = from + 1;
 
-			Date to = from + 1;
-
-			query = " \
-				SELECT detail.device_id, device.device_name, detail.log_energy_detail_date, detail.log_energy_detail_type, detail.log_energy_detail \
-				FROM t_log_energy_detail detail \
-				LEFT JOIN t_device device ON(detail.device_id=device.device_id) \
-				WHERE detail.log_energy_detail_date >= %s \
-				AND log_energy_detail_date < %s \
-			"_sql<<string(from)<<string(to);
-		}
+		query = " \
+			SELECT detail.device_id, detail.log_energy_detail_date, detail.log_energy_detail_type, detail.log_energy, detail.log_energy_peak, detail.log_energy_offpeak \
+			FROM t_log_energy_detail detail \
+			WHERE detail.log_energy_detail_date >= %s \
+			AND log_energy_detail_date < %s \
+		"_sql<<string(from)<<string(to);
 
 		auto res = db.Query(query);
 
 		j_res = json::object();
 		while(res.FetchRow())
 		{
-			string device_id = res["device_id"];
+			int device_id = res["device_id"];
 			string date = res["log_energy_detail_date"];
 			string type = res["log_energy_detail_type"];
+			string device_name = device::Devices::GetInstance()->IDToName(device_id);
+			energy::Amount amount(res["log_energy"], res["log_energy_peak"], res["log_energy_offpeak"]);
 
 			if(!j_res.contains(date))
 				j_res[date] = json::object();
 
-			if(!j_res[date].contains(device_id))
-				j_res[date][device_id] = json::object();
+			if(!j_res[date].contains(device_name))
+				j_res[date][device_name] = json::object();
 
-			json &j_entry = j_res[date][device_id];
-			j_entry[type] = (double)res["log_energy_detail"];
-			j_entry["name"] = string(res["device_name"]);
+			j_res[date][device_name][type] = amount;
 		}
 
 		return j_res;

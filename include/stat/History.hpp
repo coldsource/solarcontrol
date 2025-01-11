@@ -120,7 +120,7 @@ class History
 
 			auto it = history.find(now);
 			if(it==history.end())
-				return 0;
+				return DataType();
 
 			return it->second;
 		}

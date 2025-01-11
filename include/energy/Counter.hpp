@@ -20,6 +20,7 @@
 #ifndef __ENERGY_COUNTER_HPP__
 #define __ENERGY_COUNTER_HPP__
 
+#include <energy/Amount.hpp>
 #include <energy/HistoryDay.hpp>
 #include <energy/HistoryQuarterHour.hpp>
 
@@ -31,8 +32,8 @@ class Counter
 {
 	int last_yday;
 
-	double energy_consumption;
-	double energy_excess;
+	Amount energy_consumption;
+	Amount energy_excess;
 
 	HistoryDay consumption_history;
 	HistoryDay excess_history;
@@ -40,17 +41,17 @@ class Counter
 	HistoryQuarterHour excess_history_detail;
 
 	public:
-		Counter(unsigned int device_id = 0, const std::string &consumption_history_type = "", const std::string &excess_history_type = "");
+		Counter(int device_id = 0, const std::string &consumption_history_type = "", const std::string &excess_history_type = "");
 
 		void AddEnergy(double consumption, double excess = 0);
-		double GetEnergyConsumption()  const;
-		double GetEnergyExcess()  const;
+		Amount GetEnergyConsumption()  const;
+		Amount GetEnergyExcess()  const;
 
 		double GetTotalConsumptionForLast(int ndays) const { return consumption_history.GetTotalForLast(ndays); }
 		double GetTotalExcessForLast(int ndays) const { return excess_history.GetTotalForLast(ndays); }
 
-		const std::map<datetime::Date, double> &GetConsumptionHistory() const { return consumption_history.Get(); }
-		const std::map<datetime::Date, double> &GetExcessHistory() const { return excess_history.Get(); }
+		const std::map<datetime::Date, Amount> &GetConsumptionHistory() const { return consumption_history.Get(); }
+		const std::map<datetime::Date, Amount> &GetExcessHistory() const { return excess_history.Get(); }
 };
 
 }

@@ -20,6 +20,10 @@
 #include <device/Devices.hpp>
 #include <websocket/SolarControl.hpp>
 
+#include <mutex>
+
+using namespace std;
+
 namespace device
 {
 
@@ -28,6 +32,41 @@ Devices *Devices::instance = 0;
 Devices::Devices()
 {
 	instance = this;
+}
+
+string Devices::IDToName(int id)
+{
+	// Special devices
+	if(id==DEVICE_ID_GRID)
+		return DEVICE_NAME_GRID;
+	else if(id==DEVICE_ID_PV)
+		return DEVICE_NAME_PV;
+	else if(id==DEVICE_ID_HWS)
+		return DEVICE_NAME_HWS;
+
+	// Lookup standard devices
+	try
+	{
+		unique_lock<recursive_mutex> llock(devices_onoff.d_mutex);
+		return devices_onoff.get_by_id(id)->GetName();
+	}
+	catch(...) {}
+
+	try
+	{
+		unique_lock<recursive_mutex> llock(devices_ht.d_mutex);
+		return devices_ht.get_by_id(id)->GetName();
+	}
+	catch(...) {}
+
+	try
+	{
+		unique_lock<recursive_mutex> llock(devices_passive.d_mutex);
+		return devices_passive.get_by_id(id)->GetName();
+	}
+	catch(...) {}
+
+	return ""; // Unknown device
 }
 
 void Devices::Reload()

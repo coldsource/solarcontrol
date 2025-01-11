@@ -17,40 +17,48 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#include <device/DevicePassive.hpp>
-#include <configuration/Json.hpp>
+#include <energy/Amount.hpp>
 #include <energy/GlobalMeter.hpp>
 
 using namespace std;
-using datetime::Timestamp;
-using nlohmann::json;
+using namespace nlohmann;
 
-namespace device {
+namespace energy {
 
-DevicePassive::DevicePassive(unsigned int id, const std::string &name, const configuration::Json &config):
-Device(id, name, config), consumption(id, "consumption"), offload(id, "offload")
+Amount::Amount(double val): energy(val)
 {
-	meter = meter::Meter::GetFromConfig(config.GetObject("control"));
+	if(GlobalMeter::GetInstance()->GetOffPeak())
+		energy_offpeak = val;
+	else
+		energy_peak = val;
 }
 
-DevicePassive::~DevicePassive()
+Amount Amount::operator+(const Amount &r) const
 {
-	delete meter;
+	return Amount(energy + r.energy, energy_peak + r.energy_peak, energy_offpeak + r.energy_offpeak);
 }
 
-double DevicePassive::GetPower() const
+Amount &Amount::operator+=(const Amount &r)
 {
-	return meter->GetPower();
+	energy += r.energy;
+	energy_peak += r.energy_peak;
+	energy_offpeak += r.energy_offpeak;
+	return *this;
 }
 
-void DevicePassive::LogEnergy()
+Amount::operator double() const
 {
-	double device_consumption = meter->GetConsumption();
-	double pv_ratio = energy::GlobalMeter::GetInstance()->GetPVPowerRatio();
+	return energy;
+}
 
-	consumption.AddEnergy(device_consumption);
-	offload.AddEnergy(device_consumption * pv_ratio);
+Amount::operator nlohmann::json() const
+{
+	json jres;
+	jres["energy"] = energy;
+	jres["peak"] = energy_peak;
+	jres["offpeak"] = energy_offpeak;
+
+	return jres;
 }
 
 }
-

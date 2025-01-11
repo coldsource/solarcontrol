@@ -27,7 +27,7 @@ using database::DB;
 namespace energy
 {
 
-HistoryQuarterHour::HistoryQuarterHour(unsigned int device_id, const std::string &type)
+HistoryQuarterHour::HistoryQuarterHour(int device_id, const std::string &type)
 :History(0), type(type), device_id(device_id)
 {
 	if(type=="")
@@ -36,9 +36,9 @@ HistoryQuarterHour::HistoryQuarterHour(unsigned int device_id, const std::string
 	DB db;
 
 	QuarterHour period_ago = QuarterHour() - retention;
-	auto res = db.Query("SELECT log_energy_detail_date, log_energy_detail FROM t_log_energy_detail WHERE device_id=%i AND log_energy_detail_type=%s AND log_energy_detail_date>=%s"_sql <<device_id<<type<<std::string(period_ago));
+	auto res = db.Query("SELECT log_energy_detail_date, log_energy, log_energy_peak, log_energy_offpeak FROM t_log_energy_detail WHERE device_id=%i AND log_energy_detail_type=%s AND log_energy_detail_date>=%s"_sql <<device_id<<type<<std::string(period_ago));
 	while(res.FetchRow())
-		history[QuarterHour(res["log_energy_detail_date"])] = (double)res["log_energy_detail"];
+		history[QuarterHour(res["log_energy_detail_date"])] = Amount((double)res["log_energy"], (double)res["log_energy_peak"], (double)res["log_energy_offpeak"]);
 }
 
 HistoryQuarterHour::~HistoryQuarterHour()
@@ -55,7 +55,7 @@ void HistoryQuarterHour::save()
 		store_entry(it->first, it->second);
 }
 
-void HistoryQuarterHour::store_entry(const QuarterHour period, double value)
+void HistoryQuarterHour::store_entry(const QuarterHour period, Amount value)
 {
 	if(type=="")
 		return;
@@ -63,8 +63,8 @@ void HistoryQuarterHour::store_entry(const QuarterHour period, double value)
 	DB db;
 
 	db.Query(
-		"REPLACE INTO t_log_energy_detail(log_energy_detail_date, device_id, log_energy_detail_type, log_energy_detail) VALUES(%s, %i, %s, %f)"_sql
-		<<std::string(period)<<device_id<<type<<value
+		"REPLACE INTO t_log_energy_detail(log_energy_detail_date, device_id, log_energy_detail_type, log_energy, log_energy_peak, log_energy_offpeak) VALUES(%s, %i, %s, %f, %f, %f)"_sql
+		<<std::string(period)<<device_id<<type<<value.GetEnergy()<<value.GetEnergyPeak()<<value.GetEnergyOffPeak()
 	);
 }
 

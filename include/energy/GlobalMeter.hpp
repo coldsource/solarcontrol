@@ -21,9 +21,11 @@
 #define __ENERGY_GLOBALMETER_HPP__
 
 #include <energy/Counter.hpp>
+#include <energy/Amount.hpp>
 #include <meter/Pro3EM.hpp>
 
 #include <mutex>
+#include <map>
 
 namespace energy {
 	class Counter;
@@ -44,9 +46,6 @@ class GlobalMeter
 	Counter grid;
 	Counter pv;
 	Counter hws;
-	Counter peak;
-	Counter offpeak;
-	Counter hws_forced;
 	Counter hws_offload;
 
 	control::Input *offpeak_ctrl = 0;
@@ -87,22 +86,16 @@ protected:
 		double GetExportedEnergy() const; // Total engergy exported to grid
 		double GetPVEnergy() const; // Total produced energy
 		double GetHWSEnergy() const; // Total energy consummed by HWS
-		double GetHWSForcedEnergy() const; // Total energy consummed by HWS
 		double GetHWSOffloadEnergy() const; // Total energy consummed by HWS
 
 		bool GetOffPeak() const;
-		bool GetOffPeakEnergy() const;
-		bool GetPeakEnergy() const;
 
 		double GetTotalHWSConsuptionForLast(int ndays) { return hws.GetTotalConsumptionForLast(ndays); }
-		const std::map<datetime::Date, double> &GetGridConsumptionHistory() const { return grid.GetConsumptionHistory(); }
-		const std::map<datetime::Date, double> &GetGridExcessHistory() const { return grid.GetExcessHistory(); }
-		const std::map<datetime::Date, double> &GetPVProductionHistory() const { return pv.GetConsumptionHistory(); }
-		const std::map<datetime::Date, double> &GetHWSConsumptionHistory() const { return hws.GetConsumptionHistory(); }
-		const std::map<datetime::Date, double> &GetOffPeakConsumptionHistory() const { return offpeak.GetConsumptionHistory(); }
-		const std::map<datetime::Date, double> &GetPeakConsumptionHistory() const { return peak.GetConsumptionHistory(); }
-		const std::map<datetime::Date, double> &GetHWSForcedConsumptionHistory() const { return hws_forced.GetConsumptionHistory(); }
-		const std::map<datetime::Date, double> &GetHWSOffloadConsumptionHistory() const { return hws_offload.GetConsumptionHistory(); }
+		const std::map<datetime::Date, Amount> &GetGridConsumptionHistory() const { return grid.GetConsumptionHistory(); }
+		const std::map<datetime::Date, Amount> &GetGridExcessHistory() const { return grid.GetExcessHistory(); }
+		const std::map<datetime::Date, Amount> &GetPVProductionHistory() const { return pv.GetConsumptionHistory(); }
+		const std::map<datetime::Date, Amount> &GetHWSConsumptionHistory() const { return hws.GetConsumptionHistory(); }
+		const std::map<datetime::Date, Amount> &GetHWSOffloadConsumptionHistory() const { return hws_offload.GetConsumptionHistory(); }
 
 		void SetHWSState(bool new_state);
 		bool HWSIsFull() const;

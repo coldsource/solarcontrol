@@ -22,24 +22,24 @@
 
 #include <stat/History.hpp>
 #include <datetime/QuarterHour.hpp>
+#include <energy/Amount.hpp>
 
 #include <string>
 #include <map>
 
 namespace energy {
 
-class HistoryQuarterHour: public stat::History<datetime::QuarterHour, double>
+class HistoryQuarterHour: public stat::History<datetime::QuarterHour, Amount>
 {
 	std::string type;
+	int device_id;
 
 	protected:
-		unsigned int device_id;
-
-		virtual void store_entry(const datetime::QuarterHour period, double value);
+		virtual void store_entry(const datetime::QuarterHour period, Amount value);
 		virtual void save();
 
 	public:
-		HistoryQuarterHour(unsigned int device_id, const std::string &type = "");
+		HistoryQuarterHour(int device_id, const std::string &type = "");
 		~HistoryQuarterHour();
 };
 

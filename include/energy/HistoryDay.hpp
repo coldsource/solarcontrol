@@ -22,25 +22,27 @@
 
 #include <stat/History.hpp>
 #include <datetime/Date.hpp>
+#include <energy/Amount.hpp>
 
 #include <string>
 #include <map>
 
 namespace energy {
 
-class HistoryDay: public stat::History<datetime::Date, double>
+class HistoryDay: public stat::History<datetime::Date, Amount>
 {
 	std::string type;
+	int device_id;
 
 	protected:
-		virtual void store_entry(const datetime::Date period, double value);
+		virtual void store_entry(const datetime::Date period, Amount value);
 		virtual void save();
 
 	public:
-		HistoryDay(const std::string &type = "");
+		HistoryDay(int device_id, const std::string &type = "");
 		~HistoryDay();
 
-		double GetTotalForToday() const { return GetTotalForCurrent(); }
+		Amount GetTotalForToday() const { return GetTotalForCurrent(); }
 };
 
 }

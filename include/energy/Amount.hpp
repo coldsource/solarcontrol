@@ -17,35 +17,33 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __DEVICE_DEVICEPASSIVE_HPP__
-#define __DEVICE_DEVICEPASSIVE_HPP__
+#ifndef __ENERGY_AMOUNT_HPP__
+#define __ENERGY_AMOUNT_HPP__
 
-#include <device/Device.hpp>
-#include <meter/Meter.hpp>
-#include <energy/Counter.hpp>
+#include <nlohmann/json.hpp>
 
-#include <string>
+namespace energy {
 
-namespace device {
-
-class DevicePassive: public Device
+class Amount
 {
 	protected:
-		meter::Meter *meter;
-		energy::Counter consumption;
-		energy::Counter offload;
+		double energy = 0;
+		double energy_peak = 0;
+		double energy_offpeak = 0;
 
 	public:
-		DevicePassive(unsigned int id, const std::string &name, const configuration::Json &config);
-		virtual ~DevicePassive();
+		Amount() {}
+		Amount(double val);
+		Amount(double val, double val_peak, double val_offpeak): energy(val), energy_peak(val_peak), energy_offpeak(val_offpeak) {}
 
-		std::string GetType() const { return "passive"; }
+		Amount operator+(const Amount &r) const;
+		Amount &operator+=(const Amount &r);
+		operator double() const;
+		operator nlohmann::json() const;
 
-		double GetPower() const;
-		void LogEnergy();
-
-		const std::map<datetime::Date, energy::Amount> &GetConsumptionHistory() const { return consumption.GetConsumptionHistory(); }
-		const std::map<datetime::Date, energy::Amount> &GetOffloadHistory() const { return offload.GetConsumptionHistory(); }
+		double GetEnergy() const { return energy; }
+		double GetEnergyPeak() const { return energy_peak; }
+		double GetEnergyOffPeak() const { return energy_offpeak; }
 };
 
 }

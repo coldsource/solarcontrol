@@ -48,7 +48,9 @@ class DeviceOnOff: public Device
 		bool need_update = true; // Force state update on reload
 		bool manual_state_changed = false; // Notify we have a change from API
 		bool manual = false;
+
 		energy::Counter consumption;
+		energy::Counter offload;
 
 		datetime::Timestamp last_on;
 		datetime::Timestamp last_off;
@@ -81,6 +83,9 @@ class DeviceOnOff: public Device
 		double GetPower() const;
 
 		void LogEnergy();
+
+		const std::map<datetime::Date, energy::Amount> &GetConsumptionHistory() const { return consumption.GetConsumptionHistory(); }
+		const std::map<datetime::Date, energy::Amount> &GetOffloadHistory() const { return offload.GetConsumptionHistory(); }
 };
 
 }

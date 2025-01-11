@@ -18,6 +18,7 @@
  */
 
 #include <energy/Counter.hpp>
+#include <energy/Amount.hpp>
 #include <datetime/Timestamp.hpp>
 #include <datetime/DateTime.hpp>
 
@@ -25,9 +26,9 @@ using namespace std;
 
 namespace energy {
 
-Counter::Counter(unsigned int device_id, const string &consumption_history_type, const string &excess_history_type):
-consumption_history(consumption_history_type),
-excess_history(excess_history_type),
+Counter::Counter(int device_id, const string &consumption_history_type, const string &excess_history_type):
+consumption_history(device_id, consumption_history_type),
+excess_history(device_id, excess_history_type),
 consumption_history_detail(device_id, consumption_history_type),
 excess_history_detail(device_id, excess_history_type)
 {
@@ -63,7 +64,7 @@ void Counter::AddEnergy(double consumption, double excess)
 	}
 }
 
-double Counter::GetEnergyConsumption() const
+Amount Counter::GetEnergyConsumption() const
 {
 	if(last_yday!=datetime::DateTime().GetYearDay())
 		return 0;
@@ -71,7 +72,7 @@ double Counter::GetEnergyConsumption() const
 	return energy_consumption;
 }
 
-double Counter::GetEnergyExcess() const
+Amount Counter::GetEnergyExcess() const
 {
 	if(last_yday!=datetime::DateTime().GetYearDay())
 		return 0;

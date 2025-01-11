@@ -26,6 +26,14 @@
 
 #include <string>
 
+#define DEVICE_ID_GRID     -1
+#define DEVICE_ID_PV       -2
+#define DEVICE_ID_HWS      -3
+
+#define DEVICE_NAME_GRID    "grid"
+#define DEVICE_NAME_PV      "pv"
+#define DEVICE_NAME_HWS     "hws"
+
 namespace device {
 
 class Devices
@@ -40,6 +48,8 @@ class Devices
 		Devices();
 
 		static Devices *GetInstance() { return instance; }
+
+		std::string IDToName(int id);
 
 		void Reload();
 		void Unload();

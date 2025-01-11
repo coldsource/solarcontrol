@@ -28,23 +28,23 @@ using database::DB;
 namespace energy
 {
 
-HistoryDay::HistoryDay(const std::string &type)
-:History(configuration::ConfigurationSolarControl::GetInstance()->GetInt("core.history.maxdays")), type(type)
+HistoryDay::HistoryDay(int device_id, const std::string &type)
+:History(configuration::ConfigurationSolarControl::GetInstance()->GetInt("core.history.maxdays")), type(type), device_id(device_id)
 {
-	if(type=="" || type=="device")
+	if(type=="")
 		return;
 
 	DB db;
 
 	Date period_ago = Date() - retention;
-	auto res = db.Query("SELECT log_energy_date, log_energy FROM t_log_energy WHERE log_energy_type=%s AND log_energy_date>=%s"_sql <<type<<std::string(period_ago));
+	auto res = db.Query("SELECT log_energy_date, log_energy, log_energy_peak, log_energy_offpeak FROM t_log_energy WHERE device_id=%i AND log_energy_type=%s AND log_energy_date>=%s"_sql <<device_id<<type<<std::string(period_ago));
 	while(res.FetchRow())
-		history[Date(res["log_energy_date"])] = (double)res["log_energy"];
+		history[Date(res["log_energy_date"])] = Amount((double)res["log_energy"], (double)res["log_energy_peak"], (double)res["log_energy_offpeak"]);
 }
 
 HistoryDay::~HistoryDay()
 {
-	if(type=="" || type=="device")
+	if(type=="")
 		return;
 
 	save();
@@ -56,16 +56,16 @@ void HistoryDay::save()
 		store_entry(it->first, it->second);
 }
 
-void HistoryDay::store_entry(const datetime::Date period, double value)
+void HistoryDay::store_entry(const datetime::Date period, Amount value)
 {
-	if(type=="" || type=="device")
+	if(type=="")
 		return;
 
 	DB db;
 
 	db.Query(
-		"REPLACE INTO t_log_energy(log_energy_date, log_energy_type, log_energy) VALUES(%s, %s, %f)"_sql
-		<<std::string(period)<<type<<value
+		"REPLACE INTO t_log_energy(log_energy_date, device_id, log_energy_type, log_energy, log_energy_peak, log_energy_offpeak) VALUES(%s, %i, %s, %f, %f, %f)"_sql
+		<<std::string(period)<<device_id<<type<<value.GetEnergy()<<value.GetEnergyPeak()<<value.GetEnergyOffPeak()
 	);
 }
 

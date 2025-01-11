@@ -53,17 +53,22 @@ map<string,string> solarcontrol_tables = {
 {"t_log_energy",
 "CREATE TABLE `t_log_energy` ( \
   `log_energy_date` date NOT NULL, \
-  `log_energy_type` enum('grid','grid-excess','pv','hws','peak','offpeak','hws-forced','hws-offload') CHARACTER SET ascii COLLATE ascii_bin NOT NULL, \
+  `device_id` int(11) NOT NULL, \
+  `log_energy_type` enum('consumption','excess','production','offload') CHARACTER SET ascii COLLATE ascii_bin NOT NULL, \
   `log_energy` double NOT NULL, \
-  UNIQUE KEY `log_energy_date` (`log_energy_date`,`log_energy_type`) USING BTREE \
+  `log_energy_peak` double NOT NULL, \
+  `log_energy_offpeak` double NOT NULL, \
+  UNIQUE KEY `log_energy_date` (`log_energy_date`,`device_id`,`log_energy_type`) USING BTREE \
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci \
 "},
 {"t_log_energy_detail",
 "CREATE TABLE `t_log_energy_detail` ( \
   `log_energy_detail_date` datetime NOT NULL, \
-  `device_id` int(10) unsigned NOT NULL, \
-  `log_energy_detail_type` enum('grid','grid-excess','pv','hws','peak','offpeak','hws-forced','hws-offload','device') CHARACTER SET ascii COLLATE ascii_bin NOT NULL, \
-  `log_energy_detail` double NOT NULL, \
+  `device_id` int(10) NOT NULL, \
+  `log_energy_detail_type` enum('consumption','excess','production','offload') CHARACTER SET ascii COLLATE ascii_bin NOT NULL, \
+  `log_energy` double NOT NULL, \
+  `log_energy_peak` double NOT NULL, \
+  `log_energy_offpeak` double NOT NULL, \
   UNIQUE KEY `log_energy_date` (`log_energy_detail_date`,`device_id`,`log_energy_detail_type`) USING BTREE \
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci \
 "},

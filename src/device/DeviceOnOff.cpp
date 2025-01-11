@@ -21,6 +21,7 @@
 #include <configuration/Json.hpp>
 #include <nlohmann/json.hpp>
 #include <logs/State.hpp>
+#include <energy/GlobalMeter.hpp>
 
 using namespace std;
 using datetime::Timestamp;
@@ -29,7 +30,7 @@ using nlohmann::json;
 namespace device {
 
 DeviceOnOff::DeviceOnOff(unsigned int id, const std::string &name, const configuration::Json &config):
-Device(id, name, config), consumption(id, "device"), on_history(id)
+Device(id, name, config), consumption(id, "consumption"), offload(id, "offload"), on_history(id)
 {
 	prio = config.GetInt("prio");
 	expected_consumption = config.GetInt("expected_consumption", 0);
@@ -116,7 +117,11 @@ double DeviceOnOff::GetPower() const
 
 void DeviceOnOff::LogEnergy()
 {
-	consumption.AddEnergy(meter->GetConsumption(), meter->GetExcess());
+	double device_consumption = meter->GetConsumption();
+	double pv_ratio = energy::GlobalMeter::GetInstance()->GetPVPowerRatio();
+
+	consumption.AddEnergy(device_consumption);
+	offload.AddEnergy(device_consumption * pv_ratio);
 }
 
 }

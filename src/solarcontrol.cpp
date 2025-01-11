@@ -7,7 +7,6 @@
 #include <energy/GlobalMeter.hpp>
 #include <device/Devices.hpp>
 #include <device/DeviceHWS.hpp>
-#include <thread/DevicesManager.hpp>
 #include <utils/signal.hpp>
 #include <configuration/Args.hpp>
 #include <configuration/Configuration.hpp>
@@ -17,7 +16,9 @@
 #include <database/DB.hpp>
 #include <database/DBConfig.hpp>
 #include <websocket/SolarControl.hpp>
+#include <thread/DevicesManager.hpp>
 #include <thread/LCD.hpp>
+#include <thread/HistorySync.hpp>
 
 #include <nlohmann/json.hpp>
 
@@ -103,6 +104,9 @@ int main(int argc, char **argv)
 
 		configuration::ConfigurationReaderDB::Read(config);
 
+		// Create history sync thread before devices
+		::thread::HistorySync histo_sync;
+
 		auto config_sc = configuration::ConfigurationSolarControl::GetInstance();
 		mqtt::Client mqtt(config_sc->Get("mqtt.host"), config_sc->GetInt("mqtt.port"));
 
@@ -131,6 +135,10 @@ int main(int argc, char **argv)
 		lcd.WaitForShutdown();
 
 		devices.Unload(); // Unload all devices to ensure MQTT Unsubscription before destructor is called on MQTT client
+
+		// All devices removed, we can remove history sync thread
+		histo_sync.Shutdown();
+		histo_sync.WaitForShutdown();
 	}
 	catch(exception &e)
 	{

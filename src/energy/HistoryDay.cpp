@@ -20,6 +20,7 @@
 #include <energy/HistoryDay.hpp>
 #include <database/DB.hpp>
 #include <configuration/ConfigurationSolarControl.hpp>
+#include <thread/HistorySync.hpp>
 
 using namespace std;
 using datetime::Date;
@@ -40,10 +41,14 @@ HistoryDay::HistoryDay(int device_id, const std::string &type)
 	auto res = db.Query("SELECT log_energy_date, log_energy, log_energy_peak, log_energy_offpeak FROM t_log_energy WHERE device_id=%i AND log_energy_type=%s AND log_energy_date>=%s"_sql <<device_id<<type<<std::string(period_ago));
 	while(res.FetchRow())
 		history[Date(res["log_energy_date"])] = Amount((double)res["log_energy"], (double)res["log_energy_peak"], (double)res["log_energy_offpeak"]);
+
+	::thread::HistorySync::GetInstance()->Register(this);
 }
 
 HistoryDay::~HistoryDay()
 {
+	::thread::HistorySync::GetInstance()->Unregister(this);
+
 	if(type=="")
 		return;
 

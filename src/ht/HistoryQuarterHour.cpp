@@ -19,6 +19,7 @@
 
 #include <ht/HistoryQuarterHour.hpp>
 #include <database/DB.hpp>
+#include <thread/HistorySync.hpp>
 
 namespace ht {
 
@@ -48,9 +49,13 @@ HistoryQuarterHour::HistoryQuarterHour(unsigned int device_id)
 		stat::MinMax<double> t(res["log_ht_min_t"], res["log_ht_max_t"]);
 		history.insert(pair<QuarterHour, MinMax>(QuarterHour(res["log_ht_date"]),MinMax(h, t)));
 	}
+
+	::thread::HistorySync::GetInstance()->Register(this);
 }
 HistoryQuarterHour::~HistoryQuarterHour()
 {
+	::thread::HistorySync::GetInstance()->Unregister(this);
+
 	save();
 }
 

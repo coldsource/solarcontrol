@@ -36,7 +36,7 @@ map<string,string> solarcontrol_tables = {
 "},
 {"t_device",
 "CREATE TABLE `t_device` ( \
-  `device_id` int(10) unsigned NOT NULL AUTO_INCREMENT, \
+  `device_id` int(10) NOT NULL AUTO_INCREMENT, \
   `device_type` enum('ht','heater','hws','htmini','timerange','cmv','passive') CHARACTER SET ascii COLLATE ascii_bin NOT NULL, \
   `device_name` varchar(64) NOT NULL, \
   `device_config` mediumtext NOT NULL, \
@@ -45,7 +45,7 @@ map<string,string> solarcontrol_tables = {
 "},
 {"t_device_state",
 "CREATE TABLE `t_device_state` ( \
-  `device_id` int(10) unsigned NOT NULL, \
+  `device_id` int(10) NOT NULL, \
   `device_state` mediumtext NOT NULL, \
   PRIMARY KEY (`device_id`) \
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci \

@@ -49,7 +49,7 @@ Configuration::Configuration(const map<string,string> &entries)
 
 Configuration::~Configuration(void)
 {
-	for(int i=0;i<configs.size();i++)
+	for(size_t i=0;i<configs.size();i++)
 		delete configs[i];
 
 	instance = 0;
@@ -71,7 +71,7 @@ bool Configuration::RegisterConfig(Configuration *config)
 
 void Configuration::Merge()
 {
-	for(int i=0;i<configs.size();i++)
+	for(size_t i=0;i<configs.size();i++)
 	{
 		for(auto it = configs[i]->entries.begin(); it!=configs[i]->entries.end(); ++it)
 		{
@@ -85,7 +85,7 @@ void Configuration::Merge()
 
 void Configuration::Split()
 {
-	for(int i=0;i<configs.size();i++)
+	for(size_t i=0;i<configs.size();i++)
 	{
 		for(auto it = configs[i]->entries.begin(); it!=configs[i]->entries.end(); ++it)
 			configs[i]->entries[it->first] = Get(it->first);
@@ -119,7 +119,7 @@ void Configuration::Substitute(void)
 
 void Configuration::CheckAll()
 {
-	for(int i=0;i<configs.size();i++)
+	for(size_t i=0;i<configs.size();i++)
 		configs[i]->Check();
 }
 

@@ -201,7 +201,7 @@ int ConfigurationReader::ReadCommandLine(int argc, char **argv, const vector<str
 {
 	// Compute type of each argument
 	map<string, string> key_type_filter;
-	for(int i=0;i<filter.size();i++)
+	for(size_t i=0;i<filter.size();i++)
 	{
 		string f = filter.at(i);
 		string type;

@@ -36,7 +36,7 @@ class TimespanHistory
 		time_t to = 0;
 	};
 
-	int retention_days;
+	unsigned int retention_days;
 	std::vector<st_timespan> history;
 
 	void purge();
@@ -49,7 +49,7 @@ class TimespanHistory
 		void ClockOut();
 		void ClockOut(const Timestamp &ts);
 
-		unsigned long GetTotalForLast(int nseconds) const;
+		unsigned long GetTotalForLast(unsigned int nseconds) const;
 };
 
 }

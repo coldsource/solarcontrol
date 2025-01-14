@@ -35,7 +35,7 @@ class DevicePassive: public Device, public Handler
 {
 	std::string ip;
 
-	void check_config(const configuration::Json &j_config, const std::string &device_type);
+	void check_config(const configuration::Json &j_config);
 	void check_config_control(const configuration::Json &j_config);
 
 	public:

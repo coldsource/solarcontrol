@@ -69,7 +69,7 @@ class SolarControl: public Server
 		void *lws_callback_established(struct lws *wsi, unsigned int protocol);
 		void lws_callback_closed(struct lws *wsi, unsigned int protocol, void *user_data);
 		void lws_callback_receive(struct lws *wsi, unsigned int protocol, const std::string &message, void *user_data);
-		std::string lws_callback_server_writeable(struct lws *wsi, unsigned int protocol, void *user_data);
+		std::string lws_callback_server_writeable(struct lws * /* wsi */, unsigned int protocol, void *user_data);
 };
 
 }

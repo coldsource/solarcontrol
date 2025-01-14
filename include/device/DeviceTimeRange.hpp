@@ -35,17 +35,17 @@ namespace device {
 class DeviceTimeRange: public DeviceOnOff
 {
 	protected:
-		int min_on = 0;
-		int max_on = 0;
-		int min_off = 0;
+		unsigned long min_on = 0;
+		unsigned long max_on = 0;
+		unsigned long min_off = 0;
 
 		datetime::TimeRanges force;
 
 		datetime::TimeRanges offload;
 
 		datetime::TimeRanges remainder;
-		int min_on_time;
-		int min_on_for_last;
+		unsigned long min_on_time;
+		unsigned long min_on_for_last;
 
 	public:
 		DeviceTimeRange(unsigned int id, const std::string &name, const configuration::Json &config);

@@ -61,7 +61,7 @@ Query & Query::operator<<(double f)
 	return *this;
 }
 
-Query::st_query_param Query::GetParam(int n) const
+Query::st_query_param Query::GetParam(size_t n) const
 {
 	if(n>=params.size())
 		throw out_of_range("Out of range query parameter");

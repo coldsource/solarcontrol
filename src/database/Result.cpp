@@ -37,7 +37,7 @@ Result::Result(MYSQL_RES *res)
 	}
 
 	cols = mysql_num_fields(res);
-	for(int i=0; i<cols; i++)
+	for(unsigned int i=0; i<cols; i++)
 		col_name_idx.insert(std::pair<string, int>(string(mysql_fetch_field(res)->name), i));
 }
 

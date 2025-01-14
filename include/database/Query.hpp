@@ -55,7 +55,7 @@ class Query
 		void Dump();
 
 		std::string GetQuery() const { return query; }
-		st_query_param GetParam(int n) const;
+		st_query_param GetParam(size_t n) const;
 };
 
 }

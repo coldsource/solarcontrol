@@ -93,7 +93,7 @@ void Client::WaitForShutdown()
 	clean_shutdown = true;
 }
 
-void Client::message_callback(struct mosquitto *mosq, void *obj, const struct mosquitto_message *message)
+void Client::message_callback(struct mosquitto * /* mosq */, void *obj, const struct mosquitto_message *message)
 {
 	Client *mqtt = (Client *)obj;
 	string topic(message->topic);

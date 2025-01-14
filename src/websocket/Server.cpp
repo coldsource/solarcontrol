@@ -35,7 +35,7 @@ void Server::Start()
 	memset(&info, 0, sizeof(info));
 
 	// Create protocols
-	protocols.push_back({"http-only", Server::callback_http, 0, 0}); // Dummy http protocol
+	protocols.push_back({"http-only", Server::callback_http, 0, 0, 0, 0, 0}); // Dummy http protocol
 
 	// Custom defined protocols
 	user_def_protocols = get_protocols();
@@ -46,14 +46,16 @@ void Server::Start()
 			Server::callback_evq,
 			sizeof(Server::per_session_data),
 			32768,
-			protocol->second
+			protocol->second,
+			0,
+			0
 		});
 	}
 
-	protocols.push_back({0,0,0,0,0}); // End of protocols
+	protocols.push_back({0,0,0,0,0,0,0}); // End of protocols
 
 
-	lws_set_log_level(LLL_ERR | LLL_WARN | LLL_NOTICE, [](int level, const char *msg) {
+	lws_set_log_level(LLL_ERR | LLL_WARN | LLL_NOTICE, [](int /* level */, const char * /* msg */) {
 	});
 
 	info.keepalive_timeout = 60;
@@ -99,7 +101,7 @@ int Server::callback_http(struct lws *wsi, enum lws_callback_reasons reason, voi
 
 		case LWS_CALLBACK_HTTP_WRITEABLE:
 			text.insert(0,LWS_PRE,' ');
-			if (lws_write(wsi, (uint8_t *)text.c_str() + LWS_PRE, (unsigned int)text.length() - LWS_PRE, LWS_WRITE_HTTP_FINAL) != text.length() - LWS_PRE)
+			if ((size_t)lws_write(wsi, (uint8_t *)text.c_str() + LWS_PRE, (unsigned int)text.length() - LWS_PRE, LWS_WRITE_HTTP_FINAL) != text.length() - LWS_PRE)
 				return 1;
 
 			if (lws_http_transaction_completed(wsi))
@@ -145,9 +147,6 @@ int Server::callback_evq(struct lws *wsi, enum lws_callback_reasons reason, void
 
 				// Clean context data
 				delete context->cmd_buffer;
-
-				// Notify that connection is over
-				int s = lws_get_socket_fd(wsi);
 				break;
 			}
 

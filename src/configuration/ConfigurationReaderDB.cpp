@@ -32,7 +32,7 @@ void ConfigurationReaderDB::Read(Configuration *config)
 	auto res = db.Query("SELECT config_name, config_value FROM t_config"_sql);
 	while(res.FetchRow())
 	{
-		for(int i=0; i<configs.size(); i++)
+		for(size_t i=0; i<configs.size(); i++)
 		{
 			if(configs[i]->Exists(res["config_name"]))
 				configs[i]->Set(res["config_name"], res["config_value"]);

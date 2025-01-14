@@ -66,15 +66,15 @@ class Server
 		void cancel_service() { lws_cancel_service(context); }
 
 		virtual std::map<std::string, unsigned int> get_protocols() { return std::map<std::string, unsigned int>(); }
-		virtual void context_creation(struct lws_context_creation_info *info) {}
+		virtual void context_creation(struct lws_context_creation_info * /* info */) {}
 
 		void start_thread(void) {}
 		void stop_thread(void) {}
 
-		virtual void *lws_callback_established(struct lws *wsi, unsigned int protocol) { return 0; }
-		virtual void lws_callback_closed(struct lws *wsi, unsigned int protocol, void *user_data) {}
-		virtual void lws_callback_receive(struct lws *wsi, unsigned int protocol, const std::string &message, void *user_data) {}
-		virtual std::string lws_callback_server_writeable(struct lws *wsi, unsigned int protocol, void *user_data) { return ""; }
+		virtual void *lws_callback_established(struct lws * /* wsi */, unsigned int /* protocol */) { return 0; }
+		virtual void lws_callback_closed(struct lws * /* wsi */, unsigned int /* protocol */, void * /*user_data*/) {}
+		virtual void lws_callback_receive(struct lws * /* wsi */, unsigned int /* protocol */, const std::string & /* message */, void * /* user_data */) {}
+		virtual std::string lws_callback_server_writeable(struct lws * /* wsi */, unsigned int /* protocol */, void * /* user_data */) { return ""; }
 };
 
 }

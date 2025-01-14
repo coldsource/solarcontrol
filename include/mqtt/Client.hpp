@@ -41,7 +41,7 @@ class Client
 
 	std::map<std::string, std::set<Subscriber *>> subscribers;
 
-	static void message_callback(struct mosquitto *mosq, void *obj, const struct mosquitto_message *message);
+	static void message_callback(struct mosquitto * /* mosq */, void *obj, const struct mosquitto_message *message);
 	static void loop(Client *mqtt);
 
 	static Client *instance;

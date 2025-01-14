@@ -51,8 +51,8 @@ class DevicesManager: public WaiterThread
 
 		int hysteresis_export = 0;
 		int hysteresis_import = 0;
-		unsigned long long state_update_interval;
-		int cooldown;
+		unsigned long state_update_interval;
+		unsigned long cooldown;
 
 		bool hysteresis(double available_power, const device::DeviceOnOff *device) const;
 		bool force(const std::map<device::DeviceOnOff *, bool> &devices);

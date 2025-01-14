@@ -109,7 +109,7 @@ void SolarControl::lws_callback_receive(struct lws *wsi, unsigned int protocol, 
 	}
 }
 
-std::string SolarControl::lws_callback_server_writeable(struct lws *wsi, unsigned int protocol, void *user_data)
+std::string SolarControl::lws_callback_server_writeable(struct lws * /* wsi */, unsigned int protocol, void *user_data)
 {
 	if(protocol==API)
 	{

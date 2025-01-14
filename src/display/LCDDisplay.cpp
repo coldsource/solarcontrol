@@ -84,7 +84,7 @@ using namespace std;
 namespace display
 {
 
-LCDDisplay::LCDDisplay(const std::string &device_path, int i2c_address, int line_size)
+LCDDisplay::LCDDisplay(const std::string &device_path, int i2c_address, size_t line_size)
 {
 	this->line_size = line_size;
 	backlight = LCD_BACKLIGHT;
@@ -139,7 +139,7 @@ void LCDDisplay::WriteLine(int line, const std::string &str)
 	unsigned char line_id[] = {0x80, 0xC0, 0x94, 0xD4};
 	lcd_write(line_id[line-1]);
 
-	int i;
+	size_t i;
 	for(i=0; i<str.size(); i++)
 		lcd_write(str[i], Rs);
 	for(; i<line_size; i++)

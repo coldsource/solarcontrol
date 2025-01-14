@@ -29,7 +29,7 @@ using nlohmann::json;
 namespace api
 {
 
-void DevicePassive::check_config(const configuration::Json &j_config, const string &device_type)
+void DevicePassive::check_config(const configuration::Json &j_config)
 {
 	j_config.Check("control", "object");
 
@@ -64,7 +64,7 @@ json DevicePassive::HandleMessage(const string &cmd, const configuration::Json &
 
 		string device_type = devices.GetByID(device_id)->GetType();
 
-		check_config(device_config, device_type);
+		check_config(device_config);
 
 		update_device(device_id, device_name, device_config);
 
@@ -81,7 +81,7 @@ json DevicePassive::HandleMessage(const string &cmd, const configuration::Json &
 			throw invalid_argument("Invalid device type : « " + device_type + " »");
 
 		auto j_config = j_params.GetObject("device_config");
-		check_config(j_config, device_type);
+		check_config(j_config);
 
 		insert_device(device_type, device_name, j_config);
 

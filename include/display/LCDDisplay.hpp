@@ -27,11 +27,11 @@ namespace display {
 class LCDDisplay
 {
 	int fd = -1;
-	int line_size;
+	size_t line_size;
 	int backlight;
 
 	public:
-		LCDDisplay(const std::string &device_path, int i2c_address, int line_size);
+		LCDDisplay(const std::string &device_path, int i2c_address, size_t line_size);
 		~LCDDisplay();
 
 		void Clear();

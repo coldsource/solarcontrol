@@ -25,6 +25,8 @@
 #include <websocket/SolarControl.hpp>
 #include <nlohmann/json.hpp>
 
+#include <stdexcept>
+
 using namespace std;
 using nlohmann::json;
 
@@ -64,6 +66,8 @@ void DevicesPassiveImpl::reload(bool notify)
 		DevicePassive *device;
 		if((string)res["device_type"]=="passive")
 			device = new DevicePassive(res["device_id"], res["device_name"], config);
+		else
+			throw invalid_argument("Invalid device type « " + string(res["device_type"]) + " »");
 
 		insert(device);
 		id_device.insert(pair<unsigned int, DevicePassive *>(res["device_id"], device));

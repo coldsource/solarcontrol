@@ -78,6 +78,8 @@ void DevicesOnOffImpl::reload(bool notify)
 			device = new DeviceHWS(res["device_id"], res["device_name"], config);
 			hws_id = device->GetID();
 		}
+		else
+			throw invalid_argument("Invalid device type « " + string(res["device_type"]) + " »");
 
 		insert(device);
 		id_device.insert(pair<unsigned int, DeviceOnOff *>(res["device_id"], device));

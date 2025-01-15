@@ -151,7 +151,8 @@ void LCDDisplay::i2c_send_byte(unsigned char data)
 	if(fd==-1)
 		throw runtime_error("LCD device not connected");
 
-	write(fd, &data, 1);
+	if(write(fd, &data, 1)!=1)
+		throw runtime_error("Unable to send data to LCD device");
 }
 
 void LCDDisplay::lcd_strobe(unsigned char data)

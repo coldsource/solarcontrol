@@ -26,6 +26,8 @@
 #include <websocket/SolarControl.hpp>
 #include <nlohmann/json.hpp>
 
+#include <stdexcept>
+
 using namespace std;
 using nlohmann::json;
 
@@ -67,6 +69,8 @@ void DevicesHTImpl::reload(bool notify)
 			device = new DeviceHTWifi(res["device_id"], res["device_name"], config);
 		else if((string)res["device_type"]=="htmini")
 			device = new DeviceHTBluetooth(res["device_id"], res["device_name"], config);
+		else
+			throw invalid_argument("Invalid device type « " + string(res["device_type"]) + " »");
 
 		insert(device);
 		id_device.insert(pair<unsigned int, DeviceHT *>(res["device_id"], device));

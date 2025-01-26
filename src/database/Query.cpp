@@ -20,6 +20,7 @@
 #include <database/Query.hpp>
 
 #include <stdexcept>
+#include <cmath>
 
 using namespace std;
 
@@ -54,8 +55,17 @@ Query & Query::operator<<(int n)
 Query & Query::operator<<(double f)
 {
 	st_query_param param;
-	param.type = FLOAT;
-	param.val_float = f;
+
+	if(isnan(f))
+	{
+		param.type = NULLVAL;
+	}
+	else
+	{
+		param.type = FLOAT;
+		param.val_float = f;
+	}
+
 	params.push_back(param);
 
 	return *this;

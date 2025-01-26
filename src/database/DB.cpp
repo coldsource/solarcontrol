@@ -104,6 +104,9 @@ string DB::get_query_value(char type, int idx, const database::Query &q)
 {
 	auto param = q.GetParam(idx);
 
+	if(param.type==Query::NULLVAL)
+		return "NULL";
+
 	switch(type)
 	{
 		case 's':

@@ -31,7 +31,7 @@ class Query
 		std::string query;
 
 	public:
-		enum en_query_param_type {STRING, INT, FLOAT};
+		enum en_query_param_type {NULLVAL, STRING, INT, FLOAT};
 		struct st_query_param
 		{
 			en_query_param_type type;

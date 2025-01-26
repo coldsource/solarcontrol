@@ -36,9 +36,13 @@ namespace database {
 class ResultField
 {
 	std::string value;
+	bool isnull;
 
 	public:
-		ResultField(const std::string &value) { this->value = value; }
+		ResultField(): isnull(true) { }
+		ResultField(const std::string &value): value(value), isnull(false) { }
+
+		bool IsNull() const { return isnull; }
 
 		operator std::string() const { return value; }
 		operator int() const { return std::stoi(value); }
@@ -62,6 +66,7 @@ class Result
 		~Result();
 
 		bool FetchRow(void);
+		bool IsNull(unsigned int n) const;
 		std::string GetField(unsigned int n) const;
 
 		const ResultField operator[](unsigned int n);

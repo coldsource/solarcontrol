@@ -60,6 +60,17 @@ bool Result::FetchRow(void)
 	return false;
 }
 
+bool Result::IsNull(unsigned int n) const
+{
+	if(res==0 || row==0)
+		throw out_of_range("Result is empty");
+
+	if(n>=cols)
+		throw out_of_range("Field number " + to_string(n) + " is out of range (only have + " + to_string(cols) + " columns)");
+
+	return (row[n]==0);
+}
+
 string Result::GetField(unsigned int n) const
 {
 	if(res==0 || row==0)
@@ -73,6 +84,9 @@ string Result::GetField(unsigned int n) const
 
 const ResultField Result::operator[](unsigned int n)
 {
+	if(IsNull(n))
+		return ResultField();
+
 	return ResultField(GetField(n));
 }
 const ResultField Result::operator[](const std::string &name)
@@ -80,6 +94,9 @@ const ResultField Result::operator[](const std::string &name)
 	auto col = col_name_idx.find(name);
 	if(col==col_name_idx.end())
 		throw out_of_range("Unknown column « " + name + " »");
+
+	if(IsNull(col->second))
+		return ResultField();
 
 	return ResultField(GetField(col->second));
 }

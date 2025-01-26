@@ -37,7 +37,7 @@ map<string,string> solarcontrol_tables = {
 {"t_device",
 "CREATE TABLE `t_device` ( \
   `device_id` int(10) NOT NULL AUTO_INCREMENT, \
-  `device_type` enum('ht','heater','hws','htmini','timerange','cmv','passive') CHARACTER SET ascii COLLATE ascii_bin NOT NULL, \
+  `device_type` enum('ht','heater','hws','htmini','timerange','cmv','passive','wind') CHARACTER SET ascii COLLATE ascii_bin NOT NULL, \
   `device_name` varchar(64) NOT NULL, \
   `device_config` mediumtext NOT NULL, \
   PRIMARY KEY (`device_id`) \
@@ -72,14 +72,16 @@ map<string,string> solarcontrol_tables = {
   UNIQUE KEY `log_energy_date` (`log_energy_detail_date`,`device_id`,`log_energy_detail_type`) USING BTREE \
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci \
 "},
-{"t_log_ht",
-"CREATE TABLE `t_log_ht` ( \
+{"t_log_htw",
+"CREATE TABLE `t_log_htw` ( \
   `log_ht_date` datetime NOT NULL, \
   `device_id` int(10) unsigned NOT NULL, \
-  `log_ht_min_h` double NOT NULL, \
-  `log_ht_max_h` double NOT NULL, \
-  `log_ht_min_t` double NOT NULL, \
-  `log_ht_max_t` double NOT NULL, \
+  `log_ht_min_h` double DEFAULT NULL, \
+  `log_ht_max_h` double DEFAULT NULL, \
+  `log_ht_min_t` double DEFAULT NULL, \
+  `log_ht_max_t` double DEFAULT NULL, \
+  `log_ht_min_w` double DEFAULT NULL, \
+  `log_ht_max_w` double DEFAULT NULL, \
   UNIQUE KEY `log_ht_date` (`log_ht_date`,`device_id`) USING BTREE \
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci \
 "},

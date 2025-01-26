@@ -208,12 +208,12 @@ json Logs::HandleMessage(const string &cmd, const configuration::Json &j_params)
 			Date to = from + 1;
 
 			query = " \
-				SELECT ht.log_ht_date, ht.log_ht_min_h, ht.log_ht_max_h, ht.log_ht_min_t, ht.log_ht_max_t \
-				FROM t_log_ht ht \
-				WHERE ht.device_id=%i \
-				AND ht.log_ht_date >= %s \
-				AND ht.log_ht_date < %s \
-				ORDER BY ht.log_ht_date \
+				SELECT htw.log_ht_date, htw.log_ht_min_h, htw.log_ht_max_h, htw.log_ht_min_t, htw.log_ht_max_t, htw.log_ht_min_w, htw.log_ht_max_w \
+				FROM t_log_htw htw \
+				WHERE htw.device_id=%i \
+				AND htw.log_ht_date >= %s \
+				AND htw.log_ht_date < %s \
+				ORDER BY htw.log_ht_date \
 			"_sql << device_id << string(from) << string(to);
 		}
 		else if(months_before!=-2)
@@ -234,23 +234,23 @@ json Logs::HandleMessage(const string &cmd, const configuration::Json &j_params)
 			}
 
 			query = " \
-				SELECT DATE(ht.log_ht_date) AS log_ht_date, MIN(ht.log_ht_min_h) AS log_ht_min_h, MAX(ht.log_ht_max_h) AS log_ht_max_h, MIN(ht.log_ht_min_t) AS log_ht_min_t, MAX(ht.log_ht_max_t) AS log_ht_max_t \
-				FROM t_log_ht ht \
-				WHERE ht.device_id=%i \
-				AND ht.log_ht_date >= %s \
-				AND ht.log_ht_date < %s \
-				GROUP BY DATE(ht.log_ht_date) \
+				SELECT DATE(htw.log_ht_date) AS log_ht_date, MIN(htw.log_ht_min_h) AS log_ht_min_h, MAX(htw.log_ht_max_h) AS log_ht_max_h, MIN(htw.log_ht_min_t) AS log_ht_min_t, MAX(htw.log_ht_max_t) AS log_ht_max_t, MIN(htw.log_ht_min_w) AS log_ht_min_w, MAX(htw.log_ht_max_w) AS log_ht_max_w \
+				FROM t_log_htw htw \
+				WHERE htw.device_id=%i \
+				AND htw.log_ht_date >= %s \
+				AND htw.log_ht_date < %s \
+				GROUP BY DATE(htw.log_ht_date) \
 				ORDER BY log_ht_date \
 			"_sql << device_id << string(from) << string(to);
 		}
 		else
 		{
 			query = " \
-				SELECT ht.log_ht_date, ht.log_ht_min_h, ht.log_ht_max_h, ht.log_ht_min_t, ht.log_ht_max_t \
-				FROM t_log_ht ht \
-				WHERE ht.device_id=%i \
-				AND ht.log_ht_date >= DATE_SUB( NOW() , INTERVAL 1 DAY ) \
-				ORDER BY ht.log_ht_date \
+				SELECT htw.log_ht_date, htw.log_ht_min_h, htw.log_ht_max_h, htw.log_ht_min_t, htw.log_ht_max_t, htw.log_ht_min_w, htw.log_ht_max_w \
+				FROM t_log_htw htw \
+				WHERE htw.device_id=%i \
+				AND htw.log_ht_date >= DATE_SUB( NOW() , INTERVAL 1 DAY ) \
+				ORDER BY htw.log_ht_date \
 			"_sql << device_id;
 		}
 
@@ -260,19 +260,22 @@ json Logs::HandleMessage(const string &cmd, const configuration::Json &j_params)
 		while(res.FetchRow())
 		{
 			string date = res["log_ht_date"];
-			double hmin = res["log_ht_min_h"];
-			double hmax = res["log_ht_max_h"];
-			double tmin = res["log_ht_min_t"];
-			double tmax = res["log_ht_max_t"];
-
 			if(!j_res.contains(date))
 				j_res[date] = json::object();
 
 			json &j_entry = j_res[date];
-			j_entry["hmin"] = hmin;
-			j_entry["hmax"] = hmax;
-			j_entry["tmin"] = tmin;
-			j_entry["tmax"] = tmax;
+			if(!res["log_ht_min_h"].IsNull())
+				j_entry["hmin"] = (double)res["log_ht_min_h"];
+			if(!res["log_ht_max_h"].IsNull())
+				j_entry["hmax"] = (double)res["log_ht_max_h"];
+			if(!res["log_ht_min_t"].IsNull())
+				j_entry["tmin"] = (double)res["log_ht_min_t"];
+			if(!res["log_ht_max_t"].IsNull())
+				j_entry["tmax"] = (double)res["log_ht_max_t"];
+			if(!res["log_ht_min_w"].IsNull())
+				j_entry["wmin"] = (double)res["log_ht_min_w"];
+			if(!res["log_ht_max_w"].IsNull())
+				j_entry["wmax"] = (double)res["log_ht_max_w"];
 		}
 
 		return j_res;

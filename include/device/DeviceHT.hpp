@@ -39,6 +39,7 @@ class DeviceHT: public Device
 
 		double GetTemperature() const;
 		double GetHumidity() const;
+		double GetWind() const;
 
 		void LogHT();
 };

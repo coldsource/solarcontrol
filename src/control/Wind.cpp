@@ -17,56 +17,50 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#include <control/HT.hpp>
-#include <configuration/Json.hpp>
+#include <control/Wind.hpp>
+#include <mqtt/Client.hpp>
+#include <websocket/SolarControl.hpp>
+#include <nlohmann/json.hpp>
 
 using namespace std;
+using nlohmann::json;
 
 namespace control
 {
 
-HT::HT()
+Wind::Wind(const string &mqtt_id)
 {
+	auto mqtt = mqtt::Client::GetInstance();
+	topic = mqtt_id + "/events/rpc";
+	mqtt->Subscribe(topic, this);
 }
 
-HT::~HT()
+Wind::~Wind()
 {
+	auto mqtt = mqtt::Client::GetInstance();
+	if(mqtt)
+		mqtt->Unsubscribe(topic, this);
 }
 
-double HT::GetTemperature() const
+void Wind::HandleMessage(const string &message)
 {
-	unique_lock<mutex> llock(lock);
+	{
+		unique_lock<mutex> llock(lock);
 
-	return temperature;
-}
+		try
+		{
+			json j = json::parse(message);
+			wind = j["params"]["input:2"]["xfreq"];
+		}
+		catch(json::exception &e)
+		{
+			return;
+		}
+	}
 
-double HT::GetHumidity() const
-{
-	unique_lock<mutex> llock(lock);
-
-	return humidity;
-}
-
-double HT::GetWind() const
-{
-	unique_lock<mutex> llock(lock);
-
-	return wind;
-}
-
-void HT::SetHT(double h, double t)
-{
-	unique_lock<mutex> llock(lock);
-
-	humidity = h;
-	temperature = t;
-}
-
-void HT::SetW(double w)
-{
-	unique_lock<mutex> llock(lock);
-
-	wind = w;
+	if(websocket::SolarControl::GetInstance())
+		websocket::SolarControl::GetInstance()->NotifyAll(websocket::SolarControl::en_protocols::DEVICE);
 }
 
 }
+

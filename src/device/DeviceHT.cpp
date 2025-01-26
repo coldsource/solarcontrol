@@ -60,17 +60,28 @@ double DeviceHT::GetHumidity() const
 	return ctrl->GetHumidity();
 }
 
+double DeviceHT::GetWind() const
+{
+	return ctrl->GetWind();
+}
+
 void DeviceHT::LogHT()
 {
 	double h = GetHumidity();
 	double t = GetTemperature();
+	double w = GetWind();
 
-	if( std::isnan(h) ||  std::isnan(t))
-		return;
+	if(!std::isnan(h) && !std::isnan(t))
+	{
+		ht::MinMax ht(h, t);
+		history.Add(ht);
+	}
 
-	ht::MinMax ht(GetHumidity(), GetTemperature());
-
-	history.Add(ht);
+	if(!std::isnan(w))
+	{
+		ht::MinMax ht(w);
+		history.Add(ht);
+	}
 }
 
 }

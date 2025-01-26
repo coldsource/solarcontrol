@@ -23,13 +23,14 @@ namespace ht {
 
 MinMax MinMax::operator+(const MinMax &r) const
 {
-	return MinMax(h + r.h, t + r.t);
+	return MinMax(h + r.h, t + r.t, w + r.w);
 }
 
 MinMax &MinMax::operator+=(const MinMax &r)
 {
 	h += r.h;
 	t += r.t;
+	w += r.w;
 	return *this;
 }
 

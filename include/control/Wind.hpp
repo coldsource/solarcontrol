@@ -17,9 +17,10 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __CONTROL_HT_HPP__
-#define __CONTROL_HT_HPP__
+#ifndef __CONTROL_WIND_HPP__
+#define __CONTROL_WIND_HPP__
 
+#include <control/HT.hpp>
 #include <mqtt/Subscriber.hpp>
 
 #include <string>
@@ -27,29 +28,20 @@
 
 namespace control {
 
-class HT
+class Wind: public HT, public mqtt::Subscriber
 {
-	protected:
-		double temperature = std::numeric_limits<double>::quiet_NaN();
-		double humidity = std::numeric_limits<double>::quiet_NaN();
-		double wind = std::numeric_limits<double>::quiet_NaN();
-
-		mutable std::mutex lock;
+	std::string topic;
 
 	public:
-		HT();
-		virtual ~HT();
+		Wind(const std::string &mqtt_id);
+		virtual ~Wind();
 
-		double GetTemperature() const;
-		double GetHumidity() const;
-		double GetWind() const;
-
-		void SetHT(double h, double t);
-		void SetW(double w);
+		void HandleMessage(const std::string &message);
 };
 
 }
 
 #endif
+
 
 

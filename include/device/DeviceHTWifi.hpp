@@ -21,7 +21,6 @@
 #define __DEVICE_DEVICEHTWIFI_HPP__
 
 #include <device/DeviceHT.hpp>
-#include <control/HTWifi.hpp>
 
 #include <string>
 

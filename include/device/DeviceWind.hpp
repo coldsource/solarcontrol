@@ -17,39 +17,31 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __CONTROL_HT_HPP__
-#define __CONTROL_HT_HPP__
+#ifndef __DEVICE_DEVICEWIND_HPP__
+#define __DEVICE_DEVICEWIND_HPP__
 
-#include <mqtt/Subscriber.hpp>
+#include <device/DeviceHT.hpp>
 
 #include <string>
-#include <mutex>
 
-namespace control {
+namespace configuration {
+	class Json;
+}
 
-class HT
+namespace device {
+
+class DeviceWind: public DeviceHT
 {
-	protected:
-		double temperature = std::numeric_limits<double>::quiet_NaN();
-		double humidity = std::numeric_limits<double>::quiet_NaN();
-		double wind = std::numeric_limits<double>::quiet_NaN();
-
-		mutable std::mutex lock;
-
 	public:
-		HT();
-		virtual ~HT();
+		DeviceWind(unsigned int id, const std::string &name, const configuration::Json &config);
+		virtual ~DeviceWind();
 
-		double GetTemperature() const;
-		double GetHumidity() const;
-		double GetWind() const;
-
-		void SetHT(double h, double t);
-		void SetW(double w);
+		std::string GetType() const { return "wind"; }
 };
 
 }
 
 #endif
+
 
 

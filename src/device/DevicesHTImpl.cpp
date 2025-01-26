@@ -20,6 +20,7 @@
 #include <device/DevicesHTImpl.hpp>
 #include <device/DeviceHTWifi.hpp>
 #include <device/DeviceHTBluetooth.hpp>
+#include <device/DeviceWind.hpp>
 #include <configuration/Json.hpp>
 #include <database/DB.hpp>
 #include <logs/Logger.hpp>
@@ -59,7 +60,7 @@ void DevicesHTImpl::reload(bool notify)
 
 	database::DB db;
 
-	auto res = db.Query("SELECT device_id, device_name, device_type, device_config FROM t_device WHERE device_type IN('ht', 'htmini')"_sql);
+	auto res = db.Query("SELECT device_id, device_name, device_type, device_config FROM t_device WHERE device_type IN('ht', 'htmini', 'wind')"_sql);
 	while(res.FetchRow())
 	{
 		configuration::Json config((string)res["device_config"]);
@@ -69,6 +70,8 @@ void DevicesHTImpl::reload(bool notify)
 			device = new DeviceHTWifi(res["device_id"], res["device_name"], config);
 		else if((string)res["device_type"]=="htmini")
 			device = new DeviceHTBluetooth(res["device_id"], res["device_name"], config);
+		else if((string)res["device_type"]=="wind")
+			device = new DeviceWind(res["device_id"], res["device_name"], config);
 		else
 			throw invalid_argument("Invalid device type « " + string(res["device_type"]) + " »");
 

@@ -22,19 +22,24 @@
 
 #include <stat/MinMax.hpp>
 
+#include <limits>
+
 namespace ht {
 
 class MinMax
 {
 	stat::MinMax<double> h;
 	stat::MinMax<double> t;
+	stat::MinMax<double> w;
 
 	public:
-		MinMax(double h, double t): h(h), t(t) {}
-		MinMax(stat::MinMax<double> h, stat::MinMax<double> t): h(h), t(t) {}
+		MinMax(double h, double t): h(h), t(t), w(std::numeric_limits<double>::quiet_NaN()) {}
+		MinMax(double w): h(std::numeric_limits<double>::quiet_NaN()), t(std::numeric_limits<double>::quiet_NaN()), w(w) {}
+		MinMax(stat::MinMax<double> h, stat::MinMax<double> t, stat::MinMax<double> w): h(h), t(t), w(w) {}
 
 		stat::MinMax<double> GetHumidity() const { return h; }
 		stat::MinMax<double> GetTemperature() const { return t; }
+		stat::MinMax<double> GetWind() const { return w; }
 
 		MinMax operator+(const MinMax &r) const;
 		MinMax &operator+=(const MinMax &r);

@@ -36,6 +36,9 @@ void DeviceHT::check_config(const configuration::Json &j_config, const string &d
 
 	if(device_type=="htmini")
 		j_config.Check("ble_addr", "string");
+
+	if(device_type=="wind")
+		j_config.Check("mqtt_id", "string");
 }
 
 json DeviceHT::HandleMessage(const string &cmd, const configuration::Json &j_params)
@@ -65,7 +68,7 @@ json DeviceHT::HandleMessage(const string &cmd, const configuration::Json &j_par
 		string device_name = j_params.GetString("device_name");
 		string device_type = j_params.GetString("device_type");
 
-		if(device_type!="ht" && device_type!="htmini")
+		if(device_type!="ht" && device_type!="htmini" && device_type!="wind")
 			throw invalid_argument("Invalid device type : « " + device_type + " »");
 
 		auto j_config = j_params.GetObject("device_config");

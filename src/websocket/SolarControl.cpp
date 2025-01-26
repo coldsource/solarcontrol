@@ -184,6 +184,7 @@ std::string SolarControl::lws_callback_server_writeable(struct lws * /* wsi */, 
 			j_device["device_config"] = (json)device->GetConfig();
 			j_device["temperature"] = device->GetTemperature();
 			j_device["humidity"] = device->GetHumidity();
+			j_device["wind"] = device->GetWind();
 
 			j_devices.push_back(j_device);
 		}

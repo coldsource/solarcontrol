@@ -19,6 +19,7 @@
 
 
 #include <device/DeviceHTWifi.hpp>
+#include <control/HTWifi.hpp>
 #include <configuration/Json.hpp>
 
 using namespace std;

@@ -19,6 +19,7 @@
 
 
 #include <device/DeviceHTBluetooth.hpp>
+#include <control/HTBluetooth.hpp>
 #include <configuration/Json.hpp>
 
 using namespace std;

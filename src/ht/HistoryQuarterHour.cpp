@@ -21,6 +21,8 @@
 #include <database/DB.hpp>
 #include <thread/HistorySync.hpp>
 
+#include <limits.h>
+
 namespace ht {
 
 using namespace std;
@@ -36,18 +38,21 @@ HistoryQuarterHour::HistoryQuarterHour(unsigned int device_id)
 
 	QuarterHour period_ago = QuarterHour() - retention;
 	auto res = db.Query(" \
-		SELECT log_ht_date, log_ht_min_h, log_ht_max_h, log_ht_min_t, log_ht_max_t \
-		FROM t_log_ht  \
+		SELECT log_ht_date, log_ht_min_h, log_ht_max_h, log_ht_min_t, log_ht_max_t, log_ht_min_w, log_ht_max_w \
+		FROM t_log_htw  \
 		WHERE device_id=%i \
 		AND log_ht_date>=%s"_sql
 		<<device_id<<string(period_ago)
 	);
 
+	double invalid = std::numeric_limits<double>::quiet_NaN();
+
 	while(res.FetchRow())
 	{
-		stat::MinMax<double> h(res["log_ht_min_h"], res["log_ht_max_h"]);
-		stat::MinMax<double> t(res["log_ht_min_t"], res["log_ht_max_t"]);
-		history.insert(pair<QuarterHour, MinMax>(QuarterHour(res["log_ht_date"]),MinMax(h, t)));
+		stat::MinMax<double> h(res["log_ht_min_h"].IsNull()?invalid:res["log_ht_min_h"], res["log_ht_max_h"].IsNull()?invalid:res["log_ht_max_h"]);
+		stat::MinMax<double> t(res["log_ht_min_t"].IsNull()?invalid:res["log_ht_min_t"], res["log_ht_max_t"].IsNull()?invalid:res["log_ht_max_t"]);
+		stat::MinMax<double> w(res["log_ht_min_w"].IsNull()?invalid:res["log_ht_min_w"], res["log_ht_max_w"].IsNull()?invalid:res["log_ht_max_w"]);
+		history.insert(pair<QuarterHour, MinMax>(QuarterHour(res["log_ht_date"]),MinMax(h, t, w)));
 	}
 
 	::thread::HistorySync::GetInstance()->Register(this);
@@ -65,10 +70,12 @@ void HistoryQuarterHour::store_entry(const QuarterHour period, ht::MinMax value)
 
 	auto h = value.GetHumidity();
 	auto t = value.GetTemperature();
+	auto w = value.GetWind();
 
-	db.Query(
-		"REPLACE INTO t_log_ht(log_ht_date, device_id, log_ht_min_h, log_ht_max_h, log_ht_min_t, log_ht_max_t) VALUES(%s, %i, %f, %f, %f, %f)"_sql
-		<<string(period)<<device_id<<h.GetMin()<<h.GetMax()<<t.GetMin()<<t.GetMax()
+	db.Query(" \
+		REPLACE INTO t_log_htw(log_ht_date, device_id, log_ht_min_h, log_ht_max_h, log_ht_min_t, log_ht_max_t, log_ht_min_w, log_ht_max_w) \
+		VALUES(%s, %i, %f, %f, %f, %f, %f, %f)"_sql
+		<<string(period)<<device_id<<h.GetMin()<<h.GetMax()<<t.GetMin()<<t.GetMax()<<w.GetMin()<<w.GetMax()
 	);
 }
 

@@ -21,7 +21,6 @@
 #define __DEVICE_DEVICEHTBLUETOOTH_HPP__
 
 #include <device/DeviceHT.hpp>
-#include <control/HTBluetooth.hpp>
 
 #include <string>
 

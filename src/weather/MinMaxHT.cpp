@@ -17,34 +17,20 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __HT_HISTORYQUARTERHOUR_HPP__
-#define __HT_HISTORYQUARTERHOUR_HPP__
+#include <weather/MinMaxHT.hpp>
 
-#include <stat/History.hpp>
-#include <datetime/QuarterHour.hpp>
-#include <ht/MinMax.hpp>
+namespace weather {
 
-#include <string>
-
-namespace ht {
-
-class HistoryQuarterHour: public stat::History<datetime::QuarterHour, ht::MinMax>
+MinMaxHT MinMaxHT::operator+(const MinMaxHT &r) const
 {
-	protected:
-		std::string type;
-
-		unsigned int device_id;
-
-		virtual void store_entry(const datetime::QuarterHour period, ht::MinMax value);
-		virtual void save();
-
-	public:
-		HistoryQuarterHour(unsigned int device_id);
-		~HistoryQuarterHour();
-};
-
+	return MinMaxHT(h + r.h, t + r.t);
 }
 
-#endif
+MinMaxHT &MinMaxHT::operator+=(const MinMaxHT &r)
+{
+	h += r.h;
+	t += r.t;
+	return *this;
+}
 
-
+}

@@ -17,34 +17,30 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __HT_MINMAX_HPP__
-#define __HT_MINMAX_HPP__
+#ifndef __HT_HISTORYQUARTERHOURHT_HPP__
+#define __HT_HISTORYQUARTERHOURHT_HPP__
 
-#include <stat/MinMax.hpp>
+#include <stat/History.hpp>
+#include <datetime/QuarterHour.hpp>
+#include <weather/MinMaxHT.hpp>
 
-#include <limits>
+namespace weather {
 
-namespace ht {
-
-class MinMax
+class HistoryQuarterHourHT: public stat::History<datetime::QuarterHour, weather::MinMaxHT>
 {
-	stat::MinMax<double> h;
-	stat::MinMax<double> t;
-	stat::MinMax<double> w;
+	protected:
+		unsigned int device_id;
+
+		virtual void store_entry(const datetime::QuarterHour period, weather::MinMaxHT value);
+		virtual void save();
 
 	public:
-		MinMax(double h, double t): h(h), t(t), w(std::numeric_limits<double>::quiet_NaN()) {}
-		MinMax(double w): h(std::numeric_limits<double>::quiet_NaN()), t(std::numeric_limits<double>::quiet_NaN()), w(w) {}
-		MinMax(stat::MinMax<double> h, stat::MinMax<double> t, stat::MinMax<double> w): h(h), t(t), w(w) {}
-
-		stat::MinMax<double> GetHumidity() const { return h; }
-		stat::MinMax<double> GetTemperature() const { return t; }
-		stat::MinMax<double> GetWind() const { return w; }
-
-		MinMax operator+(const MinMax &r) const;
-		MinMax &operator+=(const MinMax &r);
+		HistoryQuarterHourHT(unsigned int device_id);
+		~HistoryQuarterHourHT();
 };
 
 }
 
 #endif
+
+

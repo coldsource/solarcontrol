@@ -18,15 +18,18 @@
  */
 
 #include <device/DeviceHT.hpp>
+#include <control/HT.hpp>
 #include <configuration/Json.hpp>
 #include <nlohmann/json.hpp>
+
+#include <limits>
 
 using nlohmann::json;
 
 namespace device {
 
 DeviceHT::DeviceHT(unsigned int id, const std::string &name, const configuration::Json &config, control::HT *ctrl):
-Device(id, name, config), ctrl(ctrl), history(id)
+DeviceWeather(id, name, config), ctrl(ctrl), history(id)
 {
 	auto state = state_restore();
 
@@ -62,26 +65,19 @@ double DeviceHT::GetHumidity() const
 
 double DeviceHT::GetWind() const
 {
-	return ctrl->GetWind();
+	return std::numeric_limits<double>::quiet_NaN();
 }
 
-void DeviceHT::LogHT()
+void DeviceHT::Log()
 {
 	double h = GetHumidity();
 	double t = GetTemperature();
-	double w = GetWind();
 
-	if(!std::isnan(h) && !std::isnan(t))
-	{
-		ht::MinMax ht(h, t);
-		history.Add(ht);
-	}
+	if(std::isnan(h) || std::isnan(t))
+		return;
 
-	if(!std::isnan(w))
-	{
-		ht::MinMax ht(w);
-		history.Add(ht);
-	}
+	weather::MinMaxHT ht(h, t);
+	history.Add(ht);
 }
 
 }

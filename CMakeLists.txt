@@ -17,7 +17,7 @@ aux_source_directory(src/websocket srcWebsocket)
 aux_source_directory(src/api srcAPI)
 aux_source_directory(src/display srcDisplay)
 aux_source_directory(src/logs srcLogs)
-aux_source_directory(src/ht srcHT)
+aux_source_directory(src/weather srcWeather)
 aux_source_directory(src/meter srcMeter)
 
 add_executable(solarcontrol
@@ -34,7 +34,7 @@ add_executable(solarcontrol
 	${srcAPI}
 	${srcDisplay}
 	${srcLogs}
-	${srcHT}
+	${srcWeather}
 	${srcMeter}
 	
 	src/solarcontrol.cpp

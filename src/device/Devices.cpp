@@ -18,7 +18,12 @@
  */
 
 #include <device/Devices.hpp>
-#include <websocket/SolarControl.hpp>
+#include <device/DevicesOnOffImpl.hpp>
+#include <device/DevicesWeatherImpl.hpp>
+#include <device/DevicesPassiveImpl.hpp>
+#include <device/DeviceOnOff.hpp>
+#include <device/DevicePassive.hpp>
+#include <device/DeviceWeather.hpp>
 
 #include <mutex>
 
@@ -31,7 +36,18 @@ Devices *Devices::instance = 0;
 
 Devices::Devices()
 {
+	devices_onoff = new DevicesOnOffImpl();
+	devices_weather = new DevicesWeatherImpl();
+	devices_passive = new DevicesPassiveImpl();
+
 	instance = this;
+}
+
+Devices::~Devices()
+{
+	delete devices_onoff;
+	delete devices_weather;
+	delete devices_passive;
 }
 
 string Devices::IDToName(int id)
@@ -47,22 +63,22 @@ string Devices::IDToName(int id)
 	// Lookup standard devices
 	try
 	{
-		unique_lock<recursive_mutex> llock(devices_onoff.d_mutex);
-		return devices_onoff.get_by_id(id)->GetName();
+		unique_lock<recursive_mutex> llock(devices_onoff->d_mutex);
+		return devices_onoff->get_by_id(id)->GetName();
 	}
 	catch(...) {}
 
 	try
 	{
-		unique_lock<recursive_mutex> llock(devices_ht.d_mutex);
-		return devices_ht.get_by_id(id)->GetName();
+		unique_lock<recursive_mutex> llock(devices_weather->d_mutex);
+		return devices_weather->get_by_id(id)->GetName();
 	}
 	catch(...) {}
 
 	try
 	{
-		unique_lock<recursive_mutex> llock(devices_passive.d_mutex);
-		return devices_passive.get_by_id(id)->GetName();
+		unique_lock<recursive_mutex> llock(devices_passive->d_mutex);
+		return devices_passive->get_by_id(id)->GetName();
 	}
 	catch(...) {}
 
@@ -71,25 +87,25 @@ string Devices::IDToName(int id)
 
 void Devices::Reload()
 {
-	devices_onoff.d_mutex.lock();
-	devices_onoff.reload();
-	devices_onoff.d_mutex.unlock();
+	devices_onoff->d_mutex.lock();
+	devices_onoff->reload();
+	devices_onoff->d_mutex.unlock();
 
-	devices_ht.d_mutex.lock();
-	devices_ht.reload();
-	devices_ht.d_mutex.unlock();
+	devices_weather->d_mutex.lock();
+	devices_weather->reload();
+	devices_weather->d_mutex.unlock();
 
-	devices_passive.d_mutex.lock();
-	devices_passive.reload();
-	devices_passive.d_mutex.unlock();
+	devices_passive->d_mutex.lock();
+	devices_passive->reload();
+	devices_passive->d_mutex.unlock();
 
 }
 
 void Devices::Unload()
 {
-	devices_onoff.unload();
-	devices_ht.unload();
-	devices_passive.unload();
+	devices_onoff->unload();
+	devices_weather->unload();
+	devices_passive->unload();
 }
 
 }

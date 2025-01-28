@@ -17,7 +17,7 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#include <device/DevicesHTImpl.hpp>
+#include <device/DevicesWeatherImpl.hpp>
 #include <device/DeviceHTWifi.hpp>
 #include <device/DeviceHTBluetooth.hpp>
 #include <device/DeviceWind.hpp>
@@ -34,27 +34,27 @@ using nlohmann::json;
 
 namespace device {
 
-DevicesHTImpl * DevicesHTImpl::instance = 0;
+DevicesWeatherImpl * DevicesWeatherImpl::instance = 0;
 
-DevicesHTImpl::DevicesHTImpl()
+DevicesWeatherImpl::DevicesWeatherImpl()
 {
 	reload();
 
 	instance = this;
 }
 
-DeviceHT *DevicesHTImpl::get_by_id(unsigned int id) const
+DeviceWeather *DevicesWeatherImpl::get_by_id(unsigned int id) const
 {
 	auto it = id_device.find(id);
 	if(it==id_device.end())
-		throw invalid_argument("Unknown HT device ID « " + to_string(id) + " »");
+		throw invalid_argument("Unknown Weather device ID « " + to_string(id) + " »");
 
 	return it->second;
 }
 
-void DevicesHTImpl::reload(bool notify)
+void DevicesWeatherImpl::reload(bool notify)
 {
-	logs::Logger::Log(LOG_NOTICE, "Loading devices HT");
+	logs::Logger::Log(LOG_NOTICE, "Loading devices Weather");
 
 	free();
 
@@ -65,7 +65,7 @@ void DevicesHTImpl::reload(bool notify)
 	{
 		configuration::Json config((string)res["device_config"]);
 
-		DeviceHT *device;
+		DeviceWeather *device;
 		if((string)res["device_type"]=="ht")
 			device = new DeviceHTWifi(res["device_id"], res["device_name"], config);
 		else if((string)res["device_type"]=="htmini")
@@ -76,19 +76,19 @@ void DevicesHTImpl::reload(bool notify)
 			throw invalid_argument("Invalid device type « " + string(res["device_type"]) + " »");
 
 		insert(device);
-		id_device.insert(pair<unsigned int, DeviceHT *>(res["device_id"], device));
+		id_device.insert(pair<unsigned int, DeviceWeather *>(res["device_id"], device));
 	}
 
 	if(notify && websocket::SolarControl::GetInstance())
 		websocket::SolarControl::GetInstance()->NotifyAll(websocket::SolarControl::en_protocols::DEVICE);
 }
 
-void DevicesHTImpl::unload()
+void DevicesWeatherImpl::unload()
 {
 	free();
 }
 
-void DevicesHTImpl::free()
+void DevicesWeatherImpl::free()
 {
 	for(auto it = begin(); it!=end(); ++it)
 	{
@@ -100,7 +100,7 @@ void DevicesHTImpl::free()
 	id_device.clear();
 }
 
-DevicesHTImpl::~DevicesHTImpl()
+DevicesWeatherImpl::~DevicesWeatherImpl()
 {
 	free();
 }

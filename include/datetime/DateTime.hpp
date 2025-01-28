@@ -55,6 +55,9 @@ class DateTime
 		void ToQuarter();
 		void ToMonth();
 
+		DateTime operator-(int seconds) const;
+		DateTime operator+(int seconds) const;
+
 		bool operator==(const DateTime& r) const;
 		bool operator<(const DateTime& r) const;
 

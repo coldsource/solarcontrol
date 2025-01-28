@@ -17,29 +17,29 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __DEVICE_DEVICESPASSIVE_HPP__
-#define __DEVICE_DEVICESPASSIVE_HPP__
+#ifndef __DEVICE_DEVICESWEATHER_HPP__
+#define __DEVICE_DEVICESWEATHER_HPP__
 
 #include <unordered_set>
 
 namespace device {
 
-class DevicesPassiveImpl;
-class DevicePassive;
+class DevicesWeatherImpl;
+class DeviceWeather;
 
-class DevicesPassive
+class DevicesWeather
 {
-	DevicesPassiveImpl *instance;
+	DevicesWeatherImpl *instance;
 
 	public:
-		DevicesPassive();
-		~DevicesPassive();
+		DevicesWeather();
+		~DevicesWeather();
 
-		DevicePassive *GetByID(unsigned int id) const;
+		DeviceWeather *GetByID(unsigned int id) const;
 		void Reload();
 
-		std::unordered_set<DevicePassive *>::iterator begin();
-		std::unordered_set<DevicePassive *>::iterator end();
+		std::unordered_set<DeviceWeather *>::iterator begin();
+		std::unordered_set<DeviceWeather *>::iterator end();
 };
 
 }

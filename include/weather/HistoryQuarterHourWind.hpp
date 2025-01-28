@@ -17,32 +17,31 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __DEVICE_DEVICESPASSIVE_HPP__
-#define __DEVICE_DEVICESPASSIVE_HPP__
+#ifndef __HT_HISTORYQUARTERHOURWIND_HPP__
+#define __HT_HISTORYQUARTERHOURWIND_HPP__
 
-#include <unordered_set>
+#include <stat/History.hpp>
+#include <datetime/QuarterHour.hpp>
+#include <stat/MinMaxAvg.hpp>
 
-namespace device {
+namespace weather {
 
-class DevicesPassiveImpl;
-class DevicePassive;
-
-class DevicesPassive
+class HistoryQuarterHourWind: public stat::History<datetime::QuarterHour, stat::MinMaxAvg<double>>
 {
-	DevicesPassiveImpl *instance;
+	protected:
+		unsigned int device_id;
+
+		virtual void store_entry(const datetime::QuarterHour period, stat::MinMaxAvg<double> value);
+		virtual void save();
 
 	public:
-		DevicesPassive();
-		~DevicesPassive();
-
-		DevicePassive *GetByID(unsigned int id) const;
-		void Reload();
-
-		std::unordered_set<DevicePassive *>::iterator begin();
-		std::unordered_set<DevicePassive *>::iterator end();
+		HistoryQuarterHourWind(unsigned int device_id);
+		~HistoryQuarterHourWind();
 };
 
 }
 
 #endif
+
+
 

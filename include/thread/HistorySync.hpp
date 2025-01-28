@@ -44,6 +44,7 @@ class HistorySync: public WaiterThread
 
 	public:
 		HistorySync();
+		~HistorySync();
 
 		static HistorySync *GetInstance() { return instance; }
 

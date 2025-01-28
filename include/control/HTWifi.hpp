@@ -24,7 +24,6 @@
 #include <mqtt/Subscriber.hpp>
 
 #include <string>
-#include <mutex>
 
 namespace control {
 

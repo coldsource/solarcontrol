@@ -23,12 +23,10 @@
 #include <database/DB.hpp>
 #include <logs/Logger.hpp>
 #include <websocket/SolarControl.hpp>
-#include <nlohmann/json.hpp>
 
 #include <stdexcept>
 
 using namespace std;
-using nlohmann::json;
 
 namespace device {
 

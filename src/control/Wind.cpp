@@ -42,6 +42,20 @@ Wind::~Wind()
 		mqtt->Unsubscribe(topic, this);
 }
 
+double Wind::GetWind() const
+{
+	unique_lock<mutex> llock(lock);
+
+	return wind;
+}
+
+void Wind::SetWind(double w)
+{
+	unique_lock<mutex> llock(lock);
+
+	wind = w;
+}
+
 void Wind::HandleMessage(const string &message)
 {
 	{

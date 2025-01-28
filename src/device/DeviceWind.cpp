@@ -21,6 +21,7 @@
 #include <device/DeviceWind.hpp>
 #include <control/Wind.hpp>
 #include <configuration/Json.hpp>
+#include <stat/MinMaxAvg.hpp>
 
 using namespace std;
 
@@ -28,12 +29,39 @@ namespace device
 {
 
 DeviceWind::DeviceWind(unsigned int id, const string &name, const configuration::Json &config):
-DeviceHT(id, name, config, new control::Wind(config.GetString("mqtt_id")))
+DeviceWeather(id, name, config), history(id)
 {
+	ctrl = new control::Wind(config.GetString("mqtt_id"));
 }
 
 DeviceWind::~DeviceWind()
 {
+	delete ctrl;
+}
+
+double DeviceWind::GetTemperature() const
+{
+	return std::numeric_limits<double>::quiet_NaN();
+}
+
+double DeviceWind::GetHumidity() const
+{
+	return std::numeric_limits<double>::quiet_NaN();
+}
+
+double DeviceWind::GetWind() const
+{
+	return ctrl->GetWind();
+}
+
+void DeviceWind::Log()
+{
+	double w = GetWind();
+
+	if(std::isnan(w))
+		return;
+
+	history.Add(stat::MinMaxAvg(w));
 }
 
 }

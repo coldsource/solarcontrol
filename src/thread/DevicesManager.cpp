@@ -22,8 +22,10 @@
 #include <device/Devices.hpp>
 #include <device/DevicesOnOff.hpp>
 #include <device/DeviceOnOff.hpp>
-#include <device/DevicesHT.hpp>
 #include <device/DevicesPassive.hpp>
+#include <device/DevicePassive.hpp>
+#include <device/DevicesWeather.hpp>
+#include <device/DeviceWeather.hpp>
 #include <energy/GlobalMeter.hpp>
 #include <websocket/SolarControl.hpp>
 #include <control/ConfigurationControl.hpp>
@@ -154,9 +156,9 @@ void DevicesManager::main()
 		last_power_update = now;
 
 		{
-			DevicesHT devices;
+			DevicesWeather devices;
 			for(auto it = devices.begin(); it!=devices.end(); ++it)
-				(*it)->LogHT();
+				(*it)->Log();
 		}
 
 		{

@@ -36,6 +36,12 @@ HistorySync::HistorySync()
 	instance = this;
 }
 
+HistorySync::~HistorySync()
+{
+	Shutdown();
+	WaitForShutdown();
+}
+
 void HistorySync::Register(stat::HistorySync *client)
 {
 	unique_lock<mutex> llock(lock);

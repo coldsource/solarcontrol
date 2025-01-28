@@ -47,26 +47,12 @@ double HT::GetHumidity() const
 	return humidity;
 }
 
-double HT::GetWind() const
-{
-	unique_lock<mutex> llock(lock);
-
-	return wind;
-}
-
 void HT::SetHT(double h, double t)
 {
 	unique_lock<mutex> llock(lock);
 
 	humidity = h;
 	temperature = t;
-}
-
-void HT::SetW(double w)
-{
-	unique_lock<mutex> llock(lock);
-
-	wind = w;
 }
 
 }

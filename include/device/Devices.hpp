@@ -20,10 +20,6 @@
 #ifndef __DEVICE_DEVICES_HPP__
 #define __DEVICE_DEVICES_HPP__
 
-#include <device/DevicesOnOffImpl.hpp>
-#include <device/DevicesHTImpl.hpp>
-#include <device/DevicesPassiveImpl.hpp>
-
 #include <string>
 
 #define DEVICE_ID_GRID     -1
@@ -36,16 +32,21 @@
 
 namespace device {
 
+class DevicesOnOffImpl;
+class DevicesWeatherImpl;
+class DevicesPassiveImpl;
+
 class Devices
 {
 	static Devices *instance;
 
-	DevicesOnOffImpl devices_onoff;
-	DevicesHTImpl devices_ht;
-	DevicesPassiveImpl devices_passive;
+	DevicesOnOffImpl *devices_onoff;
+	DevicesWeatherImpl *devices_weather;
+	DevicesPassiveImpl *devices_passive;
 
 	public:
 		Devices();
+		~Devices();
 
 		static Devices *GetInstance() { return instance; }
 

@@ -20,23 +20,35 @@
 #ifndef __DEVICE_DEVICEWIND_HPP__
 #define __DEVICE_DEVICEWIND_HPP__
 
-#include <device/DeviceHT.hpp>
+#include <device/DeviceWeather.hpp>
+#include <weather/HistoryQuarterHourWind.hpp>
 
 #include <string>
 
-namespace configuration {
-	class Json;
+namespace control {
+	class Wind;
 }
 
 namespace device {
 
-class DeviceWind: public DeviceHT
+class DeviceWind: public DeviceWeather
 {
+	protected:
+		control::Wind *ctrl;
+
+		weather::HistoryQuarterHourWind history;
+
 	public:
 		DeviceWind(unsigned int id, const std::string &name, const configuration::Json &config);
 		virtual ~DeviceWind();
 
 		std::string GetType() const { return "wind"; }
+
+		double GetTemperature() const;
+		double GetHumidity() const;
+		double GetWind() const;
+
+		void Log();
 };
 
 }

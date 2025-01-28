@@ -18,7 +18,8 @@
  */
 
 #include <api/DeviceHT.hpp>
-#include <device/DevicesHT.hpp>
+#include <device/DevicesWeather.hpp>
+#include <device/DeviceWeather.hpp>
 #include <configuration/Json.hpp>
 
 #include <stdexcept>
@@ -45,7 +46,7 @@ json DeviceHT::HandleMessage(const string &cmd, const configuration::Json &j_par
 {
 	json j_res;
 
-	device::DevicesHT devices;
+	device::DevicesWeather devices;
 
 	if(cmd=="set")
 	{

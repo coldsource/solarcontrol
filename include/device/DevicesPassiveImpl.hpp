@@ -20,8 +20,6 @@
 #ifndef __DEVICE_DEVICESPASSIVEIMPL_HPP__
 #define __DEVICE_DEVICESPASSIVEIMPL_HPP__
 
-#include <device/DevicePassive.hpp>
-
 #include <unordered_set>
 #include <map>
 #include <mutex>
@@ -30,6 +28,7 @@ namespace device {
 
 class DevicesPassive;
 class Devices;
+class DevicePassive;
 
 class DevicesPassiveImpl: public std::unordered_set<DevicePassive *>
 {

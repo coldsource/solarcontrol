@@ -17,30 +17,40 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#include <device/DevicesHT.hpp>
-#include <device/DevicesHTImpl.hpp>
+#include <device/DevicesWeather.hpp>
+#include <device/DevicesWeatherImpl.hpp>
 
 namespace device {
 
-DevicesHT::DevicesHT()
+DevicesWeather::DevicesWeather()
 {
-	instance = DevicesHTImpl::instance;
+	instance = DevicesWeatherImpl::instance;
 	instance->d_mutex.lock();
 }
 
-DevicesHT::~DevicesHT()
+DevicesWeather::~DevicesWeather()
 {
 	instance->d_mutex.unlock();
 }
 
-DeviceHT *DevicesHT::GetByID(unsigned int id) const
+DeviceWeather *DevicesWeather::GetByID(unsigned int id) const
 {
 	return instance->get_by_id(id);
 }
 
-void DevicesHT::Reload()
+void DevicesWeather::Reload()
 {
 	return instance->reload();
+}
+
+std::unordered_set<DeviceWeather *>::iterator DevicesWeather::begin()
+{
+	return instance->begin();
+}
+
+std::unordered_set<DeviceWeather *>::iterator DevicesWeather::end()
+{
+	return instance->end();
 }
 
 }

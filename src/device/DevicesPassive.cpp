@@ -43,6 +43,15 @@ void DevicesPassive::Reload()
 	return instance->reload();
 }
 
+std::unordered_set<DevicePassive *>::iterator DevicesPassive::begin()
+{
+	return instance->begin();
+}
+std::unordered_set<DevicePassive *>::iterator DevicesPassive::end()
+{
+	return instance->end();
+}
+
 }
 
 

@@ -17,30 +17,29 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __DEVICE_DEVICESHT_HPP__
-#define __DEVICE_DEVICESHT_HPP__
+#ifndef __HT_MINMAXHT_HPP__
+#define __HT_MINMAXHT_HPP__
 
-#include <device/DevicesHTImpl.hpp>
-#include <device/DeviceOnOff.hpp>
+#include <stat/MinMax.hpp>
 
-namespace device {
+namespace weather {
 
-class DevicesHT
+class MinMaxHT
 {
-	DevicesHTImpl *instance;
+	stat::MinMax<double> h;
+	stat::MinMax<double> t;
 
 	public:
-		DevicesHT();
-		~DevicesHT();
+		MinMaxHT(double h, double t): h(h), t(t) {}
+		MinMaxHT(stat::MinMax<double> h, stat::MinMax<double> t): h(h), t(t) {}
 
-		DeviceHT *GetByID(unsigned int id) const;
-		void Reload();
+		stat::MinMax<double> GetHumidity() const { return h; }
+		stat::MinMax<double> GetTemperature() const { return t; }
 
-		auto begin() { return instance->begin(); }
-		auto end() { return instance->end(); }
+		MinMaxHT operator+(const MinMaxHT &r) const;
+		MinMaxHT &operator+=(const MinMaxHT &r);
 };
 
 }
 
 #endif
-

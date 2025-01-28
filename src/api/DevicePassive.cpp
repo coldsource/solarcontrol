@@ -18,8 +18,9 @@
  */
 
 #include <api/DevicePassive.hpp>
-#include <device/DevicesPassive.hpp>
 #include <configuration/Json.hpp>
+#include <device/DevicesPassive.hpp>
+#include <device/DevicePassive.hpp>
 
 #include <stdexcept>
 

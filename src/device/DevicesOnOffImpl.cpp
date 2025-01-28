@@ -25,15 +25,18 @@
 #include <configuration/Json.hpp>
 #include <database/DB.hpp>
 #include <logs/Logger.hpp>
-#include <nlohmann/json.hpp>
 #include <websocket/SolarControl.hpp>
 
 #include <stdexcept>
 
 using namespace std;
-using nlohmann::json;
 
 namespace device {
+
+bool DevicesPtrComparator::operator()(DeviceOnOff *a, DeviceOnOff *b) const
+{
+	return a->GetPrio() < b->GetPrio();
+}
 
 DevicesOnOffImpl * DevicesOnOffImpl::instance = 0;
 

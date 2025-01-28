@@ -20,9 +20,6 @@
 #ifndef __CONTROL_HT_HPP__
 #define __CONTROL_HT_HPP__
 
-#include <mqtt/Subscriber.hpp>
-
-#include <string>
 #include <mutex>
 
 namespace control {
@@ -32,7 +29,6 @@ class HT
 	protected:
 		double temperature = std::numeric_limits<double>::quiet_NaN();
 		double humidity = std::numeric_limits<double>::quiet_NaN();
-		double wind = std::numeric_limits<double>::quiet_NaN();
 
 		mutable std::mutex lock;
 
@@ -42,10 +38,8 @@ class HT
 
 		double GetTemperature() const;
 		double GetHumidity() const;
-		double GetWind() const;
 
 		void SetHT(double h, double t);
-		void SetW(double w);
 };
 
 }

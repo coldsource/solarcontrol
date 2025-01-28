@@ -56,7 +56,8 @@ void Device::delete_device(unsigned int id)
 	db.Query("DELETE FROM t_device WHERE device_id=%i"_sql<<id);
 	db.Query("DELETE FROM  t_device_state WHERE device_id=%i"_sql<<id);
 	db.Query("DELETE FROM  t_log_energy_detail WHERE device_id=%i"_sql<<id);
-	db.Query("DELETE FROM  t_log_htw WHERE device_id=%i"_sql<<id);
+	db.Query("DELETE FROM  t_log_ht WHERE device_id=%i"_sql<<id);
+	db.Query("DELETE FROM  t_log_wind WHERE device_id=%i"_sql<<id);
 	db.Query("DELETE FROM  t_log_state WHERE device_id=%i"_sql<<id);
 }
 

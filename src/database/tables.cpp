@@ -72,17 +72,24 @@ map<string,string> solarcontrol_tables = {
   UNIQUE KEY `log_energy_date` (`log_energy_detail_date`,`device_id`,`log_energy_detail_type`) USING BTREE \
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci \
 "},
-{"t_log_htw",
-"CREATE TABLE `t_log_htw` ( \
+{"t_log_ht",
+"CREATE TABLE `t_log_ht` ( \
   `log_ht_date` datetime NOT NULL, \
   `device_id` int(10) unsigned NOT NULL, \
-  `log_ht_min_h` double DEFAULT NULL, \
-  `log_ht_max_h` double DEFAULT NULL, \
-  `log_ht_min_t` double DEFAULT NULL, \
-  `log_ht_max_t` double DEFAULT NULL, \
-  `log_ht_min_w` double DEFAULT NULL, \
-  `log_ht_max_w` double DEFAULT NULL, \
+  `log_ht_min_h` double, \
+  `log_ht_max_h` double, \
+  `log_ht_min_t` double, \
+  `log_ht_max_t` double, \
   UNIQUE KEY `log_ht_date` (`log_ht_date`,`device_id`) USING BTREE \
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci \
+"},
+{"t_log_wind",
+"CREATE TABLE `t_log_wind` ( \
+  `log_wind_date` datetime NOT NULL, \
+  `device_id` int(10) unsigned NOT NULL, \
+  `log_wind_min` double NOT NULL, \
+  `log_wind_max` double NOT NULL, \
+  `log_wind_avg` double NOT NULL \
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci \
 "},
 {"t_log_state",

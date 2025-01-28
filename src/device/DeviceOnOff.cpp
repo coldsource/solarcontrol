@@ -18,6 +18,8 @@
  */
 
 #include <device/DeviceOnOff.hpp>
+#include <control/OnOff.hpp>
+#include <meter/Meter.hpp>
 #include <configuration/Json.hpp>
 #include <nlohmann/json.hpp>
 #include <logs/State.hpp>

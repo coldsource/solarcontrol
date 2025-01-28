@@ -135,10 +135,6 @@ int main(int argc, char **argv)
 		lcd.WaitForShutdown();
 
 		devices.Unload(); // Unload all devices to ensure MQTT Unsubscription before destructor is called on MQTT client
-
-		// All devices removed, we can remove history sync thread
-		histo_sync.Shutdown();
-		histo_sync.WaitForShutdown();
 	}
 	catch(exception &e)
 	{

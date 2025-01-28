@@ -22,8 +22,11 @@
 #include <energy/GlobalMeter.hpp>
 #include <device/Devices.hpp>
 #include <device/DevicesOnOff.hpp>
-#include <device/DevicesHT.hpp>
+#include <device/DeviceOnOff.hpp>
+#include <device/DevicesWeather.hpp>
+#include <device/DeviceWeather.hpp>
 #include <device/DevicesPassive.hpp>
+#include <device/DevicePassive.hpp>
 #include <nlohmann/json.hpp>
 
 using namespace std;
@@ -173,8 +176,8 @@ std::string SolarControl::lws_callback_server_writeable(struct lws * /* wsi */, 
 			j_devices.push_back(j_device);
 		}
 
-		device::DevicesHT devices_ht;
-		for(auto device : devices_ht)
+		device::DevicesWeather devices_weather;
+		for(auto device : devices_weather)
 		{
 			json j_device;
 

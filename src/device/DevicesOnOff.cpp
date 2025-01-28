@@ -48,4 +48,14 @@ void DevicesOnOff::Reload()
 	return instance->reload();
 }
 
+std::multiset<DeviceOnOff *>::iterator DevicesOnOff::begin()
+{
+	return instance->begin();
+}
+
+std::multiset<DeviceOnOff *>::iterator DevicesOnOff::end()
+{
+	return instance->end();
+}
+
 }

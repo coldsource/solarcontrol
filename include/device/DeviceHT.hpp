@@ -20,18 +20,21 @@
 #ifndef __DEVICE_DEVICEHT_HPP__
 #define __DEVICE_DEVICEHT_HPP__
 
-#include <device/Device.hpp>
-#include <control/HT.hpp>
-#include <ht/HistoryQuarterHour.hpp>
+#include <device/DeviceWeather.hpp>
+#include <weather/HistoryQuarterHourHT.hpp>
+
+namespace control {
+	class HT;
+}
 
 namespace device {
 
-class DeviceHT: public Device
+class DeviceHT: public DeviceWeather
 {
 	protected:
 		control::HT *ctrl;
 
-		ht::HistoryQuarterHour history;
+		weather::HistoryQuarterHourHT history;
 
 	public:
 		DeviceHT(unsigned int id, const std::string &name, const configuration::Json &config, control::HT *ctrl);
@@ -41,7 +44,7 @@ class DeviceHT: public Device
 		double GetHumidity() const;
 		double GetWind() const;
 
-		void LogHT();
+		void Log();
 };
 
 }

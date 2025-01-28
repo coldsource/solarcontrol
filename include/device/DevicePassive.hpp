@@ -21,10 +21,13 @@
 #define __DEVICE_DEVICEPASSIVE_HPP__
 
 #include <device/Device.hpp>
-#include <meter/Meter.hpp>
 #include <energy/Counter.hpp>
 
 #include <string>
+
+namespace meter {
+	class Meter;
+}
 
 namespace device {
 

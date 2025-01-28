@@ -18,8 +18,9 @@
  */
 
 #include <api/DeviceOnOff.hpp>
-#include <device/DevicesOnOff.hpp>
 #include <configuration/Json.hpp>
+#include <device/DevicesOnOff.hpp>
+#include <device/DeviceOnOff.hpp>
 #include <websocket/SolarControl.hpp>
 
 #include <stdexcept>

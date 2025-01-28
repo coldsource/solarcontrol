@@ -20,21 +20,26 @@
 #ifndef __CONTROL_WIND_HPP__
 #define __CONTROL_WIND_HPP__
 
-#include <control/HT.hpp>
 #include <mqtt/Subscriber.hpp>
 
-#include <string>
 #include <mutex>
 
 namespace control {
 
-class Wind: public HT, public mqtt::Subscriber
+class Wind: public mqtt::Subscriber
 {
 	std::string topic;
+
+	double wind = std::numeric_limits<double>::quiet_NaN();
+
+	mutable std::mutex lock;
 
 	public:
 		Wind(const std::string &mqtt_id);
 		virtual ~Wind();
+
+		double GetWind() const;
+		void SetWind(double w);
 
 		void HandleMessage(const std::string &message);
 };

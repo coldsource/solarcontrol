@@ -20,7 +20,8 @@
 #include <device/DeviceCMV.hpp>
 #include <configuration/Json.hpp>
 #include <datetime/Timestamp.hpp>
-#include <device/DevicesHT.hpp>
+#include <device/DevicesWeather.hpp>
+#include <device/DeviceWeather.hpp>
 
 using namespace std;
 using nlohmann::json;
@@ -40,7 +41,7 @@ DeviceCMV::DeviceCMV(unsigned int id, const string &name, const configuration::J
 
 en_wanted_state DeviceCMV::GetWantedState() const
 {
-	DevicesHT devices;
+	DevicesWeather devices;
 
 	double max_moisture = 0;
 	for(auto ht_device_id : ht_device_ids)

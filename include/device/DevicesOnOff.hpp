@@ -20,10 +20,12 @@
 #ifndef __DEVICE_DEVICESONOFF_HPP__
 #define __DEVICE_DEVICESONOFF_HPP__
 
-#include <device/DevicesOnOffImpl.hpp>
-#include <device/DeviceOnOff.hpp>
+#include <set>
 
 namespace device {
+
+class DevicesOnOffImpl;
+class DeviceOnOff;
 
 class DevicesOnOff
 {
@@ -37,8 +39,8 @@ class DevicesOnOff
 		DeviceOnOff *GetHWS() const;
 		void Reload();
 
-		auto begin() { return instance->begin(); }
-		auto end() { return instance->end(); }
+		std::multiset<DeviceOnOff *>::iterator begin();
+		std::multiset<DeviceOnOff *>::iterator end();
 };
 
 }

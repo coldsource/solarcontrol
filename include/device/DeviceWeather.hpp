@@ -17,44 +17,30 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __DEVICE_DEVICESHTIMPL_HPP__
-#define __DEVICE_DEVICESHTIMPL_HPP__
+#ifndef __DEVICE_DEVICEWEATHER_HPP__
+#define __DEVICE_DEVICEWEATHER_HPP__
 
-#include <device/DeviceHT.hpp>
-
-#include <unordered_set>
-#include <mutex>
+#include <device/Device.hpp>
 
 namespace device {
 
-class DevicesHT;
-class Devices;
-
-class DevicesHTImpl: public std::unordered_set<DeviceHT *>
+class DeviceWeather: public Device
 {
-	friend class DevicesHT;
-	friend class Devices;
-
-	static DevicesHTImpl *instance;
-
-	std::map<unsigned int, DeviceHT *> id_device;
-
-	mutable std::recursive_mutex d_mutex;
-
-	void free();
-
 	public:
-		DevicesHTImpl();
-		~DevicesHTImpl();
+		DeviceWeather(unsigned int id, const std::string &name, const configuration::Json &config): Device(id, name, config) {}
+		virtual ~DeviceWeather() {}
 
-	private:
-		DeviceHT *get_by_id(unsigned int id) const;
-		void reload(bool notify = true);
-		void unload();
+		virtual double GetTemperature() const = 0;
+		virtual double GetHumidity() const = 0;
+		virtual double GetWind() const = 0;
+
+		virtual void Log() = 0;
 };
 
 }
 
 #endif
+
+
 
 

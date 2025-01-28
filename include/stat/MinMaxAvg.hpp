@@ -17,40 +17,45 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __STAT_MINMAX_HPP__
-#define __STAT_MINMAX_HPP__
+#ifndef __STAT_MINMAXAVG_HPP__
+#define __STAT_MINMAXAVG_HPP__
+
+#include <stat/MinMax.hpp>
 
 namespace stat {
 
 template<typename DataType>
-class MinMax
+class MinMaxAvg
 {
 	protected:
-		DataType min;
-		DataType max;
+		DataType sum;
+		unsigned int n;
+		MinMax<DataType> minmax;
 
 	public:
-		MinMax(DataType val): min(val), max(val) {}
-		MinMax(DataType min, DataType max): min(min), max(max) {}
+		MinMaxAvg(DataType val): sum(val), n(1), minmax(val) {}
+		MinMaxAvg(MinMax<DataType> minmax, DataType sum, unsigned int n): sum(sum), n(n), minmax(minmax) {}
+		MinMaxAvg(DataType min, DataType max, DataType avg): sum(avg), n(1), minmax(min, max) {}
 
-		MinMax operator+(const MinMax &r) const
+		MinMaxAvg operator+(const MinMaxAvg &r) const
 		{
-			DataType new_min = min<r.min?min:r.min;
-			DataType new_max = max>r.max?max:r.max;
-			return MinMax(new_min, new_max);
+			return MinMaxAvg(minmax + r.minmax, sum + r.sum, n + r.n);
 		}
 
-		MinMax &operator+=(const MinMax &r)
+		MinMaxAvg &operator+=(const MinMaxAvg &r)
 		{
-			min = min<r.min?min:r.min;
-			max = max>r.max?max:r.max;
+			sum += r.sum;
+			n += r.n;
+			minmax += r.minmax;
 			return *this;
 		}
 
-		DataType GetMin() const { return min; }
-		DataType GetMax() const { return max; }
+		DataType GetMin() const { return minmax.GetMin(); }
+		DataType GetMax() const { return minmax.GetMax(); }
+		DataType GetAvg() const { return sum / n; }
 };
 
 }
 
 #endif
+

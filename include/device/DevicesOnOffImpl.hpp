@@ -20,8 +20,6 @@
 #ifndef __DEVICE_DEVICESONOFFIMPL_HPP__
 #define __DEVICE_DEVICESONOFFIMPL_HPP__
 
-#include <device/DeviceOnOff.hpp>
-
 #include <set>
 #include <map>
 #include <mutex>
@@ -30,12 +28,10 @@ namespace device {
 
 class DevicesOnOff;
 class Devices;
+class DeviceOnOff;
 
 struct DevicesPtrComparator {
-	bool operator()(DeviceOnOff *a, DeviceOnOff *b) const
-	{
-		return a->GetPrio() < b->GetPrio();
-	}
+	bool operator()(DeviceOnOff *a, DeviceOnOff *b) const;
 };
 
 class DevicesOnOffImpl: public std::multiset<DeviceOnOff *, DevicesPtrComparator>

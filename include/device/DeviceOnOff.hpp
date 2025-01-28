@@ -21,13 +21,19 @@
 #define __DEVICE_DEVICEONOFF_HPP__
 
 #include <device/Device.hpp>
-#include <control/OnOff.hpp>
-#include <meter/Meter.hpp>
 #include <datetime/TimespanHistory.hpp>
 #include <datetime/Timestamp.hpp>
 #include <energy/Counter.hpp>
 
 #include <string>
+
+namespace control {
+	class OnOff;
+}
+
+namespace meter {
+	class Meter;
+}
 
 namespace device {
 

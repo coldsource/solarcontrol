@@ -20,6 +20,7 @@
 #include <device/DevicePassive.hpp>
 #include <configuration/Json.hpp>
 #include <energy/GlobalMeter.hpp>
+#include <meter/Meter.hpp>
 
 using namespace std;
 using datetime::Timestamp;

@@ -82,6 +82,26 @@ void DateTime::ToMonth()
 	tm.tm_sec = 0;
 }
 
+DateTime DateTime::operator-(int seconds) const
+{
+	DateTime before_s(*this);
+
+	before_s.tm.tm_sec -= seconds;
+	mktime(&before_s.tm);
+
+	return before_s;
+}
+
+DateTime DateTime::operator+(int seconds) const
+{
+	DateTime after_s(*this);
+
+	after_s.tm.tm_sec += seconds;
+	mktime(&after_s.tm);
+
+	return after_s;
+}
+
 bool DateTime::operator==(const DateTime& r) const
 {
 	time_t l_t = (time_t)(Timestamp)*this;

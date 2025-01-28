@@ -19,8 +19,8 @@
 
 #include <device/DeviceHeater.hpp>
 #include <configuration/Json.hpp>
-#include <datetime/Timestamp.hpp>
-#include <device/DevicesHT.hpp>
+#include <device/DevicesWeather.hpp>
+#include <device/DeviceWeather.hpp>
 
 using namespace std;
 using nlohmann::json;
@@ -37,7 +37,7 @@ DeviceHeater::DeviceHeater(unsigned int id, const string &name, const configurat
 
 en_wanted_state DeviceHeater::GetWantedState() const
 {
-	DevicesHT devices;
+	DevicesWeather devices;
 	auto ht = devices.GetByID(ht_device_id);
 
 	en_wanted_state wanted_state = DeviceTimeRange::GetWantedState();

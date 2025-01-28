@@ -17,21 +17,44 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#include <ht/MinMax.hpp>
+#ifndef __DEVICE_DEVICESWEATHERIMPL_HPP__
+#define __DEVICE_DEVICESWEATHERIMPL_HPP__
 
-namespace ht {
+#include <unordered_set>
+#include <mutex>
+#include <map>
 
-MinMax MinMax::operator+(const MinMax &r) const
+namespace device {
+
+class DevicesWeather;
+class Devices;
+class DeviceWeather;
+
+class DevicesWeatherImpl: public std::unordered_set<DeviceWeather *>
 {
-	return MinMax(h + r.h, t + r.t, w + r.w);
+	friend class DevicesWeather;
+	friend class Devices;
+
+	static DevicesWeatherImpl *instance;
+
+	std::map<unsigned int, DeviceWeather *> id_device;
+
+	mutable std::recursive_mutex d_mutex;
+
+	void free();
+
+	public:
+		DevicesWeatherImpl();
+		~DevicesWeatherImpl();
+
+	private:
+		DeviceWeather *get_by_id(unsigned int id) const;
+		void reload(bool notify = true);
+		void unload();
+};
+
 }
 
-MinMax &MinMax::operator+=(const MinMax &r)
-{
-	h += r.h;
-	t += r.t;
-	w += r.w;
-	return *this;
-}
+#endif
 
-}
+

@@ -22,13 +22,13 @@
 
 #define CONFIGURATION_LINE_MAXLEN           4096
 
-#include <configuration/Configuration.hpp>
-
 #include <string>
 #include <vector>
 
 namespace configuration
 {
+
+class Configuration;
 
 class ConfigurationReader
 {

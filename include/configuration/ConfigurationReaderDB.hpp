@@ -20,12 +20,12 @@
 #ifndef  __CONFIGURATION_CONFIGURATIONREADERDB_H__
 #define  __CONFIGURATION_CONFIGURATIONREADERDB_H__
 
-#include <configuration/Configuration.hpp>
-
 #include <string>
 
 namespace configuration
 {
+
+class Configuration;
 
 class ConfigurationReaderDB
 {

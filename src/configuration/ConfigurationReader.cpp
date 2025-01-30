@@ -18,6 +18,7 @@
  */
 
 #include <configuration/ConfigurationReader.hpp>
+#include <configuration/Configuration.hpp>
 
 #include <stdio.h>
 #include <ctype.h>

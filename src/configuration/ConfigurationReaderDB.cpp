@@ -18,6 +18,7 @@
  */
 
 #include <configuration/ConfigurationReaderDB.hpp>
+#include <configuration/Configuration.hpp>
 #include <database/DB.hpp>
 
 using namespace std;

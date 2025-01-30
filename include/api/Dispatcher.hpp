@@ -20,12 +20,12 @@
 #ifndef __API_DISPATCHER_HPP__
 #define __API_DISPATCHER_HPP__
 
-#include <api/Handler.hpp>
-
 #include <map>
 #include <string>
 
 namespace api {
+
+class Handler;
 
 class Dispatcher
 {

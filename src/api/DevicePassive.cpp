@@ -46,6 +46,8 @@ void DevicePassive::check_config_control(const configuration::Json &j_config)
 		throw invalid_argument("Invalid control type : « " + control_type + " »");
 
 	j_config.Check("mqtt_id", "string");
+	if(j_config.GetString("mqtt_id")=="")
+		throw invalid_argument("MQTT ID is required");
 
 	if(control_type=="3em")
 		j_config.Check("phase", "string");

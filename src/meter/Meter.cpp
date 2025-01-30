@@ -33,7 +33,7 @@ Meter *Meter::GetFromConfig(const configuration::Json &conf)
 {
 	string type = conf.GetString("type");
 	if(type=="plug")
-		return new Plug(conf.GetString("mqtt_id"));
+		return new Plug(conf.GetString("mqtt_id", ""));
 	if(type=="pro")
 		return new Dummy(); // Shelly Pro has no energy measurement
 	if(type=="3em")

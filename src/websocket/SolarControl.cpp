@@ -115,7 +115,13 @@ std::string SolarControl::lws_callback_server_writeable(struct lws * /* wsi */, 
 	{
 		st_api_context *api_ctx = (st_api_context *)user_data;
 
-		return dispatcher.Dispatch(api_ctx->message);
+		string message = api_ctx->message;
+
+		if(message=="")
+			return ""; // Callback with no message, skip
+
+		api_ctx->message = ""; // API command is answered, remove question from context
+		return dispatcher.Dispatch(message);
 	}
 	else if(protocol==METER)
 	{

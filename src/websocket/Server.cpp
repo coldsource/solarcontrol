@@ -177,6 +177,8 @@ int Server::callback_evq(struct lws *wsi, enum lws_callback_reasons reason, void
 			case LWS_CALLBACK_SERVER_WRITEABLE:
 			{
 				string response = ws->lws_callback_server_writeable(wsi, protocol->id, context->derived_session_data);
+				if(response=="")
+					break;
 
 				response.insert(0,LWS_PRE,' ');
 				lws_write(wsi, (unsigned char *)response.c_str() + LWS_PRE, response.length()-LWS_PRE, LWS_WRITE_TEXT);

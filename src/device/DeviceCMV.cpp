@@ -20,7 +20,7 @@
 #include <device/DeviceCMV.hpp>
 #include <configuration/Json.hpp>
 #include <datetime/Timestamp.hpp>
-#include <device/DevicesWeather.hpp>
+#include <device/Devices.hpp>
 #include <device/DeviceWeather.hpp>
 
 using namespace std;
@@ -41,12 +41,12 @@ DeviceCMV::DeviceCMV(unsigned int id, const string &name, const configuration::J
 
 en_wanted_state DeviceCMV::GetWantedState() const
 {
-	DevicesWeather devices;
+	Devices devices;
 
 	double max_moisture = 0;
 	for(auto ht_device_id : ht_device_ids)
 	{
-		auto ht = devices.GetByID(ht_device_id);
+		auto *ht = devices.GetWeatherByID(ht_device_id);
 		if(ht->GetHumidity()>max_moisture)
 			max_moisture = ht->GetHumidity();
 	}

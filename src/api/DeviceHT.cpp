@@ -18,7 +18,7 @@
  */
 
 #include <api/DeviceHT.hpp>
-#include <device/DevicesWeather.hpp>
+#include <device/Devices.hpp>
 #include <device/DeviceWeather.hpp>
 #include <configuration/Json.hpp>
 
@@ -46,7 +46,7 @@ json DeviceHT::HandleMessage(const string &cmd, const configuration::Json &j_par
 {
 	json j_res;
 
-	device::DevicesWeather devices;
+	device::Devices devices;
 
 	if(cmd=="set")
 	{
@@ -54,7 +54,7 @@ json DeviceHT::HandleMessage(const string &cmd, const configuration::Json &j_par
 		string device_name = j_params.GetString("device_name");
 		auto device_config = j_params.GetObject("device_config");
 
-		string device_type = devices.GetByID(device_id)->GetType();
+		string device_type = devices.GetWeatherByID(device_id)->GetType();
 
 		check_config(device_config, device_type);
 

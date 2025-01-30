@@ -43,6 +43,7 @@ class DevicePassive: public Device
 		virtual ~DevicePassive();
 
 		std::string GetType() const { return "passive"; }
+		en_category GetCategory() const { return PASSIVE; }
 
 		double GetPower() const;
 		void LogEnergy();

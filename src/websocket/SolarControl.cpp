@@ -21,11 +21,8 @@
 #include <database/DB.hpp>
 #include <energy/GlobalMeter.hpp>
 #include <device/Devices.hpp>
-#include <device/DevicesOnOff.hpp>
 #include <device/DeviceOnOff.hpp>
-#include <device/DevicesWeather.hpp>
 #include <device/DeviceWeather.hpp>
-#include <device/DevicesPassive.hpp>
 #include <device/DevicePassive.hpp>
 #include <nlohmann/json.hpp>
 
@@ -148,7 +145,9 @@ std::string SolarControl::lws_callback_server_writeable(struct lws * /* wsi */, 
 	{
 		json j_devices = json::array();
 
-		device::DevicesOnOff devices_onoff;
+		device::Devices devices;
+
+		auto devices_onoff = devices.GetOnOff();
 		for(auto device : devices_onoff)
 		{
 			json j_device;
@@ -163,7 +162,7 @@ std::string SolarControl::lws_callback_server_writeable(struct lws * /* wsi */, 
 			j_devices.push_back(j_device);
 		}
 
-		device::DevicesPassive devices_passive;
+		auto devices_passive = devices.GetPassive();
 		for(auto device : devices_passive)
 		{
 			json j_device;
@@ -176,7 +175,7 @@ std::string SolarControl::lws_callback_server_writeable(struct lws * /* wsi */, 
 			j_devices.push_back(j_device);
 		}
 
-		device::DevicesWeather devices_weather;
+		auto devices_weather = devices.GetWeather();
 		for(auto device : devices_weather)
 		{
 			json j_device;

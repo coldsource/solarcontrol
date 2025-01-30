@@ -19,7 +19,7 @@
 
 #include <device/DeviceHeater.hpp>
 #include <configuration/Json.hpp>
-#include <device/DevicesWeather.hpp>
+#include <device/Devices.hpp>
 #include <device/DeviceWeather.hpp>
 
 using namespace std;
@@ -37,8 +37,8 @@ DeviceHeater::DeviceHeater(unsigned int id, const string &name, const configurat
 
 en_wanted_state DeviceHeater::GetWantedState() const
 {
-	DevicesWeather devices;
-	auto ht = devices.GetByID(ht_device_id);
+	Devices devices;
+	auto *ht = devices.GetWeatherByID(ht_device_id);
 
 	en_wanted_state wanted_state = DeviceTimeRange::GetWantedState();
 	if(wanted_state==UNCHANGED)

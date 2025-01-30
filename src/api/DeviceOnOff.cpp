@@ -19,7 +19,7 @@
 
 #include <api/DeviceOnOff.hpp>
 #include <configuration/Json.hpp>
-#include <device/DevicesOnOff.hpp>
+#include <device/Devices.hpp>
 #include <device/DeviceOnOff.hpp>
 #include <websocket/SolarControl.hpp>
 
@@ -27,7 +27,6 @@
 
 using namespace std;
 using nlohmann::json;
-using device::DevicesOnOff;
 
 namespace api
 {
@@ -86,7 +85,7 @@ json DeviceOnOff::HandleMessage(const string &cmd, const configuration::Json &j_
 {
 	json j_res;
 
-	DevicesOnOff devices;
+	device::Devices devices;
 
 	if(cmd=="set")
 	{
@@ -94,7 +93,7 @@ json DeviceOnOff::HandleMessage(const string &cmd, const configuration::Json &j_
 		string device_name = j_params.GetString("device_name");
 		auto device_config = j_params.GetObject("device_config");
 
-		string device_type = devices.GetByID(device_id)->GetType();
+		string device_type = devices.GetOnOffByID(device_id)->GetType();
 
 		check_config(device_config, device_type);
 
@@ -138,7 +137,7 @@ json DeviceOnOff::HandleMessage(const string &cmd, const configuration::Json &j_
 		if(state!="on" && state!="off" && state!="auto")
 			throw invalid_argument("Invalid state : « " + state + " »");
 
-		auto device = devices.GetByID(device_id);
+		auto device = devices.GetOnOffByID(device_id);
 		if(state=="auto")
 			device->SetAutoState();
 		else

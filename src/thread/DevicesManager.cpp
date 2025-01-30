@@ -20,15 +20,13 @@
 #include <thread/DevicesManager.hpp>
 #include <datetime/Timestamp.hpp>
 #include <device/Devices.hpp>
-#include <device/DevicesOnOff.hpp>
 #include <device/DeviceOnOff.hpp>
-#include <device/DevicesPassive.hpp>
 #include <device/DevicePassive.hpp>
-#include <device/DevicesWeather.hpp>
 #include <device/DeviceWeather.hpp>
 #include <energy/GlobalMeter.hpp>
 #include <websocket/SolarControl.hpp>
 #include <control/ConfigurationControl.hpp>
+#include <energy/MovingAverage.hpp>
 #include <logs/Logger.hpp>
 
 #include <stdexcept>
@@ -156,20 +154,23 @@ void DevicesManager::main()
 		last_power_update = now;
 
 		{
-			DevicesWeather devices;
-			for(auto it = devices.begin(); it!=devices.end(); ++it)
+			Devices devices;
+			auto weather = devices.GetWeather();
+			for(auto it = weather.begin(); it!=weather.end(); ++it)
 				(*it)->Log();
 		}
 
 		{
-			DevicesPassive devices;
-			for(auto it = devices.begin(); it!=devices.end(); ++it)
+			Devices devices;
+			auto passive = devices.GetPassive();
+			for(auto it = passive.begin(); it!=passive.end(); ++it)
 				(*it)->LogEnergy();
 		}
 
 		{
 			// Lock devices during computations
-			DevicesOnOff devices;
+			Devices devices;
+			auto onoff = devices.GetOnOff();
 
 			// Lock our config
 			unique_lock<mutex> llock(lock);
@@ -180,7 +181,7 @@ void DevicesManager::main()
 				if(now-last_state_update>state_update_interval)
 				{
 					// Update all devices' state
-					for(auto it = devices.begin(); it!=devices.end(); ++it)
+					for(auto it = onoff.begin(); it!=onoff.end(); ++it)
 					{
 						(*it)->UpdateState();
 						state_updated = true;
@@ -190,7 +191,7 @@ void DevicesManager::main()
 				}
 
 				// Update devices that have been reloaded or have had a manuel change
-				for(auto it = devices.begin(); it!=devices.end(); ++it)
+				for(auto it = onoff.begin(); it!=onoff.end(); ++it)
 				{
 					// Reloaded device
 					if((*it)->NeedStateUpdate())
@@ -211,7 +212,7 @@ void DevicesManager::main()
 				map<DeviceOnOff *, bool> forced_devices;
 				vector<DeviceOnOff *> offload_devices;
 
-				for(auto it = devices.begin(); it!=devices.end(); ++it)
+				for(auto it = onoff.begin(); it!=onoff.end(); ++it)
 				{
 					DeviceOnOff *device = *it;
 

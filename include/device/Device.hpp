@@ -26,6 +26,14 @@
 
 namespace device {
 
+enum en_category
+{
+	ANY,
+	ONOFF,
+	PASSIVE,
+	WEATHER
+};
+
 class Device
 {
 	int id;
@@ -42,6 +50,7 @@ class Device
 		virtual ~Device() {}
 
 		virtual std::string GetType() const = 0;
+		virtual en_category GetCategory() const = 0;
 
 		unsigned int GetID() const { return id; }
 		std::string GetName() const { return name; }

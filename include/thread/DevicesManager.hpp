@@ -21,7 +21,6 @@
 #define __THREAD_DEVICESMANAGER_HPP__
 
 #include <thread/WaiterThread.hpp>
-#include <energy/MovingAverage.hpp>
 
 #include <vector>
 #include <map>
@@ -29,6 +28,7 @@
 
 namespace energy {
 	class GlobalMeter;
+	class MovingAverage;
 }
 
 namespace device {

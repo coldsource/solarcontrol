@@ -26,9 +26,8 @@
 #include <datetime/DateTime.hpp>
 #include <datetime/Month.hpp>
 #include <device/Devices.hpp>
-#include <device/DevicesOnOff.hpp>
+#include <device/Devices.hpp>
 #include <device/DeviceOnOff.hpp>
-#include <device/DevicesPassive.hpp>
 #include <device/DevicePassive.hpp>
 
 #include <map>
@@ -98,7 +97,8 @@ json Logs::HandleMessage(const string &cmd, const configuration::Json &j_params)
 			for(auto hws_offload_consumption : global_meter->GetHWSOffloadConsumptionHistory())
 				j_res[string(hws_offload_consumption.first)][DEVICE_NAME_HWS]["offload"] = hws_offload_consumption.second;
 
-			for(auto device : device::DevicesOnOff())
+			device::Devices devices;
+			for(auto device : devices.GetOnOff())
 			{
 				for(auto consumption : device->GetConsumptionHistory())
 					j_res[string(consumption.first)][device->GetName()]["consumption"] = consumption.second;
@@ -107,7 +107,7 @@ json Logs::HandleMessage(const string &cmd, const configuration::Json &j_params)
 					j_res[string(offload.first)][device->GetName()]["offload"] = offload.second;
 			}
 
-			for(auto device : device::DevicesPassive())
+			for(auto device : devices.GetPassive())
 			{
 				for(auto consumption : device->GetConsumptionHistory())
 					j_res[string(consumption.first)][device->GetName()]["consumption"] = consumption.second;
@@ -138,7 +138,7 @@ json Logs::HandleMessage(const string &cmd, const configuration::Json &j_params)
 			{
 				string date = res["log_energy_date"];
 				int device_id = res["device_id"];
-				string device_name = device::Devices::GetInstance()->IDToName(device_id);
+				string device_name = device::Devices().IDToName(device_id);
 				string type = res["log_energy_type"];
 				energy::Amount amount(res["log_energy"], res["log_energy_peak"], res["log_energy_offpeak"]);
 
@@ -183,7 +183,7 @@ json Logs::HandleMessage(const string &cmd, const configuration::Json &j_params)
 			int device_id = res["device_id"];
 			string date = res["log_energy_detail_date"];
 			string type = res["log_energy_detail_type"];
-			string device_name = device::Devices::GetInstance()->IDToName(device_id);
+			string device_name = device::Devices().IDToName(device_id);
 			energy::Amount amount(res["log_energy"], res["log_energy_peak"], res["log_energy_offpeak"]);
 
 			if(!j_res.contains(date))

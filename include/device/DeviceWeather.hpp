@@ -30,6 +30,8 @@ class DeviceWeather: public Device
 		DeviceWeather(unsigned int id, const std::string &name, const configuration::Json &config): Device(id, name, config) {}
 		virtual ~DeviceWeather() {}
 
+		en_category GetCategory() const { return WEATHER; }
+
 		virtual double GetTemperature() const = 0;
 		virtual double GetHumidity() const = 0;
 		virtual double GetWind() const = 0;

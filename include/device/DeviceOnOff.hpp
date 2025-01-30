@@ -71,6 +71,7 @@ class DeviceOnOff: public Device
 		virtual ~DeviceOnOff();
 
 		int GetPrio() const { return prio; }
+		en_category GetCategory() const { return ONOFF; }
 
 		virtual en_wanted_state GetWantedState() const = 0;
 

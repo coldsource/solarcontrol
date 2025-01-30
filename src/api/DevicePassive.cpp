@@ -19,7 +19,7 @@
 
 #include <api/DevicePassive.hpp>
 #include <configuration/Json.hpp>
-#include <device/DevicesPassive.hpp>
+#include <device/Devices.hpp>
 #include <device/DevicePassive.hpp>
 
 #include <stdexcept>
@@ -55,15 +55,13 @@ json DevicePassive::HandleMessage(const string &cmd, const configuration::Json &
 {
 	json j_res;
 
-	device::DevicesPassive devices;
+	device::Devices devices;
 
 	if(cmd=="set")
 	{
 		int device_id =j_params.GetInt("device_id");
 		string device_name = j_params.GetString("device_name");
 		auto device_config = j_params.GetObject("device_config");
-
-		string device_type = devices.GetByID(device_id)->GetType();
 
 		check_config(device_config);
 

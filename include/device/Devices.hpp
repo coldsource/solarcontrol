@@ -21,6 +21,10 @@
 #define __DEVICE_DEVICES_HPP__
 
 #include <string>
+#include <map>
+#include <set>
+#include <unordered_set>
+#include <mutex>
 
 #define DEVICE_ID_GRID     -1
 #define DEVICE_ID_PV       -2
@@ -32,28 +36,48 @@
 
 namespace device {
 
-class DevicesOnOffImpl;
-class DevicesWeatherImpl;
-class DevicesPassiveImpl;
+class Device;
+class DeviceOnOff;
+class DevicePassive;
+class DeviceWeather;
+
+enum en_sort_type
+{
+	NAME,
+	PRIO
+};
+
+struct DevicesPtrComparator {
+	bool operator()(DeviceOnOff *a, DeviceOnOff *b) const;
+};
 
 class Devices
 {
 	static Devices *instance;
+	static std::recursive_mutex d_mutex;
 
-	DevicesOnOffImpl *devices_onoff;
-	DevicesWeatherImpl *devices_weather;
-	DevicesPassiveImpl *devices_passive;
+	static std::map<int, Device *> devices;
+	static std::multiset<DeviceOnOff *, DevicesPtrComparator> devices_onoff;
+	static std::unordered_set<DevicePassive *> devices_passive;
+	static std::unordered_set<DeviceWeather *> devices_weather;
+
+	Device *get_by_id(int id) const;
 
 	public:
 		Devices();
 		~Devices();
 
-		static Devices *GetInstance() { return instance; }
-
-		std::string IDToName(int id);
-
 		void Reload();
 		void Unload();
+
+		std::string IDToName(int id) const;
+		DeviceOnOff *GetOnOffByID(int id) const;
+		DevicePassive *GetPassiveByID(int id) const;
+		DeviceWeather *GetWeatherByID(int id) const;
+
+		const std::multiset<DeviceOnOff *, DevicesPtrComparator> &GetOnOff() const { return devices_onoff; }
+		const std::unordered_set<DevicePassive *> &GetPassive() const { return devices_passive; }
+		const std::unordered_set<DeviceWeather *> &GetWeather() const { return devices_weather; }
 };
 
 }

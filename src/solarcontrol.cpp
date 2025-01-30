@@ -35,7 +35,7 @@ void signal_callback_handler(int signum)
 	}
 	else if(signum==SIGHUP)
 	{
-		device::Devices::GetInstance()->Reload();
+		device::Devices().Reload();
 	}
 }
 

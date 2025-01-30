@@ -20,7 +20,6 @@
 #include <energy/GlobalMeter.hpp>
 #include <energy/Counter.hpp>
 #include <control/Input.hpp>
-#include <device/DevicesOnOff.hpp>
 #include <nlohmann/json.hpp>
 #include <energy/ConfigurationEnergy.hpp>
 #include <mqtt/Client.hpp>

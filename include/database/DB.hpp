@@ -57,6 +57,8 @@ class DB
 		Result Query(const Query &query);
 		std::string get_query_value(char type, int idx, const database::Query &q);
 		std::string EscapeString(const std::string &str);
+
+		int InsertID();
 };
 
 }

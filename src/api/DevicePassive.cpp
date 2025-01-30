@@ -20,7 +20,6 @@
 #include <api/DevicePassive.hpp>
 #include <configuration/Json.hpp>
 #include <device/Devices.hpp>
-#include <device/DevicePassive.hpp>
 
 #include <stdexcept>
 

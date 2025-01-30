@@ -31,6 +31,9 @@ namespace api
 
 int Device::insert_device(const std::string &type, const std::string &name, const configuration::Json &config)
 {
+	if(name=="")
+		throw invalid_argument("Name cannot be empty");
+
 	DB db;
 
 	db.Query(
@@ -43,6 +46,9 @@ int Device::insert_device(const std::string &type, const std::string &name, cons
 
 void Device::update_device(unsigned int id, const std::string &name, const configuration::Json &config)
 {
+	if(name=="")
+		throw invalid_argument("Name cannot be empty");
+
 	DB db;
 
 	db.Query(

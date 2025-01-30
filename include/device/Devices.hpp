@@ -41,12 +41,6 @@ class DeviceOnOff;
 class DevicePassive;
 class DeviceWeather;
 
-enum en_sort_type
-{
-	NAME,
-	PRIO
-};
-
 struct DevicesPtrComparator {
 	bool operator()(DeviceOnOff *a, DeviceOnOff *b) const;
 };
@@ -67,8 +61,8 @@ class Devices
 		Devices();
 		~Devices();
 
-		void Reload();
-		void Unload();
+		void Reload(int id = 0);
+		void Unload(int id = 0);
 
 		std::string IDToName(int id) const;
 		DeviceOnOff *GetOnOffByID(int id) const;

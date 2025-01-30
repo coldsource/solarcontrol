@@ -29,7 +29,7 @@ using database::DB;
 namespace api
 {
 
-void Device::insert_device(const std::string &type, const std::string &name, const configuration::Json &config)
+int Device::insert_device(const std::string &type, const std::string &name, const configuration::Json &config)
 {
 	DB db;
 
@@ -37,6 +37,8 @@ void Device::insert_device(const std::string &type, const std::string &name, con
 		"INSERT INTO t_device (device_type, device_name, device_config) VALUES(%s, %s, %s)"_sql
 		<<type<<name<<config.ToString()
 	);
+
+	return db.InsertID();
 }
 
 void Device::update_device(unsigned int id, const std::string &name, const configuration::Json &config)

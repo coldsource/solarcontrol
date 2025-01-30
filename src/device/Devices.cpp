@@ -68,17 +68,25 @@ Devices::~Devices()
 	instance->d_mutex.unlock();
 }
 
-void Devices::Reload()
+void Devices::Reload(int id)
 {
 	unique_lock<recursive_mutex> llock(d_mutex);
 
-	logs::Logger::Log(LOG_NOTICE, "Loading devices");
+	if(id==0)
+		logs::Logger::Log(LOG_NOTICE, "Loading devices");
+	else
+		logs::Logger::Log(LOG_NOTICE, "Reloading device " + to_string(id));
 
-	Unload();
+	Unload(id);
 
 	database::DB db;
 
-	auto res = db.Query("SELECT device_id, device_name, device_type, device_config FROM t_device"_sql);
+	string WHERE = "";
+	if(id!=0)
+		WHERE = " WHERE device_id = " + to_string(id);
+	database::Query q("SELECT device_id, device_name, device_type, device_config FROM t_device" + WHERE);
+
+	auto res = db.Query(q);
 	while(res.FetchRow())
 	{
 		configuration::Json config((string)res["device_config"]);
@@ -117,9 +125,28 @@ void Devices::Reload()
 		websocket::SolarControl::GetInstance()->NotifyAll(websocket::SolarControl::en_protocols::DEVICE);
 }
 
-void Devices::Unload()
+void Devices::Unload(int id)
 {
 	unique_lock<recursive_mutex> llock(d_mutex);
+
+	if(id!=0)
+	{
+		auto it = devices.find(id);
+		if(it==devices.end())
+			return; // No error if device is not found : it's a creation
+
+		Device *device = it->second;
+		if(device->GetCategory()==ONOFF)
+			devices_onoff.erase((DeviceOnOff *)device);
+		else if(device->GetCategory()==PASSIVE)
+			devices_passive.erase((DevicePassive *)device);
+		else if(device->GetCategory()==WEATHER)
+			devices_weather.erase((DeviceWeather *)device);
+		devices.erase(device->GetID());
+
+		delete device;
+		return;
+	}
 
 	// Unload and delete all devices objects
 	for(auto it = devices.begin(); it!=devices.end(); ++it)

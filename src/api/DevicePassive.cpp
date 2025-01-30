@@ -67,7 +67,7 @@ json DevicePassive::HandleMessage(const string &cmd, const configuration::Json &
 
 		update_device(device_id, device_name, device_config);
 
-		devices.Reload();
+		devices.Reload(device_id);
 
 		return json();
 	}
@@ -82,9 +82,9 @@ json DevicePassive::HandleMessage(const string &cmd, const configuration::Json &
 		auto j_config = j_params.GetObject("device_config");
 		check_config(j_config);
 
-		insert_device(device_type, device_name, j_config);
+		int device_id = insert_device(device_type, device_name, j_config);
 
-		devices.Reload();
+		devices.Reload(device_id);
 
 		return json();
 	}
@@ -94,7 +94,7 @@ json DevicePassive::HandleMessage(const string &cmd, const configuration::Json &
 
 		delete_device(device_id);
 
-		devices.Reload();
+		devices.Reload(device_id);
 
 		return json();
 	}

@@ -21,6 +21,7 @@
 #include <configuration/Json.hpp>
 #include <device/Devices.hpp>
 #include <device/DeviceWeather.hpp>
+#include <logs/Logger.hpp>
 
 using namespace std;
 using nlohmann::json;
@@ -38,7 +39,17 @@ DeviceHeater::DeviceHeater(unsigned int id, const string &name, const configurat
 en_wanted_state DeviceHeater::GetWantedState() const
 {
 	Devices devices;
-	auto *ht = devices.GetWeatherByID(ht_device_id);
+	DeviceWeather *ht;
+	try
+	{
+		ht = devices.GetWeatherByID(ht_device_id);
+	}
+	catch(exception &e)
+	{
+		// Associated thermometer has been removed, fallback to safe mode
+		logs::Logger::Log(LOG_NOTICE, "Missing thermometer for device « " + GetName() + " », forcing device to off");
+		return OFF;
+	}
 
 	en_wanted_state wanted_state = DeviceTimeRange::GetWantedState();
 	if(wanted_state==UNCHANGED)

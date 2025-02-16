@@ -22,6 +22,7 @@
 #include <datetime/Timestamp.hpp>
 #include <device/Devices.hpp>
 #include <device/DeviceWeather.hpp>
+#include <logs/Logger.hpp>
 
 using namespace std;
 using nlohmann::json;
@@ -44,11 +45,20 @@ en_wanted_state DeviceCMV::GetWantedState() const
 	Devices devices;
 
 	double max_moisture = 0;
-	for(auto ht_device_id : ht_device_ids)
+	try
 	{
-		auto *ht = devices.GetWeatherByID(ht_device_id);
-		if(ht->GetHumidity()>max_moisture)
-			max_moisture = ht->GetHumidity();
+		for(auto ht_device_id : ht_device_ids)
+		{
+			auto ht = devices.GetWeatherByID(ht_device_id);
+			if(ht->GetHumidity()>max_moisture)
+				max_moisture = ht->GetHumidity();
+		}
+	}
+	catch(exception &e)
+	{
+		// Associated hygrometer has been removed, fallback to safe mode
+		logs::Logger::Log(LOG_NOTICE, "Missing hygrometer for device « " + GetName() + " », forcing device to off");
+		return OFF;
 	}
 
 	en_wanted_state wanted_state = DeviceTimeRange::GetWantedState();

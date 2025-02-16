@@ -27,6 +27,7 @@
 
 using namespace std;
 using nlohmann::json;
+using device::Devices;
 
 namespace api
 {
@@ -49,6 +50,17 @@ void DeviceOnOff::check_config(const configuration::Json &j_config, const string
 		j_config.Check("ht_device_id", "int");
 		j_config.Check("force_max_temperature", "float");
 		j_config.Check("offload_max_temperature", "float");
+
+		int ht_device_id = j_config.GetInt("ht_device_id");
+		try
+		{
+			Devices devices;
+			devices.GetWeatherByID(ht_device_id);
+		}
+		catch(exception &e)
+		{
+			throw invalid_argument("Associated thermometer is mandatory");
+		}
 	}
 
 	if(device_type=="cmv")
@@ -56,6 +68,20 @@ void DeviceOnOff::check_config(const configuration::Json &j_config, const string
 		j_config.Check("ht_device_ids", "array");
 		j_config.Check("force_max_moisture", "float");
 		j_config.Check("offload_max_moisture", "float");
+
+		if(j_config.GetArray("ht_device_ids").size()==0)
+			throw invalid_argument("Associated hygrometer is mandatory");
+
+		try
+		{
+			Devices devices;
+			for(auto device_id : j_config.GetArray("ht_device_ids"))
+				devices.GetWeatherByID((int)device_id);
+		}
+		catch(exception &e)
+		{
+			throw invalid_argument("Associated hygrometer is mandatory");
+		}
 	}
 
 	if(device_type=="hws")
@@ -85,7 +111,7 @@ json DeviceOnOff::HandleMessage(const string &cmd, const configuration::Json &j_
 {
 	json j_res;
 
-	device::Devices devices;
+	Devices devices;
 
 	if(cmd=="set")
 	{

@@ -31,7 +31,7 @@ namespace device {
 class DeviceHeater: public DeviceTimeRange
 {
 	protected:
-		unsigned int ht_device_id;
+		int ht_device_id;
 		double force_max_temperature;
 		double offload_max_temperature;
 
@@ -42,6 +42,8 @@ class DeviceHeater: public DeviceTimeRange
 		std::string GetType() const { return "heater"; }
 
 		en_wanted_state GetWantedState() const;
+
+		bool Depends(int device_id) const;
 };
 
 }

@@ -64,4 +64,9 @@ en_wanted_state DeviceHeater::GetWantedState() const
 	return OFF;
 }
 
+bool DeviceHeater::Depends(int device_id) const
+{
+	return device_id==ht_device_id;
+}
+
 }

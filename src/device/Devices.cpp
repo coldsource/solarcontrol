@@ -213,4 +213,15 @@ DeviceWeather *Devices::GetWeatherByID(int id) const
 	return (DeviceWeather *)device;
 }
 
+Device *Devices::IsInUse(int device_id) const
+{
+	for(auto device : devices)
+	{
+		if(device.second->Depends(device_id))
+			return device.second;
+	}
+
+	return 0;
+}
+
 }

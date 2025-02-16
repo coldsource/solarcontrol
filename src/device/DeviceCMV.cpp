@@ -74,5 +74,13 @@ en_wanted_state DeviceCMV::GetWantedState() const
 	return OFF;
 }
 
+bool DeviceCMV::Depends(int device_id) const
+{
+	for(auto ht_device_id : ht_device_ids)
+		if(ht_device_id==device_id)
+			return true;
+	return false;
+}
+
 }
 

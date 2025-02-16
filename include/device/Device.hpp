@@ -55,6 +55,8 @@ class Device
 		unsigned int GetID() const { return id; }
 		std::string GetName() const { return name; }
 		const configuration::Json GetConfig() const { return config; }
+
+		virtual bool Depends(int /* device_id */) const { return false; }
 };
 
 }

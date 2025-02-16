@@ -33,7 +33,7 @@ namespace device {
 class DeviceCMV: public DeviceTimeRange
 {
 	protected:
-		std::set<unsigned int> ht_device_ids;
+		std::set<int> ht_device_ids;
 		double force_max_moisture;
 		double offload_max_moisture;
 
@@ -44,6 +44,8 @@ class DeviceCMV: public DeviceTimeRange
 		std::string GetType() const { return "cmv"; }
 
 		en_wanted_state GetWantedState() const;
+
+		bool Depends(int device_id) const;
 };
 
 }

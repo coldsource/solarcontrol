@@ -72,6 +72,8 @@ class Devices
 		const std::multiset<DeviceOnOff *, DevicesPtrComparator> &GetOnOff() const { return devices_onoff; }
 		const std::unordered_set<DevicePassive *> &GetPassive() const { return devices_passive; }
 		const std::unordered_set<DeviceWeather *> &GetWeather() const { return devices_weather; }
+
+		Device *IsInUse(int device_id) const;
 };
 
 }

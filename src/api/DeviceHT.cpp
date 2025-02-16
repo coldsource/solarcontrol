@@ -85,6 +85,10 @@ json DeviceHT::HandleMessage(const string &cmd, const configuration::Json &j_par
 	{
 		int device_id = j_params.GetInt("device_id");
 
+		auto dependent_device = devices.IsInUse(device_id);
+		if(dependent_device)
+			throw runtime_error("Device is in use by « " + dependent_device->GetName() + " »");
+
 		delete_device(device_id);
 
 		devices.Reload(device_id);

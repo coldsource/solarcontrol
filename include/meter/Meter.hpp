@@ -21,6 +21,7 @@
 #define __METER_METER_HPP__
 
 #include <mutex>
+#include <atomic>
 
 namespace configuration {
 	class Json;
@@ -31,11 +32,11 @@ namespace meter {
 class Meter
 {
 	protected:
-		double power = -1;
+		std::atomic<double> power = -1;
 		double energy_consumption = 0;
 		double energy_excess = 0;
 
-		mutable std::mutex lock;
+		std::mutex lock;
 
 	public:
 		virtual ~Meter() {}

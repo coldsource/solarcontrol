@@ -26,18 +26,18 @@
 
 #include <string>
 #include <mutex>
+#include <atomic>
 
 namespace control {
 
 class Relay: public HTTP, public OnOff, public mqtt::Subscriber
 {
-	bool state = false;
-	double power = -1;
-	int outlet = 0;
+	const int outlet = 0;
+	const std::string topic = "";
 
-	std::string topic = "";
+	std::atomic_bool state = false;
 
-	mutable std::mutex lock;
+	std::mutex lock;
 
 	protected:
 		bool get_output() const;

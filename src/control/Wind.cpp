@@ -28,10 +28,9 @@ using nlohmann::json;
 namespace control
 {
 
-Wind::Wind(const string &mqtt_id)
+Wind::Wind(const string &mqtt_id):topic(mqtt_id + "/events/rpc")
 {
 	auto mqtt = mqtt::Client::GetInstance();
-	topic = mqtt_id + "/events/rpc";
 	mqtt->Subscribe(topic, this);
 }
 
@@ -44,8 +43,6 @@ Wind::~Wind()
 
 double Wind::GetWind() const
 {
-	unique_lock<mutex> llock(lock);
-
 	return wind;
 }
 

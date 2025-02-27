@@ -28,12 +28,14 @@ using nlohmann::json;
 
 namespace control {
 
-Input::Input(const string &mqtt_id, int input, const string &ip): HTTP(ip), input(input)
+Input::Input(const string &mqtt_id, int input, const string &ip):
+HTTP(ip),
+input(input),
+topic(mqtt_id + "/events/rpc")
 {
 	state = false;
 
 	auto mqtt = mqtt::Client::GetInstance();
-	topic = mqtt_id + "/events/rpc";
 	mqtt->Subscribe(topic, this);
 }
 
@@ -75,16 +77,12 @@ void Input::UpdateState()
 
 bool Input::GetState() const
 {
-	unique_lock<mutex> llock(lock);
-
 	return state;
 }
 
 void Input::HandleMessage(const string &message)
 {
 	{
-		unique_lock<mutex> llock(lock);
-
 		try
 		{
 			json j = json::parse(message);

@@ -23,16 +23,17 @@
 #include <mqtt/Subscriber.hpp>
 
 #include <mutex>
+#include <atomic>
 
 namespace control {
 
 class Wind: public mqtt::Subscriber
 {
-	std::string topic;
+	const std::string topic;
 
-	double wind = std::numeric_limits<double>::quiet_NaN();
+	std::atomic<double> wind = std::numeric_limits<double>::quiet_NaN();
 
-	mutable std::mutex lock;
+	std::mutex lock;
 
 	public:
 		Wind(const std::string &mqtt_id);

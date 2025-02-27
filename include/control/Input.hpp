@@ -25,17 +25,18 @@
 
 #include <string>
 #include <mutex>
+#include <atomic>
 
 namespace control {
 
 class Input: public HTTP, public mqtt::Subscriber
 {
-	std::string topic;
+	const int input = 0;
+	const std::string topic;
 
-	bool state = false;
-	int input = 0;
+	std::atomic_bool state = false;
 
-	mutable std::mutex lock;
+	std::mutex lock;
 
 	protected:
 		bool get_input() const;

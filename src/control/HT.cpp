@@ -35,15 +35,11 @@ HT::~HT()
 
 double HT::GetTemperature() const
 {
-	unique_lock<mutex> llock(lock);
-
 	return temperature;
 }
 
 double HT::GetHumidity() const
 {
-	unique_lock<mutex> llock(lock);
-
 	return humidity;
 }
 

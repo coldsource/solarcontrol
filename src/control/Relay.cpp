@@ -28,13 +28,14 @@ using nlohmann::json;
 
 namespace control {
 
-Relay::Relay(const std::string &ip, int outlet, const string &mqtt_id): HTTP(ip), outlet(outlet)
+Relay::Relay(const std::string &ip, int outlet, const string &mqtt_id):
+HTTP(ip),
+outlet(outlet),
+topic(mqtt_id!=""?mqtt_id + "/events/rpc":"")
 {
 	state = false;
 
 	auto mqtt = mqtt::Client::GetInstance();
-	if(mqtt_id!="")
-		topic = mqtt_id + "/events/rpc";
 
 	if(topic!="")
 		mqtt->Subscribe(topic, this);
@@ -49,10 +50,11 @@ Relay::~Relay()
 
 void Relay::Switch(bool new_state)
 {
-	unique_lock<mutex> llock(lock);
 
 	if(ip=="")
 		return;
+
+	unique_lock<mutex> llock(lock);
 
 	json j;
 	j["id"] = 1;
@@ -75,8 +77,6 @@ void Relay::Switch(bool new_state)
 
 bool Relay::GetState() const
 {
-	unique_lock<mutex> llock(lock);
-
 	return state;
 }
 
@@ -113,7 +113,6 @@ void Relay::HandleMessage(const string &message)
 {
 	try
 	{
-		unique_lock<mutex> llock(lock);
 
 		json j = json::parse(message);
 		auto ev = j["params"]["switch:" + to_string(outlet)];

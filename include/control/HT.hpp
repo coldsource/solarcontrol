@@ -21,16 +21,17 @@
 #define __CONTROL_HT_HPP__
 
 #include <mutex>
+#include <atomic>
 
 namespace control {
 
 class HT
 {
 	protected:
-		double temperature = std::numeric_limits<double>::quiet_NaN();
-		double humidity = std::numeric_limits<double>::quiet_NaN();
+		std::atomic<double> temperature = std::numeric_limits<double>::quiet_NaN();
+		std::atomic<double> humidity = std::numeric_limits<double>::quiet_NaN();
 
-		mutable std::mutex lock;
+		std::mutex lock;
 
 	public:
 		HT();

@@ -44,8 +44,6 @@ Meter *Meter::GetFromConfig(const configuration::Json &conf)
 
 double Meter::GetPower() const
 {
-	unique_lock<mutex> llock(lock);
-
 	return power;
 }
 

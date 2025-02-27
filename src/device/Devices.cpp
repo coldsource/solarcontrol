@@ -42,14 +42,9 @@ Devices *Devices::instance = 0;
 recursive_mutex Devices::d_mutex;
 
 map<int, Device *> Devices::devices;
-multiset<DeviceOnOff *, DevicesPtrComparator> Devices::devices_onoff;
+unordered_set<DeviceOnOff *> Devices::devices_onoff;
 unordered_set<DevicePassive *> Devices::devices_passive;
 unordered_set<DeviceWeather *> Devices::devices_weather;
-
-bool DevicesPtrComparator::operator()(DeviceOnOff *a, DeviceOnOff *b) const
-{
-	return a->GetPrio() < b->GetPrio();
-}
 
 Devices::Devices()
 {

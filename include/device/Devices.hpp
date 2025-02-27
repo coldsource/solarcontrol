@@ -41,17 +41,13 @@ class DeviceOnOff;
 class DevicePassive;
 class DeviceWeather;
 
-struct DevicesPtrComparator {
-	bool operator()(DeviceOnOff *a, DeviceOnOff *b) const;
-};
-
 class Devices
 {
 	static Devices *instance;
 	static std::recursive_mutex d_mutex;
 
 	static std::map<int, Device *> devices;
-	static std::multiset<DeviceOnOff *, DevicesPtrComparator> devices_onoff;
+	static std::unordered_set<DeviceOnOff *> devices_onoff;
 	static std::unordered_set<DevicePassive *> devices_passive;
 	static std::unordered_set<DeviceWeather *> devices_weather;
 
@@ -69,7 +65,7 @@ class Devices
 		DevicePassive *GetPassiveByID(int id) const;
 		DeviceWeather *GetWeatherByID(int id) const;
 
-		const std::multiset<DeviceOnOff *, DevicesPtrComparator> &GetOnOff() const { return devices_onoff; }
+		const std::unordered_set<DeviceOnOff *> &GetOnOff() const { return devices_onoff; }
 		const std::unordered_set<DevicePassive *> &GetPassive() const { return devices_passive; }
 		const std::unordered_set<DeviceWeather *> &GetWeather() const { return devices_weather; }
 

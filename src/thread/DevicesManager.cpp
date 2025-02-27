@@ -37,6 +37,10 @@ using datetime::Timestamp;
 
 namespace thread {
 
+struct DevicesPtrComparator {
+	bool operator()(DeviceOnOff *a, DeviceOnOff *b) const { return a->GetPrio() < b->GetPrio(); }
+};
+
 DevicesManager *DevicesManager::instance = 0;
 
 DevicesManager::DevicesManager()
@@ -170,7 +174,11 @@ void DevicesManager::main()
 		{
 			// Lock devices during computations
 			Devices devices;
-			auto onoff = devices.GetOnOff();
+
+			// Sort OnOff devices by priority
+			std::multiset<DeviceOnOff *, DevicesPtrComparator> onoff;
+			for(auto device : devices.GetOnOff())
+				onoff.insert(device);
 
 			// Lock our config
 			unique_lock<mutex> llock(lock);

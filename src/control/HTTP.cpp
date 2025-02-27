@@ -18,6 +18,7 @@
  */
 
 #include <control/HTTP.hpp>
+#include <configuration/ConfigurationSolarControl.hpp>
 
 #include <curl/curl.h>
 
@@ -42,6 +43,10 @@ json HTTP::Post(const json &j) const
 
 	try
 	{
+		// Configure HTTP timeout
+		long timeout = configuration::ConfigurationSolarControl::GetInstance()->GetTime("http.timeout");
+		curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT , timeout);
+
 		curl_easy_setopt(curl, CURLOPT_URL, ("http://" + ip + "/rpc").c_str());
 
 		string param = j.dump();

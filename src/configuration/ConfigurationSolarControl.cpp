@@ -36,6 +36,7 @@ ConfigurationSolarControl::ConfigurationSolarControl(void)
 	entries["mqtt.id"] = "solarcontrol";
 	entries["mqtt.host"] = "127.0.0.1";
 	entries["mqtt.port"] = "1883";
+	entries["http.timeout"] = "5s";
 	entries["sql.host"] = "127.0.0.1";
 	entries["sql.user"] = "";
 	entries["sql.password"] = "";
@@ -55,6 +56,7 @@ void ConfigurationSolarControl::Check(void)
 	check_int_entry("core.history.maxdays");
 	check_time_entry("core.history.sync");
 	check_int_entry("mqtt.port");
+	check_time_entry("http.timeout");
 
 	if(GetInt("core.history.maxdays")<0)
 		throw invalid_argument("core.history.maxdays : must be greater than 0");

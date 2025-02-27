@@ -25,6 +25,7 @@
 #include <set>
 #include <unordered_set>
 #include <mutex>
+#include <shared_mutex>
 
 #define DEVICE_ID_GRID     -1
 #define DEVICE_ID_PV       -2
@@ -44,14 +45,19 @@ class DeviceWeather;
 class Devices
 {
 	static Devices *instance;
-	static std::recursive_mutex d_mutex;
+	static std::mutex mutex_w;
+	static std::shared_mutex mutex_r;
 
 	static std::map<int, Device *> devices;
 	static std::unordered_set<DeviceOnOff *> devices_onoff;
 	static std::unordered_set<DevicePassive *> devices_passive;
 	static std::unordered_set<DeviceWeather *> devices_weather;
 
+	void lock_write();
+	void unlock_write();
+
 	Device *get_by_id(int id) const;
+	void reload(int id = 0);
 
 	public:
 		Devices();

@@ -39,7 +39,8 @@ namespace device
 {
 
 Devices *Devices::instance = 0;
-recursive_mutex Devices::d_mutex;
+mutex Devices::mutex_w;
+shared_mutex Devices::mutex_r;
 
 map<int, Device *> Devices::devices;
 unordered_set<DeviceOnOff *> Devices::devices_onoff;
@@ -50,79 +51,116 @@ Devices::Devices()
 {
 	if(instance==0)
 	{
-		Reload();
+		reload();
 		instance = this;
 		return;
 	}
 
-	instance->d_mutex.lock();
+	// Read lock mode
+	instance->mutex_w.lock();
+	instance->mutex_r.lock_shared();
+	instance->mutex_w.unlock();
 }
 
 Devices::~Devices()
 {
-	instance->d_mutex.unlock();
+	instance->mutex_r.unlock_shared();
+}
+
+void Devices::lock_write()
+{
+	instance->mutex_r.unlock_shared();
+
+	instance->mutex_w.lock();
+	instance->mutex_r.lock();
+	instance->mutex_w.unlock();
+}
+
+void Devices::unlock_write()
+{
+	instance->mutex_r.unlock();
+
+	instance->mutex_w.lock();
+	instance->mutex_r.lock_shared();
+	instance->mutex_w.unlock();
 }
 
 void Devices::Reload(int id)
 {
-	unique_lock<recursive_mutex> llock(d_mutex);
+	// Switch to write locking mode
+	lock_write();
 
-	if(id==0)
-		logs::Logger::Log(LOG_NOTICE, "Loading devices");
-	else
-		logs::Logger::Log(LOG_NOTICE, "Reloading device " + to_string(id));
+	reload(id);
 
-	Unload(id);
+	// Switch back to read locking mode
+	unlock_write();
+}
 
-	database::DB db;
-
-	string WHERE = "";
-	if(id!=0)
-		WHERE = " WHERE device_id = " + to_string(id);
-	database::Query q("SELECT device_id, device_name, device_type, device_config FROM t_device" + WHERE);
-
-	auto res = db.Query(q);
-	while(res.FetchRow())
+void Devices::reload(int id)
+{
+	try
 	{
-		configuration::Json config((string)res["device_config"]);
-
-		Device *device;
-		string device_type = res["device_type"];
-		if(device_type=="timerange")
-			device = new DeviceTimeRange(res["device_id"], res["device_name"], config);
-		else if(device_type=="heater")
-			device = new DeviceHeater(res["device_id"], res["device_name"], config);
-		else if(device_type=="cmv")
-			device = new DeviceCMV(res["device_id"], res["device_name"], config);
-		else if(device_type=="hws")
-			device = new DeviceHWS(res["device_id"], res["device_name"], config);
-		else if(device_type=="passive")
-			device = new DevicePassive(res["device_id"], res["device_name"], config);
-		else if(device_type=="ht")
-			device = new DeviceHTWifi(res["device_id"], res["device_name"], config);
-		else if(device_type=="htmini")
-			device = new DeviceHTBluetooth(res["device_id"], res["device_name"], config);
-		else if(device_type=="wind")
-			device = new DeviceWind(res["device_id"], res["device_name"], config);
+		if(id==0)
+			logs::Logger::Log(LOG_NOTICE, "Loading devices");
 		else
-			throw invalid_argument("Invalid device type « " + string(res["device_type"]) + " »");
+			logs::Logger::Log(LOG_NOTICE, "Reloading device " + to_string(id));
 
-		devices.insert(pair<int, Device *>(device->GetID(), device));
-		if(device->GetCategory()==ONOFF)
-			devices_onoff.insert((DeviceOnOff *)device);
-		else if(device->GetCategory()==PASSIVE)
-			devices_passive.insert((DevicePassive *)device);
-		if(device->GetCategory()==WEATHER)
-			devices_weather.insert((DeviceWeather *)device);
+		Unload(id);
+
+		database::DB db;
+
+		string WHERE = "";
+		if(id!=0)
+			WHERE = " WHERE device_id = " + to_string(id);
+		database::Query q("SELECT device_id, device_name, device_type, device_config FROM t_device" + WHERE);
+
+		auto res = db.Query(q);
+		while(res.FetchRow())
+		{
+			configuration::Json config((string)res["device_config"]);
+
+			Device *device;
+			string device_type = res["device_type"];
+			if(device_type=="timerange")
+				device = new DeviceTimeRange(res["device_id"], res["device_name"], config);
+			else if(device_type=="heater")
+				device = new DeviceHeater(res["device_id"], res["device_name"], config);
+			else if(device_type=="cmv")
+				device = new DeviceCMV(res["device_id"], res["device_name"], config);
+			else if(device_type=="hws")
+				device = new DeviceHWS(res["device_id"], res["device_name"], config);
+			else if(device_type=="passive")
+				device = new DevicePassive(res["device_id"], res["device_name"], config);
+			else if(device_type=="ht")
+				device = new DeviceHTWifi(res["device_id"], res["device_name"], config);
+			else if(device_type=="htmini")
+				device = new DeviceHTBluetooth(res["device_id"], res["device_name"], config);
+			else if(device_type=="wind")
+				device = new DeviceWind(res["device_id"], res["device_name"], config);
+			else
+				throw invalid_argument("Invalid device type « " + string(res["device_type"]) + " »");
+
+			devices.insert(pair<int, Device *>(device->GetID(), device));
+			if(device->GetCategory()==ONOFF)
+				devices_onoff.insert((DeviceOnOff *)device);
+			else if(device->GetCategory()==PASSIVE)
+				devices_passive.insert((DevicePassive *)device);
+			if(device->GetCategory()==WEATHER)
+				devices_weather.insert((DeviceWeather *)device);
+		}
+
+		if(websocket::SolarControl::GetInstance())
+			websocket::SolarControl::GetInstance()->NotifyAll(websocket::SolarControl::en_protocols::DEVICE);
 	}
-
-	if(websocket::SolarControl::GetInstance())
-		websocket::SolarControl::GetInstance()->NotifyAll(websocket::SolarControl::en_protocols::DEVICE);
+	catch(exception &e)
+	{
+		logs::Logger::Log(LOG_NOTICE, "Error reloading devices : « " + string(e.what()) + " »");
+	}
 }
 
 void Devices::Unload(int id)
 {
-	unique_lock<recursive_mutex> llock(d_mutex);
+	// No locking here as it's only called by Reload or main thread (which is not locked)
 
 	if(id!=0)
 	{
@@ -167,7 +205,6 @@ string Devices::IDToName(int id) const
 	else if(id==DEVICE_ID_HWS)
 		return DEVICE_NAME_HWS;
 
-	unique_lock<recursive_mutex> llock(d_mutex);
 	auto it = devices.find(id);
 	if(it!=devices.end())
 		return it->second->GetName();

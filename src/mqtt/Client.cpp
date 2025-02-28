@@ -69,11 +69,13 @@ void Client::Unsubscribe(const string &topic, Subscriber *subscriber)
 	if(it==subscribers.end())
 		return;
 
-	mosquitto_unsubscribe(mosqh, 0, topic.c_str());
 	it->second.erase(subscriber);
 
 	if(it->second.size()==0)
+	{
+		mosquitto_unsubscribe(mosqh, 0, topic.c_str()); // No more subscribers, unsubscribe this topic from MQTT server
 		subscribers.erase(topic);
+	}
 }
 
 void Client::Shutdown()

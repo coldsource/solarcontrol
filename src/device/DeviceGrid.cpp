@@ -45,11 +45,11 @@ void DeviceGrid::CreateInDB()
 
 	json config;
 
-	json control;
-	control["type"] = "3em";
-	control["mqtt_id"] = "";
-	control["phase"] = "a";
-	config["control"] = control;
+	json meter;
+	meter["type"] = "3em";
+	meter["mqtt_id"] = "";
+	meter["phase"] = "a";
+	config["meter"] = meter;
 
 	db.Query("INSERT INTO t_device(device_id, device_type, device_name, device_config) VALUES(%i, 'grid', 'grid', %s)"_sql<<DEVICE_ID_GRID<<config.dump());
 }

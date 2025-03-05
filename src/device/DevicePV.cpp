@@ -45,11 +45,11 @@ void DevicePV::CreateInDB()
 
 	json config;
 
-	json control;
-	control["type"] = "3em";
-	control["mqtt_id"] = "";
-	control["phase"] = "b";
-	config["control"] = control;
+	json meter;
+	meter["type"] = "3em";
+	meter["mqtt_id"] = "";
+	meter["phase"] = "b";
+	config["meter"] = meter;
 
 	db.Query("INSERT INTO t_device(device_id, device_type, device_name, device_config) VALUES(%i, 'pv', 'pv', %s)"_sql<<DEVICE_ID_PV<<config.dump());
 }

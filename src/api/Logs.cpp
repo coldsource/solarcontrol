@@ -19,7 +19,6 @@
 
 #include <api/Logs.hpp>
 #include <database/DB.hpp>
-#include <energy/GlobalMeter.hpp>
 #include <energy/Amount.hpp>
 #include <configuration/Json.hpp>
 #include <datetime/Date.hpp>
@@ -29,6 +28,8 @@
 #include <device/Devices.hpp>
 #include <device/DeviceOnOff.hpp>
 #include <device/DevicePassive.hpp>
+#include <device/DeviceGrid.hpp>
+#include <device/DevicePV.hpp>
 
 #include <map>
 #include <stdexcept>
@@ -79,38 +80,25 @@ json Logs::HandleMessage(const string &cmd, const configuration::Json &j_params)
 		int months_before = j_params.GetInt("mbefore", -1);
 		if(months_before==-1)
 		{
-			auto global_meter = energy::GlobalMeter::GetInstance();
 			j_res = json::object();
 
-			for(auto grid_consumption : global_meter->GetGridConsumptionHistory())
-				j_res[string(grid_consumption.first)][DEVICE_NAME_GRID]["consumption"] = grid_consumption.second;
-
-			for(auto grid_excess : global_meter->GetGridExcessHistory())
-				j_res[string(grid_excess.first)][DEVICE_NAME_GRID]["excess"] = grid_excess.second;
-
-			for(auto pv_production : global_meter->GetPVProductionHistory())
-				j_res[string(pv_production.first)][DEVICE_NAME_PV]["production"] = pv_production.second;
-
-			for(auto hws_consumption : global_meter->GetHWSConsumptionHistory())
-				j_res[string(hws_consumption.first)][DEVICE_NAME_HWS]["consumption"] = hws_consumption.second;
-
-			for(auto hws_offload_consumption : global_meter->GetHWSOffloadConsumptionHistory())
-				j_res[string(hws_offload_consumption.first)][DEVICE_NAME_HWS]["offload"] = hws_offload_consumption.second;
-
 			device::Devices devices;
-			for(auto device : devices.GetOnOff())
+			for(auto device : devices.GetElectrical())
 			{
 				for(auto consumption : device->GetConsumptionHistory())
 					j_res[string(consumption.first)][device->GetName()]["consumption"] = consumption.second;
 
-				for(auto offload : device->GetOffloadHistory())
-					j_res[string(offload.first)][device->GetName()]["offload"] = offload.second;
-			}
+				if(device->GetType()=="grid")
+				{
+					for(auto excess : ((device::DeviceGrid *)device)->GetExcessHistory())
+						j_res[string(excess.first)][device->GetName()]["excess"] = excess.second;
+				}
 
-			for(auto device : devices.GetPassive())
-			{
-				for(auto consumption : device->GetConsumptionHistory())
-					j_res[string(consumption.first)][device->GetName()]["consumption"] = consumption.second;
+				if(device->GetType()=="pv")
+				{
+					for(auto production : ((device::DevicePV *)device)->GetProductionHistory())
+						j_res[string(production.first)][device->GetName()]["production"] = production.second;
+				}
 
 				for(auto offload : device->GetOffloadHistory())
 					j_res[string(offload.first)][device->GetName()]["offload"] = offload.second;

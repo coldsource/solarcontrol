@@ -33,11 +33,7 @@ static auto init = Configuration::GetInstance()->RegisterConfig(new Configuratio
 ConfigurationEnergy::ConfigurationEnergy(void)
 {
 	// Load default configuration
-	entries["energy.grid.phase"] = "a";
-	entries["energy.pv.phase"] = "b";
-	entries["energy.hws.phase"] = "c";
 	entries["energy.hws.min"] = "3kWh";
-	entries["energy.mqtt.id"] = "";
 	entries["offpeak.mqtt.id"] = "";
 	entries["offpeak.input"] = "0";
 	entries["offpeak.ip"] = "";

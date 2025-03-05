@@ -153,8 +153,8 @@ std::string SolarControl::lws_callback_server_writeable(struct lws * /* wsi */, 
 
 		device::Devices devices;
 
-		auto devices_onoff = devices.GetOnOff();
-		for(auto device : devices_onoff)
+		auto devices_electrical = devices.GetElectrical();
+		for(auto device : devices_electrical)
 		{
 			json j_device;
 			j_device["device_id"] = device->GetID();
@@ -163,19 +163,6 @@ std::string SolarControl::lws_callback_server_writeable(struct lws * /* wsi */, 
 			j_device["device_config"] = (json)device->GetConfig();
 			j_device["state"] = device->GetState();
 			j_device["manual"] = device->IsManual();
-			j_device["power"] = device->GetPower();
-
-			j_devices.push_back(j_device);
-		}
-
-		auto devices_passive = devices.GetPassive();
-		for(auto device : devices_passive)
-		{
-			json j_device;
-			j_device["device_id"] = device->GetID();
-			j_device["device_type"] = device->GetType();
-			j_device["device_name"] = device->GetName();
-			j_device["device_config"] = (json)device->GetConfig();
 			j_device["power"] = device->GetPower();
 
 			j_devices.push_back(j_device);

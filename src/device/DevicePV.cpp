@@ -17,7 +17,7 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#include <device/DeviceHWS.hpp>
+#include <device/DevicePV.hpp>
 #include <device/Devices.hpp>
 #include <configuration/Json.hpp>
 #include <energy/ConfigurationEnergy.hpp>
@@ -30,46 +30,28 @@ using nlohmann::json;
 namespace device
 {
 
-DeviceHWS::DeviceHWS(unsigned int id, const string &name, const configuration::Json &config):DeviceTimeRange(id, name, config)
+DevicePV::DevicePV(unsigned int id, const string &name, const configuration::Json &config):DevicePassive(id, name, config)
 {
-	min_energy = config.GetInt("min_energy");
-	min_energy_for_last = config.GetInt("min_energy_for_last");
+	// Override default counter for storing production
+	consumption = energy::Counter(id, "production");
 }
 
-bool DeviceHWS::WantRemainder() const
-{
-	double last_energy = consumption.GetTotalConsumptionForLast(min_energy_for_last);
-	return remainder.IsActive() && last_energy<min_energy;
-}
-
-void DeviceHWS::CreateInDB()
+void DevicePV::CreateInDB()
 {
 	database::DB db;
-	auto res = db.Query("SELECT device_id FROM t_device WHERE device_type='hws'"_sql);
+	auto res = db.Query("SELECT device_id FROM t_device WHERE device_type='pv'"_sql);
 	if(res.FetchRow())
 		return; // Already in database
 
 	json config;
-	config["prio"] = 0;
 
 	json control;
-	control["type"] = "pro";
-	control["ip"] = "";
-	control["outlet"] = 0;
+	control["type"] = "3em";
+	control["mqtt_id"] = "";
+	control["phase"] = "b";
 	config["control"] = control;
 
-	json meter;
-	meter["type"] = "3em";
-	meter["mqtt_id"] = "";
-	meter["phase"] = "b";
-	config["meter"] = meter;
-
-	config["force"] = json::array();
-	config["remainder"] = json::array();
-	config["min_energy"] = 0;
-	config["min_energy_for_last"] = 0;
-
-	db.Query("INSERT INTO t_device(device_id, device_type, device_name, device_config) VALUES(%i, 'hws', 'hws', %s)"_sql<<DEVICE_ID_HWS<<config.dump());
+	db.Query("INSERT INTO t_device(device_id, device_type, device_name, device_config) VALUES(%i, 'pv', 'pv', %s)"_sql<<DEVICE_ID_PV<<config.dump());
 }
 
 }

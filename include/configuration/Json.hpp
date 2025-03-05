@@ -40,6 +40,7 @@ class Json
 		Json(const std::string &json_str);
 
 		void Check(const std::string &name, const std::string &type, bool required = true) const;
+		bool Has(const std::string &name) const;
 
 		std::string GetString(const std::string &name) const;
 		std::string GetString(const std::string &name, const std::string &default_value) const;

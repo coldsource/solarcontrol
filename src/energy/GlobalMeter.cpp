@@ -20,28 +20,32 @@
 #include <energy/GlobalMeter.hpp>
 #include <energy/Counter.hpp>
 #include <control/Input.hpp>
-#include <nlohmann/json.hpp>
+#include <meter/Pro3EM.hpp>
 #include <energy/ConfigurationEnergy.hpp>
-#include <mqtt/Client.hpp>
-#include <websocket/SolarControl.hpp>
 #include <device/Devices.hpp>
+#include <device/DeviceHWS.hpp>
+#include <device/DeviceGrid.hpp>
+#include <device/DevicePV.hpp>
+#include <websocket/SolarControl.hpp>
 
 using namespace std;
 using configuration::ConfigurationEnergy;
-
-using nlohmann::json;
+using device::Device;
+using device::DeviceHWS;
+using device::DeviceGrid;
+using device::DevicePV;
 
 namespace energy {
 
 GlobalMeter * GlobalMeter::instance = 0;
 
 GlobalMeter::GlobalMeter()
-:grid(DEVICE_ID_GRID, "consumption", "excess"),
-pv(DEVICE_ID_PV, "production"),
-hws(DEVICE_ID_HWS, "consumption"),
-hws_offload(DEVICE_ID_HWS, "offload")
 {
 	instance = this;
+
+	ObserveDevice(DEVICE_ID_GRID);
+	ObserveDevice(DEVICE_ID_PV);
+	ObserveDevice(DEVICE_ID_HWS);
 
 	Reload();
 }
@@ -58,24 +62,6 @@ void GlobalMeter::free()
 		delete offpeak_ctrl;
 		offpeak_ctrl = 0;
 	}
-
-	if(meter_grid)
-	{
-		delete meter_grid;
-		meter_grid = 0;
-	}
-
-	if(meter_pv)
-	{
-		delete meter_pv;
-		meter_pv = 0;
-	}
-
-	if(meter_hws)
-	{
-		delete meter_hws;
-		meter_hws = 0;
-	}
 }
 
 void GlobalMeter::Reload()
@@ -86,15 +72,6 @@ void GlobalMeter::Reload()
 		free();
 
 		auto config = ConfigurationEnergy::GetInstance();
-
-		string mqtt_id = config->Get("energy.mqtt.id");
-		string phase_grid = config->Get("energy.grid.phase");
-		string phase_pv = config->Get("energy.pv.phase");
-		string phase_hws = config->Get("energy.hws.phase");
-
-		meter_grid = new meter::Pro3EM(mqtt_id, phase_grid);
-		meter_pv = new meter::Pro3EM(mqtt_id, phase_pv);
-		meter_hws = new meter::Pro3EM(mqtt_id, phase_hws);
 
 		hws_min_energy = config->GetEnergy("energy.hws.min");
 
@@ -117,6 +94,18 @@ void GlobalMeter::Reload()
 		websocket::SolarControl::GetInstance()->NotifyAll(websocket::SolarControl::en_protocols::METER);
 }
 
+void GlobalMeter::DeviceChanged(Device * device)
+{
+	unique_lock<recursive_mutex> llock(lock);
+
+	if(device->GetID()==DEVICE_ID_HWS)
+		hws = (DeviceHWS *)device;
+	else if(device->GetID()==DEVICE_ID_GRID)
+		grid = (DeviceGrid *)device;
+	else if(device->GetID()==DEVICE_ID_PV)
+		pv = (DevicePV *)device;
+}
+
 double GlobalMeter::GetGridPower() const
 {
 	unique_lock<recursive_mutex> llock(lock);
@@ -124,7 +113,7 @@ double GlobalMeter::GetGridPower() const
 	if(debug)
 		return debug_grid;
 
-	return meter_grid->GetPower();
+	return grid->GetPower();
 }
 
 double GlobalMeter::GetPVPower() const
@@ -134,7 +123,7 @@ double GlobalMeter::GetPVPower() const
 	if(debug)
 		return debug_pv;
 
-	double power = meter_pv->GetPower();
+	double power = pv->GetPower();
 	return power>=0?power:0;
 }
 
@@ -145,7 +134,7 @@ double GlobalMeter::GetHWSPower() const
 	if(debug)
 		return debug_hws;
 
-	double power = meter_hws->GetPower();
+	double power = hws->GetPower();
 	return power>=0?power:0;
 }
 
@@ -168,6 +157,8 @@ double GlobalMeter::GetNetAvailablePower(bool allow_neg) const
 double GlobalMeter::GetGrossAvailablePower(bool allow_neg) const
 {
 	unique_lock<recursive_mutex> llock(lock);
+
+	bool hws_state = hws->GetState();
 
 	double hws_offload = hws_state?0:GetHWSPower(); // No hws offload when in forced mode
 
@@ -206,35 +197,35 @@ double GlobalMeter::GetGridEnergy() const
 {
 	unique_lock<recursive_mutex> llock(lock);
 
-	return grid.GetEnergyConsumption();
+	return grid->GetEnergyConsumption();
 }
 
 double GlobalMeter::GetExportedEnergy() const
 {
 	unique_lock<recursive_mutex> llock(lock);
 
-	return grid.GetEnergyExcess();
+	return grid->GetEnergyExcess();
 }
 
 double GlobalMeter::GetPVEnergy() const
 {
 	unique_lock<recursive_mutex> llock(lock);
 
-	return pv.GetEnergyConsumption();
+	return pv->GetEnergyConsumption();
 }
 
 double GlobalMeter::GetHWSEnergy() const
 {
 	unique_lock<recursive_mutex> llock(lock);
 
-	return hws.GetEnergyConsumption();
+	return hws->GetEnergyConsumption();
 }
 
 double GlobalMeter::GetHWSOffloadEnergy() const
 {
 	unique_lock<recursive_mutex> llock(lock);
 
-	return hws_offload.GetEnergyConsumption();
+	return hws->GetEnergyOffload();
 }
 
 bool GlobalMeter::GetOffPeak() const
@@ -247,44 +238,11 @@ bool GlobalMeter::GetOffPeak() const
 	return offpeak_ctrl->GetState();
 }
 
-void GlobalMeter::SetHWSState(bool new_state)
-{
-	unique_lock<recursive_mutex> llock(lock);
-
-	hws_state = new_state;
-}
-
 bool GlobalMeter::HWSIsFull() const
 {
 	unique_lock<recursive_mutex> llock(lock);
 
-	return hws.GetEnergyConsumption()>hws_min_energy;
+	return hws->GetEnergyConsumption()>hws_min_energy;
 }
-
-void GlobalMeter::LogEnergy()
-{
-	{
-		unique_lock<recursive_mutex> llock(lock);
-
-		if(debug)
-			return;
-
-		double grid_consumption = meter_grid->GetConsumption();
-		double grid_excess = meter_grid->GetExcess();
-		double pv_production = meter_pv->GetConsumption();
-		double hws_consumption = meter_hws->GetConsumption();
-
-		grid.AddEnergy(grid_consumption, grid_excess);
-		pv.AddEnergy(pv_production);
-		hws.AddEnergy(hws_consumption);
-
-		double pv_ratio = GetPVPowerRatio();
-		hws_offload.AddEnergy(hws_consumption * pv_ratio);
-	}
-
-	if(websocket::SolarControl::GetInstance())
-		websocket::SolarControl::GetInstance()->NotifyAll(websocket::SolarControl::en_protocols::METER);
-}
-
 
 }

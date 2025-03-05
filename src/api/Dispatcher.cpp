@@ -18,9 +18,8 @@
  */
 
 #include <api/Dispatcher.hpp>
-#include <api/DeviceOnOff.hpp>
+#include <api/DeviceElectrical.hpp>
 #include <api/DeviceHT.hpp>
-#include <api/DevicePassive.hpp>
 #include <api/Logs.hpp>
 #include <api/Config.hpp>
 #include <api/Storage.hpp>
@@ -36,9 +35,8 @@ namespace api
 
 Dispatcher::Dispatcher()
 {
-	handlers["deviceonoff"] = new DeviceOnOff();
+	handlers["deviceelectrical"] = new DeviceElectrical();
 	handlers["deviceht"] = new DeviceHT();
-	handlers["devicepassive"] = new DevicePassive();
 	handlers["logs"] = new Logs();
 	handlers["config"] = new Config();
 	handlers["storage"] = new Storage();

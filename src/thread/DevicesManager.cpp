@@ -149,8 +149,6 @@ void DevicesManager::main()
 		bool state_changed = false;
 		bool state_updated = false;
 
-		global_meter->LogEnergy();
-
 		// Compute moving average of available power (we don't want to count during cooldown to let power be accurate)
 		// global_meter is locked before locking devices (and never locked after)
 		if(now-last_change_ts>=cooldown)
@@ -166,8 +164,8 @@ void DevicesManager::main()
 
 		{
 			Devices devices;
-			auto passive = devices.GetPassive();
-			for(auto it = passive.begin(); it!=passive.end(); ++it)
+			auto electrical = devices.GetElectrical();
+			for(auto it = electrical.begin(); it!=electrical.end(); ++it)
 				(*it)->LogEnergy();
 		}
 
@@ -177,8 +175,11 @@ void DevicesManager::main()
 
 			// Sort OnOff devices by priority
 			std::multiset<DeviceOnOff *, DevicesPtrComparator> onoff;
-			for(auto device : devices.GetOnOff())
-				onoff.insert(device);
+			for(auto device : devices.GetElectrical())
+			{
+				if(device->GetCategory()==ONOFF)
+					onoff.insert((DeviceOnOff *)device);
+			}
 
 			// Lock our config
 			unique_lock<mutex> llock(lock);
@@ -223,8 +224,6 @@ void DevicesManager::main()
 				for(auto it = onoff.begin(); it!=onoff.end(); ++it)
 				{
 					DeviceOnOff *device = *it;
-
-					device->LogEnergy();
 
 					en_wanted_state new_state = device->GetWantedState();
 					if(new_state==ON || new_state==OFF)

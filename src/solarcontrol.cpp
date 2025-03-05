@@ -7,6 +7,8 @@
 #include <energy/GlobalMeter.hpp>
 #include <device/Devices.hpp>
 #include <device/DeviceHWS.hpp>
+#include <device/DeviceGrid.hpp>
+#include <device/DevicePV.hpp>
 #include <utils/signal.hpp>
 #include <configuration/Args.hpp>
 #include <configuration/Configuration.hpp>
@@ -110,13 +112,15 @@ int main(int argc, char **argv)
 		auto config_sc = configuration::ConfigurationSolarControl::GetInstance();
 		mqtt::Client mqtt(config_sc->Get("mqtt.host"), config_sc->GetInt("mqtt.port"));
 
-		// Create global energy meter (grid, pv, hws)
-		energy::GlobalMeter globalmeter;
-
-		// Create special HWS device if needed
+		// Create special devices if needed
 		device::DeviceHWS::CreateInDB();
+		device::DeviceGrid::CreateInDB();
+		device::DevicePV::CreateInDB();
 
 		device::Devices devices;
+
+		// Create global energy meter (grid, pv, hws)
+		energy::GlobalMeter globalmeter;
 
 		websocket::SolarControl ws;
 		ws.Start();
@@ -134,7 +138,9 @@ int main(int argc, char **argv)
 		lcd.Shutdown();
 		lcd.WaitForShutdown();
 
-		devices.Unload(); // Unload all devices to ensure MQTT Unsubscription before destructor is called on MQTT client
+		auto old_devices = devices.Unload(); // Unload all devices to ensure MQTT Unsubscription before destructor is called on MQTT client
+		for(auto old_device : old_devices)
+			delete old_device;
 	}
 	catch(exception &e)
 	{

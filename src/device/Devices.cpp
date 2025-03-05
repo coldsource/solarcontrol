@@ -26,6 +26,9 @@
 #include <device/DeviceHTWifi.hpp>
 #include <device/DeviceHTBluetooth.hpp>
 #include <device/DeviceWind.hpp>
+#include <device/DeviceGrid.hpp>
+#include <device/DevicePV.hpp>
+#include <device/DeviceObserver.hpp>
 #include <configuration/Json.hpp>
 #include <database/DB.hpp>
 #include <logs/Logger.hpp>
@@ -43,9 +46,10 @@ mutex Devices::mutex_w;
 shared_mutex Devices::mutex_r;
 
 map<int, Device *> Devices::devices;
-unordered_set<DeviceOnOff *> Devices::devices_onoff;
-unordered_set<DevicePassive *> Devices::devices_passive;
+unordered_set<DeviceElectrical *> Devices::devices_electrical;
 unordered_set<DeviceWeather *> Devices::devices_weather;
+
+map<int, set<DeviceObserver *>> Devices::observers;
 
 Devices::Devices()
 {
@@ -57,32 +61,32 @@ Devices::Devices()
 	}
 
 	// Read lock mode
-	instance->mutex_w.lock();
-	instance->mutex_r.lock_shared();
-	instance->mutex_w.unlock();
+	mutex_w.lock();
+	mutex_r.lock_shared();
+	mutex_w.unlock();
 }
 
 Devices::~Devices()
 {
-	instance->mutex_r.unlock_shared();
+	mutex_r.unlock_shared();
 }
 
 void Devices::lock_write()
 {
-	instance->mutex_r.unlock_shared();
+	mutex_r.unlock_shared();
 
-	instance->mutex_w.lock();
-	instance->mutex_r.lock();
-	instance->mutex_w.unlock();
+	mutex_w.lock();
+	mutex_r.lock();
+	mutex_w.unlock();
 }
 
 void Devices::unlock_write()
 {
-	instance->mutex_r.unlock();
+	mutex_r.unlock();
 
-	instance->mutex_w.lock();
-	instance->mutex_r.lock_shared();
-	instance->mutex_w.unlock();
+	mutex_w.lock();
+	mutex_r.lock_shared();
+	mutex_w.unlock();
 }
 
 void Devices::Reload(int id)
@@ -98,6 +102,8 @@ void Devices::Reload(int id)
 
 void Devices::reload(int id)
 {
+	set<Device *> old_devices;
+
 	try
 	{
 		if(id==0)
@@ -105,7 +111,7 @@ void Devices::reload(int id)
 		else
 			logs::Logger::Log(LOG_NOTICE, "Reloading device " + to_string(id));
 
-		Unload(id);
+		old_devices = Unload(id);
 
 		database::DB db;
 
@@ -120,31 +126,43 @@ void Devices::reload(int id)
 			configuration::Json config((string)res["device_config"]);
 
 			Device *device;
+			int device_id = res["device_id"];
 			string device_type = res["device_type"];
+
 			if(device_type=="timerange")
-				device = new DeviceTimeRange(res["device_id"], res["device_name"], config);
+				device = new DeviceTimeRange(device_id, res["device_name"], config);
 			else if(device_type=="heater")
-				device = new DeviceHeater(res["device_id"], res["device_name"], config);
+				device = new DeviceHeater(device_id, res["device_name"], config);
 			else if(device_type=="cmv")
-				device = new DeviceCMV(res["device_id"], res["device_name"], config);
+				device = new DeviceCMV(device_id, res["device_name"], config);
 			else if(device_type=="hws")
-				device = new DeviceHWS(res["device_id"], res["device_name"], config);
+				device = new DeviceHWS(device_id, res["device_name"], config);
 			else if(device_type=="passive")
-				device = new DevicePassive(res["device_id"], res["device_name"], config);
+				device = new DevicePassive(device_id, res["device_name"], config);
 			else if(device_type=="ht")
-				device = new DeviceHTWifi(res["device_id"], res["device_name"], config);
+				device = new DeviceHTWifi(device_id, res["device_name"], config);
 			else if(device_type=="htmini")
-				device = new DeviceHTBluetooth(res["device_id"], res["device_name"], config);
+				device = new DeviceHTBluetooth(device_id, res["device_name"], config);
 			else if(device_type=="wind")
-				device = new DeviceWind(res["device_id"], res["device_name"], config);
+				device = new DeviceWind(device_id, res["device_name"], config);
+			else if(device_type=="grid")
+				device = new DeviceGrid(device_id, res["device_name"], config);
+			else if(device_type=="pv")
+				device = new DevicePV(device_id, res["device_name"], config);
 			else
 				throw invalid_argument("Invalid device type « " + string(res["device_type"]) + " »");
 
+			auto it = observers.find(device_id);
+			if(it!=observers.end())
+			{
+				// Notify observers that device has changed before removing old one
+				for(auto observer : it->second)
+					observer->DeviceChanged(device);
+			}
+
 			devices.insert(pair<int, Device *>(device->GetID(), device));
-			if(device->GetCategory()==ONOFF)
-				devices_onoff.insert((DeviceOnOff *)device);
-			else if(device->GetCategory()==PASSIVE)
-				devices_passive.insert((DevicePassive *)device);
+			if(device->GetCategory()==ONOFF || device->GetCategory()==PASSIVE)
+				devices_electrical.insert((DeviceOnOff *)device);
 			if(device->GetCategory()==WEATHER)
 				devices_weather.insert((DeviceWeather *)device);
 		}
@@ -156,42 +174,46 @@ void Devices::reload(int id)
 	{
 		logs::Logger::Log(LOG_NOTICE, "Error reloading devices : « " + string(e.what()) + " »");
 	}
+
+	// Observers have been notified we can now safely remove old devices
+	for(auto old_device : old_devices)
+		delete old_device;
 }
 
-void Devices::Unload(int id)
+set<Device *> Devices::Unload(int id)
 {
 	// No locking here as it's only called by Reload or main thread (which is not locked)
+
+	set<Device *> old_devices;
 
 	if(id!=0)
 	{
 		auto it = devices.find(id);
 		if(it==devices.end())
-			return; // No error if device is not found : it's a creation
+			return old_devices; // No error if device is not found : it's a creation
 
 		Device *device = it->second;
-		if(device->GetCategory()==ONOFF)
-			devices_onoff.erase((DeviceOnOff *)device);
-		else if(device->GetCategory()==PASSIVE)
-			devices_passive.erase((DevicePassive *)device);
+		if(device->GetCategory()==ONOFF || device->GetCategory()==PASSIVE)
+			devices_electrical.erase((DeviceElectrical *)device);
 		else if(device->GetCategory()==WEATHER)
 			devices_weather.erase((DeviceWeather *)device);
 		devices.erase(device->GetID());
 
-		delete device;
-		return;
+		old_devices.insert(device);
+		return old_devices;
 	}
 
 	// Unload and delete all devices objects
 	for(auto it = devices.begin(); it!=devices.end(); ++it)
 	{
 		Device *device = it->second;
-		delete device;
+		old_devices.insert(device);
 	}
 
 	devices.clear();
-	devices_onoff.clear();
-	devices_passive.clear();
+	devices_electrical.clear();
 	devices_weather.clear();
+	return old_devices;
 }
 
 
@@ -221,20 +243,12 @@ Device *Devices::get_by_id(int id) const
 	return it->second;
 }
 
-DeviceOnOff *Devices::GetOnOffByID(int id) const
+DeviceElectrical *Devices::GetElectricalByID(int id) const
 {
 	Device *device = get_by_id(id);
-	if(device->GetCategory()!=ONOFF)
+	if(device->GetCategory()!=ONOFF && device->GetCategory()!=PASSIVE)
 		throw runtime_error("Not an OnOff device : " + to_string(id));
-	return (DeviceOnOff *)device;
-}
-
-DevicePassive *Devices::GetPassiveByID(int id) const
-{
-	Device *device = get_by_id(id);
-	if(device->GetCategory()!=PASSIVE)
-		throw runtime_error("Not a Passive device : " + to_string(id));
-	return (DevicePassive *)device;
+	return (DeviceElectrical *)device;
 }
 
 DeviceWeather *Devices::GetWeatherByID(int id) const
@@ -254,6 +268,28 @@ Device *Devices::IsInUse(int device_id) const
 	}
 
 	return 0;
+}
+
+void Devices::RegisterObserver(int device_id, DeviceObserver *observer)
+{
+	lock_write();
+
+	observer->DeviceChanged(get_by_id(device_id));
+	observers[device_id].insert(observer);
+
+	unlock_write();
+}
+
+void Devices::UnregisterObserver(int device_id, DeviceObserver *observer)
+{
+	auto it = observers.find(device_id);
+	if(it==observers.end())
+		return;
+
+	it->second.erase(observer);
+
+	if(it->second.size()==0)
+		observers.erase(device_id);
 }
 
 }

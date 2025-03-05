@@ -83,7 +83,10 @@ void Pro3EM::HandleMessage(const string &message)
 	}
 
 	if(websocket::SolarControl::GetInstance())
+	{
 		websocket::SolarControl::GetInstance()->NotifyAll(websocket::SolarControl::en_protocols::DEVICE);
+		websocket::SolarControl::GetInstance()->NotifyAll(websocket::SolarControl::en_protocols::METER);
+	}
 }
 
 }

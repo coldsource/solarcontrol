@@ -17,16 +17,30 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#include <device/DevicePassive.hpp>
-#include <configuration/Json.hpp>
-#include <energy/GlobalMeter.hpp>
-#include <meter/Meter.hpp>
+#ifndef __DEVICE_DEVICEPV_HPP__
+#define __DEVICE_DEVICEPV_HPP__
 
-using namespace std;
-using datetime::Timestamp;
-using nlohmann::json;
+#include <device/DevicePassive.hpp>
+
+namespace configuration {
+	class Json;
+}
 
 namespace device {
 
+class DevicePV: public DevicePassive
+{
+	public:
+		DevicePV(unsigned int id, const std::string &name, const configuration::Json &config);
+		virtual ~DevicePV() {}
+
+		std::string GetType() const { return "pv"; }
+
+		const std::map<datetime::Date, energy::Amount> &GetProductionHistory() const { return consumption.GetConsumptionHistory(); }
+
+		static void CreateInDB();
+};
+
 }
 
+#endif

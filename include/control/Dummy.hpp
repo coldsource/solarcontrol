@@ -17,34 +17,25 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __API_DEVICEPASSIVE_HPP__
-#define __API_DEVICEPASSIVE_HPP__
+#ifndef __CONTROL_DUMMY_HPP__
+#define __CONTROL_DUMMY_HPP__
 
-#include <api/Device.hpp>
-#include <api/Handler.hpp>
+#include <control/OnOff.hpp>
 
-#include <string>
+namespace control {
 
-namespace configuration {
-	class Json;
-}
-
-namespace api {
-
-class DevicePassive: public Device, public Handler
+class Dummy: public OnOff
 {
-	std::string ip;
-
-	void check_config(const configuration::Json &j_config);
-	void check_config_control(const configuration::Json &j_config);
-
 	public:
-		 nlohmann::json HandleMessage(const std::string &cmd, const configuration::Json &j_params);
+		Dummy() {}
+		virtual ~Dummy() {}
+
+		void Switch(bool) {}
+		bool GetState() const { return false; }
+		void UpdateState() {}
 };
 
 }
 
 #endif
-
-
 

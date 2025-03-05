@@ -22,7 +22,6 @@
 #include <meter/Meter.hpp>
 #include <configuration/Json.hpp>
 #include <nlohmann/json.hpp>
-#include <logs/State.hpp>
 #include <energy/GlobalMeter.hpp>
 
 using namespace std;
@@ -32,13 +31,10 @@ using nlohmann::json;
 namespace device {
 
 DeviceOnOff::DeviceOnOff(unsigned int id, const std::string &name, const configuration::Json &config):
-Device(id, name, config), consumption(id, "consumption"), offload(id, "offload"), on_history(id)
+DeviceElectrical(id, name, config), on_history(id)
 {
 	prio = config.GetInt("prio");
 	expected_consumption = config.GetInt("expected_consumption", 0);
-
-	ctrl = control::OnOff::GetFromConfig(config.GetObject("control"));
-	meter = meter::Meter::GetFromConfig(config.GetObject("control"));
 
 	auto state = state_restore();
 	manual = state.GetBool("manual", false);
@@ -49,19 +45,11 @@ DeviceOnOff::~DeviceOnOff()
 	json state;
 	state["manual"] = manual;
 	state_backup(configuration::Json(state));
-
-	delete ctrl;
-	delete meter;
-}
-
-bool DeviceOnOff::GetState() const
-{
-	return ctrl->GetState();
 }
 
 void DeviceOnOff::SetState(bool new_state)
 {
-	ctrl->Switch(new_state);
+	DeviceElectrical::SetState(new_state);
 
 	if(new_state)
 		on_history.ClockIn();
@@ -72,22 +60,12 @@ void DeviceOnOff::SetState(bool new_state)
 		last_on = Timestamp(TS_MONOTONIC);
 	else
 		last_off = Timestamp(TS_MONOTONIC);
-
-	logs::State::LogStateChange(GetID(), manual?logs::State::en_mode::manual:logs::State::en_mode::automatic, new_state);
 }
 
 void DeviceOnOff::SetManualState(bool new_state)
 {
-	manual = true;
+	DeviceElectrical::SetManualState(new_state);
 	manual_state_changed = true;
-	SetState(new_state);
-}
-
-void DeviceOnOff::SetAutoState()
-{
-	manual = false;
-
-	logs::State::LogModeChange(GetID(), logs::State::en_mode::automatic);
 }
 
 void DeviceOnOff::UpdateState()
@@ -110,20 +88,6 @@ double DeviceOnOff::GetExpectedConsumption() const
 		return meter->GetPower();
 
 	return expected_consumption;
-}
-
-double DeviceOnOff::GetPower() const
-{
-	return meter->GetPower();
-}
-
-void DeviceOnOff::LogEnergy()
-{
-	double device_consumption = meter->GetConsumption();
-	double pv_ratio = energy::GlobalMeter::GetInstance()->GetPVPowerRatio();
-
-	consumption.AddEnergy(device_consumption);
-	offload.AddEnergy(device_consumption * pv_ratio);
 }
 
 }

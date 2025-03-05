@@ -69,6 +69,11 @@ void Json::Check(const std::string &name, const std::string &type, bool required
 	check_entry(name, type);
 }
 
+bool Json::Has(const std::string &name) const
+{
+	return json.contains(name);
+}
+
 string Json::GetString(const string &name) const
 {
 	check_entry(name, "string");

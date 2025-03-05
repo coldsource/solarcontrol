@@ -17,16 +17,16 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#include <device/DevicePassive.hpp>
-#include <configuration/Json.hpp>
-#include <energy/GlobalMeter.hpp>
-#include <meter/Meter.hpp>
+#include <device/DeviceObserver.hpp>
+#include <device/Devices.hpp>
 
-using namespace std;
-using datetime::Timestamp;
-using nlohmann::json;
+namespace device
+{
 
-namespace device {
-
+void DeviceObserver::ObserveDevice(int device_id)
+{
+	Devices devices;
+	devices.RegisterObserver(device_id, this);
 }
 
+}

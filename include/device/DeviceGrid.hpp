@@ -17,16 +17,30 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#include <device/DevicePassive.hpp>
-#include <configuration/Json.hpp>
-#include <energy/GlobalMeter.hpp>
-#include <meter/Meter.hpp>
+#ifndef __DEVICE_DEVICEGRID_HPP__
+#define __DEVICE_DEVICEGRID_HPP__
 
-using namespace std;
-using datetime::Timestamp;
-using nlohmann::json;
+#include <device/DevicePassive.hpp>
+
+namespace configuration {
+	class Json;
+}
 
 namespace device {
 
+class DeviceGrid: public DevicePassive
+{
+	public:
+		DeviceGrid(unsigned int id, const std::string &name, const configuration::Json &config);
+		virtual ~DeviceGrid() {}
+
+		std::string GetType() const { return "grid"; }
+
+		const std::map<datetime::Date, energy::Amount> &GetExcessHistory() const { return consumption.GetExcessHistory(); }
+
+		static void CreateInDB();
+};
+
 }
 
+#endif

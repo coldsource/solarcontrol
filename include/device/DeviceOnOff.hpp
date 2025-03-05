@@ -20,20 +20,11 @@
 #ifndef __DEVICE_DEVICEONOFF_HPP__
 #define __DEVICE_DEVICEONOFF_HPP__
 
-#include <device/Device.hpp>
+#include <device/DeviceElectrical.hpp>
 #include <datetime/TimespanHistory.hpp>
 #include <datetime/Timestamp.hpp>
-#include <energy/Counter.hpp>
 
 #include <string>
-
-namespace control {
-	class OnOff;
-}
-
-namespace meter {
-	class Meter;
-}
 
 namespace device {
 
@@ -45,18 +36,11 @@ enum en_wanted_state
 	UNCHANGED
 };
 
-class DeviceOnOff: public Device
+class DeviceOnOff: public DeviceElectrical
 {
 	protected:
-		control::OnOff *ctrl;
-		meter::Meter *meter;
-
 		bool need_update = true; // Force state update on reload
 		bool manual_state_changed = false; // Notify we have a change from API
-		bool manual = false;
-
-		energy::Counter consumption;
-		energy::Counter offload;
 
 		datetime::Timestamp last_on;
 		datetime::Timestamp last_off;
@@ -70,29 +54,22 @@ class DeviceOnOff: public Device
 		DeviceOnOff(unsigned int id, const std::string &name, const configuration::Json &config);
 		virtual ~DeviceOnOff();
 
-		int GetPrio() const { return prio; }
 		en_category GetCategory() const { return ONOFF; }
+
+		int GetPrio() const { return prio; }
 
 		virtual en_wanted_state GetWantedState() const = 0;
 
-		bool GetState() const;
 		virtual void SetState(bool new_state);
-		void SetManualState(bool new_state);
-		void SetAutoState();
-		bool IsManual() { return manual; }
+		virtual void SetManualState(bool new_state);
 
 		bool WasChanged() const { return manual_state_changed; }
 		void AckChanged() { manual_state_changed = false; }
 
 		bool NeedStateUpdate() const { return need_update; }
 		void UpdateState();
+
 		double GetExpectedConsumption() const;
-		double GetPower() const;
-
-		void LogEnergy();
-
-		const std::map<datetime::Date, energy::Amount> &GetConsumptionHistory() const { return consumption.GetConsumptionHistory(); }
-		const std::map<datetime::Date, energy::Amount> &GetOffloadHistory() const { return offload.GetConsumptionHistory(); }
 };
 
 }

@@ -38,9 +38,9 @@
 namespace device {
 
 class Device;
-class DeviceOnOff;
-class DevicePassive;
+class DeviceElectrical;
 class DeviceWeather;
+class DeviceObserver;
 
 class Devices
 {
@@ -49,9 +49,10 @@ class Devices
 	static std::shared_mutex mutex_r;
 
 	static std::map<int, Device *> devices;
-	static std::unordered_set<DeviceOnOff *> devices_onoff;
-	static std::unordered_set<DevicePassive *> devices_passive;
+	static std::unordered_set<DeviceElectrical *> devices_electrical;
 	static std::unordered_set<DeviceWeather *> devices_weather;
+
+	static std::map<int, std::set<DeviceObserver *>> observers;
 
 	void lock_write();
 	void unlock_write();
@@ -64,18 +65,19 @@ class Devices
 		~Devices();
 
 		void Reload(int id = 0);
-		void Unload(int id = 0);
+		std::set<Device *> Unload(int id = 0);
 
 		std::string IDToName(int id) const;
-		DeviceOnOff *GetOnOffByID(int id) const;
-		DevicePassive *GetPassiveByID(int id) const;
+		DeviceElectrical *GetElectricalByID(int id) const;
 		DeviceWeather *GetWeatherByID(int id) const;
 
-		const std::unordered_set<DeviceOnOff *> &GetOnOff() const { return devices_onoff; }
-		const std::unordered_set<DevicePassive *> &GetPassive() const { return devices_passive; }
+		const std::unordered_set<DeviceElectrical *> &GetElectrical() const { return devices_electrical; }
 		const std::unordered_set<DeviceWeather *> &GetWeather() const { return devices_weather; }
 
 		Device *IsInUse(int device_id) const;
+
+		void RegisterObserver(int device_id, DeviceObserver *observer);
+		void UnregisterObserver(int device_id, DeviceObserver *observer);
 };
 
 }

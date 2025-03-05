@@ -43,8 +43,6 @@ class DeviceHWS: public DeviceTimeRange
 		std::string GetType() const { return "hws"; }
 
 		static void CreateInDB();
-
-		virtual void SetState(bool new_state);
 };
 
 }

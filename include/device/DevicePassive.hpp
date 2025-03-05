@@ -20,36 +20,19 @@
 #ifndef __DEVICE_DEVICEPASSIVE_HPP__
 #define __DEVICE_DEVICEPASSIVE_HPP__
 
-#include <device/Device.hpp>
-#include <energy/Counter.hpp>
+#include <device/DeviceElectrical.hpp>
 
 #include <string>
 
-namespace meter {
-	class Meter;
-}
-
 namespace device {
 
-class DevicePassive: public Device
+class DevicePassive: public DeviceElectrical
 {
-	protected:
-		meter::Meter *meter;
-		energy::Counter consumption;
-		energy::Counter offload;
-
 	public:
-		DevicePassive(unsigned int id, const std::string &name, const configuration::Json &config);
-		virtual ~DevicePassive();
+		DevicePassive(unsigned int id, const std::string &name, const configuration::Json &config): DeviceElectrical(id, name, config) {}
 
-		std::string GetType() const { return "passive"; }
 		en_category GetCategory() const { return PASSIVE; }
-
-		double GetPower() const;
-		void LogEnergy();
-
-		const std::map<datetime::Date, energy::Amount> &GetConsumptionHistory() const { return consumption.GetConsumptionHistory(); }
-		const std::map<datetime::Date, energy::Amount> &GetOffloadHistory() const { return offload.GetConsumptionHistory(); }
+		std::string GetType() const { return "passive"; }
 };
 
 }

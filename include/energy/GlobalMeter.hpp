@@ -20,38 +20,39 @@
 #ifndef __ENERGY_GLOBALMETER_HPP__
 #define __ENERGY_GLOBALMETER_HPP__
 
+#include <device/DeviceObserver.hpp>
 #include <energy/Counter.hpp>
 #include <energy/Amount.hpp>
-#include <meter/Pro3EM.hpp>
 
 #include <mutex>
 #include <map>
 
-namespace energy {
-	class Counter;
+namespace meter {
+	class Pro3EM;
 }
 
 namespace control {
 	class Input;
 }
 
+namespace device {
+	class Device;
+	class DeviceHWS;
+	class DeviceGrid;
+	class DevicePV;
+}
+
 namespace energy {
 
-class GlobalMeter
+class GlobalMeter: public device::DeviceObserver
 {
-	meter::Pro3EM *meter_grid = 0;
-	meter::Pro3EM *meter_pv = 0;
-	meter::Pro3EM *meter_hws = 0;
-
-	Counter grid;
-	Counter pv;
-	Counter hws;
-	Counter hws_offload;
+	device::DeviceGrid *grid;
+	device::DevicePV *pv;
+	device::DeviceHWS *hws;
 
 	control::Input *offpeak_ctrl = 0;
 
 	double hws_min_energy = 0;
-	bool hws_state = false;
 
 	bool debug = false;
 	double debug_grid = 0;
@@ -71,6 +72,7 @@ protected:
 		static GlobalMeter *GetInstance() { return instance; }
 
 		void Reload();
+		void DeviceChanged(device::Device * device);
 
 		double GetGridPower() const; // Grid power (>0 if importing, <0 if exporting)
 		double GetPVPower() const; // Solar production (>0 if producting)
@@ -90,17 +92,7 @@ protected:
 
 		bool GetOffPeak() const;
 
-		double GetTotalHWSConsuptionForLast(int ndays) { return hws.GetTotalConsumptionForLast(ndays); }
-		const std::map<datetime::Date, Amount> &GetGridConsumptionHistory() const { return grid.GetConsumptionHistory(); }
-		const std::map<datetime::Date, Amount> &GetGridExcessHistory() const { return grid.GetExcessHistory(); }
-		const std::map<datetime::Date, Amount> &GetPVProductionHistory() const { return pv.GetConsumptionHistory(); }
-		const std::map<datetime::Date, Amount> &GetHWSConsumptionHistory() const { return hws.GetConsumptionHistory(); }
-		const std::map<datetime::Date, Amount> &GetHWSOffloadConsumptionHistory() const { return hws_offload.GetConsumptionHistory(); }
-
-		void SetHWSState(bool new_state);
 		bool HWSIsFull() const;
-
-		void LogEnergy();
 };
 
 }

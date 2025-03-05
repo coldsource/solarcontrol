@@ -61,7 +61,7 @@ void DeviceHWS::CreateInDB()
 	json meter;
 	meter["type"] = "3em";
 	meter["mqtt_id"] = "";
-	meter["phase"] = "b";
+	meter["phase"] = "c";
 	config["meter"] = meter;
 
 	config["force"] = json::array();

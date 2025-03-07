@@ -18,7 +18,6 @@
  */
 
 #include <control/Plug.hpp>
-#include <logs/Logger.hpp>
 
 using namespace std;
 

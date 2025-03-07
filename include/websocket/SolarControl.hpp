@@ -26,6 +26,7 @@
 #include <set>
 #include <map>
 #include <mutex>
+#include <thread>
 
 namespace websocket
 {
@@ -39,10 +40,17 @@ class SolarControl: public Server
 
 	struct st_api_context
 	{
-		std::string message;
+		std::string message = "";
+		std::string response = "";
+		bool worker_alive = false;
+		std::thread worker;
+		bool is_orphaned = false;
 	};
 
 	api::Dispatcher dispatcher;
+
+	// API workers
+	static void worker(struct lws *wsi, st_api_context *api_ctx);
 
 	public:
 		enum en_protocols

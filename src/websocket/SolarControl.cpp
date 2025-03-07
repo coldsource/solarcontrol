@@ -24,6 +24,7 @@
 #include <device/DeviceOnOff.hpp>
 #include <device/DeviceWeather.hpp>
 #include <device/DevicePassive.hpp>
+#include <logs/Logger.hpp>
 #include <nlohmann/json.hpp>
 
 using namespace std;
@@ -49,7 +50,7 @@ void SolarControl::NotifyAll(unsigned int protocol)
 	unique_lock<recursive_mutex> llock(lock);
 
 	for(auto client : clients[protocol])
-		lws_callback_on_writable(client);
+		CallbackOnWritable(client);
 
 	cancel_service();
 }
@@ -78,6 +79,43 @@ void SolarControl::stop_thread(void)
 	database::DB::StopThread();
 }
 
+void SolarControl::worker(struct lws *wsi, st_api_context *api_ctx)
+{
+	database::DB::StartThread();
+
+	try
+	{
+		string message = api_ctx->message;
+		string response = "";
+
+		if(message!="")
+			response = instance->dispatcher.Dispatch(message); // Callback with no message, skip
+
+		api_ctx->message = ""; // API command is answered, remove question from context
+		api_ctx->response = response; // Set response
+	}
+	catch(exception &e)
+	{
+		logs::Logger::Log(LOG_ERR, e.what());
+	}
+
+	database::DB::StopThread();
+
+	unique_lock<recursive_mutex> llock(instance->lock);
+	if(instance->IsCancelling())
+		return; // Shutdown in progress, we are waited and must be joined
+
+	if(api_ctx->is_orphaned)
+	{
+		// We are an orphaned worker, detach thread and remove our context
+		api_ctx->worker.detach();
+		delete api_ctx;
+		return;
+	}
+
+	instance->CallbackOnWritable(wsi);
+}
+
 void *SolarControl::lws_callback_established(struct lws *wsi, unsigned int protocol)
 {
 	unique_lock<recursive_mutex> llock(lock);
@@ -87,15 +125,38 @@ void *SolarControl::lws_callback_established(struct lws *wsi, unsigned int proto
 	if(protocol==DEVICE || protocol==METER)
 		NotifyAll(protocol);
 
-	return new st_api_context();
+	if(protocol==API)
+		return new st_api_context();
+
+	return 0;
 }
 
 void SolarControl::lws_callback_closed(struct lws *wsi, unsigned int protocol, void *user_data)
 {
 	unique_lock<recursive_mutex> llock(lock);
 
+	if(protocol==API)
+	{
+		st_api_context *api_ctx = (st_api_context *)user_data;
+
+		if(api_ctx->worker_alive)
+		{
+			if(IsCancelling())
+			{
+				llock.unlock();
+				api_ctx->worker.join(); // Shutting down, wait thread
+				llock.lock();
+
+				delete api_ctx;
+			}
+			else
+				api_ctx->is_orphaned = true; // Interrupted while worker is still alive, require future deletition
+		}
+		else
+			delete api_ctx;
+	}
+
 	clients[protocol].erase(wsi);
-	delete (st_api_context *)user_data;
 }
 
 void SolarControl::lws_callback_receive(struct lws *wsi, unsigned int protocol, const std::string &message, void *user_data)
@@ -104,8 +165,8 @@ void SolarControl::lws_callback_receive(struct lws *wsi, unsigned int protocol, 
 	{
 		st_api_context *api_ctx = (st_api_context *)user_data;
 		api_ctx->message = message;
-
-		lws_callback_on_writable(wsi);
+		api_ctx->worker_alive = true;
+		api_ctx->worker = thread(worker, wsi, api_ctx);
 	}
 }
 
@@ -114,14 +175,9 @@ std::string SolarControl::lws_callback_server_writeable(struct lws * /* wsi */, 
 	if(protocol==API)
 	{
 		st_api_context *api_ctx = (st_api_context *)user_data;
-
-		string message = api_ctx->message;
-
-		if(message=="")
-			return ""; // Callback with no message, skip
-
-		api_ctx->message = ""; // API command is answered, remove question from context
-		return dispatcher.Dispatch(message);
+		api_ctx->worker.join();
+		api_ctx->worker_alive = false;
+		return api_ctx->response;
 	}
 	else if(protocol==METER)
 	{

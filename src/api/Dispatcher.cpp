@@ -50,45 +50,48 @@ Dispatcher::~Dispatcher()
 
 string Dispatcher::Dispatch(const std::string &message)
 {
-	json j;
+	configuration::Json api;
 
 	if(message=="") // Keepalive from JS
 		return "";
 
 	try
 	{
-		j = json::parse(message);
+		api = configuration::Json(message);
 	}
 	catch(exception &e)
 	{
 		throw invalid_argument("Invalid API command : not valid json");
 	}
 
-	if(!j.contains("module"))
-		throw invalid_argument("Missing « module » in API command");
+	unsigned int id = api.GetInt("id");
+	string module = api.GetString("module");
+	string cmd = api.GetString("cmd");
 
-	if(!j.contains("cmd"))
-		throw invalid_argument("Missing « cmd » in API command");
-
-	auto handler = handlers.find(j["module"]);
+	auto handler = handlers.find(module);
 	if(handler==handlers.end())
-		throw invalid_argument("Uknown module « " + string(j["module"]) + " »" );
+		throw invalid_argument("Uknown module « " + module + " »" );
 
 	configuration::Json params;
-	if(j.contains("parameters"))
-		params = configuration::Json(j["parameters"]);
+	if(api.Has("parameters"))
+		params = api.GetObject("parameters");
+
+	auto j_res = json();
+	j_res["id"] = id;
 
 	try
 	{
-		auto j_res = handler->second->HandleMessage(j["cmd"], params);
+		j_res["res"] = handler->second->HandleMessage(cmd, params);
+		j_res["status"] = "ok";
+
 		return j_res.dump();
 	}
 	catch(exception &e)
 	{
-		auto j_err = json();
-		j_err["status"] = "error";
-		j_err["message"] = string(e.what());
-		return j_err.dump();
+		j_res["status"] = "error";
+		j_res["message"] = string(e.what());
+
+		return j_res.dump();
 	}
 }
 

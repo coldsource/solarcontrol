@@ -175,6 +175,8 @@ std::string SolarControl::lws_callback_server_writeable(struct lws * /* wsi */, 
 	if(protocol==API)
 	{
 		st_api_context *api_ctx = (st_api_context *)user_data;
+		if(!api_ctx->worker_alive)
+			return ""; // Spurious call
 		api_ctx->worker.join();
 		api_ctx->worker_alive = false;
 		return api_ctx->response;

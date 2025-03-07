@@ -55,10 +55,13 @@ class Server
 
 		void Start();
 		void Shutdown();
+		bool IsCancelling() const { return is_cancelling; }
+
+		void CallbackOnWritable(struct lws *wsi);
 
 	public:
 		static int callback_http( struct lws *wsi, enum lws_callback_reasons reason, void *user, void *in, size_t len );
-		static int callback_evq(struct lws *wsi, enum lws_callback_reasons reason, void *user, void *in, size_t len);
+		static int callback_ws(struct lws *wsi, enum lws_callback_reasons reason, void *user, void *in, size_t len);
 
 		static void event_loop(Server *ws);
 
@@ -68,8 +71,8 @@ class Server
 		virtual std::map<std::string, unsigned int> get_protocols() { return std::map<std::string, unsigned int>(); }
 		virtual void context_creation(struct lws_context_creation_info * /* info */) {}
 
-		void start_thread(void) {}
-		void stop_thread(void) {}
+		virtual void start_thread(void) {}
+		virtual void stop_thread(void) {}
 
 		virtual void *lws_callback_established(struct lws * /* wsi */, unsigned int /* protocol */) { return 0; }
 		virtual void lws_callback_closed(struct lws * /* wsi */, unsigned int /* protocol */, void * /*user_data*/) {}

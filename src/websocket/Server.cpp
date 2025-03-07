@@ -43,7 +43,7 @@ void Server::Start()
 	{
 		protocols.push_back({
 			protocol->first.c_str(),
-			Server::callback_evq,
+			Server::callback_ws,
 			sizeof(Server::per_session_data),
 			32768,
 			protocol->second,
@@ -82,6 +82,13 @@ Server::~Server()
 {
 }
 
+void Server::CallbackOnWritable(struct lws *wsi)
+{
+	lws_callback_on_writable(wsi);
+	if(this_thread::get_id()!=ws_worker.get_id())
+		lws_cancel_service(context); // Cancel service when calling from external thread to force command handling
+}
+
 int Server::callback_http(struct lws *wsi, enum lws_callback_reasons reason, void *user, void *in, size_t len )
 {
 	uint8_t buf[LWS_PRE + 2048], *start = &buf[LWS_PRE], *p = start, *end = &buf[sizeof(buf) - 1];
@@ -114,7 +121,7 @@ int Server::callback_http(struct lws *wsi, enum lws_callback_reasons reason, voi
 	}
 }
 
-int Server::callback_evq(struct lws *wsi, enum lws_callback_reasons reason, void *user, void *in, size_t len)
+int Server::callback_ws(struct lws *wsi, enum lws_callback_reasons reason, void *user, void *in, size_t len)
 {
 	struct lws_context *g_context = lws_get_context(wsi);
 	Server *ws = (Server *)lws_context_user(g_context);

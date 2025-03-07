@@ -19,10 +19,8 @@
 
 #include <control/Plug.hpp>
 #include <logs/Logger.hpp>
-#include <nlohmann/json.hpp>
 
 using namespace std;
-using nlohmann::json;
 
 namespace control {
 

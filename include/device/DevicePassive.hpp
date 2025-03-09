@@ -31,6 +31,8 @@ class DevicePassive: public DeviceElectrical
 	public:
 		DevicePassive(unsigned int id, const std::string &name, const configuration::Json &config): DeviceElectrical(id, name, config) {}
 
+		static void CheckConfig(const configuration::Json &conf);
+
 		en_category GetCategory() const { return PASSIVE; }
 		std::string GetType() const { return "passive"; }
 };

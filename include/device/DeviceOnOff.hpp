@@ -54,12 +54,13 @@ class DeviceOnOff: public DeviceElectrical
 		DeviceOnOff(unsigned int id, const std::string &name, const configuration::Json &config);
 		virtual ~DeviceOnOff();
 
+		static void CheckConfig(const configuration::Json &conf);
+
 		en_category GetCategory() const { return ONOFF; }
 
 		int GetPrio() const { return prio; }
 
 		virtual en_wanted_state GetWantedState() const = 0;
-
 		virtual void SetState(bool new_state);
 		virtual void SetManualState(bool new_state);
 

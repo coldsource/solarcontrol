@@ -25,10 +25,6 @@
 
 #include <string>
 
-namespace configuration {
-	class Json;
-}
-
 namespace meter {
 
 class Plug: public Meter, public mqtt::Subscriber

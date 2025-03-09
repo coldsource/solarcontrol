@@ -18,15 +18,22 @@
  */
 
 #include <device/DevicePassive.hpp>
+#include <meter/MeterFactory.hpp>
 #include <configuration/Json.hpp>
-#include <energy/GlobalMeter.hpp>
-#include <meter/Meter.hpp>
 
 using namespace std;
 using datetime::Timestamp;
 using nlohmann::json;
 
 namespace device {
+
+void DevicePassive::CheckConfig(const configuration::Json &conf)
+{
+	DeviceElectrical::CheckConfig(conf);
+
+	conf.Check("meter", "object"); // Meter is mandatory for passive devices
+	meter::MeterFactory::CheckConfig(conf.GetObject("meter"));
+}
 
 }
 

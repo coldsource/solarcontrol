@@ -36,6 +36,26 @@ DeviceHeater::DeviceHeater(unsigned int id, const string &name, const configurat
 	offload_max_temperature = config.GetFloat("offload_max_temperature");
 }
 
+void DeviceHeater::CheckConfig(const configuration::Json &conf)
+{
+	DeviceTimeRange::CheckConfig(conf);
+
+	conf.Check("ht_device_id", "int");
+	conf.Check("force_max_temperature", "float");
+	conf.Check("offload_max_temperature", "float");
+
+	int ht_device_id = conf.GetInt("ht_device_id");
+	try
+	{
+		Devices devices;
+		devices.GetWeatherByID(ht_device_id);
+	}
+	catch(exception &e)
+	{
+		throw invalid_argument("Associated thermometer is mandatory");
+	}
+}
+
 en_wanted_state DeviceHeater::GetWantedState() const
 {
 	Devices devices;

@@ -40,6 +40,29 @@ DeviceCMV::DeviceCMV(unsigned int id, const string &name, const configuration::J
 	max_on = config.GetFloat("max_on");
 }
 
+void DeviceCMV::CheckConfig(const configuration::Json &conf)
+{
+	DeviceTimeRange::CheckConfig(conf);
+
+	conf.Check("ht_device_ids", "array");
+	conf.Check("force_max_moisture", "float");
+	conf.Check("offload_max_moisture", "float");
+
+	if(conf.GetArray("ht_device_ids").size()==0)
+		throw invalid_argument("Associated hygrometer is mandatory");
+
+	try
+	{
+		Devices devices;
+		for(auto device_id : conf.GetArray("ht_device_ids"))
+			devices.GetWeatherByID((int)device_id);
+	}
+	catch(exception &e)
+	{
+		throw invalid_argument("Associated hygrometer is mandatory");
+	}
+}
+
 en_wanted_state DeviceCMV::GetWantedState() const
 {
 	Devices devices;

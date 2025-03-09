@@ -20,6 +20,7 @@
 #include <meter/Pro3EM.hpp>
 #include <mqtt/Client.hpp>
 #include <websocket/SolarControl.hpp>
+#include <configuration/Json.hpp>
 #include <nlohmann/json.hpp>
 
 using namespace std;
@@ -42,6 +43,15 @@ Pro3EM::~Pro3EM()
 	auto mqtt = mqtt::Client::GetInstance();
 	if(mqtt && topic!="")
 		mqtt->Unsubscribe(topic, this);
+}
+
+void Pro3EM::CheckConfig(const configuration::Json &conf)
+{
+	Meter::CheckConfig(conf);
+
+	string phase = conf.GetString("phase");
+	if(phase!="a" && phase!="b" && phase!="c")
+		throw invalid_argument("Phase must be a, b or c");
 }
 
 void Pro3EM::HandleMessage(const string &message)

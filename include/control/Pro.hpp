@@ -30,6 +30,9 @@ class Pro: public Relay
 {
 	public:
 		Pro(const std::string &ip, int outlet, const std::string &mqtt_id);
+
+		static void CheckConfig(const configuration::Json &conf);
+
 };
 
 }

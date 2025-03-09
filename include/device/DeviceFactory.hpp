@@ -17,46 +17,24 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __CONTROL_RELAY_HPP__
-#define __CONTROL_RELAY_HPP__
-
-#include <control/HTTP.hpp>
-#include <control/OnOff.hpp>
-#include <mqtt/Subscriber.hpp>
+#ifndef __DEVICE_DEVICEFACTORY_HPP__
+#define __DEVICE_DEVICEFACTORY_HPP__
 
 #include <string>
-#include <mutex>
-#include <atomic>
 
 namespace configuration {
 	class Json;
 }
 
-namespace control {
+namespace device {
 
-class Relay: public HTTP, public OnOff, public mqtt::Subscriber
+class Device;
+
+class DeviceFactory
 {
-	const int outlet = 0;
-	const std::string topic = "";
-
-	std::atomic_bool state = false;
-
-	std::mutex lock;
-
-	protected:
-		bool get_output() const;
-
 	public:
-		Relay(const std::string &ip, int outlet, const std::string &mqtt_id);
-		virtual ~Relay();
-
-		static void CheckConfig(const configuration::Json & conf);
-
-		void Switch(bool state);
-		bool GetState() const;
-		void UpdateState();
-
-		void HandleMessage(const std::string &message);
+		static Device *Get(int id, const std::string &name, const std::string &type, const configuration::Json &config);
+		static void CheckConfig(const std::string &type, const configuration::Json &config);
 };
 
 }

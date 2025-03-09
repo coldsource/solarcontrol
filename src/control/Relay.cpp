@@ -21,6 +21,7 @@
 #include <logs/Logger.hpp>
 #include <mqtt/Client.hpp>
 #include <websocket/SolarControl.hpp>
+#include <configuration/Json.hpp>
 #include <nlohmann/json.hpp>
 
 using namespace std;
@@ -46,6 +47,13 @@ Relay::~Relay()
 	auto mqtt = mqtt::Client::GetInstance();
 	if(mqtt && topic!="")
 		mqtt->Unsubscribe(topic, this);
+}
+
+void Relay::CheckConfig(const configuration::Json &conf)
+{
+	OnOff::CheckConfig(conf);
+
+	conf.Check("ip", "string");
 }
 
 void Relay::Switch(bool new_state)

@@ -20,6 +20,7 @@
 #include <meter/Plug.hpp>
 #include <mqtt/Client.hpp>
 #include <websocket/SolarControl.hpp>
+#include <configuration/Json.hpp>
 #include <nlohmann/json.hpp>
 
 using namespace std;

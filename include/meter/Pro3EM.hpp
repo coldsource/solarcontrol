@@ -43,6 +43,8 @@ class Pro3EM: public Meter, public mqtt::Subscriber
 		Pro3EM(const std::string &mqtt_id, const std::string &phase);
 		virtual ~Pro3EM();
 
+		static void CheckConfig(const configuration::Json &conf);
+
 		void HandleMessage(const std::string &message);
 };
 

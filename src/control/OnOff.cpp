@@ -30,15 +30,4 @@ using namespace std;
 namespace control
 {
 
-OnOff *OnOff::GetFromConfig(const configuration::Json &conf)
-{
-	string type = conf.GetString("type");
-	if(type=="plug")
-		return new Plug(conf.GetString("ip"), conf.GetString("mqtt_id", ""));
-	if(type=="pro")
-		return new Pro(conf.GetString("ip"), conf.GetInt("outlet"), conf.GetString("mqtt_id", ""));
-
-	throw invalid_argument("Unknown control type « " + type + " »");
-}
-
 }

@@ -18,16 +18,10 @@
  */
 
 #include <device/Devices.hpp>
-#include <device/DeviceTimeRange.hpp>
-#include <device/DeviceHeater.hpp>
-#include <device/DeviceCMV.hpp>
-#include <device/DeviceHWS.hpp>
-#include <device/DevicePassive.hpp>
-#include <device/DeviceHTWifi.hpp>
-#include <device/DeviceHTBluetooth.hpp>
-#include <device/DeviceWind.hpp>
-#include <device/DeviceGrid.hpp>
-#include <device/DevicePV.hpp>
+#include <device/DeviceFactory.hpp>
+#include <device/Device.hpp>
+#include <device/DeviceOnOff.hpp>
+#include <device/DeviceWeather.hpp>
 #include <device/DeviceObserver.hpp>
 #include <configuration/Json.hpp>
 #include <database/DB.hpp>
@@ -125,32 +119,8 @@ void Devices::reload(int id)
 		{
 			configuration::Json config((string)res["device_config"]);
 
-			Device *device;
 			int device_id = res["device_id"];
-			string device_type = res["device_type"];
-
-			if(device_type=="timerange")
-				device = new DeviceTimeRange(device_id, res["device_name"], config);
-			else if(device_type=="heater")
-				device = new DeviceHeater(device_id, res["device_name"], config);
-			else if(device_type=="cmv")
-				device = new DeviceCMV(device_id, res["device_name"], config);
-			else if(device_type=="hws")
-				device = new DeviceHWS(device_id, res["device_name"], config);
-			else if(device_type=="passive")
-				device = new DevicePassive(device_id, res["device_name"], config);
-			else if(device_type=="ht")
-				device = new DeviceHTWifi(device_id, res["device_name"], config);
-			else if(device_type=="htmini")
-				device = new DeviceHTBluetooth(device_id, res["device_name"], config);
-			else if(device_type=="wind")
-				device = new DeviceWind(device_id, res["device_name"], config);
-			else if(device_type=="grid")
-				device = new DeviceGrid(device_id, res["device_name"], config);
-			else if(device_type=="pv")
-				device = new DevicePV(device_id, res["device_name"], config);
-			else
-				throw invalid_argument("Invalid device type « " + string(res["device_type"]) + " »");
+			Device *device = DeviceFactory::Get(device_id, res["device_name"], res["device_type"], config);
 
 			auto it = observers.find(device_id);
 			if(it!=observers.end())

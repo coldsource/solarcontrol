@@ -17,16 +17,8 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __CONTROL_RELAY_HPP__
-#define __CONTROL_RELAY_HPP__
-
-#include <control/HTTP.hpp>
-#include <control/OnOff.hpp>
-#include <mqtt/Subscriber.hpp>
-
-#include <string>
-#include <mutex>
-#include <atomic>
+#ifndef __CONTROL_ONOFFFACTORY_HPP__
+#define __CONTROL_ONOFFFACTORY_HPP__
 
 namespace configuration {
 	class Json;
@@ -34,33 +26,16 @@ namespace configuration {
 
 namespace control {
 
-class Relay: public HTTP, public OnOff, public mqtt::Subscriber
+class OnOff;
+
+class OnOffFactory
 {
-	const int outlet = 0;
-	const std::string topic = "";
-
-	std::atomic_bool state = false;
-
-	std::mutex lock;
-
-	protected:
-		bool get_output() const;
-
 	public:
-		Relay(const std::string &ip, int outlet, const std::string &mqtt_id);
-		virtual ~Relay();
-
-		static void CheckConfig(const configuration::Json & conf);
-
-		void Switch(bool state);
-		bool GetState() const;
-		void UpdateState();
-
-		void HandleMessage(const std::string &message);
+		static OnOff *GetFromConfig(const configuration::Json &conf);
+		static void CheckConfig(const configuration::Json &conf);
 };
 
 }
 
 #endif
-
 

@@ -39,6 +39,8 @@ class DeviceHeater: public DeviceTimeRange
 		DeviceHeater(unsigned int id, const std::string &name, const configuration::Json &config);
 		virtual ~DeviceHeater() {}
 
+		static void CheckConfig(const configuration::Json &conf);
+
 		std::string GetType() const { return "heater"; }
 
 		en_wanted_state GetWantedState() const;

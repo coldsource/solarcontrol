@@ -18,11 +18,11 @@
  */
 
 #include <device/DeviceOnOff.hpp>
+#include <control/OnOffFactory.hpp>
 #include <control/OnOff.hpp>
 #include <meter/Meter.hpp>
 #include <configuration/Json.hpp>
 #include <nlohmann/json.hpp>
-#include <energy/GlobalMeter.hpp>
 
 using namespace std;
 using datetime::Timestamp;
@@ -45,6 +45,17 @@ DeviceOnOff::~DeviceOnOff()
 	json state;
 	state["manual"] = manual;
 	state_backup(configuration::Json(state));
+}
+
+void DeviceOnOff::CheckConfig(const configuration::Json &conf)
+{
+	Device::CheckConfig(conf);
+
+	conf.Check("control", "object"); // Control is mandatory for OnOff devices
+	control::OnOffFactory::CheckConfig(conf.GetObject("control"));
+
+	conf.Check("prio", "int"); // Prio is mandatory for all onoff devices
+	conf.Check("expected_consumption", "int", false);
 }
 
 void DeviceOnOff::SetState(bool new_state)

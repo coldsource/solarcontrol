@@ -49,6 +49,8 @@ class Device
 		Device(const Device&) = delete;
 		virtual ~Device() {}
 
+		static void CheckConfig(const configuration::Json & /* conf */) {}
+
 		virtual std::string GetType() const = 0;
 		virtual en_category GetCategory() const = 0;
 

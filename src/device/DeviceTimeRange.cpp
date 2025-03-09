@@ -53,6 +53,22 @@ DeviceTimeRange::~DeviceTimeRange()
 {
 }
 
+void DeviceTimeRange::CheckConfig(const configuration::Json &conf)
+{
+	DeviceOnOff::CheckConfig(conf);
+
+	conf.Check("force", "array", false);
+	conf.Check("offload", "array", false);
+
+	conf.Check("remainder", "array", false);
+	conf.Check("min_on_time", "int", false);
+	conf.Check("min_on_for_last", "int", false);
+
+	conf.Check("min_on", "int", false);
+	conf.Check("max_on", "int", false);
+	conf.Check("min_off", "int", false);
+}
+
 bool DeviceTimeRange::IsForced() const
 {
 	return force.IsActive();

@@ -38,6 +38,8 @@ class DeviceHWS: public DeviceTimeRange
 		DeviceHWS(unsigned int id, const std::string &name, const configuration::Json &config);
 		virtual ~DeviceHWS() {}
 
+		static void CheckConfig(const configuration::Json &conf);
+
 		bool WantRemainder() const;
 
 		std::string GetType() const { return "hws"; }

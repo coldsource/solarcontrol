@@ -17,7 +17,7 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#include <meter/Meter.hpp>
+#include <meter/MeterFactory.hpp>
 #include <meter/Dummy.hpp>
 #include <meter/Plug.hpp>
 #include <meter/Pro3EM.hpp>
@@ -29,36 +29,34 @@ using namespace std;
 
 namespace meter {
 
-void Meter::CheckConfig(const configuration::Json &conf)
+Meter *MeterFactory::GetFromConfig(const configuration::Json &conf)
 {
-	conf.Check("mqtt_id", "string");
-	if(conf.GetString("mqtt_id")=="")
-		throw invalid_argument("MQTT ID is required");
+	CheckConfig(conf);
+
+	string type = conf.GetString("type");
+	if(type=="plug")
+		return new Plug(conf.GetString("mqtt_id", ""));
+	if(type=="pro")
+		return new Dummy(); // Shelly Pro has no energy measurement
+	if(type=="3em")
+		return new Pro3EM(conf.GetString("mqtt_id"), conf.GetString("phase"));
+
+	return 0;
 }
 
-double Meter::GetPower() const
+void MeterFactory::CheckConfig(const configuration::Json &conf)
 {
-	return power;
-}
+	string type = conf.GetString("type");
 
-double Meter::GetConsumption()
-{
-	unique_lock<mutex> llock(lock);
+	if(type=="plug")
+		return Plug::CheckConfig(conf);
+	else if(type=="pro")
+		return;
+	if(type=="3em")
+		return Pro3EM::CheckConfig(conf);
 
-	double ret_consumption = energy_consumption;
-	energy_consumption = 0;
-
-	return ret_consumption;
-}
-
-double Meter::GetExcess()
-{
-	unique_lock<mutex> llock(lock);
-
-	double ret_excess = energy_excess;
-	energy_excess = 0;
-
-	return ret_excess;
+	throw invalid_argument("Unknown meter type « " + type + " »");
 }
 
 }
+

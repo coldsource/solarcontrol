@@ -41,7 +41,7 @@ class Meter
 	public:
 		virtual ~Meter() {}
 
-		static Meter *GetFromConfig(const configuration::Json &conf);
+		static void CheckConfig(const configuration::Json &conf);
 
 		double GetPower() const;
 		double GetConsumption();

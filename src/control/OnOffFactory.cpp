@@ -17,25 +17,41 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
+#include <control/OnOffFactory.hpp>
+#include <control/Plug.hpp>
 #include <control/Pro.hpp>
-#include <logs/Logger.hpp>
 #include <configuration/Json.hpp>
-#include <nlohmann/json.hpp>
+
+#include <string>
+#include <stdexcept>
 
 using namespace std;
-using nlohmann::json;
 
-namespace control {
-
-Pro::Pro(const string &ip, int outlet, const string &mqtt_id): Relay(ip, outlet, mqtt_id)
+namespace control
 {
+
+OnOff *OnOffFactory::GetFromConfig(const configuration::Json &conf)
+{
+	CheckConfig(conf);
+
+	string type = conf.GetString("type");
+	if(type=="plug")
+		return new Plug(conf.GetString("ip"), conf.GetString("mqtt_id", ""));
+	if(type=="pro")
+		return new Pro(conf.GetString("ip"), conf.GetInt("outlet"), conf.GetString("mqtt_id", ""));
+	return 0;
 }
 
-void Pro::CheckConfig(const configuration::Json &conf)
+void OnOffFactory::CheckConfig(const configuration::Json &conf)
 {
-	Relay::CheckConfig(conf);
+	string type = conf.GetString("type");
 
-	conf.Check("outlet", "int");
+	if(type=="plug")
+		Plug::CheckConfig(conf);
+	else if(type=="pro")
+		Pro::CheckConfig(conf);
+	else
+		throw invalid_argument("Unknown control type « " + type + " »");
 }
 
 }

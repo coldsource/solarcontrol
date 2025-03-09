@@ -19,8 +19,9 @@
 
 #include <device/DeviceElectrical.hpp>
 #include <configuration/Json.hpp>
-#include <control/OnOff.hpp>
+#include <control/OnOffFactory.hpp>
 #include <control/Dummy.hpp>
+#include <meter/MeterFactory.hpp>
 #include <meter/Meter.hpp>
 #include <energy/GlobalMeter.hpp>
 #include <logs/State.hpp>
@@ -35,14 +36,14 @@ DeviceElectrical::DeviceElectrical(unsigned int id, const std::string &name, con
 Device(id, name, config), consumption(id, "consumption"), offload(id, "offload")
 {
 	if(config.Has("control"))
-		ctrl = control::OnOff::GetFromConfig(config.GetObject("control"));
+		ctrl = control::OnOffFactory::GetFromConfig(config.GetObject("control"));
 	else
 		ctrl = new control::Dummy(); // Passive devices have no control
 
 	if(config.Has("meter"))
-		meter = meter::Meter::GetFromConfig(config.GetObject("meter")); // Device has a dedicated metering configuration
+		meter = meter::MeterFactory::GetFromConfig(config.GetObject("meter")); // Device has a dedicated metering configuration
 	else
-		meter = meter::Meter::GetFromConfig(config.GetObject("control")); // Fallback on control for metering also
+		meter = meter::MeterFactory::GetFromConfig(config.GetObject("control")); // Fallback on control for metering also
 }
 
 DeviceElectrical::~DeviceElectrical()

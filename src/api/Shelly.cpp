@@ -38,10 +38,8 @@ json Shelly::HandleMessage(const string &cmd, const configuration::Json &j_param
 
 	if(cmd=="autodetect")
 	{
-		string host = j_params.GetString("host");
-
 		shelly::Autodetect ad;
-		return ad.GetDevices(host);
+		return ad.GetDevices();
 	}
 	else if(cmd=="mqttget")
 	{

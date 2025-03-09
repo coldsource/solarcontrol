@@ -39,12 +39,13 @@ class Autodetect
 	nlohmann::json j_devices;
 
 	std::string resolve(const std::string &host);
+	std::string local_ip();
 	std::string ip_to_network(const std::string &ip);
 
 	public:
 		Autodetect();
 
-		nlohmann::json GetDevices(const std::string &host);
+		nlohmann::json GetDevices();
 };
 
 }

@@ -18,8 +18,6 @@
  */
 
 #include <energy/GlobalMeter.hpp>
-#include <energy/Counter.hpp>
-#include <meter/Pro3EM.hpp>
 #include <energy/ConfigurationEnergy.hpp>
 #include <device/Devices.hpp>
 #include <device/electrical/DeviceHWS.hpp>

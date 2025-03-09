@@ -63,13 +63,17 @@ string Autodetect::resolve(const string &host)
 		throw runtime_error("Could not resolve host « " + host + " »");
 
 	if(result->ai_family!=AF_INET)
+	{
+		freeaddrinfo(result);
 		throw runtime_error("Autodetect only works in IPv4");
+	}
 
 	void *ptr = &((struct sockaddr_in *) result->ai_addr)->sin_addr;
 
 	char addrstr[32];
 	inet_ntop (result->ai_family, ptr, addrstr, 32);
 
+	freeaddrinfo(result);
 	return string(addrstr);
 }
 

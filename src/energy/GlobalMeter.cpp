@@ -19,7 +19,6 @@
 
 #include <energy/GlobalMeter.hpp>
 #include <energy/Counter.hpp>
-#include <control/Input.hpp>
 #include <meter/Pro3EM.hpp>
 #include <energy/ConfigurationEnergy.hpp>
 #include <device/Devices.hpp>
@@ -57,11 +56,6 @@ GlobalMeter::~GlobalMeter()
 
 void GlobalMeter::free()
 {
-	if(offpeak_ctrl)
-	{
-		delete offpeak_ctrl;
-		offpeak_ctrl = 0;
-	}
 }
 
 void GlobalMeter::Reload()
@@ -74,15 +68,6 @@ void GlobalMeter::Reload()
 		auto config = ConfigurationEnergy::GetInstance();
 
 		hws_min_energy = config->GetEnergy("energy.hws.min");
-
-		string offpeak_mqtt_id = config->Get("offpeak.mqtt.id");
-		if(offpeak_mqtt_id!="")
-		{
-			string ip = config->Get("offpeak.ip");
-			int input = config->GetInt("offpeak.input");
-			offpeak_ctrl = new control::Input(offpeak_mqtt_id, input, ip);
-			offpeak_ctrl->UpdateState();
-		}
 
 		debug = config->GetBool("energy.debug.enabled");
 		debug_grid = config->GetPower("energy.debug.grid");
@@ -232,10 +217,7 @@ bool GlobalMeter::GetOffPeak() const
 {
 	unique_lock<recursive_mutex> llock(lock);
 
-	if(!offpeak_ctrl)
-		return false;
-
-	return offpeak_ctrl->GetState();
+	return grid->GetOffPeak();
 }
 
 bool GlobalMeter::HWSIsFull() const

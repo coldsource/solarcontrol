@@ -8,6 +8,7 @@ aux_source_directory(src/mqtt srcMQTT)
 aux_source_directory(src/energy srcEnergy)
 aux_source_directory(src/datetime srcDatetime)
 aux_source_directory(src/control srcControl)
+aux_source_directory(src/input srcInput)
 aux_source_directory(src/device srcDevice)
 aux_source_directory(src/device/electrical srcDeviceElectrical)
 aux_source_directory(src/device/weather srcDeviceWeather)
@@ -28,6 +29,7 @@ add_executable(solarcontrol
 	${srcEnergy}
 	${srcDatetime}
 	${srcControl}
+	${srcInput}
 	${srcDevice}
 	${srcDeviceElectrical}
 	${srcDeviceWeather}

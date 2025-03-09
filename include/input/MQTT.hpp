@@ -17,38 +17,45 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __DEVICE_DEVICEGRID_HPP__
-#define __DEVICE_DEVICEGRID_HPP__
+#ifndef __INPUT_MQTT_HPP__
+#define __INPUT_MQTT_HPP__
 
-#include <device/electrical/DevicePassive.hpp>
+#include <input/Input.hpp>
+#include <control/HTTP.hpp>
+#include <mqtt/Subscriber.hpp>
+
+#include <string>
+#include <mutex>
+#include <atomic>
 
 namespace configuration {
 	class Json;
 }
 
 namespace input {
-	class Input;
-}
 
-namespace device {
-
-class DeviceGrid: public DevicePassive
+class MQTT: public Input, public control::HTTP, public mqtt::Subscriber
 {
-	input::Input *offpeak_ctrl = 0;
+	const int input = 0;
+	const std::string topic;
+
+	std::atomic_bool state = false;
+
+	std::mutex lock;
+
+	protected:
+		bool get_input() const;
 
 	public:
-		DeviceGrid(unsigned int id, const std::string &name, const configuration::Json &config);
-		virtual ~DeviceGrid();
+		MQTT(const std::string &mqtt_id, int input, const std::string &ip = "");
+		virtual ~MQTT();
 
 		static void CheckConfig(const configuration::Json &conf);
 
-		std::string GetType() const { return "grid"; }
+		virtual bool GetState() const;
+		virtual void UpdateState();
 
-		const std::map<datetime::Date, energy::Amount> &GetExcessHistory() const { return consumption.GetExcessHistory(); }
-
-		bool GetOffPeak() const;
-
-		static void CreateInDB();
+		void HandleMessage(const std::string &message);
 };
 
 }

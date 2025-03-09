@@ -34,9 +34,6 @@ ConfigurationEnergy::ConfigurationEnergy(void)
 {
 	// Load default configuration
 	entries["energy.hws.min"] = "3kWh";
-	entries["offpeak.mqtt.id"] = "";
-	entries["offpeak.input"] = "0";
-	entries["offpeak.ip"] = "";
 	entries["energy.debug.enabled"] = "no";
 	entries["energy.debug.grid"] = "0";
 	entries["energy.debug.pv"] = "0";
@@ -53,7 +50,6 @@ ConfigurationEnergy::~ConfigurationEnergy(void)
 void ConfigurationEnergy::Check(void)
 {
 	check_energy_entry("energy.hws.min");
-	check_int_entry("offpeak.input");
 	check_bool_entry("energy.debug.enabled");
 	check_power_entry("energy.debug.grid", true);
 	check_power_entry("energy.debug.pv", true);

@@ -17,38 +17,26 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __CONTROL_INPUT_HPP__
-#define __CONTROL_INPUT_HPP__
+#ifndef __INPUT_PRO_HPP__
+#define __INPUT_PRO_HPP__
 
-#include <control/HTTP.hpp>
-#include <mqtt/Subscriber.hpp>
+#include <input/MQTT.hpp>
 
 #include <string>
-#include <mutex>
-#include <atomic>
 
-namespace control {
+namespace configuration {
+	class Json;
+}
 
-class Input: public HTTP, public mqtt::Subscriber
+namespace input {
+
+class Pro: public MQTT
 {
-	const int input = 0;
-	const std::string topic;
-
-	std::atomic_bool state = false;
-
-	std::mutex lock;
-
-	protected:
-		bool get_input() const;
-
 	public:
-		Input(const std::string &mqtt_id, int input, const std::string &ip = "");
-		virtual ~Input();
+		Pro(const std::string &mqtt_id, int input, const std::string &ip = ""): MQTT(mqtt_id, input, ip) {}
+		virtual ~Pro() {}
 
-		bool GetState() const;
-		void UpdateState();
-
-		void HandleMessage(const std::string &message);
+		static void CheckConfig(const configuration::Json &conf);
 };
 
 }

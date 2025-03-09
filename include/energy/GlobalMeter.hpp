@@ -31,10 +31,6 @@ namespace meter {
 	class Pro3EM;
 }
 
-namespace control {
-	class Input;
-}
-
 namespace device {
 	class Device;
 	class DeviceHWS;
@@ -49,8 +45,6 @@ class GlobalMeter: public device::DeviceObserver
 	device::DeviceGrid *grid;
 	device::DevicePV *pv;
 	device::DeviceHWS *hws;
-
-	control::Input *offpeak_ctrl = 0;
 
 	double hws_min_energy = 0;
 

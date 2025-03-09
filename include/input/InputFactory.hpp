@@ -17,40 +17,26 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __DEVICE_DEVICEGRID_HPP__
-#define __DEVICE_DEVICEGRID_HPP__
-
-#include <device/electrical/DevicePassive.hpp>
+#ifndef __INPUT_INPUTFACTORY_HPP__
+#define __INPUT_INPUTFACTORY_HPP__
 
 namespace configuration {
 	class Json;
 }
 
 namespace input {
-	class Input;
-}
 
-namespace device {
+class Input;
 
-class DeviceGrid: public DevicePassive
+class InputFactory
 {
-	input::Input *offpeak_ctrl = 0;
-
 	public:
-		DeviceGrid(unsigned int id, const std::string &name, const configuration::Json &config);
-		virtual ~DeviceGrid();
-
+		static Input *GetFromConfig(const configuration::Json &conf);
 		static void CheckConfig(const configuration::Json &conf);
-
-		std::string GetType() const { return "grid"; }
-
-		const std::map<datetime::Date, energy::Amount> &GetExcessHistory() const { return consumption.GetExcessHistory(); }
-
-		bool GetOffPeak() const;
-
-		static void CreateInDB();
 };
 
 }
 
 #endif
+
+

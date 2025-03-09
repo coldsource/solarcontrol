@@ -17,38 +17,24 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __DEVICE_DEVICEGRID_HPP__
-#define __DEVICE_DEVICEGRID_HPP__
+#ifndef __INPUT_PLUS1PM_HPP__
+#define __INPUT_PLUS1PM_HPP__
 
-#include <device/electrical/DevicePassive.hpp>
+#include <input/MQTT.hpp>
+
+#include <string>
 
 namespace configuration {
 	class Json;
 }
 
 namespace input {
-	class Input;
-}
 
-namespace device {
-
-class DeviceGrid: public DevicePassive
+class Plus1PM: public MQTT
 {
-	input::Input *offpeak_ctrl = 0;
-
 	public:
-		DeviceGrid(unsigned int id, const std::string &name, const configuration::Json &config);
-		virtual ~DeviceGrid();
-
-		static void CheckConfig(const configuration::Json &conf);
-
-		std::string GetType() const { return "grid"; }
-
-		const std::map<datetime::Date, energy::Amount> &GetExcessHistory() const { return consumption.GetExcessHistory(); }
-
-		bool GetOffPeak() const;
-
-		static void CreateInDB();
+		Plus1PM(const std::string &mqtt_id, const std::string &ip = ""): MQTT(mqtt_id, 0, ip) {}
+		virtual ~Plus1PM() {}
 };
 
 }

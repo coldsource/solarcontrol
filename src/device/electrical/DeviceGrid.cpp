@@ -19,6 +19,8 @@
 
 #include <device/electrical/DeviceGrid.hpp>
 #include <device/Devices.hpp>
+#include <input/InputFactory.hpp>
+#include <input/Input.hpp>
 #include <configuration/Json.hpp>
 #include <database/DB.hpp>
 
@@ -32,6 +34,29 @@ DeviceGrid::DeviceGrid(unsigned int id, const string &name, const configuration:
 {
 	// Override default counter for storing excess
 	consumption = energy::Counter(id, "consumption", "excess");
+
+	offpeak_ctrl = input::InputFactory::GetFromConfig(config.GetObject("input"));
+}
+
+DeviceGrid::~DeviceGrid()
+{
+	delete offpeak_ctrl;
+}
+
+void DeviceGrid::CheckConfig(const configuration::Json &conf)
+{
+	DevicePassive::CheckConfig(conf);
+
+	conf.Check("input", "object"); // Input is mandatory for Grid
+	input::InputFactory::CheckConfig(conf.GetObject("input"));
+}
+
+bool DeviceGrid::GetOffPeak() const
+{
+	if(!offpeak_ctrl)
+		return false;
+
+	return offpeak_ctrl->GetState();
 }
 
 void DeviceGrid::CreateInDB()
@@ -48,6 +73,13 @@ void DeviceGrid::CreateInDB()
 	meter["mqtt_id"] = "";
 	meter["phase"] = "a";
 	config["meter"] = meter;
+
+	json input;
+	input["type"] = "dummy";
+	input["mqtt_id"] = "";
+	input["outlet"] = 0;
+	input["ip"] = "";
+	config["input"] = input;
 
 	db.Query("INSERT INTO t_device(device_id, device_type, device_name, device_config) VALUES(%i, 'grid', 'grid', %s)"_sql<<DEVICE_ID_GRID<<config.dump());
 }

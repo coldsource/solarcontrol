@@ -17,18 +17,19 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#include <control/Input.hpp>
+#include <input/MQTT.hpp>
 #include <logs/Logger.hpp>
 #include <mqtt/Client.hpp>
+#include <configuration/Json.hpp>
 #include <websocket/SolarControl.hpp>
 #include <nlohmann/json.hpp>
 
 using namespace std;
 using nlohmann::json;
 
-namespace control {
+namespace input {
 
-Input::Input(const string &mqtt_id, int input, const string &ip):
+MQTT::MQTT(const string &mqtt_id, int input, const string &ip):
 HTTP(ip),
 input(input),
 topic(mqtt_id + "/events/rpc")
@@ -37,16 +38,29 @@ topic(mqtt_id + "/events/rpc")
 
 	auto mqtt = mqtt::Client::GetInstance();
 	mqtt->Subscribe(topic, this);
+
+	UpdateState();
 }
 
-Input::~Input()
+MQTT::~MQTT()
 {
 	auto mqtt = mqtt::Client::GetInstance();
 	if(mqtt)
 		mqtt->Unsubscribe(topic, this);
 }
 
-bool Input::get_input() const
+void MQTT::CheckConfig(const configuration::Json &conf)
+{
+	Input::CheckConfig(conf);
+
+	conf.Check("mqtt_id", "string");
+	if(conf.GetString("mqtt_id")=="")
+		throw invalid_argument("MQTT ID is required");
+
+	conf.Check("ip", "string", false);
+}
+
+bool MQTT::get_input() const
 {
 	if(ip=="")
 		return false;
@@ -68,19 +82,19 @@ bool Input::get_input() const
 	}
 }
 
-void Input::UpdateState()
+void MQTT::UpdateState()
 {
 	unique_lock<mutex> llock(lock);
 
 	state = get_input();
 }
 
-bool Input::GetState() const
+bool MQTT::GetState() const
 {
 	return state;
 }
 
-void Input::HandleMessage(const string &message)
+void MQTT::HandleMessage(const string &message)
 {
 	{
 		try

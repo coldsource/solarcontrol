@@ -163,7 +163,12 @@ void SolarControl::lws_callback_receive(struct lws *wsi, unsigned int protocol, 
 {
 	if(protocol==API)
 	{
+		unique_lock<recursive_mutex> llock(lock);
 		st_api_context *api_ctx = (st_api_context *)user_data;
+
+		if(api_ctx->worker_alive)
+			return; // Worker still alive, next command must be sent after
+
 		api_ctx->message = message;
 		api_ctx->worker_alive = true;
 		api_ctx->worker = thread(worker, wsi, api_ctx);

@@ -23,6 +23,7 @@
 #include <api/Logs.hpp>
 #include <api/Config.hpp>
 #include <api/Storage.hpp>
+#include <api/Shelly.hpp>
 #include <configuration/Json.hpp>
 
 #include <stdexcept>
@@ -40,6 +41,7 @@ Dispatcher::Dispatcher()
 	handlers["logs"] = new Logs();
 	handlers["config"] = new Config();
 	handlers["storage"] = new Storage();
+	handlers["shelly"] = new Shelly();
 }
 
 Dispatcher::~Dispatcher()

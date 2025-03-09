@@ -124,15 +124,15 @@ void DeviceElectrical::check_config_meter(const configuration::Json &j_config)
 {
 	j_config.Check("type", "string");
 
-	string control_type = j_config.GetString("type");
-	if(control_type!="3em")
-		throw invalid_argument("Invalid control type : « " + control_type + " »");
+	string meter_type = j_config.GetString("type");
+	if(meter_type!="3em" && meter_type!="plug")
+		throw invalid_argument("Invalid meter type : « " + meter_type + " »");
 
 	j_config.Check("mqtt_id", "string");
 	if(j_config.GetString("mqtt_id")=="")
 		throw invalid_argument("MQTT ID is required");
 
-	if(control_type=="3em")
+	if(meter_type=="3em")
 		j_config.Check("phase", "string");
 }
 

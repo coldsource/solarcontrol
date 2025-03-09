@@ -17,30 +17,28 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __DEVICE_DEVICEGRID_HPP__
-#define __DEVICE_DEVICEGRID_HPP__
+#ifndef __DEVICE_DEVICEPASSIVE_HPP__
+#define __DEVICE_DEVICEPASSIVE_HPP__
 
-#include <device/DevicePassive.hpp>
+#include <device/electrical/DeviceElectrical.hpp>
 
-namespace configuration {
-	class Json;
-}
+#include <string>
 
 namespace device {
 
-class DeviceGrid: public DevicePassive
+class DevicePassive: public DeviceElectrical
 {
 	public:
-		DeviceGrid(unsigned int id, const std::string &name, const configuration::Json &config);
-		virtual ~DeviceGrid() {}
+		DevicePassive(unsigned int id, const std::string &name, const configuration::Json &config): DeviceElectrical(id, name, config) {}
 
-		std::string GetType() const { return "grid"; }
+		static void CheckConfig(const configuration::Json &conf);
 
-		const std::map<datetime::Date, energy::Amount> &GetExcessHistory() const { return consumption.GetExcessHistory(); }
-
-		static void CreateInDB();
+		en_category GetCategory() const { return PASSIVE; }
+		std::string GetType() const { return "passive"; }
 };
 
 }
 
 #endif
+
+

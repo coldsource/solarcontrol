@@ -20,9 +20,8 @@
 #include <thread/DevicesManager.hpp>
 #include <datetime/Timestamp.hpp>
 #include <device/Devices.hpp>
-#include <device/DeviceOnOff.hpp>
-#include <device/DevicePassive.hpp>
-#include <device/DeviceWeather.hpp>
+#include <device/electrical/DeviceOnOff.hpp>
+#include <device/weather/DeviceWeather.hpp>
 #include <energy/GlobalMeter.hpp>
 #include <websocket/SolarControl.hpp>
 #include <control/ConfigurationControl.hpp>

@@ -9,6 +9,8 @@ aux_source_directory(src/energy srcEnergy)
 aux_source_directory(src/datetime srcDatetime)
 aux_source_directory(src/control srcControl)
 aux_source_directory(src/device srcDevice)
+aux_source_directory(src/device/electrical srcDeviceElectrical)
+aux_source_directory(src/device/weather srcDeviceWeather)
 aux_source_directory(src/thread srcThread)
 aux_source_directory(src/utils srcUtils)
 aux_source_directory(src/configuration srcConfiguration)
@@ -27,6 +29,8 @@ add_executable(solarcontrol
 	${srcDatetime}
 	${srcControl}
 	${srcDevice}
+	${srcDeviceElectrical}
+	${srcDeviceWeather}
 	${srcThread}
 	${srcUtils}
 	${srcConfiguration}

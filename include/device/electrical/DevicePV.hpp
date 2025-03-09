@@ -17,23 +17,30 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
+#ifndef __DEVICE_DEVICEPV_HPP__
+#define __DEVICE_DEVICEPV_HPP__
 
-#include <device/DeviceHTWifi.hpp>
-#include <control/HTWifi.hpp>
-#include <configuration/Json.hpp>
+#include <device/electrical/DevicePassive.hpp>
 
-using namespace std;
-
-namespace device
-{
-
-DeviceHTWifi::DeviceHTWifi(unsigned int id, const string &name, const configuration::Json &config):
-DeviceHT(id, name, config, new control::HTWifi(config.GetString("mqtt_id")))
-{
+namespace configuration {
+	class Json;
 }
 
-DeviceHTWifi::~DeviceHTWifi()
+namespace device {
+
+class DevicePV: public DevicePassive
 {
-}
+	public:
+		DevicePV(unsigned int id, const std::string &name, const configuration::Json &config);
+		virtual ~DevicePV() {}
+
+		std::string GetType() const { return "pv"; }
+
+		const std::map<datetime::Date, energy::Amount> &GetProductionHistory() const { return consumption.GetConsumptionHistory(); }
+
+		static void CreateInDB();
+};
 
 }
+
+#endif

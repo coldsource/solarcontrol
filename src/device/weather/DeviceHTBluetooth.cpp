@@ -17,30 +17,24 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __DEVICE_DEVICEHTWIFI_HPP__
-#define __DEVICE_DEVICEHTWIFI_HPP__
 
-#include <device/DeviceHT.hpp>
+#include <device/weather/DeviceHTBluetooth.hpp>
+#include <control/HTBluetooth.hpp>
+#include <configuration/Json.hpp>
 
-#include <string>
+using namespace std;
 
-namespace configuration {
-	class Json;
-}
-
-namespace device {
-
-class DeviceHTWifi: public DeviceHT
+namespace device
 {
-	public:
-		DeviceHTWifi(unsigned int id, const std::string &name, const configuration::Json &config);
-		virtual ~DeviceHTWifi();
 
-		std::string GetType() const { return "ht"; }
-};
-
+DeviceHTBluetooth::DeviceHTBluetooth(unsigned int id, const string &name, const configuration::Json &config):
+DeviceHT(id, name, config, new control::HTBluetooth(config.GetString("ble_addr")))
+{
 }
 
-#endif
+DeviceHTBluetooth::~DeviceHTBluetooth()
+{
+}
 
+}
 

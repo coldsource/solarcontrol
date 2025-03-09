@@ -17,24 +17,43 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
+#ifndef __DEVICE_DEVICEWIND_HPP__
+#define __DEVICE_DEVICEWIND_HPP__
 
-#include <device/DeviceHTBluetooth.hpp>
-#include <control/HTBluetooth.hpp>
-#include <configuration/Json.hpp>
+#include <device/weather/DeviceWeather.hpp>
+#include <weather/HistoryQuarterHourWind.hpp>
 
-using namespace std;
+#include <string>
 
-namespace device
-{
-
-DeviceHTBluetooth::DeviceHTBluetooth(unsigned int id, const string &name, const configuration::Json &config):
-DeviceHT(id, name, config, new control::HTBluetooth(config.GetString("ble_addr")))
-{
+namespace control {
+	class Wind;
 }
 
-DeviceHTBluetooth::~DeviceHTBluetooth()
+namespace device {
+
+class DeviceWind: public DeviceWeather
 {
-}
+	protected:
+		control::Wind *ctrl;
+
+		weather::HistoryQuarterHourWind history;
+
+	public:
+		DeviceWind(unsigned int id, const std::string &name, const configuration::Json &config);
+		virtual ~DeviceWind();
+
+		std::string GetType() const { return "wind"; }
+
+		double GetTemperature() const;
+		double GetHumidity() const;
+		double GetWind() const;
+
+		void Log();
+};
 
 }
+
+#endif
+
+
 

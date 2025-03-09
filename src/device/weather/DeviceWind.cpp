@@ -18,7 +18,7 @@
  */
 
 
-#include <device/DeviceWind.hpp>
+#include <device/weather/DeviceWind.hpp>
 #include <control/Wind.hpp>
 #include <configuration/Json.hpp>
 #include <stat/MinMaxAvg.hpp>

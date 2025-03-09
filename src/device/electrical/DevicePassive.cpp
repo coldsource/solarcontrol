@@ -17,39 +17,23 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __DEVICE_DEVICEHWS_HPP__
-#define __DEVICE_DEVICEHWS_HPP__
+#include <device/electrical/DevicePassive.hpp>
+#include <meter/MeterFactory.hpp>
+#include <configuration/Json.hpp>
 
-#include <device/DeviceTimeRange.hpp>
-
-namespace configuration {
-	class Json;
-}
+using namespace std;
+using datetime::Timestamp;
+using nlohmann::json;
 
 namespace device {
 
-class DeviceHWS: public DeviceTimeRange
+void DevicePassive::CheckConfig(const configuration::Json &conf)
 {
-	protected:
-		double min_energy; // kWh
-		int min_energy_for_last; // Days
+	DeviceElectrical::CheckConfig(conf);
 
-	public:
-		DeviceHWS(unsigned int id, const std::string &name, const configuration::Json &config);
-		virtual ~DeviceHWS() {}
-
-		static void CheckConfig(const configuration::Json &conf);
-
-		bool WantRemainder() const;
-
-		std::string GetType() const { return "hws"; }
-
-		static void CreateInDB();
-};
-
+	conf.Check("meter", "object"); // Meter is mandatory for passive devices
+	meter::MeterFactory::CheckConfig(conf.GetObject("meter"));
 }
 
-#endif
-
-
+}
 

@@ -17,39 +17,23 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __DEVICE_DEVICEHEATER_HPP__
-#define __DEVICE_DEVICEHEATER_HPP__
 
-#include <device/DeviceTimeRange.hpp>
+#include <device/weather/DeviceHTWifi.hpp>
+#include <control/HTWifi.hpp>
+#include <configuration/Json.hpp>
 
-namespace configuration {
-	class Json;
-}
+using namespace std;
 
-namespace device {
-
-class DeviceHeater: public DeviceTimeRange
+namespace device
 {
-	protected:
-		int ht_device_id;
-		double force_max_temperature;
-		double offload_max_temperature;
 
-	public:
-		DeviceHeater(unsigned int id, const std::string &name, const configuration::Json &config);
-		virtual ~DeviceHeater() {}
-
-		static void CheckConfig(const configuration::Json &conf);
-
-		std::string GetType() const { return "heater"; }
-
-		en_wanted_state GetWantedState() const;
-
-		bool Depends(int device_id) const;
-};
-
+DeviceHTWifi::DeviceHTWifi(unsigned int id, const string &name, const configuration::Json &config):
+DeviceHT(id, name, config, new control::HTWifi(config.GetString("mqtt_id")))
+{
 }
 
-#endif
+DeviceHTWifi::~DeviceHTWifi()
+{
+}
 
-
+}

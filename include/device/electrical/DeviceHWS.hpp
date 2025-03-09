@@ -17,12 +17,10 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __DEVICE_DEVICEHTBLUETOOTH_HPP__
-#define __DEVICE_DEVICEHTBLUETOOTH_HPP__
+#ifndef __DEVICE_DEVICEHWS_HPP__
+#define __DEVICE_DEVICEHWS_HPP__
 
-#include <device/DeviceHT.hpp>
-
-#include <string>
+#include <device/electrical/DeviceTimeRange.hpp>
 
 namespace configuration {
 	class Json;
@@ -30,15 +28,28 @@ namespace configuration {
 
 namespace device {
 
-class DeviceHTBluetooth: public DeviceHT
+class DeviceHWS: public DeviceTimeRange
 {
-	public:
-		DeviceHTBluetooth(unsigned int id, const std::string &name, const configuration::Json &config);
-		virtual ~DeviceHTBluetooth();
+	protected:
+		double min_energy; // kWh
+		int min_energy_for_last; // Days
 
-		std::string GetType() const { return "htmini"; }
+	public:
+		DeviceHWS(unsigned int id, const std::string &name, const configuration::Json &config);
+		virtual ~DeviceHWS() {}
+
+		static void CheckConfig(const configuration::Json &conf);
+
+		bool WantRemainder() const;
+
+		std::string GetType() const { return "hws"; }
+
+		static void CreateInDB();
 };
 
 }
 
 #endif
+
+
+

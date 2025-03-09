@@ -17,7 +17,7 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#include <device/DeviceHT.hpp>
+#include <device/weather/DeviceHT.hpp>
 #include <control/HT.hpp>
 #include <configuration/Json.hpp>
 #include <nlohmann/json.hpp>

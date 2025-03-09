@@ -17,43 +17,39 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __DEVICE_DEVICEWIND_HPP__
-#define __DEVICE_DEVICEWIND_HPP__
+#ifndef __DEVICE_DEVICEHEATER_HPP__
+#define __DEVICE_DEVICEHEATER_HPP__
 
-#include <device/DeviceWeather.hpp>
-#include <weather/HistoryQuarterHourWind.hpp>
+#include <device/electrical/DeviceTimeRange.hpp>
 
-#include <string>
-
-namespace control {
-	class Wind;
+namespace configuration {
+	class Json;
 }
 
 namespace device {
 
-class DeviceWind: public DeviceWeather
+class DeviceHeater: public DeviceTimeRange
 {
 	protected:
-		control::Wind *ctrl;
-
-		weather::HistoryQuarterHourWind history;
+		int ht_device_id;
+		double force_max_temperature;
+		double offload_max_temperature;
 
 	public:
-		DeviceWind(unsigned int id, const std::string &name, const configuration::Json &config);
-		virtual ~DeviceWind();
+		DeviceHeater(unsigned int id, const std::string &name, const configuration::Json &config);
+		virtual ~DeviceHeater() {}
 
-		std::string GetType() const { return "wind"; }
+		static void CheckConfig(const configuration::Json &conf);
 
-		double GetTemperature() const;
-		double GetHumidity() const;
-		double GetWind() const;
+		std::string GetType() const { return "heater"; }
 
-		void Log();
+		en_wanted_state GetWantedState() const;
+
+		bool Depends(int device_id) const;
 };
 
 }
 
 #endif
-
 
 

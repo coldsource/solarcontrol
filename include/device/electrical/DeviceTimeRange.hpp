@@ -17,12 +17,14 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __DEVICE_DEVICECMV_HPP__
-#define __DEVICE_DEVICECMV_HPP__
+#ifndef __DEVICE_DEVICETIMERANGE_HPP__
+#define __DEVICE_DEVICETIMERANGE_HPP__
 
-#include <device/DeviceTimeRange.hpp>
+#include <device/electrical/DeviceOnOff.hpp>
+#include <datetime/TimeRanges.hpp>
 
-#include <set>
+#include <string>
+#include <vector>
 
 namespace configuration {
 	class Json;
@@ -30,29 +32,37 @@ namespace configuration {
 
 namespace device {
 
-class DeviceCMV: public DeviceTimeRange
+class DeviceTimeRange: public DeviceOnOff
 {
 	protected:
-		std::set<int> ht_device_ids;
-		double force_max_moisture;
-		double offload_max_moisture;
+		unsigned long min_on = 0;
+		unsigned long max_on = 0;
+		unsigned long min_off = 0;
+
+		datetime::TimeRanges force;
+
+		datetime::TimeRanges offload;
+
+		datetime::TimeRanges remainder;
+		unsigned long min_on_time;
+		unsigned long min_on_for_last;
 
 	public:
-		DeviceCMV(unsigned int id, const std::string &name, const configuration::Json &config);
-		virtual ~DeviceCMV() {}
+		DeviceTimeRange(unsigned int id, const std::string &name, const configuration::Json &config);
+		virtual ~DeviceTimeRange();
 
 		static void CheckConfig(const configuration::Json &conf);
 
-		std::string GetType() const { return "cmv"; }
+		std::string GetType() const { return "timerange"; }
 
-		en_wanted_state GetWantedState() const;
+		virtual bool IsForced() const;
+		virtual bool WantOffload() const;
+		virtual bool WantRemainder() const;
 
-		bool Depends(int device_id) const;
+		virtual en_wanted_state GetWantedState() const;
 };
 
 }
 
 #endif
-
-
 

@@ -20,8 +20,8 @@
 #include <device/Devices.hpp>
 #include <device/DeviceFactory.hpp>
 #include <device/Device.hpp>
-#include <device/DeviceOnOff.hpp>
-#include <device/DeviceWeather.hpp>
+#include <device/electrical/DeviceElectrical.hpp>
+#include <device/weather/DeviceWeather.hpp>
 #include <device/DeviceObserver.hpp>
 #include <configuration/Json.hpp>
 #include <database/DB.hpp>
@@ -132,7 +132,7 @@ void Devices::reload(int id)
 
 			devices.insert(pair<int, Device *>(device->GetID(), device));
 			if(device->GetCategory()==ONOFF || device->GetCategory()==PASSIVE)
-				devices_electrical.insert((DeviceOnOff *)device);
+				devices_electrical.insert((DeviceElectrical *)device);
 			if(device->GetCategory()==WEATHER)
 				devices_weather.insert((DeviceWeather *)device);
 		}

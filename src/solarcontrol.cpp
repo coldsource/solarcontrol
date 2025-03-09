@@ -6,9 +6,9 @@
 #include <mqtt/Client.hpp>
 #include <energy/GlobalMeter.hpp>
 #include <device/Devices.hpp>
-#include <device/DeviceHWS.hpp>
-#include <device/DeviceGrid.hpp>
-#include <device/DevicePV.hpp>
+#include <device/electrical/DeviceHWS.hpp>
+#include <device/electrical/DeviceGrid.hpp>
+#include <device/electrical/DevicePV.hpp>
 #include <utils/signal.hpp>
 #include <configuration/Args.hpp>
 #include <configuration/Configuration.hpp>

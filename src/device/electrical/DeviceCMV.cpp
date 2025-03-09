@@ -17,11 +17,11 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#include <device/DeviceCMV.hpp>
+#include <device/electrical/DeviceCMV.hpp>
+#include <device/weather/DeviceWeather.hpp>
 #include <configuration/Json.hpp>
 #include <datetime/Timestamp.hpp>
 #include <device/Devices.hpp>
-#include <device/DeviceWeather.hpp>
 #include <logs/Logger.hpp>
 
 using namespace std;

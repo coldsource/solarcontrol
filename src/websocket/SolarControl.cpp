@@ -21,9 +21,8 @@
 #include <database/DB.hpp>
 #include <energy/GlobalMeter.hpp>
 #include <device/Devices.hpp>
-#include <device/DeviceOnOff.hpp>
-#include <device/DeviceWeather.hpp>
-#include <device/DevicePassive.hpp>
+#include <device/electrical/DeviceElectrical.hpp>
+#include <device/weather/DeviceWeather.hpp>
 #include <logs/Logger.hpp>
 #include <nlohmann/json.hpp>
 

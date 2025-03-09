@@ -17,7 +17,7 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#include <device/DeviceOnOff.hpp>
+#include <device/electrical/DeviceOnOff.hpp>
 #include <control/OnOffFactory.hpp>
 #include <control/OnOff.hpp>
 #include <meter/Meter.hpp>

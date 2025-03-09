@@ -17,7 +17,7 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#include <device/DeviceElectrical.hpp>
+#include <device/electrical/DeviceElectrical.hpp>
 #include <configuration/Json.hpp>
 #include <control/OnOffFactory.hpp>
 #include <control/Dummy.hpp>

@@ -17,34 +17,37 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __DEVICE_DEVICEHT_HPP__
-#define __DEVICE_DEVICEHT_HPP__
+#ifndef __DEVICE_DEVICECMV_HPP__
+#define __DEVICE_DEVICECMV_HPP__
 
-#include <device/DeviceWeather.hpp>
-#include <weather/HistoryQuarterHourHT.hpp>
+#include <device/electrical/DeviceTimeRange.hpp>
 
-namespace control {
-	class HT;
+#include <set>
+
+namespace configuration {
+	class Json;
 }
 
 namespace device {
 
-class DeviceHT: public DeviceWeather
+class DeviceCMV: public DeviceTimeRange
 {
 	protected:
-		control::HT *ctrl;
-
-		weather::HistoryQuarterHourHT history;
+		std::set<int> ht_device_ids;
+		double force_max_moisture;
+		double offload_max_moisture;
 
 	public:
-		DeviceHT(unsigned int id, const std::string &name, const configuration::Json &config, control::HT *ctrl);
-		virtual ~DeviceHT();
+		DeviceCMV(unsigned int id, const std::string &name, const configuration::Json &config);
+		virtual ~DeviceCMV() {}
 
-		double GetTemperature() const;
-		double GetHumidity() const;
-		double GetWind() const;
+		static void CheckConfig(const configuration::Json &conf);
 
-		void Log();
+		std::string GetType() const { return "cmv"; }
+
+		en_wanted_state GetWantedState() const;
+
+		bool Depends(int device_id) const;
 };
 
 }

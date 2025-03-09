@@ -17,10 +17,12 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __DEVICE_DEVICEPV_HPP__
-#define __DEVICE_DEVICEPV_HPP__
+#ifndef __DEVICE_DEVICEHTWIFI_HPP__
+#define __DEVICE_DEVICEHTWIFI_HPP__
 
-#include <device/DevicePassive.hpp>
+#include <device/weather/DeviceHT.hpp>
+
+#include <string>
 
 namespace configuration {
 	class Json;
@@ -28,19 +30,17 @@ namespace configuration {
 
 namespace device {
 
-class DevicePV: public DevicePassive
+class DeviceHTWifi: public DeviceHT
 {
 	public:
-		DevicePV(unsigned int id, const std::string &name, const configuration::Json &config);
-		virtual ~DevicePV() {}
+		DeviceHTWifi(unsigned int id, const std::string &name, const configuration::Json &config);
+		virtual ~DeviceHTWifi();
 
-		std::string GetType() const { return "pv"; }
-
-		const std::map<datetime::Date, energy::Amount> &GetProductionHistory() const { return consumption.GetConsumptionHistory(); }
-
-		static void CreateInDB();
+		std::string GetType() const { return "ht"; }
 };
 
 }
 
 #endif
+
+

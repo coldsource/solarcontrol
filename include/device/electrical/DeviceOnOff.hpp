@@ -20,7 +20,7 @@
 #ifndef __DEVICE_DEVICEONOFF_HPP__
 #define __DEVICE_DEVICEONOFF_HPP__
 
-#include <device/DeviceElectrical.hpp>
+#include <device/electrical/DeviceElectrical.hpp>
 #include <datetime/TimespanHistory.hpp>
 #include <datetime/Timestamp.hpp>
 

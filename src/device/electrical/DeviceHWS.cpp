@@ -17,7 +17,7 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#include <device/DeviceHWS.hpp>
+#include <device/electrical/DeviceHWS.hpp>
 #include <device/Devices.hpp>
 #include <configuration/Json.hpp>
 #include <meter/MeterFactory.hpp>

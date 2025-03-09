@@ -17,11 +17,9 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#include <device/DevicePV.hpp>
+#include <device/electrical/DeviceGrid.hpp>
 #include <device/Devices.hpp>
 #include <configuration/Json.hpp>
-#include <energy/ConfigurationEnergy.hpp>
-#include <meter/Pro3EM.hpp>
 #include <database/DB.hpp>
 
 using namespace std;
@@ -30,16 +28,16 @@ using nlohmann::json;
 namespace device
 {
 
-DevicePV::DevicePV(unsigned int id, const string &name, const configuration::Json &config):DevicePassive(id, name, config)
+DeviceGrid::DeviceGrid(unsigned int id, const string &name, const configuration::Json &config):DevicePassive(id, name, config)
 {
-	// Override default counter for storing production
-	consumption = energy::Counter(id, "production");
+	// Override default counter for storing excess
+	consumption = energy::Counter(id, "consumption", "excess");
 }
 
-void DevicePV::CreateInDB()
+void DeviceGrid::CreateInDB()
 {
 	database::DB db;
-	auto res = db.Query("SELECT device_id FROM t_device WHERE device_type='pv'"_sql);
+	auto res = db.Query("SELECT device_id FROM t_device WHERE device_type='grid'"_sql);
 	if(res.FetchRow())
 		return; // Already in database
 
@@ -48,11 +46,10 @@ void DevicePV::CreateInDB()
 	json meter;
 	meter["type"] = "3em";
 	meter["mqtt_id"] = "";
-	meter["phase"] = "b";
+	meter["phase"] = "a";
 	config["meter"] = meter;
 
-	db.Query("INSERT INTO t_device(device_id, device_type, device_name, device_config) VALUES(%i, 'pv', 'pv', %s)"_sql<<DEVICE_ID_PV<<config.dump());
+	db.Query("INSERT INTO t_device(device_id, device_type, device_name, device_config) VALUES(%i, 'grid', 'grid', %s)"_sql<<DEVICE_ID_GRID<<config.dump());
 }
 
 }
-

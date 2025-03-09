@@ -25,11 +25,9 @@
 #include <datetime/DateTime.hpp>
 #include <datetime/Month.hpp>
 #include <device/Devices.hpp>
-#include <device/Devices.hpp>
-#include <device/DeviceOnOff.hpp>
-#include <device/DevicePassive.hpp>
-#include <device/DeviceGrid.hpp>
-#include <device/DevicePV.hpp>
+#include <device/electrical/DeviceElectrical.hpp>
+#include <device/electrical/DeviceGrid.hpp>
+#include <device/electrical/DevicePV.hpp>
 
 #include <map>
 #include <stdexcept>

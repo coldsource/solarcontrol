@@ -17,23 +17,39 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#include <device/DevicePassive.hpp>
-#include <meter/MeterFactory.hpp>
-#include <configuration/Json.hpp>
+#ifndef __DEVICE_DEVICEHT_HPP__
+#define __DEVICE_DEVICEHT_HPP__
 
-using namespace std;
-using datetime::Timestamp;
-using nlohmann::json;
+#include <device/weather/DeviceWeather.hpp>
+#include <weather/HistoryQuarterHourHT.hpp>
+
+namespace control {
+	class HT;
+}
 
 namespace device {
 
-void DevicePassive::CheckConfig(const configuration::Json &conf)
+class DeviceHT: public DeviceWeather
 {
-	DeviceElectrical::CheckConfig(conf);
+	protected:
+		control::HT *ctrl;
 
-	conf.Check("meter", "object"); // Meter is mandatory for passive devices
-	meter::MeterFactory::CheckConfig(conf.GetObject("meter"));
+		weather::HistoryQuarterHourHT history;
+
+	public:
+		DeviceHT(unsigned int id, const std::string &name, const configuration::Json &config, control::HT *ctrl);
+		virtual ~DeviceHT();
+
+		double GetTemperature() const;
+		double GetHumidity() const;
+		double GetWind() const;
+
+		void Log();
+};
+
 }
 
-}
+#endif
+
+
 

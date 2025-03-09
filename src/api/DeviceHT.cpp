@@ -19,7 +19,7 @@
 
 #include <api/DeviceHT.hpp>
 #include <device/Devices.hpp>
-#include <device/DeviceWeather.hpp>
+#include <device/weather/DeviceWeather.hpp>
 #include <configuration/Json.hpp>
 
 #include <stdexcept>

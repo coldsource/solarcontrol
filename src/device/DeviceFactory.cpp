@@ -18,16 +18,16 @@
  */
 
 #include <device/DeviceFactory.hpp>
-#include <device/DeviceTimeRange.hpp>
-#include <device/DeviceHeater.hpp>
-#include <device/DeviceCMV.hpp>
-#include <device/DeviceHWS.hpp>
-#include <device/DevicePassive.hpp>
-#include <device/DeviceHTWifi.hpp>
-#include <device/DeviceHTBluetooth.hpp>
-#include <device/DeviceWind.hpp>
-#include <device/DeviceGrid.hpp>
-#include <device/DevicePV.hpp>
+#include <device/electrical/DeviceTimeRange.hpp>
+#include <device/electrical/DeviceHeater.hpp>
+#include <device/electrical/DeviceCMV.hpp>
+#include <device/electrical/DeviceHWS.hpp>
+#include <device/electrical/DevicePassive.hpp>
+#include <device/electrical/DevicePV.hpp>
+#include <device/electrical/DeviceGrid.hpp>
+#include <device/weather/DeviceWind.hpp>
+#include <device/weather/DeviceHTWifi.hpp>
+#include <device/weather/DeviceHTBluetooth.hpp>
 #include <device/DeviceObserver.hpp>
 #include <configuration/Json.hpp>
 

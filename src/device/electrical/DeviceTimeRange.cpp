@@ -17,7 +17,7 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#include <device/DeviceTimeRange.hpp>
+#include <device/electrical/DeviceTimeRange.hpp>
 #include <control/OnOff.hpp>
 #include <configuration/Json.hpp>
 

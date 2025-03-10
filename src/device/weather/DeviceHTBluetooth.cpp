@@ -36,5 +36,12 @@ DeviceHTBluetooth::~DeviceHTBluetooth()
 {
 }
 
+void DeviceHTBluetooth::CheckConfig(const configuration::Json &conf)
+{
+	DeviceHT::CheckConfig(conf);
+
+	control::HTBluetooth::CheckConfig(conf);
+}
+
 }
 

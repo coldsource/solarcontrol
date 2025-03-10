@@ -42,6 +42,8 @@ class DeviceWind: public DeviceWeather
 		DeviceWind(unsigned int id, const std::string &name, const configuration::Json &config);
 		virtual ~DeviceWind();
 
+		static void CheckConfig(const configuration::Json &conf);
+
 		std::string GetType() const { return "wind"; }
 
 		double GetTemperature() const;

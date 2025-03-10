@@ -39,6 +39,13 @@ DeviceWind::~DeviceWind()
 	delete ctrl;
 }
 
+void DeviceWind::CheckConfig(const configuration::Json &conf)
+{
+	DeviceWeather::CheckConfig(conf);
+
+	control::Wind::CheckConfig(conf);
+}
+
 double DeviceWind::GetTemperature() const
 {
 	return std::numeric_limits<double>::quiet_NaN();

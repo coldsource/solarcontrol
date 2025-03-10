@@ -19,6 +19,7 @@
 
 #include <control/HTBluetooth.hpp>
 #include <mqtt/Client.hpp>
+#include <configuration/Json.hpp>
 #include <websocket/SolarControl.hpp>
 #include <nlohmann/json.hpp>
 
@@ -40,6 +41,15 @@ HTBluetooth::~HTBluetooth()
 	auto mqtt = mqtt::Client::GetInstance();
 	if(mqtt)
 		mqtt->Unsubscribe(topic, this);
+}
+
+void HTBluetooth::CheckConfig(const configuration::Json &conf)
+{
+	HT::CheckConfig(conf);
+
+	conf.Check("ble_addr", "string");
+	if(conf.GetString("ble_addr")=="")
+		throw invalid_argument("Bluetooth address is mandatory");
 }
 
 void HTBluetooth::HandleMessage(const string &message)

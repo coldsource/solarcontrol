@@ -19,6 +19,7 @@
 
 #include <control/Wind.hpp>
 #include <mqtt/Client.hpp>
+#include <configuration/Json.hpp>
 #include <websocket/SolarControl.hpp>
 #include <nlohmann/json.hpp>
 
@@ -39,6 +40,13 @@ Wind::~Wind()
 	auto mqtt = mqtt::Client::GetInstance();
 	if(mqtt)
 		mqtt->Unsubscribe(topic, this);
+}
+
+void Wind::CheckConfig(const configuration::Json &conf)
+{
+	conf.Check("mqtt_id", "string");
+	if(conf.GetString("mqtt_id")=="")
+		throw invalid_argument("MQTT ID is mandatory");
 }
 
 double Wind::GetWind() const

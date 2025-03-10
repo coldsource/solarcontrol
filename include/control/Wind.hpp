@@ -25,6 +25,10 @@
 #include <mutex>
 #include <atomic>
 
+namespace configuration {
+	class Json;
+}
+
 namespace control {
 
 class Wind: public mqtt::Subscriber
@@ -38,6 +42,8 @@ class Wind: public mqtt::Subscriber
 	public:
 		Wind(const std::string &mqtt_id);
 		virtual ~Wind();
+
+		static void CheckConfig(const configuration::Json &conf);
 
 		double GetWind() const;
 		void SetWind(double w);

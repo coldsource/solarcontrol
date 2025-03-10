@@ -35,6 +35,8 @@ class HTWifi: public HT, public mqtt::Subscriber
 		HTWifi(const std::string &mqtt_id);
 		virtual ~HTWifi();
 
+		static void CheckConfig(const configuration::Json &conf);
+
 		void HandleMessage(const std::string &message);
 };
 

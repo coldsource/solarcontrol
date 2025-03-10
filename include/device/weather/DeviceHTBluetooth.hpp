@@ -36,6 +36,8 @@ class DeviceHTBluetooth: public DeviceHT
 		DeviceHTBluetooth(unsigned int id, const std::string &name, const configuration::Json &config);
 		virtual ~DeviceHTBluetooth();
 
+		static void CheckConfig(const configuration::Json &conf);
+
 		std::string GetType() const { return "htmini"; }
 };
 

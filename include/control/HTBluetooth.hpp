@@ -35,6 +35,8 @@ class HTBluetooth: public HT, public mqtt::Subscriber
 		HTBluetooth(const std::string &ble_addr);
 		virtual ~HTBluetooth();
 
+		static void CheckConfig(const configuration::Json &conf);
+
 		void HandleMessage(const std::string &message);
 };
 

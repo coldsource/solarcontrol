@@ -22,8 +22,6 @@
 #include <device/Devices.hpp>
 #include <device/DeviceFactory.hpp>
 #include <device/electrical/DeviceElectrical.hpp>
-#include <control/OnOffFactory.hpp>
-#include <meter/MeterFactory.hpp>
 #include <websocket/SolarControl.hpp>
 
 #include <stdexcept>

@@ -19,6 +19,7 @@
 
 #include <control/HTWifi.hpp>
 #include <mqtt/Client.hpp>
+#include <configuration/Json.hpp>
 #include <websocket/SolarControl.hpp>
 #include <nlohmann/json.hpp>
 
@@ -40,6 +41,15 @@ HTWifi::~HTWifi()
 	auto mqtt = mqtt::Client::GetInstance();
 	if(mqtt)
 		mqtt->Unsubscribe(topic, this);
+}
+
+void HTWifi::CheckConfig(const configuration::Json &conf)
+{
+	HT::CheckConfig(conf);
+
+	conf.Check("mqtt_id", "string");
+	if(conf.GetString("mqtt_id")=="")
+		throw invalid_argument("MQTT ID is mandatory");
 }
 
 void HTWifi::HandleMessage(const string &message)

@@ -36,6 +36,8 @@ class DeviceHTWifi: public DeviceHT
 		DeviceHTWifi(unsigned int id, const std::string &name, const configuration::Json &config);
 		virtual ~DeviceHTWifi();
 
+		static void CheckConfig(const configuration::Json &conf);
+
 		std::string GetType() const { return "ht"; }
 };
 

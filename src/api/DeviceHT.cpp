@@ -19,6 +19,7 @@
 
 #include <api/DeviceHT.hpp>
 #include <device/Devices.hpp>
+#include <device/DeviceFactory.hpp>
 #include <device/weather/DeviceWeather.hpp>
 #include <configuration/Json.hpp>
 
@@ -29,18 +30,6 @@ using nlohmann::json;
 
 namespace api
 {
-
-void DeviceHT::check_config(const configuration::Json &j_config, const string &device_type)
-{
-	if(device_type=="ht")
-		j_config.Check("mqtt_id", "string");
-
-	if(device_type=="htmini")
-		j_config.Check("ble_addr", "string");
-
-	if(device_type=="wind")
-		j_config.Check("mqtt_id", "string");
-}
 
 json DeviceHT::HandleMessage(const string &cmd, const configuration::Json &j_params)
 {
@@ -56,7 +45,7 @@ json DeviceHT::HandleMessage(const string &cmd, const configuration::Json &j_par
 
 		string device_type = devices.GetWeatherByID(device_id)->GetType();
 
-		check_config(device_config, device_type);
+		device::DeviceFactory::CheckConfig(device_type, device_config);
 
 		update_device(device_id, device_name, device_config);
 
@@ -69,13 +58,10 @@ json DeviceHT::HandleMessage(const string &cmd, const configuration::Json &j_par
 		string device_name = j_params.GetString("device_name");
 		string device_type = j_params.GetString("device_type");
 
-		if(device_type!="ht" && device_type!="htmini" && device_type!="wind")
-			throw invalid_argument("Invalid device type : « " + device_type + " »");
+		auto device_config = j_params.GetObject("device_config");
+		device::DeviceFactory::CheckConfig(device_type, device_config);
 
-		auto j_config = j_params.GetObject("device_config");
-		check_config(j_config, device_type);
-
-		int device_id = insert_device(device_type, device_name, j_config);
+		int device_id = insert_device(device_type, device_name, device_config);
 
 		devices.Reload(device_id);
 

@@ -23,6 +23,10 @@
 #include <mutex>
 #include <atomic>
 
+namespace configuration {
+	class Json;
+}
+
 namespace control {
 
 class HT
@@ -36,6 +40,8 @@ class HT
 	public:
 		HT();
 		virtual ~HT();
+
+		static void CheckConfig(const configuration::Json & /* conf */) {}
 
 		double GetTemperature() const;
 		double GetHumidity() const;

@@ -36,4 +36,11 @@ DeviceHTWifi::~DeviceHTWifi()
 {
 }
 
+void DeviceHTWifi::CheckConfig(const configuration::Json &conf)
+{
+	DeviceHT::CheckConfig(conf);
+
+	control::HTWifi::CheckConfig(conf);
+}
+
 }

@@ -103,7 +103,7 @@ void Client::connect_callback(struct mosquitto * mosqh, void *obj, int /* rc */)
 
 	logs::Logger::Log(LOG_NOTICE, "Connected to MQTT server");
 
-	// Re-subscribe all topic in case of reconnection
+	// Re-subscribe all topics in case of reconnection
 	for(auto it : mqtt->subscribers)
 		mosquitto_subscribe(mosqh, 0, it.first.c_str(), 0);
 }

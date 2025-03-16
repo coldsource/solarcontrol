@@ -20,6 +20,7 @@
 #include <mqtt/Client.hpp>
 #include <mqtt/Subscriber.hpp>
 #include <configuration/ConfigurationSolarControl.hpp>
+#include <logs/Logger.hpp>
 
 using namespace std;
 
@@ -32,6 +33,7 @@ Client::Client(const string &host, unsigned int port)
 	string id = configuration::ConfigurationSolarControl::GetInstance()->Get("mqtt.id");
 	mosqh = mosquitto_new(id.c_str(), true, this);
 
+	mosquitto_connect_callback_set(mosqh, connect_callback);
 	mosquitto_message_callback_set(mosqh, message_callback);
 
 	int re = mosquitto_connect(mosqh, host.c_str(), port, 60);
@@ -93,6 +95,17 @@ void Client::WaitForShutdown()
 
 	loop_handle.join();
 	clean_shutdown = true;
+}
+
+void Client::connect_callback(struct mosquitto * mosqh, void *obj, int /* rc */)
+{
+	Client *mqtt = (Client *)obj;
+
+	logs::Logger::Log(LOG_NOTICE, "Connected to MQTT server");
+
+	// Re-subscribe all topic in case of reconnection
+	for(auto it : mqtt->subscribers)
+		mosquitto_subscribe(mosqh, 0, it.first.c_str(), 0);
 }
 
 void Client::message_callback(struct mosquitto * /* mosq */, void *obj, const struct mosquitto_message *message)

@@ -45,6 +45,7 @@ ConfigurationSolarControl::ConfigurationSolarControl(void)
 	entries["display.lcd.address"] = "0x27";
 	entries["display.lcd.linesize"] = "20";
 	entries["display.lcd.enable"] = "no";
+	entries["display.lcd.debug"] = "no";
 }
 
 ConfigurationSolarControl::~ConfigurationSolarControl(void)
@@ -57,6 +58,9 @@ void ConfigurationSolarControl::Check(void)
 	check_time_entry("core.history.sync");
 	check_int_entry("mqtt.port");
 	check_time_entry("http.timeout");
+	check_int_entry("display.lcd.linesize");
+	check_bool_entry("display.lcd.enable");
+	check_bool_entry("display.lcd.debug");
 
 	if(GetInt("core.history.maxdays")<0)
 		throw invalid_argument("core.history.maxdays : must be greater than 0");

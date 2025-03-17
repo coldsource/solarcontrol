@@ -20,11 +20,16 @@
 #include <thread/LCD.hpp>
 #include <display/LCDDisplay.hpp>
 #include <energy/GlobalMeter.hpp>
+#include <device/Devices.hpp>
+#include <device/electrical/DeviceElectrical.hpp>
 #include <configuration/ConfigurationSolarControl.hpp>
 
 #include <string>
+#include <iostream>
+#include <memory>
 
 using namespace std;
+using display::LCDDisplay;
 
 namespace thread
 {
@@ -63,22 +68,67 @@ void LCD::main()
 
 	string path = config->Get("display.lcd.path");
 	int address = config->GetInt("display.lcd.address");
-	int line_size = config->GetInt("display.lcd.linesize");
+	size_t line_size = config->GetInt("display.lcd.linesize");
+	bool debug = config->GetBool("display.lcd.debug");
 
-	display::LCDDisplay lcd(path, address, line_size);
-	lcd.Clear();
+	unique_ptr<LCDDisplay> lcd;
+	if(!debug)
+	{
+		lcd.reset(new LCDDisplay(path, address, line_size));
+		lcd->Clear();
+	}
 
 	while(true)
 	{
-		string l1 = "Grid " + format_power(global->GetGridPower()) + " (" + format_power(global->GetPower()) + ")";
-		string l2 = "PV " + format_power(global->GetPVPower()) + " (" + format_power(global->GetNetAvailablePower()) + ")";
-		string l3 = "" + format_energy(global->GetGridEnergy()) + " / " + format_energy(global->GetExportedEnergy());
-		string l4 = "HWS " + format_energy(global->GetHWSEnergy()) + " (" + format_power(global->GetHWSPower()) + ")";
-		lcd.Home();
-		lcd.WriteLine(1, l1);
-		lcd.WriteLine(2, l2);
-		lcd.WriteLine(3, l3);
-		lcd.WriteLine(4, l4);
+		// Get top consuming device
+		string max_name;
+		double max_power = 0;
+		double max_energy = 0;
+
+		{
+			device::Devices devices;
+			auto electrical = devices.GetElectrical();
+			for(auto device : electrical)
+			{
+				if(device->GetID()==DEVICE_ID_GRID || device->GetID()==DEVICE_ID_PV)
+					continue; // Exclude special devices
+
+				if(device->GetPower()>max_power)
+				{
+					max_name = device->GetName();
+					max_power = device->GetPower();
+					max_energy = device->GetEnergyConsumption();
+				}
+			}
+		}
+
+		string l1 = "Grid " + format_power(global->GetGridPower()) + " (" + format_energy(global->GetGridEnergy()) + ")";
+		string l2 = "PV " + format_power(global->GetPVPower()) + " (" + format_power(global->GetGrossAvailablePower()) + ")";
+		string l3;
+		string l4;
+		if(max_power>0)
+		{
+			l3 = max_name.size()<line_size?max_name:(max_name.substr(0, line_size-3) + "...");
+			l4 = format_power(max_power) + " (" + format_energy(max_energy) + ")";
+		}
+
+		if(!debug)
+		{
+			lcd->Home();
+			lcd->WriteLine(1, l1);
+			lcd->WriteLine(2, l2);
+			lcd->WriteLine(3, l3);
+			lcd->WriteLine(4, l4);
+		}
+		else
+		{
+			// In debug mode we simply output on stdout
+			cout<<l1<<endl;
+			cout<<l2<<endl;
+			cout<<l3<<endl;
+			cout<<l4<<endl;
+			cout<<endl;
+		}
 
 		if(!wait(2))
 			return;

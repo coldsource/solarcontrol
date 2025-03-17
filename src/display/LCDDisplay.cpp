@@ -107,7 +107,8 @@ LCDDisplay::LCDDisplay(const std::string &device_path, int i2c_address, size_t l
 
 LCDDisplay::~LCDDisplay()
 {
-	close(fd);
+	if(fd>=0)
+		close(fd);
 }
 
 void LCDDisplay::Clear()

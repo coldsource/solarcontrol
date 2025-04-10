@@ -32,7 +32,7 @@ namespace control
 HTBluetooth::HTBluetooth(const string &ble_addr)
 {
 	auto mqtt = mqtt::Client::GetInstance();
-	topic = "blegateway/" + ble_addr + "/sensor";
+	topic = "sc-ble-gateway/" + ble_addr;
 	mqtt->Subscribe(topic, this);
 }
 
@@ -60,8 +60,12 @@ void HTBluetooth::HandleMessage(const string &message)
 		try
 		{
 			json j = json::parse(message);
-			humidity = j["humidity"];
-			temperature = j["temperature"];
+			string payload = j["fcd2"];
+			if(payload.size()!=24)
+				return;
+
+			humidity = strtol(payload.substr(12, 2).c_str(), 0, 16);
+			temperature = (double)((strtol(payload.substr(22, 2).c_str(), 0, 16) << 8) + strtol(payload.substr(20, 2).c_str(), 0, 16)) / 10;
 		}
 		catch(json::exception &e)
 		{

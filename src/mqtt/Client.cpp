@@ -115,12 +115,24 @@ void Client::message_callback(struct mosquitto * /* mosq */, void *obj, const st
 
 	unique_lock<mutex> llock(mqtt->lock);
 
-	auto it = mqtt->subscribers.find(topic);
-	if(it==mqtt->subscribers.end())
-		return;
+	{
+		auto it = mqtt->subscribers.find(topic);
+		if(it!=mqtt->subscribers.end())
+		{
+			for(auto subscriber : it->second)
+				subscriber->HandleMessage((const char *)message->payload, topic);
+		}
+	}
 
-	for(auto subscriber : it->second)
-		subscriber->HandleMessage((const char *)message->payload);
+	{
+		// Special case for wildcard subscribers
+		auto it = mqtt->subscribers.find("#");
+		if(it!=mqtt->subscribers.end())
+		{
+			for(auto subscriber : it->second)
+				subscriber->HandleMessage((const char *)message->payload, topic);
+		}
+	}
 }
 
 void Client::loop(Client *mqtt)

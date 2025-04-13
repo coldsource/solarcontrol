@@ -55,7 +55,7 @@ class MQTT: public Input, public control::HTTP, public mqtt::Subscriber
 		virtual bool GetState() const;
 		virtual void UpdateState();
 
-		void HandleMessage(const std::string &message);
+		void HandleMessage(const std::string &message, const std::string & /*topic*/);
 };
 
 }

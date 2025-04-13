@@ -52,7 +52,7 @@ void HTWifi::CheckConfig(const configuration::Json &conf)
 		throw invalid_argument("MQTT ID is mandatory");
 }
 
-void HTWifi::HandleMessage(const string &message)
+void HTWifi::HandleMessage(const string &message, const std::string & /*topic*/)
 {
 	{
 		unique_lock<mutex> llock(lock);

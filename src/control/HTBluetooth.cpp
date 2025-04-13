@@ -52,7 +52,7 @@ void HTBluetooth::CheckConfig(const configuration::Json &conf)
 		throw invalid_argument("Bluetooth address is mandatory");
 }
 
-void HTBluetooth::HandleMessage(const string &message)
+void HTBluetooth::HandleMessage(const string &message, const std::string & /*topic*/)
 {
 	{
 		unique_lock<mutex> llock(lock);

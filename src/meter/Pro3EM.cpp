@@ -54,7 +54,7 @@ void Pro3EM::CheckConfig(const configuration::Json &conf)
 		throw invalid_argument("Phase must be a, b or c");
 }
 
-void Pro3EM::HandleMessage(const string &message)
+void Pro3EM::HandleMessage(const string &message, const std::string & /*topic*/)
 {
 	try
 	{

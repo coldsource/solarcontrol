@@ -27,7 +27,7 @@ namespace mqtt {
 class Subscriber
 {
 	public:
-		virtual void HandleMessage(const std::string &message) = 0;
+		virtual void HandleMessage(const std::string &message, const std::string &topic) = 0;
 };
 
 }

@@ -37,7 +37,7 @@ class HTWifi: public HT, public mqtt::Subscriber
 
 		static void CheckConfig(const configuration::Json &conf);
 
-		void HandleMessage(const std::string &message);
+		void HandleMessage(const std::string &message, const std::string & /*topic*/);
 };
 
 }

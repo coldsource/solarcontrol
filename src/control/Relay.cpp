@@ -117,7 +117,7 @@ void Relay::UpdateState()
 	state = get_output();
 }
 
-void Relay::HandleMessage(const string &message)
+void Relay::HandleMessage(const string &message, const std::string & /*topic*/)
 {
 	try
 	{

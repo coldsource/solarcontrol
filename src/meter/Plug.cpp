@@ -45,7 +45,7 @@ Plug::~Plug()
 		mqtt->Unsubscribe(topic, this);
 }
 
-void Plug::HandleMessage(const string &message)
+void Plug::HandleMessage(const string &message, const std::string & /*topic*/)
 {
 	try
 	{

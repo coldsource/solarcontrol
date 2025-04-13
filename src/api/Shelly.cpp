@@ -20,6 +20,7 @@
 #include <api/Shelly.hpp>
 #include <configuration/Json.hpp>
 #include <shelly/Autodetect.hpp>
+#include <shelly/AutodetectBLE.hpp>
 #include <shelly/MQTT.hpp>
 #include <shelly/Sys.hpp>
 #include <nlohmann/json.hpp>
@@ -40,6 +41,11 @@ json Shelly::HandleMessage(const string &cmd, const configuration::Json &j_param
 	{
 		shelly::Autodetect ad;
 		return ad.GetDevices();
+	}
+	else if(cmd=="autodetectble")
+	{
+		shelly::AutodetectBLE ad;
+		return ad.GetDevice();
 	}
 	else if(cmd=="mqttget")
 	{

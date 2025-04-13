@@ -32,6 +32,8 @@ namespace device {
 
 class DeviceHTBluetooth: public DeviceHT
 {
+	std::string ble_addr;
+
 	public:
 		DeviceHTBluetooth(unsigned int id, const std::string &name, const configuration::Json &config);
 		virtual ~DeviceHTBluetooth();
@@ -39,6 +41,7 @@ class DeviceHTBluetooth: public DeviceHT
 		static void CheckConfig(const configuration::Json &conf);
 
 		std::string GetType() const { return "htmini"; }
+		std::string GetBLEAddr() const { return ble_addr; }
 };
 
 }

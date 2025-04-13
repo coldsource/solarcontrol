@@ -94,7 +94,7 @@ bool MQTT::GetState() const
 	return state;
 }
 
-void MQTT::HandleMessage(const string &message)
+void MQTT::HandleMessage(const string &message, const std::string & /*topic*/)
 {
 	{
 		try

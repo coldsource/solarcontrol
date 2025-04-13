@@ -17,50 +17,37 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __CONTROL_RELAY_HPP__
-#define __CONTROL_RELAY_HPP__
+#ifndef __CONTROL_AUTODETECTBLE_HPP__
+#define __CONTROL_AUTODETECTBLE_HPP__
 
-#include <control/HTTP.hpp>
-#include <control/OnOff.hpp>
 #include <mqtt/Subscriber.hpp>
+#include <nlohmann/json.hpp>
 
 #include <string>
 #include <mutex>
-#include <atomic>
+#include <condition_variable>
 
-namespace configuration {
-	class Json;
-}
+namespace shelly {
 
-namespace control {
-
-class Relay: public HTTP, public OnOff, public mqtt::Subscriber
+class AutodetectBLE: public mqtt::Subscriber
 {
-	const int outlet = 0;
-	const std::string topic = "";
+	std::mutex wait_lock;
+	std::condition_variable ble_detected;
 
-	std::atomic_bool state = false;
-
-	std::mutex lock;
-
-	protected:
-		bool get_output() const;
+	nlohmann::json j_res;
 
 	public:
-		Relay(const std::string &ip, int outlet, const std::string &mqtt_id);
-		virtual ~Relay();
+		AutodetectBLE();
+		~AutodetectBLE();
 
-		static void CheckConfig(const configuration::Json & conf);
+		void HandleMessage(const std::string & /*message*/, const std::string &topic);
 
-		void Switch(bool state);
-		bool GetState() const;
-		void UpdateState();
-
-		void HandleMessage(const std::string &message, const std::string & /*topic*/);
+		nlohmann::json GetDevice();
 };
 
 }
 
 #endif
+
 
 

@@ -61,7 +61,7 @@ void Wind::SetWind(double w)
 	wind = w;
 }
 
-void Wind::HandleMessage(const string &message)
+void Wind::HandleMessage(const string &message, const std::string & /*topic*/)
 {
 	{
 		unique_lock<mutex> llock(lock);

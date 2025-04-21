@@ -75,7 +75,7 @@ map<string,string> solarcontrol_tables = {
 {"t_log_ht",
 "CREATE TABLE `t_log_ht` ( \
   `log_ht_date` datetime NOT NULL, \
-  `device_id` int(10) unsigned NOT NULL, \
+  `device_id` int(10) NOT NULL, \
   `log_ht_min_h` double, \
   `log_ht_max_h` double, \
   `log_ht_min_t` double, \
@@ -86,7 +86,7 @@ map<string,string> solarcontrol_tables = {
 {"t_log_wind",
 "CREATE TABLE `t_log_wind` ( \
   `log_wind_date` datetime NOT NULL, \
-  `device_id` int(10) unsigned NOT NULL, \
+  `device_id` int(10) NOT NULL, \
   `log_wind_min` double NOT NULL, \
   `log_wind_max` double NOT NULL, \
   `log_wind_avg` double NOT NULL \
@@ -94,7 +94,7 @@ map<string,string> solarcontrol_tables = {
 "},
 {"t_log_state",
 "CREATE TABLE `t_log_state` ( \
-  `device_id` int(10) unsigned NOT NULL, \
+  `device_id` int(10) NOT NULL, \
   `log_state_date` datetime NOT NULL DEFAULT current_timestamp(), \
   `log_state_mode` enum('manual','automatic') NOT NULL, \
   `log_state` tinyint(1) DEFAULT NULL, \

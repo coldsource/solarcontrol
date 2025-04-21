@@ -50,12 +50,32 @@ class Json
 		double GetFloat(const std::string &name, double default_value) const;
 		bool GetBool(const std::string &name) const;
 		bool GetBool(const std::string &name, bool default_value) const;
-		const nlohmann::json GetArray(const std::string &name) const;
-		const nlohmann::json GetArray(const std::string &name, const nlohmann::json &default_value) const;
+		const Json GetArray(const std::string &name) const;
+		const Json GetArray(const std::string &name, const nlohmann::json &default_value) const;
 		const Json GetObject(const std::string &name) const;
 
 		const std::string ToString() const { return json.dump(); }
 		operator nlohmann::json() const { return json; }
+		operator int() const { return (int)json; }
+
+		// Iterator
+		struct Iterator
+		{
+			private:
+				const Json *conf_ptr;
+				size_t pos;
+
+			public:
+				Iterator(const Json *ptr, size_t pos): conf_ptr(ptr), pos(pos) { }
+
+				Iterator& operator++();
+				bool operator==(const Iterator& r) const;
+				Json operator*() const;
+		};
+
+		Iterator begin() const;
+		Iterator end() const;
+		size_t size() const;
 };
 
 }

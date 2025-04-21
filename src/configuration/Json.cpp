@@ -130,13 +130,13 @@ bool Json::GetBool(const std::string &name, bool default_value) const
 	return GetBool(name);
 }
 
-const json Json::GetArray(const string &name) const
+const Json Json::GetArray(const string &name) const
 {
 	check_entry(name, "array");
-	return json[name];
+	return Json(json[name]);
 }
 
-const json Json::GetArray(const string &name, const nlohmann::json &default_value) const
+const Json Json::GetArray(const string &name, const nlohmann::json &default_value) const
 {
 	if(!json.contains(name))
 		return default_value;
@@ -148,6 +148,46 @@ const Json Json::GetObject(const string &name) const
 {
 	check_entry(name, "object");
 	return Json(json[name]);
+}
+
+Json::Iterator& Json::Iterator::operator++()
+{
+	pos++;
+	return *this;
+}
+
+bool Json::Iterator::operator==(const Iterator& r) const
+{
+	return (pos==r.pos && conf_ptr==r.conf_ptr);
+}
+
+Json Json::Iterator::operator*() const
+{
+	return Json(conf_ptr->json.at(pos));
+}
+
+Json::Iterator Json::begin() const
+{
+	if(json.type()!=json::value_t::array)
+		throw invalid_argument("Could not iterate over non array");
+
+	return Iterator(this, 0);
+}
+
+Json::Iterator Json::end() const
+{
+	if(json.type()!=json::value_t::array)
+		throw invalid_argument("Could not iterate over non array");
+
+	return Iterator(this,json.size());
+}
+
+size_t Json::size() const
+{
+	if(json.type()!=json::value_t::array)
+		throw invalid_argument("Could not get size of non array");
+
+	return json.size();
 }
 
 }

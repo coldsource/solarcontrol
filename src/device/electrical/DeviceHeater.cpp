@@ -48,7 +48,7 @@ DeviceHeater::~DeviceHeater()
 void DeviceHeater::ConfigurationChanged(const configuration::Configuration * config)
 {
 	absence_temperature = config->GetDouble("control.absence.temperature");
-	presence = config->GetBool("control.presence");
+	absence = config->GetBool("control.absence.enabled");
 }
 
 void DeviceHeater::CheckConfig(const configuration::Json &conf)
@@ -115,7 +115,7 @@ en_wanted_state DeviceHeater::get_wanted_state(configuration::Json *data_ptr) co
 	if(wanted_state==ON)
 	{
 		double temp;
-		if(!presence)
+		if(absence)
 			temp = absence_temperature;
 		else
 			temp = timerange_data.GetFloat("temperature");

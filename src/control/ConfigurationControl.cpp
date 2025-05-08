@@ -38,7 +38,7 @@ ConfigurationControl::ConfigurationControl(void)
 	entries["control.hysteresis.import"] = "30W";
 	entries["control.cooldown"] = "10s";
 	entries["control.state.update_interval"] = "1m";
-	entries["control.presence"] = "yes";
+	entries["control.absence.enabled"] = "no";
 	entries["control.absence.temperature"] = "12";
 
 	instance_control = this;
@@ -55,7 +55,7 @@ void ConfigurationControl::Check(void)
 	check_power_entry("control.hysteresis.import");
 	check_time_entry("control.cooldown");
 	check_time_entry("control.state.update_interval");
-	check_bool_entry("control.presence");
+	check_bool_entry("control.absence.enabled");
 	check_double_entry("control.absence.temperature");
 }
 

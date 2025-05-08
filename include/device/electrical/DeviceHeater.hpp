@@ -35,7 +35,7 @@ class DeviceHeater: public DeviceTimeRange, public configuration::ConfigurationO
 		int ht_device_id;
 
 		double absence_temperature;
-		bool presence;
+		bool absence;
 
 		static void check_timeranges(const configuration::Json &conf, const std::string &name);
 

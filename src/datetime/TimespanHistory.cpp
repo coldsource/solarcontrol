@@ -47,12 +47,18 @@ TimespanHistory::TimespanHistory(unsigned int device_id)
 			<<device_id<<string(days_ago)
 		);
 
+		bool init = true;
 		while(res.FetchRow())
 		{
 			try
 			{
 				Timestamp ts = DateTime(res["log_state_date"]);
 				int state = res["log_state"];
+
+				if(init && !state)
+					continue; // During init we are looking for a ClockIn
+				init = false;
+
 				if(state)
 					ClockIn(ts);
 				else

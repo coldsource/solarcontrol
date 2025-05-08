@@ -23,8 +23,13 @@
 #include <device/Devices.hpp>
 #include <device/electrical/DeviceElectrical.hpp>
 #include <device/weather/DeviceWeather.hpp>
+#include <configuration/ConfigurationSolarControl.hpp>
+#include <energy/ConfigurationEnergy.hpp>
+#include <control/ConfigurationControl.hpp>
 #include <logs/Logger.hpp>
 #include <nlohmann/json.hpp>
+
+#include <map>
 
 using namespace std;
 using nlohmann::json;
@@ -60,6 +65,7 @@ map<string, unsigned int> SolarControl::get_protocols()
 	protocols["api"] = en_protocols::API;
 	protocols["meter"] = en_protocols::METER;
 	protocols["device"] = en_protocols::DEVICE;
+	protocols["config"] = en_protocols::CONFIG;
 	return protocols;
 }
 
@@ -121,7 +127,7 @@ void *SolarControl::lws_callback_established(struct lws *wsi, unsigned int proto
 
 	clients[protocol].insert(wsi);
 
-	if(protocol==DEVICE || protocol==METER)
+	if(protocol==DEVICE || protocol==METER || protocol==CONFIG)
 		NotifyAll(protocol);
 
 	if(protocol==API)
@@ -247,6 +253,36 @@ std::string SolarControl::lws_callback_server_writeable(struct lws * /* wsi */, 
 		}
 
 		return string(j_devices.dump());
+	}
+	else if(protocol==CONFIG)
+	{
+		auto master = configuration::ConfigurationSolarControl::GetInstance();
+
+		map<string, configuration::Configuration *> config_modules;
+		config_modules["energy"] = configuration::ConfigurationEnergy::GetInstance();
+		config_modules["control"] = configuration::ConfigurationControl::GetInstance();
+
+		json j_config = json::object();
+		json j_config_master = json::object();
+		for(auto it: config_modules)
+		{
+			json j_config_module = json::object();
+			json j_config_module_master = json::object();
+			for(auto entry : it.second->GetAll())
+			{
+				j_config_module[entry.first] = entry.second;
+				j_config_module_master[entry.first] = master->Get(entry.first);
+			}
+
+			j_config[it.first] = j_config_module;
+			j_config_master[it.first] = j_config_module_master;
+		}
+
+		json j_res = json::object();
+		j_res["master"] = j_config_master;
+		j_res["current"] = j_config;
+
+		return string(j_res.dump());
 	}
 
 	return "";

@@ -19,6 +19,7 @@
 
 #include <configuration/Configuration.hpp>
 #include <configuration/ConfigurationObserver.hpp>
+#include <websocket/SolarControl.hpp>
 
 #include <regex>
 #include <stdexcept>
@@ -137,6 +138,9 @@ void Configuration::notify_observers()
 {
 	for(auto observer : observers)
 		observer->ConfigurationChanged(this);
+
+	if(websocket::SolarControl::GetInstance())
+		websocket::SolarControl::GetInstance()->NotifyAll(websocket::SolarControl::en_protocols::CONFIG);
 }
 
 void Configuration::CheckAll()

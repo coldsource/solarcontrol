@@ -18,6 +18,7 @@
  */
 
 #include <configuration/Configuration.hpp>
+#include <configuration/ConfigurationObserver.hpp>
 
 #include <regex>
 #include <stdexcept>
@@ -117,6 +118,27 @@ void Configuration::Substitute(void)
 	}
 }
 
+void Configuration::RegisterObserver(ConfigurationObserver *observer)
+{
+	unique_lock<recursive_mutex> llock(lock);
+
+	observer->ConfigurationChanged(this);
+	observers.insert(observer);
+}
+
+void Configuration::UnregisterObserver(ConfigurationObserver *observer)
+{
+	unique_lock<recursive_mutex> llock(lock);
+
+	observers.erase(observer);
+}
+
+void Configuration::notify_observers()
+{
+	for(auto observer : observers)
+		observer->ConfigurationChanged(this);
+}
+
 void Configuration::CheckAll()
 {
 	for(size_t i=0;i<configs.size();i++)
@@ -125,34 +147,45 @@ void Configuration::CheckAll()
 
 bool Configuration::Set(const string &entry,const string &value)
 {
-	unique_lock<recursive_mutex> llock(lock);
+	{
+		unique_lock<recursive_mutex> llock(lock);
 
-	if(entries.count(entry)==0)
-		return false;
+		if(entries.count(entry)==0)
+			return false;
 
-	entries[entry] = value;
+		entries[entry] = value;
+	}
+
+	// Unlock before notifying observers
+	notify_observers();
+
 	return true;
 }
 
 bool Configuration::SetCheck(const string &entry,const string &value)
 {
-	unique_lock<recursive_mutex> llock(lock);
-
-	if(entries.count(entry)==0)
-		return false;
-
-	string old_value = entries[entry];
-	entries[entry] = value;
-
-	try
 	{
-		Check();
+		unique_lock<recursive_mutex> llock(lock);
+
+		if(entries.count(entry)==0)
+			return false;
+
+		string old_value = entries[entry];
+		entries[entry] = value;
+
+		try
+		{
+			Check();
+		}
+		catch(exception &e)
+		{
+			entries[entry] = old_value;
+			throw;
+		}
 	}
-	catch(exception &e)
-	{
-		entries[entry] = old_value;
-		throw;
-	}
+
+	// Unlock before notifying observers
+	notify_observers();
 
 	return true;
 }
@@ -173,6 +206,11 @@ int Configuration::GetInt(const string &entry) const
 	if(value.substr(0,2)=="0x")
 		return strtol(value.c_str(),0,16);
 	return strtol(value.c_str(),0,10);
+}
+
+double Configuration::GetDouble(const string &entry) const
+{
+	return stod(Get(entry));
 }
 
 int Configuration::GetSize(const string &entry) const
@@ -362,6 +400,24 @@ void Configuration::check_int_entry(const string &name, bool signed_int)
 	catch(...)
 	{
 		throw runtime_error(name+": invalid integer value '"+entries[name]+"'");
+	}
+}
+
+void Configuration::check_double_entry(const string &name, bool signed_int)
+{
+	try
+	{
+		size_t l;
+		double val = stod(entries[name],&l);
+		if(l!=entries[name].length())
+			throw 1;
+
+		if(!signed_int && val<0)
+			throw 1;
+	}
+	catch(...)
+	{
+		throw runtime_error(name+": invalid double value '"+entries[name]+"'");
 	}
 }
 

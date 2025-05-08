@@ -44,26 +44,19 @@ GlobalMeter::GlobalMeter()
 	ObserveDevice(DEVICE_ID_PV);
 	ObserveDevice(DEVICE_ID_HWS);
 
-	Reload();
+	// Register as configuration observer and trigger ConfigurationChanged() for initial config loading
+	auto config = ConfigurationEnergy::GetInstance();
+	ObserveConfiguration(config);
 }
 
 GlobalMeter::~GlobalMeter()
 {
-	free();
 }
 
-void GlobalMeter::free()
-{
-}
-
-void GlobalMeter::Reload()
+void GlobalMeter::ConfigurationChanged(const configuration::Configuration *config)
 {
 	{
 		unique_lock<recursive_mutex> llock(lock);
-
-		free();
-
-		auto config = ConfigurationEnergy::GetInstance();
 
 		hws_min_energy = config->GetEnergy("energy.hws.min");
 

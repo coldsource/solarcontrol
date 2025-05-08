@@ -21,11 +21,9 @@
 #define __ENERGY_GLOBALMETER_HPP__
 
 #include <device/DeviceObserver.hpp>
-#include <energy/Counter.hpp>
-#include <energy/Amount.hpp>
+#include <configuration/ConfigurationObserver.hpp>
 
 #include <mutex>
-#include <map>
 
 namespace meter {
 	class Pro3EM;
@@ -40,7 +38,7 @@ namespace device {
 
 namespace energy {
 
-class GlobalMeter: public device::DeviceObserver
+class GlobalMeter: public device::DeviceObserver, public configuration::ConfigurationObserver
 {
 	device::DeviceGrid *grid;
 	device::DevicePV *pv;
@@ -56,8 +54,6 @@ class GlobalMeter: public device::DeviceObserver
 	static GlobalMeter *instance;
 	mutable std::recursive_mutex lock;
 
-	void free();
-
 protected:
 	public:
 		GlobalMeter();
@@ -65,7 +61,7 @@ protected:
 
 		static GlobalMeter *GetInstance() { return instance; }
 
-		void Reload();
+		void ConfigurationChanged(const configuration::Configuration *config);
 		void DeviceChanged(device::Device * device);
 
 		double GetGridPower() const; // Grid power (>0 if importing, <0 if exporting)

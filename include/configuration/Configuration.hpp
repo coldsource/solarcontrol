@@ -24,16 +24,22 @@
 #include <map>
 #include <vector>
 #include <mutex>
+#include <set>
 
 namespace configuration
 {
+
+class ConfigurationObserver;
 
 class Configuration
 {
 	private:
 		std::vector<Configuration *> configs;
+		std::set<ConfigurationObserver *> observers;
 
 		mutable std::recursive_mutex lock;
+
+		void notify_observers();
 
 	protected:
 		static Configuration *instance;
@@ -52,6 +58,9 @@ class Configuration
 
 		void Substitute(void);
 
+		void RegisterObserver(ConfigurationObserver *observer);
+		void UnregisterObserver(ConfigurationObserver *observer);
+
 		std::vector<Configuration *> GetConfigs() { return configs; }
 
 		virtual void Check(void) {}
@@ -62,6 +71,7 @@ class Configuration
 		const std::map<std::string,std::string> GetAll() const { return entries; }
 		const std::string &Get(const std::string &entry) const;
 		int GetInt(const std::string &entry) const;
+		double GetDouble(const std::string &entry) const;
 		int GetSize(const std::string &entry) const;
 		int GetTime(const std::string &entry) const;
 		int GetPower(const std::string &entry) const;
@@ -76,6 +86,7 @@ class Configuration
 		void check_d_is_writeable(const std::string &path);
 		void check_bool_entry(const std::string &name);
 		void check_int_entry(const std::string &name, bool signed_int=false);
+		void check_double_entry(const std::string &name, bool signed_int=false);
 		void check_size_entry(const std::string &name);
 		void check_time_entry(const std::string &name);
 		void check_power_entry(const std::string &name, bool signed_int=false);

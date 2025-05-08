@@ -35,15 +35,6 @@ using database::DB;
 namespace api
 {
 
-void Config::reload_deps(const std::string &module)
-{
-	if(module=="energy")
-		energy::GlobalMeter::GetInstance()->Reload();
-
-	if(module=="control")
-		::thread::DevicesManager::GetInstance()->Reload();
-}
-
 json Config::HandleMessage(const string &cmd, const configuration::Json &j_params)
 {
 	json j_res;
@@ -85,8 +76,6 @@ json Config::HandleMessage(const string &cmd, const configuration::Json &j_param
 		DB db;
 		db.Query("REPLACE INTO t_config(config_name, config_value) VALUES(%s, %s)"_sql<<name<<value);
 
-		reload_deps(module);
-
 		return json();
 	}
 	else if(cmd=="reset")
@@ -98,8 +87,6 @@ json Config::HandleMessage(const string &cmd, const configuration::Json &j_param
 
 		DB db;
 		db.Query("DELETE FROM t_config WHERE config_name=%s"_sql<<name);
-
-		reload_deps(module);
 
 		return json(default_value);
 	}

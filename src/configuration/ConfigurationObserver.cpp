@@ -17,28 +17,21 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __API_CONFIG_HPP__
-#define __API_CONFIG_HPP__
+#include <configuration/ConfigurationObserver.hpp>
+#include <configuration/Configuration.hpp>
 
-#include <api/Handler.hpp>
-
-#include <string>
-
-namespace configuration {
-	class Json;
-}
-
-namespace api {
-
-class Config: public Handler
+namespace configuration
 {
-	public:
-		 nlohmann::json HandleMessage(const std::string &cmd, const configuration::Json &j_params);
-};
 
+void ConfigurationObserver::ObserveConfiguration(Configuration *config)
+{
+	config->RegisterObserver(this);
 }
 
-#endif
+void ConfigurationObserver::StopObserveConfiguration(Configuration *config)
+{
+	config->UnregisterObserver(this);
+}
 
-
+}
 

@@ -21,6 +21,7 @@
 #define __THREAD_DEVICESMANAGER_HPP__
 
 #include <thread/WaiterThread.hpp>
+#include <configuration/ConfigurationObserver.hpp>
 
 #include <vector>
 #include <map>
@@ -37,7 +38,7 @@ namespace device {
 
 namespace thread {
 
-class DevicesManager: public WaiterThread
+class DevicesManager: public WaiterThread, public configuration::ConfigurationObserver
 {
 	static DevicesManager *instance;
 
@@ -66,7 +67,7 @@ class DevicesManager: public WaiterThread
 
 		static DevicesManager *GetInstance() { return instance; }
 
-		void Reload();
+		void ConfigurationChanged(const configuration::Configuration *config);
 };
 
 }

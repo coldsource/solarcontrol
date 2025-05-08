@@ -44,7 +44,9 @@ DevicesManager *DevicesManager::instance = 0;
 
 DevicesManager::DevicesManager()
 {
-	Reload();
+	// Register as configuration observer and trigger ConfigurationChanged() for initial config loading
+	auto config = configuration::ConfigurationControl::GetInstance();
+	ObserveConfiguration(config);
 
 	global_meter = energy::GlobalMeter::GetInstance();
 
@@ -58,18 +60,16 @@ DevicesManager::~DevicesManager()
 	free();
 }
 
-void DevicesManager::Reload()
+void DevicesManager::ConfigurationChanged(const configuration::Configuration *config)
 {
 	unique_lock<mutex> llock(lock);
 
-	free();
-
-	auto config = configuration::ConfigurationControl::GetInstance();
 	hysteresis_export = config->GetPower("control.hysteresis.export");
 	hysteresis_import = config->GetPower("control.hysteresis.import");
 	state_update_interval = config->GetTime("control.state.update_interval");
 	cooldown = config->GetTime("control.cooldown");
 
+	free();
 	available_power_avg = new energy::MovingAverage(config->GetTime("control.hysteresis.smoothing"));
 }
 

@@ -47,6 +47,8 @@ class DeviceTimeRange: public DeviceOnOff
 		unsigned long min_on_time;
 		unsigned long min_on_for_last;
 
+		virtual en_wanted_state get_wanted_state(configuration::Json *data_ptr = 0) const;
+
 	public:
 		DeviceTimeRange(unsigned int id, const std::string &name, const configuration::Json &config);
 		virtual ~DeviceTimeRange();
@@ -55,9 +57,9 @@ class DeviceTimeRange: public DeviceOnOff
 
 		std::string GetType() const { return "timerange"; }
 
-		virtual bool IsForced() const;
-		virtual bool WantOffload() const;
-		virtual bool WantRemainder() const;
+		virtual bool IsForced(configuration::Json *data_ptr = 0) const;
+		virtual bool WantOffload(configuration::Json *data_ptr = 0) const;
+		virtual bool WantRemainder(configuration::Json *data_ptr = 0) const;
 
 		virtual en_wanted_state GetWantedState() const;
 };

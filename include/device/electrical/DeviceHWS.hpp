@@ -40,7 +40,7 @@ class DeviceHWS: public DeviceTimeRange
 
 		static void CheckConfig(const configuration::Json &conf);
 
-		bool WantRemainder() const;
+		bool WantRemainder(configuration::Json *data_ptr = 0) const;
 
 		std::string GetType() const { return "hws"; }
 

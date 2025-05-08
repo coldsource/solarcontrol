@@ -88,7 +88,7 @@ void DeviceHeater::check_timeranges(const configuration::Json &conf, const strin
 	}
 }
 
-en_wanted_state DeviceHeater::GetWantedState() const
+en_wanted_state DeviceHeater::get_wanted_state(configuration::Json *data_ptr) const
 {
 	Devices devices;
 	DeviceWeather *ht;
@@ -103,11 +103,14 @@ en_wanted_state DeviceHeater::GetWantedState() const
 		return OFF;
 	}
 
-	en_wanted_state wanted_state = DeviceTimeRange::GetWantedState();
+	configuration::Json timerange_data;
+	en_wanted_state wanted_state = DeviceTimeRange::get_wanted_state(&timerange_data);
+
+	if(data_ptr)
+		*data_ptr = timerange_data; // Forward timerange data to caller if requested
+
 	if(wanted_state==UNCHANGED)
 		return UNCHANGED;
-
-	configuration::Json data;
 
 	if(wanted_state==ON)
 	{
@@ -115,19 +118,13 @@ en_wanted_state DeviceHeater::GetWantedState() const
 		if(!presence)
 			temp = absence_temperature;
 		else
-		{
-			force.IsActive(&data); // Fetch complementary force data
-			temp = data.GetFloat("temperature");
-		}
+			temp = timerange_data.GetFloat("temperature");
 
 		return (ht->GetTemperature()<temp)?ON:OFF;
 	}
 
 	if(wanted_state==OFFLOAD)
-	{
-		offload.IsActive(&data); // Fetch complementary offload data
-		return (ht->GetTemperature()<data.GetFloat("temperature"))?OFFLOAD:OFF;
-	}
+		return (ht->GetTemperature()<timerange_data.GetFloat("temperature"))?OFFLOAD:OFF;
 
 	return OFF;
 }

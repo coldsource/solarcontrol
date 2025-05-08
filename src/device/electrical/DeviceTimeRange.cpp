@@ -69,22 +69,22 @@ void DeviceTimeRange::CheckConfig(const configuration::Json &conf)
 	conf.Check("min_off", "int", false);
 }
 
-bool DeviceTimeRange::IsForced() const
+bool DeviceTimeRange::IsForced(configuration::Json *data_ptr) const
 {
-	return force.IsActive();
+	return force.IsActive(data_ptr);
 }
 
-bool DeviceTimeRange::WantOffload() const
+bool DeviceTimeRange::WantOffload(configuration::Json *data_ptr) const
 {
-	return offload.IsActive();
+	return offload.IsActive(data_ptr);
 }
 
-bool DeviceTimeRange::WantRemainder() const
+bool DeviceTimeRange::WantRemainder(configuration::Json *data_ptr) const
 {
-	return remainder.IsActive() && on_history.GetTotalForLast(min_on_for_last)<min_on_time;
+	return remainder.IsActive(data_ptr) && on_history.GetTotalForLast(min_on_for_last)<min_on_time;
 }
 
-en_wanted_state DeviceTimeRange::GetWantedState() const
+en_wanted_state DeviceTimeRange::get_wanted_state(configuration::Json *data_ptr) const
 {
 	if(manual)
 		return UNCHANGED;
@@ -99,13 +99,18 @@ en_wanted_state DeviceTimeRange::GetWantedState() const
 	if(!GetState() && now-last_off<min_off)
 		return UNCHANGED; // Stay of at least 'min_off' seconds
 
-	if(IsForced() || WantRemainder())
+	if(IsForced(data_ptr) || WantRemainder(data_ptr))
 		return ON;
 
-	if(WantOffload())
+	if(WantOffload(data_ptr))
 		return OFFLOAD;
 
 	return OFF;
+}
+
+en_wanted_state DeviceTimeRange::GetWantedState() const
+{
+	return get_wanted_state();
 }
 
 }

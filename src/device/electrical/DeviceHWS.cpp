@@ -46,10 +46,10 @@ void DeviceHWS::CheckConfig(const configuration::Json &conf)
 	meter::MeterFactory::CheckConfig(conf.GetObject("meter"));
 }
 
-bool DeviceHWS::WantRemainder() const
+bool DeviceHWS::WantRemainder(configuration::Json *data_ptr) const
 {
 	double last_energy = consumption.GetTotalConsumptionForLast(min_energy_for_last);
-	return remainder.IsActive() && last_energy<min_energy;
+	return remainder.IsActive(data_ptr) && last_energy<min_energy;
 }
 
 void DeviceHWS::CreateInDB()

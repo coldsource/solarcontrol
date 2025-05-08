@@ -39,6 +39,8 @@ class DeviceHeater: public DeviceTimeRange, public configuration::ConfigurationO
 
 		static void check_timeranges(const configuration::Json &conf, const std::string &name);
 
+		virtual en_wanted_state get_wanted_state(configuration::Json *data_ptr = 0) const;
+
 	public:
 		DeviceHeater(unsigned int id, const std::string &name, const configuration::Json &config);
 		virtual ~DeviceHeater();
@@ -48,8 +50,6 @@ class DeviceHeater: public DeviceTimeRange, public configuration::ConfigurationO
 		static void CheckConfig(const configuration::Json &conf);
 
 		std::string GetType() const { return "heater"; }
-
-		en_wanted_state GetWantedState() const;
 
 		bool Depends(int device_id) const;
 };

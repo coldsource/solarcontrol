@@ -78,7 +78,7 @@ void DeviceCMV::check_timeranges(const configuration::Json &conf, const string &
 	}
 }
 
-en_wanted_state DeviceCMV::GetWantedState() const
+en_wanted_state DeviceCMV::get_wanted_state(configuration::Json *data_ptr) const
 {
 	Devices devices;
 
@@ -99,23 +99,21 @@ en_wanted_state DeviceCMV::GetWantedState() const
 		return OFF;
 	}
 
-	en_wanted_state wanted_state = DeviceTimeRange::GetWantedState();
+	configuration::Json timerange_data;
+	en_wanted_state wanted_state = DeviceTimeRange::get_wanted_state(&timerange_data);
+
+	if(data_ptr)
+		*data_ptr = timerange_data; // Forward timerange data to caller if requested
+
 	if(wanted_state==UNCHANGED)
 		return UNCHANGED;
 
-	configuration::Json data;
 
 	if(wanted_state==ON)
-	{
-		force.IsActive(&data); // Fetch complementary force data
-		return (max_moisture>data.GetFloat("moisture"))?ON:OFF;
-	}
+		return (max_moisture>timerange_data.GetFloat("moisture"))?ON:OFF;
 
 	if(wanted_state==OFFLOAD)
-	{
-		offload.IsActive(&data); // Fetch complementary offload data
-		return (max_moisture>data.GetFloat("moisture"))?OFFLOAD:OFF;
-	}
+		return (max_moisture>timerange_data.GetFloat("moisture"))?OFFLOAD:OFF;
 
 	return OFF;
 }

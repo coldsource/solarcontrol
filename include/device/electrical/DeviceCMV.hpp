@@ -37,6 +37,8 @@ class DeviceCMV: public DeviceTimeRange
 
 		static void check_timeranges(const configuration::Json &conf, const std::string &name);
 
+		virtual en_wanted_state get_wanted_state(configuration::Json *data_ptr = 0) const;
+
 	public:
 		DeviceCMV(unsigned int id, const std::string &name, const configuration::Json &config);
 		virtual ~DeviceCMV() {}
@@ -44,8 +46,6 @@ class DeviceCMV: public DeviceTimeRange
 		static void CheckConfig(const configuration::Json &conf);
 
 		std::string GetType() const { return "cmv"; }
-
-		en_wanted_state GetWantedState() const;
 
 		bool Depends(int device_id) const;
 };

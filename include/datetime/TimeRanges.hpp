@@ -24,12 +24,16 @@
 
 #include <vector>
 
+namespace configuration {
+	class Json;
+}
+
 namespace datetime {
 
 class TimeRanges: public std::vector<TimeRange>
 {
 	public:
-		bool IsActive() const;
+		bool IsActive(configuration::Json *data_ptr = 0) const;
 };
 
 }

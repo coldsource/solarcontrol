@@ -20,6 +20,8 @@
 #include <device/electrical/DeviceHeater.hpp>
 #include <device/weather/DeviceWeather.hpp>
 #include <configuration/Json.hpp>
+#include <configuration/Configuration.hpp>
+#include <control/ConfigurationControl.hpp>
 #include <device/Devices.hpp>
 #include <logs/Logger.hpp>
 
@@ -32,8 +34,21 @@ namespace device
 DeviceHeater::DeviceHeater(unsigned int id, const string &name, const configuration::Json &config):DeviceTimeRange(id, name, config)
 {
 	ht_device_id = config.GetInt("ht_device_id");
-	force_max_temperature = config.GetFloat("force_max_temperature");
-	offload_max_temperature = config.GetFloat("offload_max_temperature");
+
+	auto ctrl_config = configuration::ConfigurationControl::GetInstance();
+	ObserveConfiguration(ctrl_config);
+}
+
+DeviceHeater::~DeviceHeater()
+{
+	auto ctrl_config = configuration::ConfigurationControl::GetInstance();
+	StopObserveConfiguration(ctrl_config);
+}
+
+void DeviceHeater::ConfigurationChanged(const configuration::Configuration * config)
+{
+	absence_temperature = config->GetDouble("control.absence.temperature");
+	presence = config->GetBool("control.presence");
 }
 
 void DeviceHeater::CheckConfig(const configuration::Json &conf)
@@ -41,8 +56,9 @@ void DeviceHeater::CheckConfig(const configuration::Json &conf)
 	DeviceTimeRange::CheckConfig(conf);
 
 	conf.Check("ht_device_id", "int");
-	conf.Check("force_max_temperature", "float");
-	conf.Check("offload_max_temperature", "float");
+
+	check_timeranges(conf, "offload");
+	check_timeranges(conf, "force");
 
 	int ht_device_id = conf.GetInt("ht_device_id");
 	try
@@ -53,6 +69,22 @@ void DeviceHeater::CheckConfig(const configuration::Json &conf)
 	catch(exception &e)
 	{
 		throw invalid_argument("Associated thermometer is mandatory");
+	}
+}
+
+void DeviceHeater::check_timeranges(const configuration::Json &conf, const string &name)
+{
+	if(!conf.Has(name))
+		return;
+
+	auto timeranges = conf.GetArray(name);
+	for(auto timerange : timeranges)
+	{
+		if(!timerange.Has("data"))
+			throw invalid_argument("Time range temperature is mandatory");
+
+		auto data = timerange.GetObject("data");
+		data.Check("temperature", "float");
 	}
 }
 
@@ -75,11 +107,27 @@ en_wanted_state DeviceHeater::GetWantedState() const
 	if(wanted_state==UNCHANGED)
 		return UNCHANGED;
 
+	configuration::Json data;
+
 	if(wanted_state==ON)
-		return (ht->GetTemperature()<force_max_temperature)?ON:OFF;
+	{
+		double temp;
+		if(!presence)
+			temp = absence_temperature;
+		else
+		{
+			force.IsActive(&data); // Fetch complementary force data
+			temp = data.GetFloat("temperature");
+		}
+
+		return (ht->GetTemperature()<temp)?ON:OFF;
+	}
 
 	if(wanted_state==OFFLOAD)
-		return (ht->GetTemperature()<offload_max_temperature)?OFFLOAD:OFF;
+	{
+		offload.IsActive(&data); // Fetch complementary offload data
+		return (ht->GetTemperature()<data.GetFloat("temperature"))?OFFLOAD:OFF;
+	}
 
 	return OFF;
 }

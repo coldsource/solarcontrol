@@ -21,6 +21,7 @@
 #define __DEVICE_DEVICEHEATER_HPP__
 
 #include <device/electrical/DeviceTimeRange.hpp>
+#include <configuration/ConfigurationObserver.hpp>
 
 namespace configuration {
 	class Json;
@@ -28,16 +29,21 @@ namespace configuration {
 
 namespace device {
 
-class DeviceHeater: public DeviceTimeRange
+class DeviceHeater: public DeviceTimeRange, public configuration::ConfigurationObserver
 {
 	protected:
 		int ht_device_id;
-		double force_max_temperature;
-		double offload_max_temperature;
+
+		double absence_temperature;
+		bool presence;
+
+		static void check_timeranges(const configuration::Json &conf, const std::string &name);
 
 	public:
 		DeviceHeater(unsigned int id, const std::string &name, const configuration::Json &config);
-		virtual ~DeviceHeater() {}
+		virtual ~DeviceHeater();
+
+		void ConfigurationChanged(const configuration::Configuration * config);
 
 		static void CheckConfig(const configuration::Json &conf);
 

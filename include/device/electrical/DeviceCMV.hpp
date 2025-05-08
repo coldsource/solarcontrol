@@ -34,8 +34,8 @@ class DeviceCMV: public DeviceTimeRange
 {
 	protected:
 		std::set<int> ht_device_ids;
-		double force_max_moisture;
-		double offload_max_moisture;
+
+		static void check_timeranges(const configuration::Json &conf, const std::string &name);
 
 	public:
 		DeviceCMV(unsigned int id, const std::string &name, const configuration::Json &config);

@@ -21,9 +21,13 @@
 #define __DATETIME_TIMERANGE_HPP__
 
 #include <datetime/HourMinuteSecond.hpp>
-#include <nlohmann/json.hpp>
+#include <configuration/Json.hpp>
 
 #include <set>
+
+namespace configuration {
+	class Json;
+}
 
 namespace datetime {
 
@@ -33,12 +37,13 @@ class TimeRange
 	HourMinuteSecond end;
 	std::set<int> days_of_week;
 	bool offpeak = false;
+	configuration::Json data;
 
 	public:
 		TimeRange(const HourMinuteSecond &start, const HourMinuteSecond &end, const std::set<int> &days_of_week = {});
-		TimeRange(const nlohmann::json &j);
+		TimeRange(const configuration::Json &conf);
 
-		bool IsActive() const;
+		bool IsActive(configuration::Json *data_ptr = 0) const;
 };
 
 }

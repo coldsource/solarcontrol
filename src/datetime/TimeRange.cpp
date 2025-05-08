@@ -24,7 +24,7 @@
 #include <stdexcept>
 
 using namespace std;
-using nlohmann::json;
+using configuration::Json;
 
 namespace datetime {
 
@@ -33,35 +33,25 @@ TimeRange::TimeRange(const HourMinuteSecond &start, const HourMinuteSecond &end,
 	this->days_of_week = days_of_week;
 }
 
-TimeRange::TimeRange(const json &j)
+TimeRange::TimeRange(const Json &conf)
 {
-	if(!j.contains("from"))
-		throw invalid_argument("Missing « from » in time range");
+	start = HourMinuteSecond(conf.GetString("from"));
+	end = HourMinuteSecond(conf.GetString("to"));
 
-	if(!j.contains("to"))
-		throw invalid_argument("Missing « to » in time range");
+	if(conf.Has("offpeak"))
+		offpeak = conf.GetBool("offpeak");
 
-	start = HourMinuteSecond(j["from"]);
-	end = HourMinuteSecond(j["to"]);
-
-	if(j.contains("offpeak"))
+	if(conf.Has("days_of_week"))
 	{
-		if(j["offpeak"].type()!=json::value_t::boolean)
-			throw invalid_argument("« offpeak » must be a boolean");
-
-		offpeak = j["offpeak"];
+		for(auto day_of_week: conf.GetArray("days_of_week"))
+			days_of_week.insert(day_of_week);
 	}
 
-	if(j.contains("days_of_week"))
-	{
-		if(j["days_of_week"].type()!=json::value_t::array)
-			throw invalid_argument("« days_of_week » must be an array");
-
-		days_of_week = set<int>(j["days_of_week"]);
-	}
+	if(conf.Has("data"))
+		data = conf.GetObject("data");
 }
 
-bool TimeRange::IsActive() const
+bool TimeRange::IsActive(configuration::Json *data_ptr) const
 {
 	if(offpeak && !energy::GlobalMeter::GetInstance()->GetOffPeak())
 		return false;
@@ -81,7 +71,14 @@ bool TimeRange::IsActive() const
 		|| (t.GetHour()==end.GetHour() && t.GetMinute()==end.GetMinute() && t.GetSecond()<=end.GetSecond());
 
 
-	return (after_start && before_end);
+	if(after_start && before_end)
+	{
+		if(data_ptr)
+			*data_ptr = data;
+		return true;
+	}
+
+	return false;
 }
 
 }

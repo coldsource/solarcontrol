@@ -21,10 +21,10 @@
 
 namespace datetime {
 
-bool TimeRanges::IsActive() const
+bool TimeRanges::IsActive(configuration::Json *data_ptr) const
 {
 	for(size_t i=0;i<size(); i++)
-		if(at(i).IsActive())
+		if(at(i).IsActive(data_ptr))
 			return true;
 	return false;
 }

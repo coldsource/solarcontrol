@@ -33,10 +33,8 @@ namespace device
 DeviceCMV::DeviceCMV(unsigned int id, const string &name, const configuration::Json &config):DeviceTimeRange(id, name, config)
 {
 	for(auto device_id : config.GetArray("ht_device_ids"))
-		ht_device_ids.insert((unsigned int)device_id);
+		ht_device_ids.insert(device_id);
 
-	force_max_moisture = config.GetFloat("force_max_moisture");
-	offload_max_moisture = config.GetFloat("offload_max_moisture");
 	max_on = config.GetFloat("max_on");
 }
 
@@ -45,8 +43,9 @@ void DeviceCMV::CheckConfig(const configuration::Json &conf)
 	DeviceTimeRange::CheckConfig(conf);
 
 	conf.Check("ht_device_ids", "array");
-	conf.Check("force_max_moisture", "float");
-	conf.Check("offload_max_moisture", "float");
+
+	check_timeranges(conf, "offload");
+	check_timeranges(conf, "force");
 
 	if(conf.GetArray("ht_device_ids").size()==0)
 		throw invalid_argument("Associated hygrometer is mandatory");
@@ -60,6 +59,22 @@ void DeviceCMV::CheckConfig(const configuration::Json &conf)
 	catch(exception &e)
 	{
 		throw invalid_argument("Associated hygrometer is mandatory");
+	}
+}
+
+void DeviceCMV::check_timeranges(const configuration::Json &conf, const string &name)
+{
+	if(!conf.Has(name))
+		return;
+
+	auto timeranges = conf.GetArray(name);
+	for(auto timerange : timeranges)
+	{
+		if(!timerange.Has("data"))
+			throw invalid_argument("Time range moisture is mandatory");
+
+		auto data = timerange.GetObject("data");
+		data.Check("moisture", "float");
 	}
 }
 
@@ -88,11 +103,19 @@ en_wanted_state DeviceCMV::GetWantedState() const
 	if(wanted_state==UNCHANGED)
 		return UNCHANGED;
 
+	configuration::Json data;
+
 	if(wanted_state==ON)
-		return (max_moisture>force_max_moisture)?ON:OFF;
+	{
+		force.IsActive(&data); // Fetch complementary force data
+		return (max_moisture>data.GetFloat("moisture"))?ON:OFF;
+	}
 
 	if(wanted_state==OFFLOAD)
-		return (max_moisture>offload_max_moisture)?OFFLOAD:OFF;
+	{
+		offload.IsActive(&data); // Fetch complementary offload data
+		return (max_moisture>data.GetFloat("moisture"))?OFFLOAD:OFF;
+	}
 
 	return OFF;
 }

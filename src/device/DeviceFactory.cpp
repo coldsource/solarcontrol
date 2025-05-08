@@ -20,6 +20,7 @@
 #include <device/DeviceFactory.hpp>
 #include <device/electrical/DeviceTimeRange.hpp>
 #include <device/electrical/DeviceHeater.hpp>
+#include <device/electrical/DeviceCooler.hpp>
 #include <device/electrical/DeviceCMV.hpp>
 #include <device/electrical/DeviceHWS.hpp>
 #include <device/electrical/DevicePassive.hpp>
@@ -44,6 +45,8 @@ Device *DeviceFactory::Get(int id, const string &name, const string &type, const
 		return new DeviceTimeRange(id, name, config);
 	else if(type=="heater")
 		return new DeviceHeater(id, name, config);
+	else if(type=="cooler")
+		return new DeviceCooler(id, name, config);
 	else if(type=="cmv")
 		return new DeviceCMV(id, name, config);
 	else if(type=="hws")
@@ -70,6 +73,8 @@ void DeviceFactory::CheckConfig(const string &type, const configuration::Json &c
 		return DeviceTimeRange::CheckConfig(config);
 	else if(type=="heater")
 		return DeviceHeater::CheckConfig(config);
+	else if(type=="cooler")
+		return DeviceCooler::CheckConfig(config);
 	else if(type=="cmv")
 		return DeviceCMV::CheckConfig(config);
 	else if(type=="hws")

@@ -20,42 +20,26 @@
 #ifndef __DEVICE_DEVICEHEATER_HPP__
 #define __DEVICE_DEVICEHEATER_HPP__
 
-#include <device/electrical/DeviceTimeRange.hpp>
-#include <configuration/ConfigurationObserver.hpp>
-
-namespace configuration {
-	class Json;
-}
+#include <device/electrical/DeviceTemperature.hpp>
 
 namespace device {
 
-class DeviceHeater: public DeviceTimeRange, public configuration::ConfigurationObserver
+class DeviceHeater: public DeviceTemperature
 {
 	protected:
-		int ht_device_id;
-
-		double absence_temperature;
-		bool absence;
-
-		static void check_timeranges(const configuration::Json &conf, const std::string &name);
-
-		virtual en_wanted_state get_wanted_state(configuration::Json *data_ptr = 0) const;
+		virtual bool temp_check_force(double current_temp, double timerange_temp) const;
+		virtual bool temp_check_offload(double current_temp, double timerange_temp) const;
 
 	public:
-		DeviceHeater(unsigned int id, const std::string &name, const configuration::Json &config);
-		virtual ~DeviceHeater();
-
-		void ConfigurationChanged(const configuration::Configuration * config);
-
-		static void CheckConfig(const configuration::Json &conf);
+		DeviceHeater(unsigned int id, const std::string &name, const configuration::Json &config): DeviceTemperature(id, name, config) {}
+		virtual ~DeviceHeater() {}
 
 		std::string GetType() const { return "heater"; }
-
-		bool Depends(int device_id) const;
 };
 
 }
 
 #endif
+
 
 

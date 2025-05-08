@@ -37,7 +37,7 @@ map<string,string> solarcontrol_tables = {
 {"t_device",
 "CREATE TABLE `t_device` ( \
   `device_id` int(10) NOT NULL AUTO_INCREMENT, \
-  `device_type` enum('ht','heater','hws','htmini','timerange','cmv','passive','wind','grid','pv') CHARACTER SET ascii COLLATE ascii_bin NOT NULL, \
+  `device_type`VARCHAR(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL, \
   `device_name` varchar(64) NOT NULL, \
   `device_config` mediumtext NOT NULL, \
   PRIMARY KEY (`device_id`) \

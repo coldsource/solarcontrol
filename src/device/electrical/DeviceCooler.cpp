@@ -17,21 +17,24 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#include <device/electrical/DeviceHeater.hpp>
+#include <device/electrical/DeviceCooler.hpp>
 
 namespace device {
 
-bool DeviceHeater::temp_check_force(double current_temp, double timerange_temp) const
+bool DeviceCooler::temp_check_force(double current_temp, double timerange_temp) const
 {
 	if(absence)
-		timerange_temp = absence_temperature; // Use special absence temperature if absent mode is on
+		return false; // Cooler is always OFF when absent
 
-	return current_temp<timerange_temp;
+	return current_temp>timerange_temp;
 }
 
-bool DeviceHeater::temp_check_offload(double current_temp, double timerange_temp) const
+bool DeviceCooler::temp_check_offload(double current_temp, double timerange_temp) const
 {
-	return current_temp<timerange_temp; // In offload mode, we ignore absent mode
+	if(absence)
+		return false; // Cooler is always OFF when absent
+
+	return current_temp>timerange_temp;
 }
 
 }

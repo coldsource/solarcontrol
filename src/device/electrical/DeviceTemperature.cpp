@@ -112,11 +112,17 @@ en_wanted_state DeviceTemperature::get_wanted_state(configuration::Json *data_pt
 	if(wanted_state==UNCHANGED)
 		return UNCHANGED;
 
-	if(wanted_state==ON)
-		return temp_check_force(ht->GetTemperature(), timerange_data.GetFloat("temperature"))?ON:OFF;
+	// Enable forced mode only if temparature is not reached. If temperature is reached, try if offload is wanted
+	if(wanted_state==ON && temp_check_force(ht->GetTemperature(), timerange_data.GetFloat("temperature")))
+		return ON;
 
-	if(wanted_state==OFFLOAD)
+	// Offload is requested (may overlap with forced mode)
+	if(wanted_state==OFFLOAD || WantOffload(&timerange_data))
+	{
+		if(data_ptr)
+			*data_ptr = timerange_data; // Forward timerange data to caller if requested
 		return temp_check_offload(ht->GetTemperature(), timerange_data.GetFloat("temperature"))?OFFLOAD:OFF;
+	}
 
 	return OFF;
 }

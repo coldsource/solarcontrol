@@ -22,6 +22,7 @@
 #include <configuration/Json.hpp>
 #include <meter/MeterFactory.hpp>
 #include <database/DB.hpp>
+#include <control/ConfigurationControl.hpp>
 
 using namespace std;
 using nlohmann::json;
@@ -33,6 +34,20 @@ DeviceHWS::DeviceHWS(unsigned int id, const string &name, const configuration::J
 {
 	min_energy = config.GetInt("min_energy");
 	min_energy_for_last = config.GetInt("min_energy_for_last");
+
+	auto ctrl_config = configuration::ConfigurationControl::GetInstance();
+	ObserveConfiguration(ctrl_config);
+}
+
+DeviceHWS::~DeviceHWS()
+{
+	auto ctrl_config = configuration::ConfigurationControl::GetInstance();
+	StopObserveConfiguration(ctrl_config);
+}
+
+void DeviceHWS::ConfigurationChanged(const configuration::Configuration * config)
+{
+	absence = config->GetBool("control.absence.enabled");
 }
 
 void DeviceHWS::CheckConfig(const configuration::Json &conf)
@@ -48,6 +63,9 @@ void DeviceHWS::CheckConfig(const configuration::Json &conf)
 
 bool DeviceHWS::WantRemainder(configuration::Json *data_ptr) const
 {
+	if(absence)
+		return false; // No remainder in absence mode
+
 	double last_energy = consumption.GetTotalConsumptionForLast(min_energy_for_last);
 	return remainder.IsActive(data_ptr) && last_energy<min_energy;
 }

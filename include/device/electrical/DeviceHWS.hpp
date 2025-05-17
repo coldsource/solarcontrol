@@ -21,6 +21,7 @@
 #define __DEVICE_DEVICEHWS_HPP__
 
 #include <device/electrical/DeviceTimeRange.hpp>
+#include <configuration/ConfigurationObserver.hpp>
 
 namespace configuration {
 	class Json;
@@ -28,15 +29,19 @@ namespace configuration {
 
 namespace device {
 
-class DeviceHWS: public DeviceTimeRange
+class DeviceHWS: public DeviceTimeRange, public configuration::ConfigurationObserver
 {
 	protected:
 		double min_energy; // kWh
 		int min_energy_for_last; // Days
 
+		bool absence;
+
 	public:
 		DeviceHWS(unsigned int id, const std::string &name, const configuration::Json &config);
-		virtual ~DeviceHWS() {}
+		virtual ~DeviceHWS();
+
+		void ConfigurationChanged(const configuration::Configuration * config);
 
 		static void CheckConfig(const configuration::Json &conf);
 

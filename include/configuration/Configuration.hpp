@@ -52,6 +52,8 @@ class Configuration
 
 		static Configuration *GetInstance();
 
+		virtual std::string GetType() const { return "default"; }
+
 		bool RegisterConfig(Configuration *config);
 		void Merge();
 		void Split();

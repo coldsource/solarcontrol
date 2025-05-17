@@ -19,6 +19,7 @@
 
 #include <energy/GlobalMeter.hpp>
 #include <energy/ConfigurationEnergy.hpp>
+#include <control/ConfigurationControl.hpp>
 #include <device/Devices.hpp>
 #include <device/electrical/DeviceHWS.hpp>
 #include <device/electrical/DeviceGrid.hpp>
@@ -27,6 +28,7 @@
 
 using namespace std;
 using configuration::ConfigurationEnergy;
+using configuration::ConfigurationControl;
 using device::Device;
 using device::DeviceHWS;
 using device::DeviceGrid;
@@ -45,8 +47,11 @@ GlobalMeter::GlobalMeter()
 	ObserveDevice(DEVICE_ID_HWS);
 
 	// Register as configuration observer and trigger ConfigurationChanged() for initial config loading
-	auto config = ConfigurationEnergy::GetInstance();
-	ObserveConfiguration(config);
+	auto config_energy = ConfigurationEnergy::GetInstance();
+	ObserveConfiguration(config_energy);
+
+	auto config_control = ConfigurationControl::GetInstance();
+	ObserveConfiguration(config_control);
 }
 
 GlobalMeter::~GlobalMeter()
@@ -58,12 +63,18 @@ void GlobalMeter::ConfigurationChanged(const configuration::Configuration *confi
 	{
 		unique_lock<recursive_mutex> llock(lock);
 
-		hws_min_energy = config->GetEnergy("energy.hws.min");
+		if(config->GetType()=="energy")
+		{
+			hws_min_energy = config->GetEnergy("energy.hws.min");
 
-		debug = config->GetBool("energy.debug.enabled");
-		debug_grid = config->GetPower("energy.debug.grid");
-		debug_pv= config->GetPower("energy.debug.pv");
-		debug_hws = config->GetPower("energy.debug.hws");
+			debug = config->GetBool("energy.debug.enabled");
+			debug_grid = config->GetPower("energy.debug.grid");
+			debug_pv= config->GetPower("energy.debug.pv");
+			debug_hws = config->GetPower("energy.debug.hws");
+		}
+
+		if(config->GetType()=="control")
+			priority = config->Get("control.priority");
 	}
 
 	if(websocket::SolarControl::GetInstance())
@@ -214,6 +225,9 @@ bool GlobalMeter::GetOffPeak() const
 bool GlobalMeter::HWSIsFull() const
 {
 	unique_lock<recursive_mutex> llock(lock);
+
+	if(priority=="offload")
+		return true; // Offload priority, consider HWS is always full
 
 	return hws->GetEnergyConsumption()>hws_min_energy;
 }

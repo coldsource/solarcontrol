@@ -38,6 +38,8 @@ class ConfigurationControl:public Configuration
 
 		static ConfigurationControl *GetInstance() { return instance_control; }
 
+		std::string GetType() const { return "control"; }
+
 		void Check(void);
 };
 

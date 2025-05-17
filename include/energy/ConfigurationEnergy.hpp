@@ -38,6 +38,8 @@ class ConfigurationEnergy:public Configuration
 
 		static ConfigurationEnergy *GetInstance() { return instance_energy; }
 
+		std::string GetType() const { return "energy"; }
+
 		void Check(void);
 };
 

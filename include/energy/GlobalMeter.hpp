@@ -24,6 +24,7 @@
 #include <configuration/ConfigurationObserver.hpp>
 
 #include <mutex>
+#include <string>
 
 namespace meter {
 	class Pro3EM;
@@ -50,6 +51,8 @@ class GlobalMeter: public device::DeviceObserver, public configuration::Configur
 	double debug_grid = 0;
 	double debug_pv = 0;
 	double debug_hws = 0;
+
+	std::string priority;
 
 	static GlobalMeter *instance;
 	mutable std::recursive_mutex lock;

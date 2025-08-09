@@ -19,7 +19,6 @@
 
 #include <api/Config.hpp>
 #include <database/DB.hpp>
-#include <energy/GlobalMeter.hpp>
 #include <thread/DevicesManager.hpp>
 #include <configuration/ConfigurationSolarControl.hpp>
 #include <energy/ConfigurationEnergy.hpp>

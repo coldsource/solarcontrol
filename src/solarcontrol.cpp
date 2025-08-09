@@ -9,6 +9,7 @@
 #include <device/electrical/DeviceHWS.hpp>
 #include <device/electrical/DeviceGrid.hpp>
 #include <device/electrical/DevicePV.hpp>
+#include <device/electrical/DeviceBattery.hpp>
 #include <utils/signal.hpp>
 #include <configuration/Args.hpp>
 #include <configuration/Configuration.hpp>
@@ -116,6 +117,7 @@ int main(int argc, char **argv)
 		device::DeviceHWS::CreateInDB();
 		device::DeviceGrid::CreateInDB();
 		device::DevicePV::CreateInDB();
+		device::DeviceBattery::CreateInDB();
 
 		device::Devices devices;
 

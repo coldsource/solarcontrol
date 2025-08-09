@@ -17,41 +17,31 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __METER_3EM_HPP__
-#define __METER_3EM_HPP__
+#ifndef __DEVICE_DEVICEBATTERY_HPP__
+#define __DEVICE_DEVICEBATTERY_HPP__
 
-#include <meter/Meter.hpp>
-#include <mqtt/Subscriber.hpp>
-
-#include <string>
+#include <device/electrical/DevicePassive.hpp>
 
 namespace configuration {
 	class Json;
 }
 
-namespace meter {
+namespace device {
 
-class Pro3EM: public Meter, public mqtt::Subscriber
+class DeviceBattery: public DevicePassive
 {
-	protected:
-		std::string topic = "";
-		std::string phase;
-
-		double last_energy_consumption = 0;
-		double last_energy_excess = 0;
-
 	public:
-		Pro3EM(const std::string &mqtt_id, const std::string &phase);
-		virtual ~Pro3EM();
+		DeviceBattery(unsigned int id, const std::string &name, const configuration::Json &config);
+		virtual ~DeviceBattery() {}
 
-		static void CheckConfig(const configuration::Json &conf);
+		std::string GetType() const { return "battery"; }
 
-		void HandleMessage(const std::string &message, const std::string & /*topic*/);
+		const std::map<datetime::Date, energy::Amount> &GetProductionHistory() const { return consumption.GetConsumptionHistory(); }
+
+		static void CreateInDB();
 };
 
 }
 
 #endif
-
-
 

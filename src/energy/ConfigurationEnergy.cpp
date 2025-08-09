@@ -37,6 +37,7 @@ ConfigurationEnergy::ConfigurationEnergy(void)
 	entries["energy.debug.enabled"] = "no";
 	entries["energy.debug.grid"] = "0";
 	entries["energy.debug.pv"] = "0";
+	entries["energy.debug.battery"] = "0";
 	entries["energy.debug.hws"] = "0";
 
 
@@ -53,6 +54,7 @@ void ConfigurationEnergy::Check(void)
 	check_bool_entry("energy.debug.enabled");
 	check_power_entry("energy.debug.grid", true);
 	check_power_entry("energy.debug.pv", true);
+	check_power_entry("energy.debug.battery", true);
 	check_power_entry("energy.debug.hws", true);
 }
 

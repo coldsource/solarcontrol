@@ -26,15 +26,12 @@
 #include <mutex>
 #include <string>
 
-namespace meter {
-	class Pro3EM;
-}
-
 namespace device {
 	class Device;
 	class DeviceHWS;
 	class DeviceGrid;
 	class DevicePV;
+	class DeviceBattery;
 }
 
 namespace energy {
@@ -44,12 +41,14 @@ class GlobalMeter: public device::DeviceObserver, public configuration::Configur
 	device::DeviceGrid *grid;
 	device::DevicePV *pv;
 	device::DeviceHWS *hws;
+	device::DeviceBattery *battery;
 
 	double hws_min_energy = 0;
 
 	bool debug = false;
 	double debug_grid = 0;
 	double debug_pv = 0;
+	double debug_battery = 0;
 	double debug_hws = 0;
 
 	std::string priority;
@@ -69,6 +68,7 @@ protected:
 
 		double GetGridPower() const; // Grid power (>0 if importing, <0 if exporting)
 		double GetPVPower() const; // Solar production (>0 if producting)
+		double GetBatteryPower() const; // Battery injection
 		double GetHWSPower() const; // HWS consumption
 
 		double GetPower() const; // Total consumption
@@ -80,6 +80,7 @@ protected:
 		double GetGridEnergy() const; // Energy taken from grid
 		double GetExportedEnergy() const; // Total engergy exported to grid
 		double GetPVEnergy() const; // Total produced energy
+		double GetBatteryEnergy() const; // Total injected energy
 		double GetHWSEnergy() const; // Total energy consummed by HWS
 		double GetHWSOffloadEnergy() const; // Total energy consummed by HWS
 

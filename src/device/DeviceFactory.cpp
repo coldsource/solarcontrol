@@ -26,6 +26,7 @@
 #include <device/electrical/DevicePassive.hpp>
 #include <device/electrical/DevicePV.hpp>
 #include <device/electrical/DeviceGrid.hpp>
+#include <device/electrical/DeviceBattery.hpp>
 #include <device/weather/DeviceWind.hpp>
 #include <device/weather/DeviceHTWifi.hpp>
 #include <device/weather/DeviceHTBluetooth.hpp>
@@ -63,6 +64,8 @@ Device *DeviceFactory::Get(int id, const string &name, const string &type, const
 		return new DeviceGrid(id, name, config);
 	else if(type=="pv")
 		return new DevicePV(id, name, config);
+	else if(type=="battery")
+		return new DeviceBattery(id, name, config);
 	else
 		throw invalid_argument("Invalid device type « " + type + " »");
 }
@@ -91,6 +94,8 @@ void DeviceFactory::CheckConfig(const string &type, const configuration::Json &c
 		return DeviceGrid::CheckConfig(config);
 	else if(type=="pv")
 		return DevicePV::CheckConfig(config);
+	else if(type=="battery")
+		return DeviceBattery::CheckConfig(config);
 	else
 		throw invalid_argument("Invalid device type « " + type + " »");
 }

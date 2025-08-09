@@ -21,6 +21,7 @@
 #include <meter/Dummy.hpp>
 #include <meter/Plug.hpp>
 #include <meter/Pro3EM.hpp>
+#include <meter/ProEM.hpp>
 #include <configuration/Json.hpp>
 
 #include <stdexcept>
@@ -40,6 +41,10 @@ Meter *MeterFactory::GetFromConfig(const configuration::Json &conf)
 		return new Dummy(); // Shelly Pro has no energy measurement
 	if(type=="3em")
 		return new Pro3EM(conf.GetString("mqtt_id"), conf.GetString("phase"));
+	if(type=="em")
+		return new ProEM(conf.GetString("mqtt_id"), conf.GetString("phase"));
+	if(type=="dummy")
+		return new Dummy();
 
 	return 0;
 }
@@ -54,6 +59,10 @@ void MeterFactory::CheckConfig(const configuration::Json &conf)
 		return;
 	if(type=="3em")
 		return Pro3EM::CheckConfig(conf);
+	if(type=="em")
+		return ProEM::CheckConfig(conf);
+	if(type=="dummy")
+		return;
 
 	throw invalid_argument("Unknown meter type « " + type + " »");
 }

@@ -24,6 +24,7 @@
 #include <device/electrical/DeviceHWS.hpp>
 #include <device/electrical/DeviceGrid.hpp>
 #include <device/electrical/DevicePV.hpp>
+#include <device/electrical/DeviceBattery.hpp>
 #include <websocket/SolarControl.hpp>
 
 using namespace std;
@@ -33,6 +34,7 @@ using device::Device;
 using device::DeviceHWS;
 using device::DeviceGrid;
 using device::DevicePV;
+using device::DeviceBattery;
 
 namespace energy {
 
@@ -45,6 +47,7 @@ GlobalMeter::GlobalMeter()
 	ObserveDevice(DEVICE_ID_GRID);
 	ObserveDevice(DEVICE_ID_PV);
 	ObserveDevice(DEVICE_ID_HWS);
+	ObserveDevice(DEVICE_ID_BATTERY);
 
 	// Register as configuration observer and trigger ConfigurationChanged() for initial config loading
 	auto config_energy = ConfigurationEnergy::GetInstance();
@@ -70,6 +73,7 @@ void GlobalMeter::ConfigurationChanged(const configuration::Configuration *confi
 			debug = config->GetBool("energy.debug.enabled");
 			debug_grid = config->GetPower("energy.debug.grid");
 			debug_pv= config->GetPower("energy.debug.pv");
+			debug_battery= config->GetPower("energy.debug.battery");
 			debug_hws = config->GetPower("energy.debug.hws");
 		}
 
@@ -91,6 +95,8 @@ void GlobalMeter::DeviceChanged(Device * device)
 		grid = (DeviceGrid *)device;
 	else if(device->GetID()==DEVICE_ID_PV)
 		pv = (DevicePV *)device;
+	else if(device->GetID()==DEVICE_ID_BATTERY)
+		battery = (DeviceBattery *)device;
 }
 
 double GlobalMeter::GetGridPower() const
@@ -114,6 +120,17 @@ double GlobalMeter::GetPVPower() const
 	return power>=0?power:0;
 }
 
+double GlobalMeter::GetBatteryPower() const
+{
+	unique_lock<recursive_mutex> llock(lock);
+
+	if(debug)
+		return debug_battery;
+
+	double power = battery->GetPower();
+	return power>=0?power:0;
+}
+
 double GlobalMeter::GetHWSPower() const
 {
 	unique_lock<recursive_mutex> llock(lock);
@@ -129,7 +146,7 @@ double GlobalMeter::GetPower() const
 {
 	unique_lock<recursive_mutex> llock(lock);
 
-	return GetGridPower() + GetPVPower();
+	return GetGridPower() + GetPVPower() + GetBatteryPower();
 }
 
 double GlobalMeter::GetNetAvailablePower(bool allow_neg) const
@@ -199,6 +216,13 @@ double GlobalMeter::GetPVEnergy() const
 	unique_lock<recursive_mutex> llock(lock);
 
 	return pv->GetEnergyConsumption();
+}
+
+double GlobalMeter::GetBatteryEnergy() const
+{
+	unique_lock<recursive_mutex> llock(lock);
+
+	return battery->GetEnergyConsumption();
 }
 
 double GlobalMeter::GetHWSEnergy() const

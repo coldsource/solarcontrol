@@ -196,6 +196,8 @@ string Devices::IDToName(int id) const
 		return DEVICE_NAME_PV;
 	else if(id==DEVICE_ID_HWS)
 		return DEVICE_NAME_HWS;
+	else if(id==DEVICE_ID_BATTERY)
+		return DEVICE_NAME_BATTERY;
 
 	auto it = devices.find(id);
 	if(it!=devices.end())

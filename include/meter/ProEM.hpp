@@ -17,13 +17,10 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __METER_3EM_HPP__
-#define __METER_3EM_HPP__
+#ifndef __METER_EM_HPP__
+#define __METER_EM_HPP__
 
-#include <meter/Meter.hpp>
-#include <mqtt/Subscriber.hpp>
-
-#include <string>
+#include <meter/Pro3EM.hpp>
 
 namespace configuration {
 	class Json;
@@ -31,18 +28,14 @@ namespace configuration {
 
 namespace meter {
 
-class Pro3EM: public Meter, public mqtt::Subscriber
+class ProEM: public Pro3EM
 {
 	protected:
-		std::string topic = "";
-		std::string phase;
-
-		double last_energy_consumption = 0;
-		double last_energy_excess = 0;
+		int phasei;
 
 	public:
-		Pro3EM(const std::string &mqtt_id, const std::string &phase);
-		virtual ~Pro3EM();
+		ProEM(const std::string &mqtt_id, const std::string &phase);
+		virtual ~ProEM() {}
 
 		static void CheckConfig(const configuration::Json &conf);
 
@@ -52,6 +45,3 @@ class Pro3EM: public Meter, public mqtt::Subscriber
 }
 
 #endif
-
-
-

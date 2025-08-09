@@ -198,6 +198,7 @@ std::string SolarControl::lws_callback_server_writeable(struct lws * /* wsi */, 
 		json j;
 		j["grid"] = global->GetGridPower();
 		j["pv"] = global->GetPVPower();
+		j["battery"] = global->GetBatteryPower();
 		j["hws"] = global->GetHWSPower();
 
 		j["total"] = global->GetPower();
@@ -208,6 +209,7 @@ std::string SolarControl::lws_callback_server_writeable(struct lws * /* wsi */, 
 		j["grid_energy"] = global->GetGridEnergy();
 		j["grid_exported_energy"] = global->GetExportedEnergy();
 		j["pv_energy"] = global->GetPVEnergy();
+		j["battery_energy"] = global->GetBatteryEnergy();
 		j["hws_energy"] = global->GetHWSEnergy();
 		j["hws_energy_offload"] = global->GetHWSOffloadEnergy();
 

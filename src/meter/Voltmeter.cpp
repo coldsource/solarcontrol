@@ -85,8 +85,8 @@ void Voltmeter::CheckConfig(const configuration::Json &conf)
 
 double Voltmeter::GetSOC() const
 {
-	int threshold_percent_start, threshold_percent_end;
-	double threshold_voltage_start, threshold_voltage_end;
+	int threshold_percent_start = 0, threshold_percent_end = 0;
+	double threshold_voltage_start = 0, threshold_voltage_end = 0;
 
 	for(auto it : thresholds)
 	{

@@ -20,8 +20,6 @@
 #include <device/electrical/DevicePV.hpp>
 #include <device/Devices.hpp>
 #include <configuration/Json.hpp>
-#include <energy/ConfigurationEnergy.hpp>
-#include <meter/Pro3EM.hpp>
 #include <database/DB.hpp>
 
 using namespace std;

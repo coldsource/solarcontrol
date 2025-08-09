@@ -99,6 +99,12 @@ void GlobalMeter::DeviceChanged(Device * device)
 		battery = (DeviceBattery *)device;
 }
 
+bool GlobalMeter::HasBattery() const
+{
+	unique_lock<recursive_mutex> llock(lock);
+	return battery->GetPower()!=-1;
+}
+
 double GlobalMeter::GetGridPower() const
 {
 	unique_lock<recursive_mutex> llock(lock);

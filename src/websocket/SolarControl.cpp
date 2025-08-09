@@ -196,6 +196,8 @@ std::string SolarControl::lws_callback_server_writeable(struct lws * /* wsi */, 
 		auto global = energy::GlobalMeter::GetInstance();
 
 		json j;
+		j["has_battery"] = global->HasBattery();
+
 		j["grid"] = global->GetGridPower();
 		j["pv"] = global->GetPVPower();
 		j["battery"] = global->GetBatteryPower();

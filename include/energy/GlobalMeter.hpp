@@ -67,6 +67,8 @@ protected:
 		void DeviceChanged(device::Device * device);
 
 		bool HasBattery() const;
+		double GetBatteryVoltage() const;
+		double GetBatterySOC() const;
 
 		double GetGridPower() const; // Grid power (>0 if importing, <0 if exporting)
 		double GetPVPower() const; // Solar production (>0 if producting)

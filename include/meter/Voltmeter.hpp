@@ -17,43 +17,41 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __DEVICE_DEVICEBATTERY_HPP__
-#define __DEVICE_DEVICEBATTERY_HPP__
+#ifndef __METER_VOLTMETER_HPP__
+#define __METER_VOLTMETER_HPP__
 
-#include <device/electrical/DevicePassive.hpp>
+#include <meter/Meter.hpp>
+#include <mqtt/Subscriber.hpp>
 
-namespace configuration {
-	class Json;
-}
+#include <string>
+#include <mutex>
+#include <map>
 
 namespace meter {
-	class Voltmeter;
-}
 
-namespace device {
-
-class DeviceBattery: public DevicePassive
+class Voltmeter: public mqtt::Subscriber
 {
-	protected:
-		meter::Voltmeter *voltmeter;
+	std::mutex lock;
+
+	std::string topic = "";
+	double voltage = -1;
+	std::map<int, double> thresholds;
 
 	public:
-		DeviceBattery(unsigned int id, const std::string &name, const configuration::Json &config);
-		virtual ~DeviceBattery();
-
-		std::string GetType() const { return "battery"; }
-
-		const std::map<datetime::Date, energy::Amount> &GetProductionHistory() const { return consumption.GetConsumptionHistory(); }
+		Voltmeter(const configuration::Json &conf);
+		virtual ~Voltmeter();
 
 		static void CheckConfig(const configuration::Json &conf);
 
-		double GetVoltage() const;
+		double GetVoltage() const { return voltage; }
 		double GetSOC() const;
 
-		static void CreateInDB();
+		void HandleMessage(const std::string &message, const std::string & /*topic*/);
 };
 
 }
 
 #endif
+
+
 

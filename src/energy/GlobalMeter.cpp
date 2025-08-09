@@ -105,6 +105,18 @@ bool GlobalMeter::HasBattery() const
 	return battery->GetPower()!=-1;
 }
 
+double GlobalMeter::GetBatteryVoltage() const
+{
+	unique_lock<recursive_mutex> llock(lock);
+	return battery->GetVoltage();
+}
+
+double GlobalMeter::GetBatterySOC() const
+{
+	unique_lock<recursive_mutex> llock(lock);
+	return battery->GetSOC();
+}
+
 double GlobalMeter::GetGridPower() const
 {
 	unique_lock<recursive_mutex> llock(lock);

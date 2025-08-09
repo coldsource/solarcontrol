@@ -19,9 +19,8 @@
 
 #include <device/electrical/DeviceBattery.hpp>
 #include <device/Devices.hpp>
+#include <meter/Voltmeter.hpp>
 #include <configuration/Json.hpp>
-#include <energy/ConfigurationEnergy.hpp>
-#include <meter/Pro3EM.hpp>
 #include <database/DB.hpp>
 
 using namespace std;
@@ -34,6 +33,31 @@ DeviceBattery::DeviceBattery(unsigned int id, const string &name, const configur
 {
 	// Override default counter for storing production
 	consumption = energy::Counter(id, "production");
+
+	voltmeter = new meter::Voltmeter(config.GetObject("voltmeter"));
+}
+
+DeviceBattery::~DeviceBattery()
+{
+	delete voltmeter;
+}
+
+void DeviceBattery::CheckConfig(const configuration::Json &conf)
+{
+	DevicePassive::CheckConfig(conf);
+
+	conf.Check("voltmeter", "object"); // Meter is mandatory for passive devices
+	meter::Voltmeter::CheckConfig(conf.GetObject("voltmeter"));
+}
+
+double DeviceBattery::GetVoltage() const
+{
+	return voltmeter->GetVoltage();
+}
+
+double DeviceBattery::GetSOC() const
+{
+	return voltmeter->GetSOC();
 }
 
 void DeviceBattery::CreateInDB()
@@ -47,7 +71,14 @@ void DeviceBattery::CreateInDB()
 
 	json meter;
 	meter["type"] = "dummy";
+	meter["mqtt_id"] = "";
+	meter["phase"] = "a";
 	config["meter"] = meter;
+
+	json voltmeter;
+	voltmeter["mqtt_id"] = "";
+	voltmeter["thresholds"] = json::array();
+	config["voltmeter"] = voltmeter;
 
 	db.Query("INSERT INTO t_device(device_id, device_type, device_name, device_config) VALUES(%i, 'battery', 'battery', %s)"_sql<<DEVICE_ID_BATTERY<<config.dump());
 }

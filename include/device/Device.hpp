@@ -21,6 +21,7 @@
 #define __DEVICE_DEVICE_HPP__
 
 #include <configuration/Json.hpp>
+#include <nlohmann/json.hpp>
 
 #include <string>
 
@@ -53,6 +54,7 @@ class Device
 
 		virtual std::string GetType() const = 0;
 		virtual en_category GetCategory() const = 0;
+		virtual nlohmann::json ToJson() const = 0;
 
 		int GetID() const { return id; }
 		std::string GetName() const { return name; }

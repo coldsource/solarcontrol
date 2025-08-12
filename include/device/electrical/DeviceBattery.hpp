@@ -49,6 +49,7 @@ class DeviceBattery: public DevicePassive
 
 		double GetVoltage() const;
 		double GetSOC() const;
+		virtual nlohmann::json ToJson() const;
 
 		static void CreateInDB();
 };

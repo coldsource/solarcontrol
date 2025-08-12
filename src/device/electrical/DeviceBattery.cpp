@@ -68,6 +68,16 @@ double DeviceBattery::GetSOC() const
 	return voltmeter->GetSOC();
 }
 
+json DeviceBattery::ToJson() const
+{
+	json j_device = DevicePassive::ToJson();
+
+	j_device["voltage"] = voltmeter->GetVoltage();
+	j_device["soc"] = voltmeter->GetSOC();
+
+	return j_device;
+}
+
 void DeviceBattery::CreateInDB()
 {
 	database::DB db;

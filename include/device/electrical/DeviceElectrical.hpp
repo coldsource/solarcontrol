@@ -59,11 +59,13 @@ class DeviceElectrical: public Device
 		const std::map<datetime::Date, energy::Amount> &GetConsumptionHistory() const { return consumption.GetConsumptionHistory(); }
 		const std::map<datetime::Date, energy::Amount> &GetOffloadHistory() const { return offload.GetConsumptionHistory(); }
 
+		virtual nlohmann::json ToJson() const;
+
 		virtual bool GetState() const;
 		virtual void SetState(bool new_state);
 		virtual void SetManualState(bool new_state);
 		virtual void SetAutoState();
-		virtual bool IsManual() { return manual; }
+		virtual bool IsManual() const { return manual; }
 
 		void LogEnergy();
 };

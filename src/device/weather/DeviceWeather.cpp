@@ -17,33 +17,25 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __DEVICE_DEVICEWEATHER_HPP__
-#define __DEVICE_DEVICEWEATHER_HPP__
+#include <device/weather/DeviceWeather.hpp>
 
-#include <device/Device.hpp>
+using namespace std;
+using nlohmann::json;
 
 namespace device {
-
-class DeviceWeather: public Device
+json DeviceWeather::ToJson() const
 {
-	public:
-		DeviceWeather(unsigned int id, const std::string &name, const configuration::Json &config): Device(id, name, config) {}
-		virtual ~DeviceWeather() {}
+	json j_device;
 
-		en_category GetCategory() const { return WEATHER; }
-		virtual nlohmann::json ToJson() const;
+	j_device["device_id"] = GetID();
+	j_device["device_type"] = GetType();
+	j_device["device_name"] = GetName();
+	j_device["device_config"] = (json)GetConfig();
+	j_device["temperature"] = GetTemperature();
+	j_device["humidity"] = GetHumidity();
+	j_device["wind"] = GetWind();
 
-		virtual double GetTemperature() const = 0;
-		virtual double GetHumidity() const = 0;
-		virtual double GetWind() const = 0;
-
-		virtual void Log() = 0;
-};
-
+	return j_device;
 }
 
-#endif
-
-
-
-
+}

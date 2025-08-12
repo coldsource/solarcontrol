@@ -57,6 +57,21 @@ double DeviceElectrical::GetPower() const
 	return meter->GetPower();
 }
 
+json DeviceElectrical::ToJson() const
+{
+	json j_device;
+
+	j_device["device_id"] = GetID();
+	j_device["device_type"] = GetType();
+	j_device["device_name"] = GetName();
+	j_device["device_config"] = (json)GetConfig();
+	j_device["state"] = GetState();
+	j_device["manual"] = IsManual();
+	j_device["power"] = GetPower();
+
+	return j_device;
+}
+
 bool DeviceElectrical::GetState() const
 {
 	return ctrl->GetState();

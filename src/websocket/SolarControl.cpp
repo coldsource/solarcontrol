@@ -229,34 +229,11 @@ std::string SolarControl::lws_callback_server_writeable(struct lws * /* wsi */, 
 
 		auto devices_electrical = devices.GetElectrical();
 		for(auto device : devices_electrical)
-		{
-			json j_device;
-			j_device["device_id"] = device->GetID();
-			j_device["device_type"] = device->GetType();
-			j_device["device_name"] = device->GetName();
-			j_device["device_config"] = (json)device->GetConfig();
-			j_device["state"] = device->GetState();
-			j_device["manual"] = device->IsManual();
-			j_device["power"] = device->GetPower();
-
-			j_devices.push_back(j_device);
-		}
+			j_devices.push_back(device->ToJson());
 
 		auto devices_weather = devices.GetWeather();
 		for(auto device : devices_weather)
-		{
-			json j_device;
-
-			j_device["device_id"] = device->GetID();
-			j_device["device_type"] = device->GetType();
-			j_device["device_name"] = device->GetName();
-			j_device["device_config"] = (json)device->GetConfig();
-			j_device["temperature"] = device->GetTemperature();
-			j_device["humidity"] = device->GetHumidity();
-			j_device["wind"] = device->GetWind();
-
-			j_devices.push_back(j_device);
-		}
+			j_devices.push_back(device->ToJson());
 
 		return string(j_devices.dump());
 	}

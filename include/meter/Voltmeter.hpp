@@ -43,6 +43,7 @@ class Voltmeter: public mqtt::Subscriber
 
 		static void CheckConfig(const configuration::Json &conf);
 
+		void SetVoltage(double v) { voltage = v; }
 		double GetVoltage() const { return voltage; }
 		double GetSOC() const;
 

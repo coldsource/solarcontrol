@@ -35,10 +35,18 @@ DeviceBattery::DeviceBattery(unsigned int id, const string &name, const configur
 	consumption = energy::Counter(id, "production");
 
 	voltmeter = new meter::Voltmeter(config.GetObject("voltmeter"));
+
+	auto state = state_restore();
+	double voltage = state.GetFloat("voltage", 0);
+	voltmeter->SetVoltage(voltage);
 }
 
 DeviceBattery::~DeviceBattery()
 {
+	json state;
+	state["voltage"] = GetVoltage();
+	state_backup(configuration::Json(state));
+
 	delete voltmeter;
 }
 

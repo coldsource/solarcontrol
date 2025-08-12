@@ -277,6 +277,11 @@ int Configuration::GetEnergy(const string &entry) const
 		return i;
 }
 
+int Configuration::GetPercent(const string &entry) const
+{
+	return stoi(Get(entry));
+}
+
 bool Configuration::GetBool(const string &entry) const
 {
 	const string value = Get(entry);
@@ -504,6 +509,28 @@ void Configuration::check_energy_entry(const string &name, bool signed_int)
 	catch(...)
 	{
 		throw runtime_error(name+": invalid energy value '"+entries[name]+"'");
+	}
+}
+
+void Configuration::check_percent_entry(const string &name)
+{
+	string val = entries[name];
+	if(val.substr(val.length() - 1, 1)=="%")
+		val = val.substr(0, val.length() - 1);
+
+	try
+	{
+		size_t l;
+		int ival = stoi(val, &l);
+		if(l!=val.length())
+			throw 1;
+
+		if(ival<0 || ival>100)
+			throw 1;
+	}
+	catch(...)
+	{
+		throw runtime_error(name+": invalid percentage value '"+entries[name]+"'");
 	}
 }
 

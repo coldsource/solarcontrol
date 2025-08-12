@@ -29,6 +29,9 @@
 
 namespace energy {
 	class GlobalMeter;
+}
+
+namespace stat {
 	class MovingAverage;
 }
 
@@ -48,14 +51,15 @@ class DevicesManager: public WaiterThread, public configuration::ConfigurationOb
 
 	protected:
 		energy::GlobalMeter *global_meter = 0;
-		energy::MovingAverage *available_power_avg = 0;
+		stat::MovingAverage *available_power_avg = 0;
 
 		int hysteresis_export = 0;
 		int hysteresis_import = 0;
+		int hysteresis_precision = 0;
 		unsigned long state_update_interval;
 		unsigned long cooldown;
 
-		bool hysteresis(double available_power, const device::DeviceOnOff *device) const;
+		bool hysteresis(double power_delta, const device::DeviceOnOff *device) const;
 		bool force(const std::map<device::DeviceOnOff *, bool> &devices);
 		bool offload(const std::vector<device::DeviceOnOff *> &devices);
 

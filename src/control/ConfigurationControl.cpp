@@ -36,6 +36,7 @@ ConfigurationControl::ConfigurationControl(void)
 	entries["control.hysteresis.smoothing"] = "3m";
 	entries["control.hysteresis.export"] = "50W";
 	entries["control.hysteresis.import"] = "30W";
+	entries["control.hysteresis.precision"] = "100%";
 	entries["control.cooldown"] = "10s";
 	entries["control.state.update_interval"] = "1m";
 	entries["control.absence.enabled"] = "no";
@@ -54,6 +55,7 @@ void ConfigurationControl::Check(void)
 	check_time_entry("control.hysteresis.smoothing");
 	check_power_entry("control.hysteresis.export");
 	check_power_entry("control.hysteresis.import");
+	check_percent_entry("control.hysteresis.precision");
 	check_time_entry("control.cooldown");
 	check_time_entry("control.state.update_interval");
 	check_bool_entry("control.absence.enabled");

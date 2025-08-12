@@ -17,12 +17,12 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#include <energy/MovingAverage.hpp>
+#include <stat/MovingAverage.hpp>
 #include <stdio.h>
 
 using namespace std;
 
-namespace energy {
+namespace stat {
 
 void MovingAverage::Add(double value, double duration)
 {
@@ -51,6 +51,19 @@ void MovingAverage::Add(double value, double duration)
 double MovingAverage::Get(void) const
 {
 	return avg;
+}
+
+int MovingAverage::GetHigherValuesPercentile(double value) const
+{
+	int ivalue = (int)value;
+	int percentile = 0;
+	for(auto point : data)
+	{
+		if(point.value>ivalue)
+			percentile++;
+	}
+
+	return percentile * 100 / data.size();
 }
 
 void MovingAverage::Reset()

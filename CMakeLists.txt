@@ -23,6 +23,7 @@ aux_source_directory(src/logs srcLogs)
 aux_source_directory(src/weather srcWeather)
 aux_source_directory(src/meter srcMeter)
 aux_source_directory(src/shelly srcShelly)
+aux_source_directory(src/stat srcStat)
 
 add_executable(solarcontrol
 	${srcMQTT}
@@ -44,6 +45,7 @@ add_executable(solarcontrol
 	${srcWeather}
 	${srcMeter}
 	${srcShelly}
+	${srcStat}
 	
 	src/solarcontrol.cpp
 	)

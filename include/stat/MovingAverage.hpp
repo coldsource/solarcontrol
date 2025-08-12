@@ -17,12 +17,12 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __ENERGY_MOVINGAVERAGE_HPP__
-#define __ENERGY_MOVINGAVERAGE_HPP__
+#ifndef __STAT_MOVINGAVERAGE_HPP__
+#define __STAT_MOVINGAVERAGE_HPP__
 
 #include <list>
 
-namespace energy {
+namespace stat {
 
 class MovingAverage
 {
@@ -46,6 +46,8 @@ class MovingAverage
 
 		void Add(double value, double duration);
 		double Get() const;
+
+		int GetHigherValuesPercentile(double value) const;
 
 		void Reset();
 };

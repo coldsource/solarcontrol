@@ -25,7 +25,7 @@
 #include <energy/GlobalMeter.hpp>
 #include <websocket/SolarControl.hpp>
 #include <control/ConfigurationControl.hpp>
-#include <energy/MovingAverage.hpp>
+#include <stat/MovingAverage.hpp>
 #include <logs/Logger.hpp>
 
 #include <stdexcept>
@@ -66,11 +66,12 @@ void DevicesManager::ConfigurationChanged(const configuration::Configuration *co
 
 	hysteresis_export = config->GetPower("control.hysteresis.export");
 	hysteresis_import = config->GetPower("control.hysteresis.import");
+	hysteresis_precision = config->GetPower("control.hysteresis.precision");
 	state_update_interval = config->GetTime("control.state.update_interval");
 	cooldown = config->GetTime("control.cooldown");
 
 	free();
-	available_power_avg = new energy::MovingAverage(config->GetTime("control.hysteresis.smoothing"));
+	available_power_avg = new stat::MovingAverage(config->GetTime("control.hysteresis.smoothing"));
 }
 
 void DevicesManager::free()
@@ -82,14 +83,18 @@ void DevicesManager::free()
 	}
 }
 
-bool DevicesManager::hysteresis(double available_power, const DeviceOnOff *device) const
+bool DevicesManager::hysteresis(double power_delta, const DeviceOnOff *device) const
 {
 	double consumption = device->GetExpectedConsumption();
 
 	if(device->GetState())
+	{
+		double available_power = available_power_avg->Get() + power_delta;
 		return (available_power - consumption > -hysteresis_import); // We are already on, so stay on as long as we have power to offload
+	}
 
-	return ((available_power - hysteresis_export) > consumption); // We are off, turn on only if we have enough power to offload
+	// We are off, turn on only if we have enough power to offload
+	return (available_power_avg->GetHigherValuesPercentile(consumption + hysteresis_export - power_delta) >= hysteresis_precision);
 }
 
 bool DevicesManager::force(const map<device::DeviceOnOff *, bool> &devices)
@@ -113,23 +118,30 @@ bool DevicesManager::offload(const vector<device::DeviceOnOff *> &devices)
 {
 	bool state_changed = false;
 
-	double available_power = available_power_avg->Get();
-
 	// Compute theoretical available power with all devices off
+	double power_delta = 0;
 	for(auto device : devices)
-		available_power += device->GetState()?device->GetExpectedConsumption():0;
+		power_delta += device->GetState()?device->GetExpectedConsumption():0;
 
 	// Offload based of priorities
 	for(auto device : devices)
 	{
-		bool new_state = hysteresis(available_power, device);
+		bool new_state = hysteresis(power_delta, device);
 		if(new_state)
-			available_power -= device->GetExpectedConsumption();
+			power_delta -= device->GetExpectedConsumption();
 
-		if(new_state!=device->GetState())
+		try
 		{
-			device->SetState(new_state);
-			state_changed = true;
+			if(new_state!=device->GetState())
+			{
+				device->SetState(new_state);
+				state_changed = true;
+			}
+		}
+		catch(exception &e)
+		{
+			// Continue even if some deveices have errors, they may simply be offline
+			logs::Logger::Log(LOG_ERR, e.what());
 		}
 	}
 

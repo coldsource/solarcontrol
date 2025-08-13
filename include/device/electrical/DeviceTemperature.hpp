@@ -23,6 +23,8 @@
 #include <device/electrical/DeviceTimeRange.hpp>
 #include <configuration/ConfigurationObserver.hpp>
 
+#include <atomic>
+
 namespace configuration {
 	class Json;
 }
@@ -34,8 +36,8 @@ class DeviceTemperature: public DeviceTimeRange, public configuration::Configura
 	protected:
 		int ht_device_id;
 
-		double absence_temperature;
-		bool absence;
+		std::atomic<double> absence_temperature;
+		std::atomic_bool absence;
 
 		static void check_timeranges(const configuration::Json &conf, const std::string &name);
 

@@ -23,6 +23,8 @@
 #include <device/electrical/DeviceTimeRange.hpp>
 #include <configuration/ConfigurationObserver.hpp>
 
+#include <atomic>
+
 namespace configuration {
 	class Json;
 }
@@ -35,7 +37,7 @@ class DeviceHWS: public DeviceTimeRange, public configuration::ConfigurationObse
 		double min_energy; // kWh
 		int min_energy_for_last; // Days
 
-		bool absence;
+		std::atomic_bool absence;
 
 	public:
 		DeviceHWS(unsigned int id, const std::string &name, const configuration::Json &config);

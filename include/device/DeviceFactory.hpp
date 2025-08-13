@@ -21,6 +21,7 @@
 #define __DEVICE_DEVICEFACTORY_HPP__
 
 #include <string>
+#include <memory>
 
 namespace configuration {
 	class Json;
@@ -33,7 +34,7 @@ class Device;
 class DeviceFactory
 {
 	public:
-		static Device *Get(int id, const std::string &name, const std::string &type, const configuration::Json &config);
+		static std::shared_ptr<Device> Get(int id, const std::string &name, const std::string &type, const configuration::Json &config);
 		static void CheckConfig(const std::string &type, const configuration::Json &config);
 };
 

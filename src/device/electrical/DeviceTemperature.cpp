@@ -88,7 +88,7 @@ void DeviceTemperature::check_timeranges(const configuration::Json &conf, const 
 en_wanted_state DeviceTemperature::get_wanted_state(configuration::Json *data_ptr) const
 {
 	Devices devices;
-	DeviceWeather *ht;
+	shared_ptr<DeviceWeather> ht;
 	try
 	{
 		ht = devices.GetWeatherByID(ht_device_id);

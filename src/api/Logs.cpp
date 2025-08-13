@@ -88,13 +88,13 @@ json Logs::HandleMessage(const string &cmd, const configuration::Json &j_params)
 
 				if(device->GetType()=="grid")
 				{
-					for(auto excess : ((device::DeviceGrid *)device)->GetExcessHistory())
+					for(auto excess : (dynamic_pointer_cast<device::DeviceGrid>(device))->GetExcessHistory())
 						j_res[string(excess.first)][device->GetName()]["excess"] = excess.second;
 				}
 
 				if(device->GetType()=="pv" || device->GetType()=="battery")
 				{
-					for(auto production : ((device::DevicePV *)device)->GetProductionHistory())
+					for(auto production : (dynamic_pointer_cast<device::DevicePV>(device))->GetProductionHistory())
 						j_res[string(production.first)][device->GetName()]["production"] = production.second;
 				}
 

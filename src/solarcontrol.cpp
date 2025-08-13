@@ -139,9 +139,7 @@ int main(int argc, char **argv)
 		lcd.Shutdown();
 		lcd.WaitForShutdown();
 
-		auto old_devices = devices.Unload(); // Unload all devices to ensure MQTT Unsubscription before destructor is called on MQTT client
-		for(auto old_device : old_devices)
-			delete old_device;
+		devices.Unload(); // Unload all devices to ensure MQTT Unsubscription before destructor is called on MQTT client
 	}
 	catch(exception &e)
 	{

@@ -37,7 +37,7 @@ using datetime::Timestamp;
 namespace thread {
 
 struct DevicesPtrComparator {
-	bool operator()(DeviceOnOff *a, DeviceOnOff *b) const { return a->GetPrio() < b->GetPrio(); }
+	bool operator()(shared_ptr<DeviceOnOff> a, shared_ptr<DeviceOnOff> b) const { return a->GetPrio() < b->GetPrio(); }
 };
 
 DevicesManager *DevicesManager::instance = 0;
@@ -71,7 +71,7 @@ void DevicesManager::ConfigurationChanged(const configuration::ConfigurationPart
 	available_power_avg = make_unique<stat::MovingAverage>(config->GetTime("control.hysteresis.smoothing"));
 }
 
-bool DevicesManager::hysteresis(double power_delta, const DeviceOnOff *device) const
+bool DevicesManager::hysteresis(double power_delta, const shared_ptr<DeviceOnOff> device) const
 {
 	double consumption = device->GetExpectedConsumption();
 
@@ -85,7 +85,7 @@ bool DevicesManager::hysteresis(double power_delta, const DeviceOnOff *device) c
 	return (available_power_avg->GetHigherValuesPercentile(consumption + hysteresis_export - power_delta) >= hysteresis_precision);
 }
 
-bool DevicesManager::force(const map<device::DeviceOnOff *, bool> &devices)
+bool DevicesManager::force(const map<shared_ptr<device::DeviceOnOff>, bool> &devices)
 {
 	bool state_changed = false;
 
@@ -102,7 +102,7 @@ bool DevicesManager::force(const map<device::DeviceOnOff *, bool> &devices)
 	return state_changed;
 }
 
-bool DevicesManager::offload(const vector<device::DeviceOnOff *> &devices)
+bool DevicesManager::offload(const vector<shared_ptr<device::DeviceOnOff>> &devices)
 {
 	bool state_changed = false;
 
@@ -173,11 +173,11 @@ void DevicesManager::main()
 			Devices devices;
 
 			// Sort OnOff devices by priority
-			std::multiset<DeviceOnOff *, DevicesPtrComparator> onoff;
+			std::multiset<shared_ptr<DeviceOnOff>, DevicesPtrComparator> onoff;
 			for(auto device : devices.GetElectrical())
 			{
 				if(device->GetCategory()==ONOFF)
-					onoff.insert((DeviceOnOff *)device);
+					onoff.insert(dynamic_pointer_cast<DeviceOnOff>(device));
 			}
 
 			// Lock our config
@@ -217,12 +217,12 @@ void DevicesManager::main()
 				}
 
 				// Fetch all devices wanted state
-				map<DeviceOnOff *, bool> forced_devices;
-				vector<DeviceOnOff *> offload_devices;
+				map<shared_ptr<DeviceOnOff>, bool> forced_devices;
+				vector<shared_ptr<DeviceOnOff>> offload_devices;
 
 				for(auto it = onoff.begin(); it!=onoff.end(); ++it)
 				{
-					DeviceOnOff *device = *it;
+					auto device = *it;
 
 					en_wanted_state new_state = device->GetWantedState();
 					if(new_state==ON || new_state==OFF)

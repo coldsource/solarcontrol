@@ -21,6 +21,7 @@
 #define __DEVICE_DEVICEOBSERVER_HPP__
 
 #include <set>
+#include <memory>
 
 namespace device
 {
@@ -32,7 +33,7 @@ class DeviceObserver
 	public:
 		void ObserveDevice(int device_id);
 
-		virtual void DeviceChanged(Device * device) = 0;
+		virtual void DeviceChanged(std::shared_ptr<Device> device) = 0;
 };
 
 }

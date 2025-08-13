@@ -79,18 +79,18 @@ void GlobalMeter::ConfigurationChanged(const configuration::ConfigurationPart *c
 		websocket::SolarControl::GetInstance()->NotifyAll(websocket::SolarControl::en_protocols::METER);
 }
 
-void GlobalMeter::DeviceChanged(Device * device)
+void GlobalMeter::DeviceChanged(shared_ptr<Device> device)
 {
 	unique_lock<recursive_mutex> llock(lock);
 
 	if(device->GetID()==DEVICE_ID_HWS)
-		hws = (DeviceHWS *)device;
+		hws = dynamic_pointer_cast<DeviceHWS>(device);
 	else if(device->GetID()==DEVICE_ID_GRID)
-		grid = (DeviceGrid *)device;
+		grid = dynamic_pointer_cast<DeviceGrid>(device);
 	else if(device->GetID()==DEVICE_ID_PV)
-		pv = (DevicePV *)device;
+		pv = dynamic_pointer_cast<DevicePV>(device);
 	else if(device->GetID()==DEVICE_ID_BATTERY)
-		battery = (DeviceBattery *)device;
+		battery = dynamic_pointer_cast<DeviceBattery>(device);
 }
 
 bool GlobalMeter::HasBattery() const

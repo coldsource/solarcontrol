@@ -37,11 +37,10 @@ namespace device
 
 Devices *Devices::instance = 0;
 mutex Devices::mutex_w;
-shared_mutex Devices::mutex_r;
 
-map<int, Device *> Devices::devices;
-unordered_set<DeviceElectrical *> Devices::devices_electrical;
-unordered_set<DeviceWeather *> Devices::devices_weather;
+map<int, shared_ptr<Device>> Devices::devices;
+unordered_set<shared_ptr<DeviceElectrical>> Devices::devices_electrical;
+unordered_set<shared_ptr<DeviceWeather>> Devices::devices_weather;
 
 map<int, set<DeviceObserver *>> Devices::observers;
 
@@ -49,54 +48,19 @@ Devices::Devices()
 {
 	if(instance==0)
 	{
-		reload();
+		Reload();
 		instance = this;
 		return;
 	}
-
-	// Read lock mode
-	mutex_w.lock();
-	mutex_r.lock_shared();
-	mutex_w.unlock();
 }
 
 Devices::~Devices()
 {
-	mutex_r.unlock_shared();
-}
-
-void Devices::lock_write()
-{
-	mutex_r.unlock_shared();
-
-	mutex_w.lock();
-	mutex_r.lock();
-	mutex_w.unlock();
-}
-
-void Devices::unlock_write()
-{
-	mutex_r.unlock();
-
-	mutex_w.lock();
-	mutex_r.lock_shared();
-	mutex_w.unlock();
 }
 
 void Devices::Reload(int id)
 {
-	// Switch to write locking mode
-	lock_write();
-
-	reload(id);
-
-	// Switch back to read locking mode
-	unlock_write();
-}
-
-void Devices::reload(int id)
-{
-	set<Device *> old_devices;
+	unique_lock<mutex> llock(mutex_w);
 
 	try
 	{
@@ -105,7 +69,7 @@ void Devices::reload(int id)
 		else
 			logs::Logger::Log(LOG_NOTICE, "Reloading device " + to_string(id));
 
-		old_devices = Unload(id);
+		Unload(id);
 
 		database::DB db;
 
@@ -120,7 +84,7 @@ void Devices::reload(int id)
 			configuration::Json config((string)res["device_config"]);
 
 			int device_id = res["device_id"];
-			Device *device = DeviceFactory::Get(device_id, res["device_name"], res["device_type"], config);
+			auto device = DeviceFactory::Get(device_id, res["device_name"], res["device_type"], config);
 
 			auto it = observers.find(device_id);
 			if(it!=observers.end())
@@ -130,11 +94,11 @@ void Devices::reload(int id)
 					observer->DeviceChanged(device);
 			}
 
-			devices.insert(pair<int, Device *>(device->GetID(), device));
+			devices.insert(pair<int, shared_ptr<Device>>(device->GetID(), device));
 			if(device->GetCategory()==ONOFF || device->GetCategory()==PASSIVE)
-				devices_electrical.insert((DeviceElectrical *)device);
+				devices_electrical.insert(dynamic_pointer_cast<DeviceElectrical>(device));
 			if(device->GetCategory()==WEATHER)
-				devices_weather.insert((DeviceWeather *)device);
+				devices_weather.insert(dynamic_pointer_cast<DeviceWeather>(device));
 		}
 
 		if(websocket::SolarControl::GetInstance())
@@ -144,51 +108,39 @@ void Devices::reload(int id)
 	{
 		logs::Logger::Log(LOG_NOTICE, "Error reloading devices : « " + string(e.what()) + " »");
 	}
-
-	// Observers have been notified we can now safely remove old devices
-	for(auto old_device : old_devices)
-		delete old_device;
 }
 
-set<Device *> Devices::Unload(int id)
+void Devices::Unload(int id)
 {
 	// No locking here as it's only called by Reload or main thread (which is not locked)
-
-	set<Device *> old_devices;
 
 	if(id!=0)
 	{
 		auto it = devices.find(id);
 		if(it==devices.end())
-			return old_devices; // No error if device is not found : it's a creation
+			return; // No error if device is not found : it's a creation
 
-		Device *device = it->second;
+		auto device = it->second;
 		if(device->GetCategory()==ONOFF || device->GetCategory()==PASSIVE)
-			devices_electrical.erase((DeviceElectrical *)device);
+			devices_electrical.erase(dynamic_pointer_cast<DeviceElectrical>(device));
 		else if(device->GetCategory()==WEATHER)
-			devices_weather.erase((DeviceWeather *)device);
+			devices_weather.erase(dynamic_pointer_cast<DeviceWeather>(device));
 		devices.erase(device->GetID());
 
-		old_devices.insert(device);
-		return old_devices;
+		return;
 	}
 
 	// Unload and delete all devices objects
-	for(auto it = devices.begin(); it!=devices.end(); ++it)
-	{
-		Device *device = it->second;
-		old_devices.insert(device);
-	}
-
 	devices.clear();
 	devices_electrical.clear();
 	devices_weather.clear();
-	return old_devices;
 }
 
 
 string Devices::IDToName(int id) const
 {
+	unique_lock<mutex> llock(mutex_w);
+
 	// Special devices
 	if(id==DEVICE_ID_GRID)
 		return DEVICE_NAME_GRID;
@@ -206,7 +158,7 @@ string Devices::IDToName(int id) const
 	return ""; // Unknown device
 }
 
-Device *Devices::get_by_id(int id) const
+shared_ptr<Device> Devices::get_by_id(int id) const
 {
 	auto it = devices.find(id);
 	if(it==devices.end())
@@ -215,45 +167,51 @@ Device *Devices::get_by_id(int id) const
 	return it->second;
 }
 
-DeviceElectrical *Devices::GetElectricalByID(int id) const
+shared_ptr<DeviceElectrical> Devices::GetElectricalByID(int id) const
 {
-	Device *device = get_by_id(id);
+	unique_lock<mutex> llock(mutex_w);
+
+	auto device = get_by_id(id);
 	if(device->GetCategory()!=ONOFF && device->GetCategory()!=PASSIVE)
 		throw runtime_error("Not an OnOff device : " + to_string(id));
-	return (DeviceElectrical *)device;
+	return dynamic_pointer_cast<DeviceElectrical>(device);
 }
 
-DeviceWeather *Devices::GetWeatherByID(int id) const
+shared_ptr<DeviceWeather> Devices::GetWeatherByID(int id) const
 {
-	Device *device = get_by_id(id);
+	unique_lock<mutex> llock(mutex_w);
+
+	auto device = get_by_id(id);
 	if(device->GetCategory()!=WEATHER)
 		throw runtime_error("Not a Weather device : " + to_string(id));
-	return (DeviceWeather *)device;
+	return dynamic_pointer_cast<DeviceWeather>(device);
 }
 
-Device *Devices::IsInUse(int device_id) const
+shared_ptr<Device> Devices::IsInUse(int device_id) const
 {
+	unique_lock<mutex> llock(mutex_w);
+
 	for(auto device : devices)
 	{
 		if(device.second->Depends(device_id))
 			return device.second;
 	}
 
-	return 0;
+	return nullptr;
 }
 
 void Devices::RegisterObserver(int device_id, DeviceObserver *observer)
 {
-	lock_write();
+	unique_lock<mutex> llock(mutex_w);
 
 	observer->DeviceChanged(get_by_id(device_id));
 	observers[device_id].insert(observer);
-
-	unlock_write();
 }
 
 void Devices::UnregisterObserver(int device_id, DeviceObserver *observer)
 {
+	unique_lock<mutex> llock(mutex_w);
+
 	auto it = observers.find(device_id);
 	if(it==observers.end())
 		return;

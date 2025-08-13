@@ -40,32 +40,32 @@ using namespace std;
 namespace device
 {
 
-Device *DeviceFactory::Get(int id, const string &name, const string &type, const configuration::Json &config)
+shared_ptr<Device> DeviceFactory::Get(int id, const string &name, const string &type, const configuration::Json &config)
 {
 	if(type=="timerange")
-		return new DeviceTimeRange(id, name, config);
+		return make_shared<DeviceTimeRange>(id, name, config);
 	else if(type=="heater")
-		return new DeviceHeater(id, name, config);
+		return make_shared<DeviceHeater>(id, name, config);
 	else if(type=="cooler")
-		return new DeviceCooler(id, name, config);
+		return make_shared<DeviceCooler>(id, name, config);
 	else if(type=="cmv")
-		return new DeviceCMV(id, name, config);
+		return make_shared<DeviceCMV>(id, name, config);
 	else if(type=="hws")
-		return new DeviceHWS(id, name, config);
+		return make_shared<DeviceHWS>(id, name, config);
 	else if(type=="passive")
-		return new DevicePassive(id, name, config);
+		return make_shared<DevicePassive>(id, name, config);
 	else if(type=="ht")
-		return new DeviceHTWifi(id, name, config);
+		return make_shared<DeviceHTWifi>(id, name, config);
 	else if(type=="htmini")
-		return new DeviceHTBluetooth(id, name, config);
+		return make_shared<DeviceHTBluetooth>(id, name, config);
 	else if(type=="wind")
-		return new DeviceWind(id, name, config);
+		return make_shared<DeviceWind>(id, name, config);
 	else if(type=="grid")
-		return new DeviceGrid(id, name, config);
+		return make_shared<DeviceGrid>(id, name, config);
 	else if(type=="pv")
-		return new DevicePV(id, name, config);
+		return make_shared<DevicePV>(id, name, config);
 	else if(type=="battery")
-		return new DeviceBattery(id, name, config);
+		return make_shared<DeviceBattery>(id, name, config);
 	else
 		throw invalid_argument("Invalid device type « " + type + " »");
 }

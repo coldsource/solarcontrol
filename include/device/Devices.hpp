@@ -25,7 +25,7 @@
 #include <set>
 #include <unordered_set>
 #include <mutex>
-#include <shared_mutex>
+#include <memory>
 
 #define DEVICE_ID_GRID     -1
 #define DEVICE_ID_PV       -2
@@ -48,35 +48,30 @@ class Devices
 {
 	static Devices *instance;
 	static std::mutex mutex_w;
-	static std::shared_mutex mutex_r;
 
-	static std::map<int, Device *> devices;
-	static std::unordered_set<DeviceElectrical *> devices_electrical;
-	static std::unordered_set<DeviceWeather *> devices_weather;
+	static std::map<int, std::shared_ptr<Device>> devices;
+	static std::unordered_set<std::shared_ptr<DeviceElectrical>> devices_electrical;
+	static std::unordered_set<std::shared_ptr<DeviceWeather>> devices_weather;
 
 	static std::map<int, std::set<DeviceObserver *>> observers;
 
-	void lock_write();
-	void unlock_write();
-
-	Device *get_by_id(int id) const;
-	void reload(int id = 0);
+	std::shared_ptr<Device> get_by_id(int id) const;
 
 	public:
 		Devices();
 		~Devices();
 
 		void Reload(int id = 0);
-		std::set<Device *> Unload(int id = 0);
+		void Unload(int id = 0);
 
 		std::string IDToName(int id) const;
-		DeviceElectrical *GetElectricalByID(int id) const;
-		DeviceWeather *GetWeatherByID(int id) const;
+		std::shared_ptr<DeviceElectrical> GetElectricalByID(int id) const;
+		std::shared_ptr<DeviceWeather> GetWeatherByID(int id) const;
 
-		const std::unordered_set<DeviceElectrical *> &GetElectrical() const { return devices_electrical; }
-		const std::unordered_set<DeviceWeather *> &GetWeather() const { return devices_weather; }
+		const std::unordered_set<std::shared_ptr<DeviceElectrical>> GetElectrical() const { return devices_electrical; }
+		const std::unordered_set<std::shared_ptr<DeviceWeather>> GetWeather() const { return devices_weather; }
 
-		Device *IsInUse(int device_id) const;
+		std::shared_ptr<Device> IsInUse(int device_id) const;
 
 		void RegisterObserver(int device_id, DeviceObserver *observer);
 		void UnregisterObserver(int device_id, DeviceObserver *observer);

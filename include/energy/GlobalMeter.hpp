@@ -25,6 +25,7 @@
 
 #include <mutex>
 #include <string>
+#include <memory>
 
 namespace device {
 	class Device;
@@ -38,10 +39,10 @@ namespace energy {
 
 class GlobalMeter: public device::DeviceObserver, public configuration::ConfigurationObserver
 {
-	device::DeviceGrid *grid;
-	device::DevicePV *pv;
-	device::DeviceHWS *hws;
-	device::DeviceBattery *battery;
+	std::shared_ptr<device::DeviceGrid> grid;
+	std::shared_ptr<device::DevicePV> pv;
+	std::shared_ptr<device::DeviceHWS> hws;
+	std::shared_ptr<device::DeviceBattery> battery;
 
 	double hws_min_energy = 0;
 
@@ -64,7 +65,7 @@ protected:
 		static GlobalMeter *GetInstance() { return instance; }
 
 		void ConfigurationChanged(const configuration::ConfigurationPart *config);
-		void DeviceChanged(device::Device * device);
+		void DeviceChanged(std::shared_ptr<device::Device> device);
 
 		bool HasBattery() const;
 		double GetBatteryVoltage() const;

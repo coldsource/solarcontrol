@@ -77,5 +77,6 @@ endif()
 target_link_libraries(solarcontrol mosquitto)
 target_link_libraries(solarcontrol curl)
 target_link_libraries(solarcontrol websockets)
+target_link_libraries(solarcontrol atomic)
 
 include_directories(include /usr/include)

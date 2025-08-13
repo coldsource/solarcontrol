@@ -39,6 +39,7 @@ ConfigurationEnergy::ConfigurationEnergy(void)
 	entries["energy.debug.pv"] = "0";
 	entries["energy.debug.battery"] = "0";
 	entries["energy.debug.hws"] = "0";
+	entries["energy.battery.smoothing"] = "5m";
 
 
 	instance_energy = this;
@@ -56,6 +57,7 @@ void ConfigurationEnergy::Check(void)
 	check_power_entry("energy.debug.pv", true);
 	check_power_entry("energy.debug.battery", true);
 	check_power_entry("energy.debug.hws", true);
+	check_time_entry("energy.battery.smoothing");
 }
 
 }

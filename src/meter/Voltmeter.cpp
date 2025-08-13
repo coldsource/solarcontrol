@@ -21,9 +21,12 @@
 #include <mqtt/Client.hpp>
 #include <websocket/SolarControl.hpp>
 #include <configuration/Json.hpp>
+#include <energy/ConfigurationEnergy.hpp>
+#include <stat/MovingAverage.hpp>
 #include <nlohmann/json.hpp>
 
 using namespace std;
+using datetime::Timestamp;
 using nlohmann::json;
 
 namespace meter {
@@ -45,6 +48,10 @@ Voltmeter::Voltmeter(const configuration::Json &conf)
 		double tvoltage = it.GetFloat("voltage");
 		thresholds.insert(pair<int, double>(percent, tvoltage));
 	}
+
+	// Register as configuration observer and trigger ConfigurationChanged() for initial config loading
+	auto config = configuration::ConfigurationEnergy::GetInstance();
+	ObserveConfiguration(config);
 }
 
 Voltmeter::~Voltmeter()
@@ -52,6 +59,31 @@ Voltmeter::~Voltmeter()
 	auto mqtt = mqtt::Client::GetInstance();
 	if(mqtt && topic!="")
 		mqtt->Unsubscribe(topic, this);
+}
+
+void Voltmeter::ConfigurationChanged(const configuration::Configuration *config)
+{
+	voltage_avg = make_unique<stat::MovingAverage>(config->GetTime("energy.battery.smoothing"));
+	last_voltage_update = Timestamp(TS_MONOTONIC);
+}
+
+void Voltmeter::SetVoltage(double v)
+{
+	auto avg = voltage_avg.load();
+
+	avg->Reset();
+	avg->Add(v, 0);
+	last_voltage_update = Timestamp(TS_MONOTONIC);
+}
+
+double Voltmeter::GetVoltage() const
+{
+	auto avg = voltage_avg.load();
+
+	if(avg->Size()==0)
+		return -1; // No measurement yet
+
+	return avg->Get() / 1000; // mV to V
 }
 
 void Voltmeter::CheckConfig(const configuration::Json &conf)
@@ -88,6 +120,8 @@ double Voltmeter::GetSOC() const
 	int threshold_percent_start = 0, threshold_percent_end = 0;
 	double threshold_voltage_start = 0, threshold_voltage_end = 0;
 
+	double voltage = GetVoltage();
+
 	for(auto it : thresholds)
 	{
 		threshold_percent_end = it.first;
@@ -117,6 +151,9 @@ double Voltmeter::GetSOC() const
 
 void Voltmeter::HandleMessage(const string &message, const std::string & /*topic*/)
 {
+	Timestamp now(TS_MONOTONIC);
+	auto avg = voltage_avg.load();
+
 	try
 	{
 		unique_lock<mutex> llock(lock);
@@ -129,7 +166,11 @@ void Voltmeter::HandleMessage(const string &message, const std::string & /*topic
 		auto ev = j["params"]["voltmeter:100"];
 
 		if(ev.contains("voltage"))
-			voltage = ev["voltage"];
+		{
+			double voltage = ev["voltage"];
+			avg->Add(voltage * 1000, now - last_voltage_update); // V to mV
+			last_voltage_update = now;
+		}
 	}
 	catch(json::exception &e)
 	{

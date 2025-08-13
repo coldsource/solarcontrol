@@ -22,19 +22,33 @@
 
 #include <meter/Meter.hpp>
 #include <mqtt/Subscriber.hpp>
+#include <configuration/ConfigurationObserver.hpp>
+#include <datetime/Timestamp.hpp>
 
 #include <string>
 #include <mutex>
 #include <map>
+#include <memory>
+
+namespace configuration {
+	class Configuration;
+}
+
+namespace stat {
+	class MovingAverage;
+}
 
 namespace meter {
 
-class Voltmeter: public mqtt::Subscriber
+class Voltmeter: public mqtt::Subscriber, public configuration::ConfigurationObserver
 {
-	std::mutex lock;
+	mutable std::mutex lock;
 
 	std::string topic = "";
-	double voltage = -1;
+
+	std::atomic<std::shared_ptr<stat::MovingAverage>> voltage_avg; // Average voltage in mV
+	std::atomic<datetime::Timestamp> last_voltage_update;
+
 	std::map<int, double> thresholds;
 
 	public:
@@ -42,9 +56,10 @@ class Voltmeter: public mqtt::Subscriber
 		virtual ~Voltmeter();
 
 		static void CheckConfig(const configuration::Json &conf);
+		void ConfigurationChanged(const configuration::Configuration *config);
 
-		void SetVoltage(double v) { voltage = v; }
-		double GetVoltage() const { return voltage; }
+		void SetVoltage(double v);
+		double GetVoltage() const;
 		double GetSOC() const;
 
 		void HandleMessage(const std::string &message, const std::string & /*topic*/);

@@ -21,8 +21,8 @@
 #include <mqtt/Client.hpp>
 #include <websocket/SolarControl.hpp>
 #include <configuration/Json.hpp>
-#include <energy/ConfigurationEnergy.hpp>
 #include <stat/MovingAverage.hpp>
+#include <configuration/ConfigurationPart.hpp>
 #include <nlohmann/json.hpp>
 
 using namespace std;
@@ -50,8 +50,7 @@ Voltmeter::Voltmeter(const configuration::Json &conf)
 	}
 
 	// Register as configuration observer and trigger ConfigurationChanged() for initial config loading
-	auto config = configuration::ConfigurationEnergy::GetInstance();
-	ObserveConfiguration(config);
+	ObserveConfiguration("energy");
 }
 
 Voltmeter::~Voltmeter()
@@ -61,7 +60,7 @@ Voltmeter::~Voltmeter()
 		mqtt->Unsubscribe(topic, this);
 }
 
-void Voltmeter::ConfigurationChanged(const configuration::Configuration *config)
+void Voltmeter::ConfigurationChanged(const configuration::ConfigurationPart *config)
 {
 	voltage_avg = make_unique<stat::MovingAverage>(config->GetTime("energy.battery.smoothing"));
 	last_voltage_update = Timestamp(TS_MONOTONIC);

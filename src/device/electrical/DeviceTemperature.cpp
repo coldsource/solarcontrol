@@ -20,8 +20,7 @@
 #include <device/electrical/DeviceTemperature.hpp>
 #include <device/weather/DeviceWeather.hpp>
 #include <configuration/Json.hpp>
-#include <configuration/Configuration.hpp>
-#include <control/ConfigurationControl.hpp>
+#include <configuration/ConfigurationPart.hpp>
 #include <device/Devices.hpp>
 #include <logs/Logger.hpp>
 
@@ -35,17 +34,15 @@ DeviceTemperature::DeviceTemperature(unsigned int id, const string &name, const 
 {
 	ht_device_id = config.GetInt("ht_device_id");
 
-	auto ctrl_config = configuration::ConfigurationControl::GetInstance();
-	ObserveConfiguration(ctrl_config);
+	ObserveConfiguration("control");
 }
 
 DeviceTemperature::~DeviceTemperature()
 {
-	auto ctrl_config = configuration::ConfigurationControl::GetInstance();
-	StopObserveConfiguration(ctrl_config);
+	StopObserveConfiguration("control");
 }
 
-void DeviceTemperature::ConfigurationChanged(const configuration::Configuration * config)
+void DeviceTemperature::ConfigurationChanged(const configuration::ConfigurationPart * config)
 {
 	absence_temperature = config->GetDouble("control.absence.temperature");
 	absence = config->GetBool("control.absence.enabled");

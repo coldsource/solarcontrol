@@ -18,6 +18,7 @@
  */
 
 #include <configuration/ConfigurationSolarControl.hpp>
+#include <configuration/Configuration.hpp>
 
 #include <stdexcept>
 
@@ -26,7 +27,7 @@ using namespace std;
 namespace configuration
 {
 
-static auto init = Configuration::GetInstance()->RegisterConfig(new ConfigurationSolarControl());
+static auto init = Configuration::GetInstance()->RegisterConfig(make_shared<ConfigurationSolarControl>());
 
 ConfigurationSolarControl::ConfigurationSolarControl(void)
 {

@@ -24,9 +24,9 @@
 #include <device/weather/DeviceWeather.hpp>
 #include <energy/GlobalMeter.hpp>
 #include <websocket/SolarControl.hpp>
-#include <control/ConfigurationControl.hpp>
 #include <stat/MovingAverage.hpp>
 #include <logs/Logger.hpp>
+#include <configuration/ConfigurationPart.hpp>
 
 #include <stdexcept>
 
@@ -45,8 +45,7 @@ DevicesManager *DevicesManager::instance = 0;
 DevicesManager::DevicesManager()
 {
 	// Register as configuration observer and trigger ConfigurationChanged() for initial config loading
-	auto config = configuration::ConfigurationControl::GetInstance();
-	ObserveConfiguration(config);
+	ObserveConfiguration("control");
 
 	global_meter = energy::GlobalMeter::GetInstance();
 
@@ -60,7 +59,7 @@ DevicesManager::~DevicesManager()
 	free();
 }
 
-void DevicesManager::ConfigurationChanged(const configuration::Configuration *config)
+void DevicesManager::ConfigurationChanged(const configuration::ConfigurationPart *config)
 {
 	unique_lock<mutex> llock(lock);
 

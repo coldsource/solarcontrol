@@ -19,21 +19,22 @@
 
 #include <database/DBConfig.hpp>
 #include <database/DB.hpp>
-#include <configuration/ConfigurationSolarControl.hpp>
+#include <configuration/Configuration.hpp>
+#include <configuration/ConfigurationPart.hpp>
 #include <logs/Logger.hpp>
 
 using namespace std;
 
 namespace database {
 
-DBConfig *DBConfig::instance = 0;
+unique_ptr<DBConfig> DBConfig::instance;
 
 DBConfig *DBConfig::GetInstance()
 {
-	if(instance == 0)
-		instance = new DBConfig();
+	if(instance == nullptr)
+		instance = make_unique<DBConfig>();
 	
-	return instance;
+	return instance.get();
 }
 
 bool DBConfig::RegisterTables(map<string, string> &tables_def)
@@ -47,7 +48,7 @@ bool DBConfig::RegisterTables(map<string, string> &tables_def)
 
 void DBConfig::InitTables()
 {
-	string database = configuration::ConfigurationSolarControl::GetInstance()->Get("sql.database");
+	string database = configuration::Configuration::FromType("solarcontrol")->Get("sql.database");
 
 	// Init tables
 	DB db;

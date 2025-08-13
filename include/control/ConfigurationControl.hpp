@@ -23,20 +23,16 @@
 #include <string>
 #include <map>
 
-#include <configuration/Configuration.hpp>
+#include <configuration/ConfigurationPart.hpp>
 
 namespace configuration
 {
 
-class ConfigurationControl:public Configuration
+class ConfigurationControl:public ConfigurationPart
 {
-	static ConfigurationControl *instance_control;
-
 	public:
 		ConfigurationControl(void);
 		virtual ~ConfigurationControl(void);
-
-		static ConfigurationControl *GetInstance() { return instance_control; }
 
 		std::string GetType() const { return "control"; }
 

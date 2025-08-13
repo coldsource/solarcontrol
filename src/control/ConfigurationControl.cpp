@@ -18,6 +18,7 @@
  */
 
 #include <control/ConfigurationControl.hpp>
+#include <configuration/Configuration.hpp>
 
 #include <stdexcept>
 
@@ -26,9 +27,7 @@ using namespace std;
 namespace configuration
 {
 
-ConfigurationControl *ConfigurationControl::instance_control;
-
-static auto init = Configuration::GetInstance()->RegisterConfig(new ConfigurationControl());
+static auto init = Configuration::GetInstance()->RegisterConfig(make_shared<ConfigurationControl>());
 
 ConfigurationControl::ConfigurationControl(void)
 {
@@ -42,8 +41,6 @@ ConfigurationControl::ConfigurationControl(void)
 	entries["control.absence.enabled"] = "no";
 	entries["control.absence.temperature"] = "12";
 	entries["control.priority"] = "hws";
-
-	instance_control = this;
 }
 
 ConfigurationControl::~ConfigurationControl(void)

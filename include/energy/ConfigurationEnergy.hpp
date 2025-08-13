@@ -21,22 +21,17 @@
 #define  __ENERGY_CONFIGURATIONENERGY_H__
 
 #include <string>
-#include <map>
 
-#include <configuration/Configuration.hpp>
+#include <configuration/ConfigurationPart.hpp>
 
 namespace configuration
 {
 
-class ConfigurationEnergy:public Configuration
+class ConfigurationEnergy:public ConfigurationPart
 {
-	static ConfigurationEnergy *instance_energy;
-
 	public:
 		ConfigurationEnergy(void);
 		virtual ~ConfigurationEnergy(void);
-
-		static ConfigurationEnergy *GetInstance() { return instance_energy; }
 
 		std::string GetType() const { return "energy"; }
 

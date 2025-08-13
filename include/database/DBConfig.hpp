@@ -22,6 +22,7 @@
 
 #include <string>
 #include <map>
+#include <memory>
 
 namespace database {
 
@@ -29,7 +30,7 @@ class DBConfig
 {
 	std::map<std::string, std::string> tables;
 
-	static DBConfig *instance;
+	static std::unique_ptr<DBConfig> instance;
 	
 	public:
 		static DBConfig *GetInstance();

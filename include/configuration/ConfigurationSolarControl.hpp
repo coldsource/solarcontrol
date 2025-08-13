@@ -21,20 +21,19 @@
 #define  __CONFIGURATION_CONFIGURATIONSOLARCONTROL_H__
 
 #include <string>
-#include <map>
 
-#include <configuration/Configuration.hpp>
+#include <configuration/ConfigurationPart.hpp>
 
 namespace configuration
 {
 
-class ConfigurationSolarControl:public Configuration
+class ConfigurationSolarControl:public ConfigurationPart
 {
 	public:
 		ConfigurationSolarControl(void);
 		virtual ~ConfigurationSolarControl(void);
 
-		static ConfigurationSolarControl *GetInstance() { return (ConfigurationSolarControl *)instance; }
+		std::string GetType() const { return "solarcontrol"; }
 
 		void Check(void);
 };

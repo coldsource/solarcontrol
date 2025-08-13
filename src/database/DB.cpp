@@ -18,7 +18,8 @@
  */
 
 #include <database/DB.hpp>
-#include <configuration/ConfigurationSolarControl.hpp>
+#include <configuration/Configuration.hpp>
+#include <configuration/ConfigurationPart.hpp>
 
 #include <stdexcept>
 #include <regex>
@@ -30,7 +31,7 @@ namespace database
 
 DB::DB()
 {
-	auto config = configuration::ConfigurationSolarControl::GetInstance();
+	auto config = configuration::Configuration::FromType("solarcontrol");
 	host = config->Get("sql.host");
 	user = config->Get("sql.user");
 	password = config->Get("sql.password");

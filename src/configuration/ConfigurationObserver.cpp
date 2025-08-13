@@ -20,17 +20,19 @@
 #include <configuration/ConfigurationObserver.hpp>
 #include <configuration/Configuration.hpp>
 
+using namespace std;
+
 namespace configuration
 {
 
-void ConfigurationObserver::ObserveConfiguration(Configuration *config)
+void ConfigurationObserver::ObserveConfiguration(const string &type)
 {
-	config->RegisterObserver(this);
+	Configuration::GetInstance()->RegisterObserver(type, this);
 }
 
-void ConfigurationObserver::StopObserveConfiguration(Configuration *config)
+void ConfigurationObserver::StopObserveConfiguration(const string &type)
 {
-	config->UnregisterObserver(this);
+	Configuration::GetInstance()->UnregisterObserver(type, this);
 }
 
 }

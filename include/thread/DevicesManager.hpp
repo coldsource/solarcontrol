@@ -71,7 +71,7 @@ class DevicesManager: public WaiterThread, public configuration::ConfigurationOb
 
 		static DevicesManager *GetInstance() { return instance; }
 
-		void ConfigurationChanged(const configuration::Configuration *config);
+		void ConfigurationChanged(const configuration::ConfigurationPart *config);
 };
 
 }

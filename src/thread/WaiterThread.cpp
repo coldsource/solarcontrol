@@ -18,6 +18,7 @@
  */
 
 #include <thread/WaiterThread.hpp>
+#include <logs/Logger.hpp>
 
 using namespace std;
 
@@ -55,7 +56,14 @@ bool WaiterThread::wait(int seconds)
 
 void WaiterThread::thread_main(WaiterThread *ptr)
 {
-	ptr->main();
+	try
+	{
+		ptr->main();
+	}
+	catch(exception &e)
+	{
+		logs::Logger::Log(LOG_ERR, e.what());
+	}
 }
 
 void WaiterThread::Shutdown(void)

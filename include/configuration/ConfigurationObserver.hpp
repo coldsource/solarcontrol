@@ -20,20 +20,20 @@
 #ifndef __DEVICE_CONFIGURATIONOBSERVER_HPP__
 #define __DEVICE_CONFIGURATIONOBSERVER_HPP__
 
-#include <set>
+#include <string>
 
 namespace configuration
 {
 
-class Configuration;
+class ConfigurationPart;
 
 class ConfigurationObserver
 {
 	public:
-		void ObserveConfiguration(Configuration *config);
-		void StopObserveConfiguration(Configuration *config);
+		void ObserveConfiguration(const std::string &type);
+		void StopObserveConfiguration(const std::string &type);
 
-		virtual void ConfigurationChanged(const Configuration * config) = 0;
+		virtual void ConfigurationChanged(const ConfigurationPart *config) = 0;
 };
 
 }

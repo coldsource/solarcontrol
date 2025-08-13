@@ -43,7 +43,7 @@ class DeviceHWS: public DeviceTimeRange, public configuration::ConfigurationObse
 		DeviceHWS(unsigned int id, const std::string &name, const configuration::Json &config);
 		virtual ~DeviceHWS();
 
-		void ConfigurationChanged(const configuration::Configuration * config);
+		void ConfigurationChanged(const configuration::ConfigurationPart * config);
 
 		static void CheckConfig(const configuration::Json &conf);
 

@@ -63,7 +63,7 @@ protected:
 
 		static GlobalMeter *GetInstance() { return instance; }
 
-		void ConfigurationChanged(const configuration::Configuration *config);
+		void ConfigurationChanged(const configuration::ConfigurationPart *config);
 		void DeviceChanged(device::Device * device);
 
 		bool HasBattery() const;

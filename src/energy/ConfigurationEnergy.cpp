@@ -18,6 +18,7 @@
  */
 
 #include <energy/ConfigurationEnergy.hpp>
+#include <configuration/Configuration.hpp>
 
 #include <stdexcept>
 
@@ -26,9 +27,7 @@ using namespace std;
 namespace configuration
 {
 
-ConfigurationEnergy *ConfigurationEnergy::instance_energy;
-
-static auto init = Configuration::GetInstance()->RegisterConfig(new ConfigurationEnergy());
+static auto init = Configuration::GetInstance()->RegisterConfig(make_shared<ConfigurationEnergy>());
 
 ConfigurationEnergy::ConfigurationEnergy(void)
 {
@@ -40,9 +39,6 @@ ConfigurationEnergy::ConfigurationEnergy(void)
 	entries["energy.debug.battery"] = "0";
 	entries["energy.debug.hws"] = "0";
 	entries["energy.battery.smoothing"] = "5m";
-
-
-	instance_energy = this;
 }
 
 ConfigurationEnergy::~ConfigurationEnergy(void)

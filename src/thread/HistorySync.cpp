@@ -19,7 +19,8 @@
 
 #include <thread/HistorySync.hpp>
 #include <stat/History.hpp>
-#include <configuration/ConfigurationSolarControl.hpp>
+#include <configuration/Configuration.hpp>
+#include <configuration/ConfigurationPart.hpp>
 
 using namespace std;
 
@@ -29,7 +30,7 @@ HistorySync *HistorySync::instance = 0;
 
 HistorySync::HistorySync()
 {
-	sync_interval = configuration::ConfigurationSolarControl::GetInstance()->GetTime("core.history.sync");
+	sync_interval = configuration::Configuration::FromType("solarcontrol")->GetTime("core.history.sync");
 
 	start();
 

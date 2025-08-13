@@ -18,18 +18,15 @@
  */
 
 #include <energy/GlobalMeter.hpp>
-#include <energy/ConfigurationEnergy.hpp>
-#include <control/ConfigurationControl.hpp>
 #include <device/Devices.hpp>
 #include <device/electrical/DeviceHWS.hpp>
 #include <device/electrical/DeviceGrid.hpp>
 #include <device/electrical/DevicePV.hpp>
 #include <device/electrical/DeviceBattery.hpp>
 #include <websocket/SolarControl.hpp>
+#include <configuration/ConfigurationPart.hpp>
 
 using namespace std;
-using configuration::ConfigurationEnergy;
-using configuration::ConfigurationControl;
 using device::Device;
 using device::DeviceHWS;
 using device::DeviceGrid;
@@ -50,18 +47,15 @@ GlobalMeter::GlobalMeter()
 	ObserveDevice(DEVICE_ID_BATTERY);
 
 	// Register as configuration observer and trigger ConfigurationChanged() for initial config loading
-	auto config_energy = ConfigurationEnergy::GetInstance();
-	ObserveConfiguration(config_energy);
-
-	auto config_control = ConfigurationControl::GetInstance();
-	ObserveConfiguration(config_control);
+	ObserveConfiguration("energy");
+	ObserveConfiguration("control");
 }
 
 GlobalMeter::~GlobalMeter()
 {
 }
 
-void GlobalMeter::ConfigurationChanged(const configuration::Configuration *config)
+void GlobalMeter::ConfigurationChanged(const configuration::ConfigurationPart *config)
 {
 	{
 		unique_lock<recursive_mutex> llock(lock);

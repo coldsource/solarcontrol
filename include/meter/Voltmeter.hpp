@@ -61,7 +61,7 @@ class Voltmeter: public mqtt::Subscriber, public configuration::ConfigurationObs
 		virtual ~Voltmeter();
 
 		static void CheckConfig(const configuration::Json &conf);
-		void ConfigurationChanged(const configuration::Configuration *config);
+		void ConfigurationChanged(const configuration::ConfigurationPart *config);
 
 		void SetVoltage(double v);
 		double GetVoltage() const;

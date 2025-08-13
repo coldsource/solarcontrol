@@ -22,7 +22,8 @@
 #include <energy/GlobalMeter.hpp>
 #include <device/Devices.hpp>
 #include <device/electrical/DeviceElectrical.hpp>
-#include <configuration/ConfigurationSolarControl.hpp>
+#include <configuration/Configuration.hpp>
+#include <configuration/ConfigurationPart.hpp>
 
 #include <string>
 #include <iostream>
@@ -36,7 +37,7 @@ namespace thread
 
 LCD::LCD()
 {
-	set_enabled(configuration::ConfigurationSolarControl::GetInstance()->GetBool("display.lcd.enable"));
+	set_enabled(configuration::Configuration::FromType("solarcontrol")->GetBool("display.lcd.enable"));
 
 	start();
 }
@@ -64,7 +65,7 @@ string LCD::format_energy(double e) const
 void LCD::main()
 {
 	auto global = energy::GlobalMeter::GetInstance();
-	auto config = configuration::ConfigurationSolarControl::GetInstance();
+	auto config = configuration::Configuration::FromType("solarcontrol");
 
 	string path = config->Get("display.lcd.path");
 	int address = config->GetInt("display.lcd.address");

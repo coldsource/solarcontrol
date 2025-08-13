@@ -23,7 +23,8 @@
 #include <datetime/Date.hpp>
 #include <datetime/Timestamp.hpp>
 #include <database/DB.hpp>
-#include <configuration/ConfigurationSolarControl.hpp>
+#include <configuration/Configuration.hpp>
+#include <configuration/ConfigurationPart.hpp>
 #include <logs/Logger.hpp>
 
 #include <stdexcept>
@@ -35,7 +36,7 @@ namespace datetime
 
 TimespanHistory::TimespanHistory(unsigned int device_id)
 {
-	retention_days = configuration::ConfigurationSolarControl::GetInstance()->GetInt("core.history.maxdays");
+	retention_days = configuration::Configuration::FromType("solarcontrol")->GetInt("core.history.maxdays");
 
 	if(device_id!=0)
 	{

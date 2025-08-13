@@ -19,7 +19,8 @@
 
 #include <energy/HistoryDay.hpp>
 #include <database/DB.hpp>
-#include <configuration/ConfigurationSolarControl.hpp>
+#include <configuration/Configuration.hpp>
+#include <configuration/ConfigurationPart.hpp>
 #include <thread/HistorySync.hpp>
 
 using namespace std;
@@ -30,7 +31,7 @@ namespace energy
 {
 
 HistoryDay::HistoryDay(int device_id, const std::string &type)
-:History(configuration::ConfigurationSolarControl::GetInstance()->GetInt("core.history.maxdays")), type(type), device_id(device_id)
+:History(configuration::Configuration::FromType("solarcontrol")->GetInt("core.history.maxdays")), type(type), device_id(device_id)
 {
 	::thread::HistorySync::GetInstance()->Register(this); // Always register because type can be changed later
 

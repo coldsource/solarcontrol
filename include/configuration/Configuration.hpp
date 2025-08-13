@@ -22,79 +22,49 @@
 
 #include <string>
 #include <map>
-#include <vector>
-#include <mutex>
 #include <set>
+#include <mutex>
+#include <memory>
 
 namespace configuration
 {
 
 class ConfigurationObserver;
+class ConfigurationPart;
 
 class Configuration
 {
+	friend class ConfigurationPart;
+
 	private:
-		std::vector<Configuration *> configs;
-		std::set<ConfigurationObserver *> observers;
+		std::map<std::string, std::shared_ptr<ConfigurationPart>> configs;
+		std::map<std::string, std::string> entry_type;
+
+		std::map<std::string, std::set<ConfigurationObserver *>> observers;
 
 		mutable std::recursive_mutex lock;
 
-		void notify_observers();
+		void notify_observers(ConfigurationPart *part);
 
 	protected:
-		static Configuration *instance;
-		std::map<std::string,std::string> entries;
+		static std::unique_ptr<Configuration> instance;
 
 	public:
 		Configuration(void);
-		Configuration(const std::map<std::string,std::string> &entries);
 		virtual ~Configuration(void);
 
 		static Configuration *GetInstance();
+		static ConfigurationPart *FromType(const std::string &type);
 
-		virtual std::string GetType() const { return "default"; }
+		bool RegisterConfig(std::shared_ptr<ConfigurationPart> config);
 
-		bool RegisterConfig(Configuration *config);
-		void Merge();
-		void Split();
+		bool Set(const std::string &name,const std::string &value);
+		void Backup(const std::string &name);
 
-		void Substitute(void);
+		void RegisterObserver(const std::string &type, ConfigurationObserver *observer);
+		void UnregisterObserver(const std::string &type, ConfigurationObserver *observer);
 
-		void RegisterObserver(ConfigurationObserver *observer);
-		void UnregisterObserver(ConfigurationObserver *observer);
-
-		std::vector<Configuration *> GetConfigs() { return configs; }
-
-		virtual void Check(void) {}
-		void CheckAll(void);
-
-		bool Set(const std::string &entry,const std::string &value);
-		bool SetCheck(const std::string &entry,const std::string &value);
-		const std::map<std::string,std::string> GetAll() const { return entries; }
-		const std::string &Get(const std::string &entry) const;
-		int GetInt(const std::string &entry) const;
-		double GetDouble(const std::string &entry) const;
-		int GetSize(const std::string &entry) const;
-		int GetTime(const std::string &entry) const;
-		int GetPower(const std::string &entry) const;
-		int GetEnergy(const std::string &entry) const;
-		int GetPercent(const std::string &entry) const;
-		bool GetBool(const std::string &entry) const;
-		int GetUID(const std::string &entry) const;
-		int GetGID(const std::string &entry) const;
-		bool Exists(const std::string &name) const;
-
-	protected:
-		void check_f_is_exec(const std::string &filename);
-		void check_d_is_writeable(const std::string &path);
-		void check_bool_entry(const std::string &name);
-		void check_int_entry(const std::string &name, bool signed_int=false);
-		void check_double_entry(const std::string &name, bool signed_int=false);
-		void check_size_entry(const std::string &name);
-		void check_time_entry(const std::string &name);
-		void check_power_entry(const std::string &name, bool signed_int=false);
-		void check_energy_entry(const std::string &name, bool signed_int=false);
-		void check_percent_entry(const std::string &name);
+		void Check(void);
 };
 
 }

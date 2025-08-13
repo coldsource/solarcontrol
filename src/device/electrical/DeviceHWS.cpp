@@ -22,7 +22,7 @@
 #include <configuration/Json.hpp>
 #include <meter/MeterFactory.hpp>
 #include <database/DB.hpp>
-#include <control/ConfigurationControl.hpp>
+#include <configuration/ConfigurationPart.hpp>
 
 using namespace std;
 using nlohmann::json;
@@ -35,17 +35,15 @@ DeviceHWS::DeviceHWS(unsigned int id, const string &name, const configuration::J
 	min_energy = config.GetInt("min_energy");
 	min_energy_for_last = config.GetInt("min_energy_for_last");
 
-	auto ctrl_config = configuration::ConfigurationControl::GetInstance();
-	ObserveConfiguration(ctrl_config);
+	ObserveConfiguration("control");
 }
 
 DeviceHWS::~DeviceHWS()
 {
-	auto ctrl_config = configuration::ConfigurationControl::GetInstance();
-	StopObserveConfiguration(ctrl_config);
+	StopObserveConfiguration("control");
 }
 
-void DeviceHWS::ConfigurationChanged(const configuration::Configuration * config)
+void DeviceHWS::ConfigurationChanged(const configuration::ConfigurationPart * config)
 {
 	absence = config->GetBool("control.absence.enabled");
 }

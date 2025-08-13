@@ -27,18 +27,10 @@ namespace configuration {
 
 void ConfigurationReaderDB::Read(Configuration *config)
 {
-	auto configs = config->GetConfigs();
-
 	database::DB db;
 	auto res = db.Query("SELECT config_name, config_value FROM t_config"_sql);
 	while(res.FetchRow())
-	{
-		for(size_t i=0; i<configs.size(); i++)
-		{
-			if(configs[i]->Exists(res["config_name"]))
-				configs[i]->Set(res["config_name"], res["config_value"]);
-		}
-	}
+		config->Set(res["config_name"], res["config_value"]);
 }
 
 }

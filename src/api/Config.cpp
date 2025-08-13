@@ -20,9 +20,8 @@
 #include <api/Config.hpp>
 #include <database/DB.hpp>
 #include <thread/DevicesManager.hpp>
-#include <configuration/ConfigurationSolarControl.hpp>
-#include <energy/ConfigurationEnergy.hpp>
-#include <control/ConfigurationControl.hpp>
+#include <configuration/Configuration.hpp>
+#include <configuration/ConfigurationPart.hpp>
 #include <configuration/Json.hpp>
 
 #include <stdexcept>
@@ -40,24 +39,19 @@ json Config::HandleMessage(const string &cmd, const configuration::Json &j_param
 
 	string module = j_params.GetString("module");
 
-	auto config = configuration::ConfigurationSolarControl::GetInstance();
-	configuration::Configuration *config_module;
-	if(module=="energy")
-		config_module = configuration::ConfigurationEnergy::GetInstance();
-	else if(module=="control")
-		config_module = configuration::ConfigurationControl::GetInstance();
-	else
-		throw invalid_argument("Unknow configuration module « " + module + " »");
+	auto config_module = configuration::Configuration::FromType(module);
+	auto config_master = config_module->GetBackup("master");
 
 	if(cmd=="get")
 	{
 		json j_config_master = json::object();
-		for(auto entry : config->GetAll())
-			j_config_master[entry.first] = entry.second;
 
 		json j_config = json::object();
 		for(auto entry : config_module->GetAll())
+		{
 			j_config[entry.first] = entry.second;
+			j_config_master[entry.first] = config_master[entry.first];
+		}
 
 		j_res = json::object();
 		j_res["config_master"] = j_config_master;
@@ -81,7 +75,7 @@ json Config::HandleMessage(const string &cmd, const configuration::Json &j_param
 	{
 		string name = j_params.GetString("name");
 
-		string default_value = config->Get(name);
+		string default_value = config_master[name];
 		config_module->Set(name, default_value);
 
 		DB db;

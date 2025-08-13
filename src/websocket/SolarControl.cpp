@@ -23,9 +23,8 @@
 #include <device/Devices.hpp>
 #include <device/electrical/DeviceElectrical.hpp>
 #include <device/weather/DeviceWeather.hpp>
-#include <configuration/ConfigurationSolarControl.hpp>
-#include <energy/ConfigurationEnergy.hpp>
-#include <control/ConfigurationControl.hpp>
+#include <configuration/Configuration.hpp>
+#include <configuration/ConfigurationPart.hpp>
 #include <logs/Logger.hpp>
 #include <nlohmann/json.hpp>
 
@@ -239,26 +238,25 @@ std::string SolarControl::lws_callback_server_writeable(struct lws * /* wsi */, 
 	}
 	else if(protocol==CONFIG)
 	{
-		auto master = configuration::ConfigurationSolarControl::GetInstance();
-
-		map<string, configuration::Configuration *> config_modules;
-		config_modules["energy"] = configuration::ConfigurationEnergy::GetInstance();
-		config_modules["control"] = configuration::ConfigurationControl::GetInstance();
+		map<string, configuration::ConfigurationPart *> config_modules;
+		config_modules["energy"] = configuration::Configuration::FromType("energy");
+		config_modules["control"] = configuration::Configuration::FromType("control");
 
 		json j_config = json::object();
 		json j_config_master = json::object();
-		for(auto it: config_modules)
+		for(auto config_module: config_modules)
 		{
 			json j_config_module = json::object();
 			json j_config_module_master = json::object();
-			for(auto entry : it.second->GetAll())
+			auto backup = config_module.second->GetBackup("master");
+			for(auto entry : config_module.second->GetAll())
 			{
 				j_config_module[entry.first] = entry.second;
-				j_config_module_master[entry.first] = master->Get(entry.first);
+				j_config_module_master[entry.first] = backup[entry.first];
 			}
 
-			j_config[it.first] = j_config_module;
-			j_config_master[it.first] = j_config_module_master;
+			j_config[config_module.first] = j_config_module;
+			j_config_master[config_module.first] = j_config_module_master;
 		}
 
 		json j_res = json::object();

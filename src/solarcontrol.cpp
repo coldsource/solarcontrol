@@ -92,25 +92,24 @@ int main(int argc, char **argv)
 		// Position signal handlers
 		utils::set_sighandler(signal_callback_handler, {SIGINT, SIGTERM, SIGHUP});
 
-		// Read configuration
+		// Read and check configuration from file
 		config = configuration::Configuration::GetInstance();
-		config->Merge();
-
 		configuration::ConfigurationReader::Read(config_filename, config);
-		config->Split();
-		config->CheckAll();
+		config->Check();
+
+		// Backup this version of configuration as master configuration. This is used as a default configuration setup
+		config->Backup("master");
 
 		// Init database tables
 		auto dbconfig = database::DBConfig::GetInstance();
 		dbconfig->InitTables();
-		delete dbconfig;
 
 		configuration::ConfigurationReaderDB::Read(config);
 
 		// Create history sync thread before devices
 		::thread::HistorySync histo_sync;
 
-		auto config_sc = configuration::ConfigurationSolarControl::GetInstance();
+		auto config_sc = configuration::Configuration::FromType("solarcontrol");
 		mqtt::Client mqtt(config_sc->Get("mqtt.host"), config_sc->GetInt("mqtt.port"));
 
 		// Create special devices if needed
@@ -149,8 +148,6 @@ int main(int argc, char **argv)
 		fprintf(stderr, "%s\n", e.what());
 		exit_code = 1;
 	}
-
-	delete config;
 
 	mosquitto_lib_cleanup();
 	curl_global_cleanup();

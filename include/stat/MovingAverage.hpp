@@ -22,6 +22,7 @@
 
 #include <list>
 #include <cstdint>
+#include <cstddef>
 
 namespace stat {
 

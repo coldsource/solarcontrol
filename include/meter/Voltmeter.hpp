@@ -40,6 +40,11 @@ namespace stat {
 
 namespace meter {
 
+/*
+ * Meter for monitoring battery voltate throught Shelly Uni API
+ * State Of Charge (SOC) is deduced from average voltage
+ */
+
 class Voltmeter: public mqtt::Subscriber, public configuration::ConfigurationObserver
 {
 	mutable std::mutex lock;
@@ -49,7 +54,7 @@ class Voltmeter: public mqtt::Subscriber, public configuration::ConfigurationObs
 	std::atomic<std::shared_ptr<stat::MovingAverage>> voltage_avg; // Average voltage in mV
 	std::atomic<datetime::Timestamp> last_voltage_update;
 
-	std::map<int, double> thresholds;
+	std::map<int, double> thresholds; // Voltate thresholds used for computing SOC
 
 	public:
 		Voltmeter(const configuration::Json &conf);

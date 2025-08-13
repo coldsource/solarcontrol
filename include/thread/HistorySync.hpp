@@ -31,6 +31,11 @@ namespace stat {
 
 namespace thread {
 
+/*
+ * Worker thread used to periodically sync devices consumption history to database
+ * Used to avoid data loss in case of unexpected shutdown
+ */
+
 class HistorySync: public WaiterThread
 {
 	static HistorySync *instance;

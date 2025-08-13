@@ -26,6 +26,7 @@
 #include <vector>
 #include <map>
 #include <mutex>
+#include <memory>
 
 namespace energy {
 	class GlobalMeter;
@@ -47,11 +48,9 @@ class DevicesManager: public WaiterThread, public configuration::ConfigurationOb
 
 	std::mutex lock;
 
-	void free();
-
 	protected:
 		energy::GlobalMeter *global_meter = 0;
-		stat::MovingAverage *available_power_avg = 0;
+		std::unique_ptr<stat::MovingAverage> available_power_avg;
 
 		int hysteresis_export = 0;
 		int hysteresis_import = 0;

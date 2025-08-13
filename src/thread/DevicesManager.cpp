@@ -56,7 +56,6 @@ DevicesManager::DevicesManager()
 
 DevicesManager::~DevicesManager()
 {
-	free();
 }
 
 void DevicesManager::ConfigurationChanged(const configuration::ConfigurationPart *config)
@@ -69,17 +68,7 @@ void DevicesManager::ConfigurationChanged(const configuration::ConfigurationPart
 	state_update_interval = config->GetTime("control.state.update_interval");
 	cooldown = config->GetTime("control.cooldown");
 
-	free();
-	available_power_avg = new stat::MovingAverage(config->GetTime("control.hysteresis.smoothing"));
-}
-
-void DevicesManager::free()
-{
-	if(available_power_avg)
-	{
-		delete available_power_avg;
-		available_power_avg = 0;
-	}
+	available_power_avg = make_unique<stat::MovingAverage>(config->GetTime("control.hysteresis.smoothing"));
 }
 
 bool DevicesManager::hysteresis(double power_delta, const DeviceOnOff *device) const

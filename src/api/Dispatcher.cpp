@@ -36,18 +36,16 @@ namespace api
 
 Dispatcher::Dispatcher()
 {
-	handlers["deviceelectrical"] = new DeviceElectrical();
-	handlers["deviceht"] = new DeviceHT();
-	handlers["logs"] = new Logs();
-	handlers["config"] = new Config();
-	handlers["storage"] = new Storage();
-	handlers["shelly"] = new Shelly();
+	handlers["deviceelectrical"] = make_shared<DeviceElectrical>();
+	handlers["deviceht"] = make_shared<DeviceHT>();
+	handlers["logs"] = make_shared<Logs>();
+	handlers["config"] = make_shared<Config>();
+	handlers["storage"] = make_shared<Storage>();
+	handlers["shelly"] = make_shared<Shelly>();
 }
 
 Dispatcher::~Dispatcher()
 {
-	for(auto it = handlers.begin(); it!=handlers.end(); ++it)
-		delete it->second;
 }
 
 string Dispatcher::Dispatch(const std::string &message)

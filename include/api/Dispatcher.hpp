@@ -22,6 +22,7 @@
 
 #include <map>
 #include <string>
+#include <memory>
 
 namespace api {
 
@@ -29,7 +30,7 @@ class Handler;
 
 class Dispatcher
 {
-	std::map<std::string, Handler *> handlers;
+	std::map<std::string, std::shared_ptr<Handler>> handlers;
 
 	public:
 		Dispatcher();

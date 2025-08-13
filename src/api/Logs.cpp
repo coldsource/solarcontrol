@@ -28,6 +28,7 @@
 #include <device/electrical/DeviceElectrical.hpp>
 #include <device/electrical/DeviceGrid.hpp>
 #include <device/electrical/DevicePV.hpp>
+#include <device/electrical/DeviceBattery.hpp>
 
 #include <map>
 #include <stdexcept>
@@ -92,9 +93,15 @@ json Logs::HandleMessage(const string &cmd, const configuration::Json &j_params)
 						j_res[string(excess.first)][device->GetName()]["excess"] = excess.second;
 				}
 
-				if(device->GetType()=="pv" || device->GetType()=="battery")
+				if(device->GetType()=="pv")
 				{
 					for(auto production : (dynamic_pointer_cast<device::DevicePV>(device))->GetProductionHistory())
+						j_res[string(production.first)][device->GetName()]["production"] = production.second;
+				}
+
+				if(device->GetType()=="battery")
+				{
+					for(auto production : (dynamic_pointer_cast<device::DeviceBattery>(device))->GetProductionHistory())
 						j_res[string(production.first)][device->GetName()]["production"] = production.second;
 				}
 

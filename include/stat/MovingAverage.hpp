@@ -21,6 +21,7 @@
 #define __STAT_MOVINGAVERAGE_HPP__
 
 #include <list>
+#include <cstdint>
 
 namespace stat {
 
@@ -30,12 +31,12 @@ class MovingAverage
 		// Store values in integer to avoid rounding errors
 		struct st_point
 		{
-			int value;
-			int duration;
+			int64_t value;
+			int64_t duration;
 		};
 
-		int value_sum = 0;
-		int duration_sum = 0;
+		int64_t value_sum = 0;
+		int64_t duration_sum = 0;
 		double avg = 0;
 		int period;
 
@@ -46,6 +47,7 @@ class MovingAverage
 
 		void Add(double value, double duration);
 		double Get() const;
+		size_t Size() const { return data.size(); }
 
 		int GetHigherValuesPercentile(double value) const;
 

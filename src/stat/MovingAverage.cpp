@@ -27,8 +27,8 @@ namespace stat {
 void MovingAverage::Add(double value, double duration)
 {
 	// We use integer precision for value and ms for duration
-	int ivalue = (int)value;
-	int iduration = (int)(duration * 1000);
+	int64_t ivalue = (int64_t)value;
+	int64_t iduration = (int64_t)(duration * 1000);
 
 	if(iduration<=0)
 		return;
@@ -55,7 +55,7 @@ double MovingAverage::Get(void) const
 
 int MovingAverage::GetHigherValuesPercentile(double value) const
 {
-	int ivalue = (int)value;
+	int64_t ivalue = (int64_t)value;
 	int percentile = 0;
 	for(auto point : data)
 	{

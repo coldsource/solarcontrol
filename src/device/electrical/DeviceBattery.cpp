@@ -34,7 +34,7 @@ DeviceBattery::DeviceBattery(unsigned int id, const string &name, const configur
 	// Override default counter for storing production
 	consumption = energy::Counter(id, "production");
 
-	voltmeter = new meter::Voltmeter(config.GetObject("voltmeter"));
+	voltmeter = make_unique<meter::Voltmeter>(config.GetObject("voltmeter"));
 
 	auto state = state_restore();
 	double voltage = state.GetFloat("voltage", 0);
@@ -46,8 +46,6 @@ DeviceBattery::~DeviceBattery()
 	json state;
 	state["voltage"] = GetVoltage();
 	state_backup(configuration::Json(state));
-
-	delete voltmeter;
 }
 
 void DeviceBattery::CheckConfig(const configuration::Json &conf)

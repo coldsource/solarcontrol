@@ -30,18 +30,18 @@ using namespace std;
 
 namespace input {
 
-Input *InputFactory::GetFromConfig(const configuration::Json &conf)
+shared_ptr<Input> InputFactory::GetFromConfig(const configuration::Json &conf)
 {
 	CheckConfig(conf);
 
 	string type = conf.GetString("type");
 
 	if(type=="dummy")
-		return new Dummy();
+		return make_shared<Dummy>();
 	if(type=="plus1pm")
-		return new Plus1PM(conf.GetString("mqtt_id", ""), conf.GetString("ip", ""));
+		return make_shared<Plus1PM>(conf.GetString("mqtt_id", ""), conf.GetString("ip", ""));
 	if(type=="pro")
-		return new Pro(conf.GetString("mqtt_id", ""), conf.GetInt("outlet"), conf.GetString("ip", ""));
+		return make_shared<Pro>(conf.GetString("mqtt_id", ""), conf.GetInt("outlet"), conf.GetString("ip", ""));
 
 	return 0;
 }

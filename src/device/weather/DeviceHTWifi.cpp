@@ -28,7 +28,7 @@ namespace device
 {
 
 DeviceHTWifi::DeviceHTWifi(unsigned int id, const string &name, const configuration::Json &config):
-DeviceHT(id, name, config, new control::HTWifi(config.GetString("mqtt_id")))
+DeviceHT(id, name, config, make_shared<control::HTWifi>(config.GetString("mqtt_id")))
 {
 }
 

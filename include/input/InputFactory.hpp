@@ -20,6 +20,8 @@
 #ifndef __INPUT_INPUTFACTORY_HPP__
 #define __INPUT_INPUTFACTORY_HPP__
 
+#include <memory>
+
 namespace configuration {
 	class Json;
 }
@@ -31,7 +33,7 @@ class Input;
 class InputFactory
 {
 	public:
-		static Input *GetFromConfig(const configuration::Json &conf);
+		static std::shared_ptr<Input> GetFromConfig(const configuration::Json &conf);
 		static void CheckConfig(const configuration::Json &conf);
 };
 

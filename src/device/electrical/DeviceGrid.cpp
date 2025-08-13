@@ -40,7 +40,6 @@ DeviceGrid::DeviceGrid(unsigned int id, const string &name, const configuration:
 
 DeviceGrid::~DeviceGrid()
 {
-	delete offpeak_ctrl;
 }
 
 void DeviceGrid::CheckConfig(const configuration::Json &conf)

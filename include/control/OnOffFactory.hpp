@@ -20,6 +20,8 @@
 #ifndef __CONTROL_ONOFFFACTORY_HPP__
 #define __CONTROL_ONOFFFACTORY_HPP__
 
+#include <memory>
+
 namespace configuration {
 	class Json;
 }
@@ -31,7 +33,7 @@ class OnOff;
 class OnOffFactory
 {
 	public:
-		static OnOff *GetFromConfig(const configuration::Json &conf);
+		static std::shared_ptr<OnOff> GetFromConfig(const configuration::Json &conf);
 		static void CheckConfig(const configuration::Json &conf);
 };
 

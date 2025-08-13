@@ -31,12 +31,11 @@ namespace device
 DeviceWind::DeviceWind(unsigned int id, const string &name, const configuration::Json &config):
 DeviceWeather(id, name, config), history(id)
 {
-	ctrl = new control::Wind(config.GetString("mqtt_id"));
+	ctrl = make_shared<control::Wind>(config.GetString("mqtt_id"));
 }
 
 DeviceWind::~DeviceWind()
 {
-	delete ctrl;
 }
 
 void DeviceWind::CheckConfig(const configuration::Json &conf)

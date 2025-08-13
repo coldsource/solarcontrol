@@ -22,6 +22,8 @@
 
 #include <device/electrical/DevicePassive.hpp>
 
+#include <memory>
+
 namespace configuration {
 	class Json;
 }
@@ -34,7 +36,7 @@ namespace device {
 
 class DeviceGrid: public DevicePassive
 {
-	input::Input *offpeak_ctrl = 0;
+	std::shared_ptr<input::Input> offpeak_ctrl;
 
 	public:
 		DeviceGrid(unsigned int id, const std::string &name, const configuration::Json &config);

@@ -20,6 +20,8 @@
 #ifndef __METER_METERFACTORY_HPP__
 #define __METER_METERFACTORY_HPP__
 
+#include <memory>
+
 namespace configuration {
 	class Json;
 }
@@ -31,7 +33,7 @@ class Meter;
 class MeterFactory
 {
 	public:
-		static Meter *GetFromConfig(const configuration::Json &conf);
+		static std::shared_ptr<Meter> GetFromConfig(const configuration::Json &conf);
 		static void CheckConfig(const configuration::Json &conf);
 };
 

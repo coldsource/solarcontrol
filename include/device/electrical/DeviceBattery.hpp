@@ -22,6 +22,8 @@
 
 #include <device/electrical/DevicePassive.hpp>
 
+#include <memory>
+
 namespace configuration {
 	class Json;
 }
@@ -35,7 +37,7 @@ namespace device {
 class DeviceBattery: public DevicePassive
 {
 	protected:
-		meter::Voltmeter *voltmeter;
+		std::unique_ptr<meter::Voltmeter> voltmeter;
 
 	public:
 		DeviceBattery(unsigned int id, const std::string &name, const configuration::Json &config);

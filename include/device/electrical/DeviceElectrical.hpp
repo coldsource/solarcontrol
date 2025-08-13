@@ -24,6 +24,7 @@
 #include <energy/Counter.hpp>
 
 #include <string>
+#include <memory>
 
 namespace control {
 	class OnOff;
@@ -38,8 +39,8 @@ namespace device {
 class DeviceElectrical: public Device
 {
 	protected:
-		control::OnOff *ctrl;
-		meter::Meter *meter;
+		std::shared_ptr<control::OnOff> ctrl;
+		std::shared_ptr<meter::Meter> meter;
 
 		bool manual = false;
 

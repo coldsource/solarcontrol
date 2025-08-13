@@ -30,15 +30,15 @@ using namespace std;
 namespace control
 {
 
-OnOff *OnOffFactory::GetFromConfig(const configuration::Json &conf)
+shared_ptr<OnOff> OnOffFactory::GetFromConfig(const configuration::Json &conf)
 {
 	CheckConfig(conf);
 
 	string type = conf.GetString("type");
 	if(type=="plug")
-		return new Plug(conf.GetString("ip"), conf.GetString("mqtt_id", ""));
+		return make_shared<Plug>(conf.GetString("ip"), conf.GetString("mqtt_id", ""));
 	if(type=="pro")
-		return new Pro(conf.GetString("ip"), conf.GetInt("outlet"), conf.GetString("mqtt_id", ""));
+		return make_shared<Pro>(conf.GetString("ip"), conf.GetInt("outlet"), conf.GetString("mqtt_id", ""));
 	return 0;
 }
 

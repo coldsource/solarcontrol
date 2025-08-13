@@ -24,6 +24,7 @@
 #include <weather/HistoryQuarterHourWind.hpp>
 
 #include <string>
+#include <memory>
 
 namespace control {
 	class Wind;
@@ -34,7 +35,7 @@ namespace device {
 class DeviceWind: public DeviceWeather
 {
 	protected:
-		control::Wind *ctrl;
+		std::shared_ptr<control::Wind> ctrl;
 
 		weather::HistoryQuarterHourWind history;
 

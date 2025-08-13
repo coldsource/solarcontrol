@@ -38,7 +38,7 @@ Device(id, name, config), consumption(id, "consumption"), offload(id, "offload")
 	if(config.Has("control"))
 		ctrl = control::OnOffFactory::GetFromConfig(config.GetObject("control"));
 	else
-		ctrl = new control::Dummy(); // Passive devices have no control
+		ctrl = make_shared<control::Dummy>(); // Passive devices have no control
 
 	if(config.Has("meter"))
 		meter = meter::MeterFactory::GetFromConfig(config.GetObject("meter")); // Device has a dedicated metering configuration
@@ -48,8 +48,6 @@ Device(id, name, config), consumption(id, "consumption"), offload(id, "offload")
 
 DeviceElectrical::~DeviceElectrical()
 {
-	delete ctrl;
-	delete meter;
 }
 
 double DeviceElectrical::GetPower() const

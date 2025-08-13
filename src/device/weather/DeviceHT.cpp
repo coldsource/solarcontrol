@@ -25,10 +25,11 @@
 #include <limits>
 
 using nlohmann::json;
+using namespace std;
 
 namespace device {
 
-DeviceHT::DeviceHT(unsigned int id, const std::string &name, const configuration::Json &config, control::HT *ctrl):
+DeviceHT::DeviceHT(unsigned int id, const std::string &name, const configuration::Json &config, shared_ptr<control::HT> ctrl):
 DeviceWeather(id, name, config), ctrl(ctrl), history(id)
 {
 	auto state = state_restore();
@@ -49,8 +50,6 @@ DeviceHT::~DeviceHT()
 		state["temperature"] = GetTemperature();
 
 	state_backup(configuration::Json(state));
-
-	delete ctrl;
 }
 
 double DeviceHT::GetTemperature() const

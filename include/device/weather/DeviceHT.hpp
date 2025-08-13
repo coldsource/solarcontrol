@@ -23,6 +23,8 @@
 #include <device/weather/DeviceWeather.hpp>
 #include <weather/HistoryQuarterHourHT.hpp>
 
+#include <memory>
+
 namespace control {
 	class HT;
 }
@@ -32,12 +34,12 @@ namespace device {
 class DeviceHT: public DeviceWeather
 {
 	protected:
-		control::HT *ctrl;
+		std::shared_ptr<control::HT> ctrl;
 
 		weather::HistoryQuarterHourHT history;
 
 	public:
-		DeviceHT(unsigned int id, const std::string &name, const configuration::Json &config, control::HT *ctrl);
+		DeviceHT(unsigned int id, const std::string &name, const configuration::Json &config, std::shared_ptr<control::HT> ctrl);
 		virtual ~DeviceHT();
 
 		double GetTemperature() const;

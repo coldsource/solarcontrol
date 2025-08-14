@@ -80,7 +80,6 @@ int main(int argc, char **argv)
 		return -3;
 	}
 
-	configuration::Configuration *config = 0;
 	short exit_code = 0;
 
 	mosquitto_lib_init();
@@ -93,7 +92,7 @@ int main(int argc, char **argv)
 		utils::set_sighandler(signal_callback_handler, {SIGINT, SIGTERM, SIGHUP});
 
 		// Read and check configuration from file
-		config = configuration::Configuration::GetInstance();
+		auto config = configuration::Configuration::GetInstance();
 		configuration::ConfigurationReader::Read(config_filename, config);
 		config->Check();
 

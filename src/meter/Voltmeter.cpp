@@ -71,7 +71,7 @@ void Voltmeter::SetVoltage(double v)
 	auto avg = voltage_avg.load();
 
 	avg->Reset();
-	avg->Add(v, 0);
+	avg->Add(v * 1000, 1);
 	last_voltage_update = Timestamp(TS_MONOTONIC);
 }
 

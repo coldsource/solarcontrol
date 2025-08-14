@@ -69,7 +69,7 @@ int main(int argc, char **argv)
 
 	if(args["--version"])
 	{
-		printf("1.10\n");
+		printf(VERSION "\n");
 		return 0;
 	}
 

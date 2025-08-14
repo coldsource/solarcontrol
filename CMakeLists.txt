@@ -1,6 +1,12 @@
 cmake_minimum_required(VERSION 3.5)
 
-set(CMAKE_BUILD_TYPE Release)
+if(NOT CMAKE_BUILD_TYPE)
+	set(CMAKE_BUILD_TYPE Release)
+endif()
+
+add_compile_definitions(-DVERSION="1.11")
+
+message("Building for ${CMAKE_BUILD_TYPE} type")
 
 project(solarcontrol)
 

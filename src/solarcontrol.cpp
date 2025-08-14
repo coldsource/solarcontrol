@@ -64,7 +64,7 @@ int main(int argc, char **argv)
 	catch(exception &e)
 	{
 		tools_print_usage();
-		return 0;
+		return -2;
 	}
 
 	if(args["--version"])
@@ -77,7 +77,7 @@ int main(int argc, char **argv)
 	if(config_filename=="")
 	{
 		tools_print_usage();
-		return -1;
+		return -3;
 	}
 
 	configuration::Configuration *config = 0;

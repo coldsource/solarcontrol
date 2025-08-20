@@ -187,6 +187,20 @@ shared_ptr<DeviceWeather> Devices::GetWeatherByID(int id) const
 	return dynamic_pointer_cast<DeviceWeather>(device);
 }
 
+const unordered_set<shared_ptr<DeviceElectrical>> Devices::GetElectrical() const
+{
+	unique_lock<mutex> llock(mutex_w);
+
+	return devices_electrical;
+}
+
+const unordered_set<shared_ptr<DeviceWeather>> Devices::GetWeather() const
+{
+	unique_lock<mutex> llock(mutex_w);
+
+	return devices_weather;
+}
+
 shared_ptr<Device> Devices::IsInUse(int device_id) const
 {
 	unique_lock<mutex> llock(mutex_w);

@@ -68,8 +68,8 @@ class Devices
 		std::shared_ptr<DeviceElectrical> GetElectricalByID(int id) const;
 		std::shared_ptr<DeviceWeather> GetWeatherByID(int id) const;
 
-		const std::unordered_set<std::shared_ptr<DeviceElectrical>> GetElectrical() const { return devices_electrical; }
-		const std::unordered_set<std::shared_ptr<DeviceWeather>> GetWeather() const { return devices_weather; }
+		const std::unordered_set<std::shared_ptr<DeviceElectrical>> GetElectrical() const;
+		const std::unordered_set<std::shared_ptr<DeviceWeather>> GetWeather() const;
 
 		std::shared_ptr<Device> IsInUse(int device_id) const;
 

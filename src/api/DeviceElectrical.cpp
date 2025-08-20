@@ -54,6 +54,21 @@ json DeviceElectrical::HandleMessage(const string &cmd, const configuration::Jso
 
 		return json();
 	}
+	else if(cmd=="setprio")
+	{
+		json id_prio = j_params;
+		for(auto it : id_prio.items())
+		{
+			int device_id = stoi(it.key());
+			int prio = it.value();
+
+			update_prio(device_id, prio);
+		}
+
+		devices.Reload();
+
+		return json();
+	}
 	else if(cmd=="create")
 	{
 		string device_name = j_params.GetString("device_name");

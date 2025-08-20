@@ -61,6 +61,7 @@ json DeviceElectrical::ToJson() const
 
 	j_device["device_id"] = GetID();
 	j_device["device_type"] = GetType();
+	j_device["device_category"] = GetCategory();
 	j_device["device_name"] = GetName();
 	j_device["device_config"] = (json)GetConfig();
 	j_device["state"] = GetState();

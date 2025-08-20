@@ -20,11 +20,16 @@
 #include <api/Device.hpp>
 #include <database/DB.hpp>
 #include <configuration/Json.hpp>
+#include <device/Devices.hpp>
+#include <device/electrical/DeviceOnOff.hpp>
+#include <nlohmann/json.hpp>
 
 #include <stdexcept>
 
 using namespace std;
 using database::DB;
+using namespace device;
+using nlohmann::json;
 
 namespace api
 {
@@ -54,6 +59,25 @@ void Device::update_device(unsigned int id, const std::string &name, const confi
 	db.Query(
 		"UPDATE t_device SET device_name=%s, device_config=%s WHERE device_id=%i"_sql
 		<<name<<config.ToString()<<id
+	);
+}
+
+void Device::update_prio(unsigned int id, int new_prio)
+{
+	device::Devices devices;
+	auto device = devices.GetElectricalByID(id);
+	if(device->GetCategory()!=ONOFF)
+		throw invalid_argument("Device has no priority");
+
+	auto onoff = dynamic_pointer_cast<DeviceOnOff>(device);
+
+	DB db;
+
+	json j_config = onoff->GetConfig();
+	j_config["prio"] = new_prio;
+	db.Query(
+		"UPDATE t_device SET device_config=%s WHERE device_id=%i"_sql
+		<<j_config.dump()<<onoff->GetID()
 	);
 }
 

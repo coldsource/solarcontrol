@@ -70,7 +70,7 @@ void DB::StopThread(void)
 
 Result DB::Query(const database::Query &q)
 {
-	regex prct_regex("%(s|i|f)");
+	const static regex prct_regex("%(s|i|f)");
 
 	string query = q.GetQuery();
 

@@ -25,6 +25,7 @@
 #include <datetime/Timestamp.hpp>
 
 #include <string>
+#include <memory>
 
 namespace device {
 
@@ -71,6 +72,10 @@ class DeviceOnOff: public DeviceElectrical
 		void UpdateState();
 
 		double GetExpectedConsumption() const;
+
+		struct PrioComparator {
+			bool operator()(std::shared_ptr<DeviceOnOff> a, std::shared_ptr<DeviceOnOff> b) const { return a->GetPrio() < b->GetPrio(); }
+		};
 };
 
 }

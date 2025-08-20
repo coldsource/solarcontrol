@@ -36,10 +36,6 @@ using datetime::Timestamp;
 
 namespace thread {
 
-struct DevicesPtrComparator {
-	bool operator()(shared_ptr<DeviceOnOff> a, shared_ptr<DeviceOnOff> b) const { return a->GetPrio() < b->GetPrio(); }
-};
-
 DevicesManager *DevicesManager::instance = 0;
 
 DevicesManager::DevicesManager()
@@ -173,7 +169,7 @@ void DevicesManager::main()
 			Devices devices;
 
 			// Sort OnOff devices by priority
-			std::multiset<shared_ptr<DeviceOnOff>, DevicesPtrComparator> onoff;
+			std::multiset<shared_ptr<DeviceOnOff>, DeviceOnOff::PrioComparator> onoff;
 			for(auto device : devices.GetElectrical())
 			{
 				if(device->GetCategory()==ONOFF)

@@ -28,11 +28,21 @@ namespace configuration
 void ConfigurationObserver::ObserveConfiguration(const string &type)
 {
 	Configuration::GetInstance()->RegisterObserver(type, this);
+
+	observed_types.insert(type);
+}
+
+ConfigurationObserver::~ConfigurationObserver()
+{
+	while(observed_types.size())
+		StopObserveConfiguration(*observed_types.begin());
 }
 
 void ConfigurationObserver::StopObserveConfiguration(const string &type)
 {
 	Configuration::GetInstance()->UnregisterObserver(type, this);
+
+	observed_types.erase(type);
 }
 
 }

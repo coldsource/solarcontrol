@@ -40,7 +40,6 @@ DeviceHWS::DeviceHWS(unsigned int id, const string &name, const configuration::J
 
 DeviceHWS::~DeviceHWS()
 {
-	StopObserveConfiguration("control");
 }
 
 void DeviceHWS::ConfigurationChanged(const configuration::ConfigurationPart * config)

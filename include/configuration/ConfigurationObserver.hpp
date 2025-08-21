@@ -21,6 +21,7 @@
 #define __DEVICE_CONFIGURATIONOBSERVER_HPP__
 
 #include <string>
+#include <set>
 
 namespace configuration
 {
@@ -29,7 +30,12 @@ class ConfigurationPart;
 
 class ConfigurationObserver
 {
+	std::set<std::string> observed_types;
+
 	public:
+		ConfigurationObserver() {}
+		virtual ~ConfigurationObserver();
+
 		void ObserveConfiguration(const std::string &type);
 		void StopObserveConfiguration(const std::string &type);
 

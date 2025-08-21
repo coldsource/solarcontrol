@@ -39,7 +39,6 @@ DeviceTemperature::DeviceTemperature(unsigned int id, const string &name, const 
 
 DeviceTemperature::~DeviceTemperature()
 {
-	StopObserveConfiguration("control");
 }
 
 void DeviceTemperature::ConfigurationChanged(const configuration::ConfigurationPart * config)

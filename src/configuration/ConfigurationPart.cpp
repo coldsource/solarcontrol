@@ -238,7 +238,7 @@ int ConfigurationPart::GetGID(const string &entry) const
 	}
 }
 
-void ConfigurationPart::check_f_is_exec(const string &filename)
+void ConfigurationPart::check_f_is_exec(const string &filename) const
 {
 	uid_t uid = geteuid();
 	gid_t gid = getegid();
@@ -264,7 +264,7 @@ void ConfigurationPart::check_f_is_exec(const string &filename)
 	throw runtime_error("File is not executable : "+filename);
 }
 
-void ConfigurationPart::check_d_is_writeable(const string &path)
+void ConfigurationPart::check_d_is_writeable(const string &path) const
 {
 	uid_t uid = geteuid();
 	gid_t gid = getegid();
@@ -286,24 +286,28 @@ void ConfigurationPart::check_d_is_writeable(const string &path)
 	throw runtime_error("Directory is not writeable : "+path);
 }
 
-void ConfigurationPart::check_bool_entry(const string &name)
+void ConfigurationPart::check_bool_entry(const string &name) const
 {
-	if(entries[name]=="yes" || entries[name]=="true" || entries[name]=="1")
+	const string value = Get(name);
+
+	if(value=="yes" || value=="true" || value=="1")
 		return;
 
-	if(entries[name]=="no" || entries[name]=="false" || entries[name]=="0")
+	if(value=="no" || value=="false" || value=="0")
 		return;
 
-	throw runtime_error(name+": invalid boolean value '"+entries[name]+"'");
+	throw runtime_error(name+": invalid boolean value '"+value+"'");
 }
 
-void ConfigurationPart::check_int_entry(const string &name, bool signed_int)
+void ConfigurationPart::check_int_entry(const string &name, bool signed_int) const
 {
+	const string value = Get(name);
+
 	try
 	{
 		size_t l;
-		int val = stoi(entries[name],&l);
-		if(l!=entries[name].length())
+		int val = stoi(value,&l);
+		if(l!=value.length())
 			throw 1;
 
 		if(!signed_int && val<0)
@@ -311,17 +315,19 @@ void ConfigurationPart::check_int_entry(const string &name, bool signed_int)
 	}
 	catch(...)
 	{
-		throw runtime_error(name+": invalid integer value '"+entries[name]+"'");
+		throw runtime_error(name+": invalid integer value '"+value+"'");
 	}
 }
 
-void ConfigurationPart::check_double_entry(const string &name, bool signed_int)
+void ConfigurationPart::check_double_entry(const string &name, bool signed_int) const
 {
+	const string value = Get(name);
+
 	try
 	{
 		size_t l;
-		double val = stod(entries[name],&l);
-		if(l!=entries[name].length())
+		double val = stod(value,&l);
+		if(l!=value.length())
 			throw 1;
 
 		if(!signed_int && val<0)
@@ -329,58 +335,64 @@ void ConfigurationPart::check_double_entry(const string &name, bool signed_int)
 	}
 	catch(...)
 	{
-		throw runtime_error(name+": invalid double value '"+entries[name]+"'");
+		throw runtime_error(name+": invalid double value '"+value+"'");
 	}
 }
 
-void ConfigurationPart::check_size_entry(const string &name)
+void ConfigurationPart::check_size_entry(const string &name) const
 {
+	const string value = Get(name);
+
 	try
 	{
 		size_t l;
-		stoi(entries[name],&l);
-		if(l==entries[name].length())
+		stoi(value,&l);
+		if(l==value.length())
 			return;
 
-		string unit = entries[name].substr(l);
+		string unit = value.substr(l);
 		if(unit!="K" && unit!="M" && unit!="G")
 			throw 1;
 	}
 	catch(...)
 	{
-		throw runtime_error(name+": invalid size value '"+entries[name]+"'");
+		throw runtime_error(name+": invalid size value '"+value+"'");
 	}
 }
 
-void ConfigurationPart::check_time_entry(const string &name)
+void ConfigurationPart::check_time_entry(const string &name) const
 {
+	const string value = Get(name);
+
 	try
 	{
 		size_t l;
-		stoi(entries[name],&l);
-		if(l==entries[name].length())
+		stoi(value,&l);
+		if(l==value.length())
 			return;
 
-		string unit = entries[name].substr(l);
+		string unit = value.substr(l);
 		if(unit!="d" && unit!="h" && unit!="m" && unit!="s")
 			throw 1;
 	}
 	catch(...)
 	{
-		throw runtime_error(name+": invalid time value '"+entries[name]+"'");
+		throw runtime_error(name+": invalid time value '"+value+"'");
 	}
 }
 
-void ConfigurationPart::check_power_entry(const string &name, bool signed_int)
+void ConfigurationPart::check_power_entry(const string &name, bool signed_int) const
 {
+	const string value = Get(name);
+
 	try
 	{
 		size_t l;
-		int val = stoi(entries[name],&l);
-		if(l==entries[name].length())
+		int val = stoi(value,&l);
+		if(l==value.length())
 			return;
 
-		string unit = entries[name].substr(l);
+		string unit = value.substr(l);
 		if(unit!="w" && unit!="kw" && unit!="W" && unit!="kW")
 			throw 1;
 
@@ -389,20 +401,22 @@ void ConfigurationPart::check_power_entry(const string &name, bool signed_int)
 	}
 	catch(...)
 	{
-		throw runtime_error(name+": invalid power value '"+entries[name]+"'");
+		throw runtime_error(name+": invalid power value '"+value+"'");
 	}
 }
 
-void ConfigurationPart::check_energy_entry(const string &name, bool signed_int)
+void ConfigurationPart::check_energy_entry(const string &name, bool signed_int) const
 {
+	const string value = Get(name);
+
 	try
 	{
 		size_t l;
-		int val = stoi(entries[name],&l);
-		if(l==entries[name].length())
+		int val = stoi(value,&l);
+		if(l==value.length())
 			return;
 
-		string unit = entries[name].substr(l);
+		string unit = value.substr(l);
 		if(unit!="wh" && unit!="kwh" && unit!="Wh" && unit!="kWh")
 			throw 1;
 
@@ -411,13 +425,13 @@ void ConfigurationPart::check_energy_entry(const string &name, bool signed_int)
 	}
 	catch(...)
 	{
-		throw runtime_error(name+": invalid energy value '"+entries[name]+"'");
+		throw runtime_error(name+": invalid energy value '"+value+"'");
 	}
 }
 
-void ConfigurationPart::check_percent_entry(const string &name)
+void ConfigurationPart::check_percent_entry(const string &name) const
 {
-	string val = entries[name];
+	string val = Get(name);
 	if(val.substr(val.length() - 1, 1)=="%")
 		val = val.substr(0, val.length() - 1);
 
@@ -433,7 +447,7 @@ void ConfigurationPart::check_percent_entry(const string &name)
 	}
 	catch(...)
 	{
-		throw runtime_error(name+": invalid percentage value '"+entries[name]+"'");
+		throw runtime_error(name+": invalid percentage value '"+val+"'");
 	}
 }
 

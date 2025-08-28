@@ -31,8 +31,8 @@ class HistoryQuarterHourWind: public stat::History<datetime::QuarterHour, stat::
 	protected:
 		unsigned int device_id;
 
-		virtual void store_entry(const datetime::QuarterHour period, stat::MinMaxAvg<double> value);
-		virtual void save();
+		virtual void store_entry(const datetime::QuarterHour period, stat::MinMaxAvg<double> value) override;
+		virtual void save() override;
 
 	public:
 		HistoryQuarterHourWind(unsigned int device_id);

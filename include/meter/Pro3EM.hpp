@@ -46,7 +46,7 @@ class Pro3EM: public Meter, public mqtt::Subscriber
 
 		static void CheckConfig(const configuration::Json &conf);
 
-		void HandleMessage(const std::string &message, const std::string & /*topic*/);
+		void HandleMessage(const std::string &message, const std::string & /*topic*/) override;
 };
 
 }

@@ -35,8 +35,8 @@ class HistoryDay: public stat::History<datetime::Date, Amount>
 	int device_id;
 
 	protected:
-		virtual void store_entry(const datetime::Date period, Amount value);
-		virtual void save();
+		virtual void store_entry(const datetime::Date period, Amount value) override;
+		virtual void save() override;
 
 	public:
 		HistoryDay(int device_id, const std::string &type = "");

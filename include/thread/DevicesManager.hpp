@@ -62,7 +62,7 @@ class DevicesManager: public WaiterThread, public configuration::ConfigurationOb
 		bool force(const std::map<std::shared_ptr<device::DeviceOnOff>, bool> &devices);
 		bool offload(const std::vector<std::shared_ptr<device::DeviceOnOff>> &devices);
 
-		void main(void);
+		void main(void) override;
 
 	public:
 		DevicesManager();
@@ -70,7 +70,7 @@ class DevicesManager: public WaiterThread, public configuration::ConfigurationOb
 
 		static DevicesManager *GetInstance() { return instance; }
 
-		void ConfigurationChanged(const configuration::ConfigurationPart *config);
+		void ConfigurationChanged(const configuration::ConfigurationPart *config) override;
 };
 
 }

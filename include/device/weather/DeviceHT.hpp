@@ -42,11 +42,11 @@ class DeviceHT: public DeviceWeather
 		DeviceHT(int id);
 		virtual ~DeviceHT();
 
-		double GetTemperature() const;
-		double GetHumidity() const;
-		double GetWind() const;
+		double GetTemperature() const override;
+		double GetHumidity() const override;
+		double GetWind() const override;
 
-		void Log();
+		void Log() override;
 };
 
 }

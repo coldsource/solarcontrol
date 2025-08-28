@@ -33,9 +33,9 @@ class ConfigurationSolarControl:public ConfigurationPart
 		ConfigurationSolarControl(void);
 		virtual ~ConfigurationSolarControl(void);
 
-		std::string GetType() const { return "solarcontrol"; }
+		std::string GetType() const override { return "solarcontrol"; }
 
-		void Check(void);
+		void Check(void) const override;
 };
 
 }

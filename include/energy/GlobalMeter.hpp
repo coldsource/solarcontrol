@@ -63,7 +63,7 @@ protected:
 
 		static GlobalMeter *GetInstance() { return instance; }
 
-		void ConfigurationChanged(const configuration::ConfigurationPart *config);
+		void ConfigurationChanged(const configuration::ConfigurationPart *config) override;
 
 		bool HasBattery() const;
 		double GetBatteryVoltage() const;

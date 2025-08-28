@@ -34,9 +34,9 @@ class ConfigurationControl:public ConfigurationPart
 		ConfigurationControl(void);
 		virtual ~ConfigurationControl(void);
 
-		std::string GetType() const { return "control"; }
+		std::string GetType() const override{ return "control"; }
 
-		void Check(void);
+		void Check(void) const override;
 };
 
 }

@@ -47,7 +47,7 @@ class ConfigurationPart
 
 		virtual std::string GetType() const = 0;
 
-		virtual void Check(void) {}
+		virtual void Check(void) const {}
 
 		bool Set(const std::string &entry,const std::string &value);
 		bool SetCheck(const std::string &entry,const std::string &value);
@@ -69,16 +69,16 @@ class ConfigurationPart
 		const std::map<std::string,std::string> GetBackup(const std::string &name);
 
 	protected:
-		void check_f_is_exec(const std::string &filename);
-		void check_d_is_writeable(const std::string &path);
-		void check_bool_entry(const std::string &name);
-		void check_int_entry(const std::string &name, bool signed_int=false);
-		void check_double_entry(const std::string &name, bool signed_int=false);
-		void check_size_entry(const std::string &name);
-		void check_time_entry(const std::string &name);
-		void check_power_entry(const std::string &name, bool signed_int=false);
-		void check_energy_entry(const std::string &name, bool signed_int=false);
-		void check_percent_entry(const std::string &name);
+		void check_f_is_exec(const std::string &filename) const;
+		void check_d_is_writeable(const std::string &path) const;
+		void check_bool_entry(const std::string &name) const;
+		void check_int_entry(const std::string &name, bool signed_int=false) const;
+		void check_double_entry(const std::string &name, bool signed_int=false) const;
+		void check_size_entry(const std::string &name) const;
+		void check_time_entry(const std::string &name) const;
+		void check_power_entry(const std::string &name, bool signed_int=false) const;
+		void check_energy_entry(const std::string &name, bool signed_int=false) const;
+		void check_percent_entry(const std::string &name) const;
 };
 
 }

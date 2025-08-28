@@ -27,14 +27,14 @@ namespace device {
 class DeviceHeater: public DeviceTemperature
 {
 	protected:
-		virtual bool temp_check_force(double current_temp, double timerange_temp) const;
-		virtual bool temp_check_offload(double current_temp, double timerange_temp) const;
+		virtual bool temp_check_force(double current_temp, double timerange_temp) const override;
+		virtual bool temp_check_offload(double current_temp, double timerange_temp) const override;
 
 	public:
 		DeviceHeater(int id): DeviceTemperature(id) {}
 		virtual ~DeviceHeater() {}
 
-		std::string GetType() const { return "heater"; }
+		std::string GetType() const override { return "heater"; }
 };
 
 }

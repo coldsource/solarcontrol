@@ -35,7 +35,7 @@ class Plug: public Meter, public mqtt::Subscriber
 		Plug(const std::string &mqtt_id);
 		virtual ~Plug();
 
-		void HandleMessage(const std::string &message, const std::string & /*topic*/);
+		void HandleMessage(const std::string &message, const std::string & /*topic*/) override;
 };
 
 }

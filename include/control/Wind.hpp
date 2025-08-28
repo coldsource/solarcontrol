@@ -48,7 +48,7 @@ class Wind: public mqtt::Subscriber
 		double GetWind() const;
 		void SetWind(double w);
 
-		void HandleMessage(const std::string &message, const std::string & /*topic*/);
+		void HandleMessage(const std::string &message, const std::string & /*topic*/) override;
 };
 
 }

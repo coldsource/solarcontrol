@@ -40,7 +40,7 @@ class AutodetectBLE: public mqtt::Subscriber
 		AutodetectBLE();
 		~AutodetectBLE();
 
-		void HandleMessage(const std::string & /*message*/, const std::string &topic);
+		void HandleMessage(const std::string & /*message*/, const std::string &topic) override;
 
 		nlohmann::json GetDevice();
 };

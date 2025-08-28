@@ -30,8 +30,8 @@ class Dummy: public Input
 		Dummy() {}
 		virtual ~Dummy() {}
 
-		virtual bool GetState() const { return false; }
-		virtual void UpdateState() {}
+		virtual bool GetState() const override { return false; }
+		virtual void UpdateState() override {}
 };
 
 }

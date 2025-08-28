@@ -30,7 +30,7 @@ class DeviceWeather: public Device
 		DeviceWeather(int id): Device(id) {}
 		virtual ~DeviceWeather() {}
 
-		en_category GetCategory() const { return WEATHER; }
+		en_category GetCategory() const override { return WEATHER; }
 		virtual nlohmann::json ToJson() const override;
 
 		virtual double GetTemperature() const = 0;

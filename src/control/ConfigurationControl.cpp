@@ -47,7 +47,7 @@ ConfigurationControl::~ConfigurationControl(void)
 {
 }
 
-void ConfigurationControl::Check(void)
+void ConfigurationControl::Check(void) const
 {
 	check_time_entry("control.hysteresis.smoothing");
 	check_power_entry("control.hysteresis.export");

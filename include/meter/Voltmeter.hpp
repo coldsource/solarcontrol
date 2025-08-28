@@ -61,13 +61,13 @@ class Voltmeter: public mqtt::Subscriber, public configuration::ConfigurationObs
 		virtual ~Voltmeter();
 
 		static void CheckConfig(const configuration::Json &conf);
-		void ConfigurationChanged(const configuration::ConfigurationPart *config);
+		void ConfigurationChanged(const configuration::ConfigurationPart *config) override;
 
 		void SetVoltage(double v);
 		double GetVoltage() const;
 		double GetSOC() const;
 
-		void HandleMessage(const std::string &message, const std::string & /*topic*/);
+		void HandleMessage(const std::string &message, const std::string & /*topic*/) override;
 };
 
 }

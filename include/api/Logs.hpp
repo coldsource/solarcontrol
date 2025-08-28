@@ -33,7 +33,7 @@ namespace api {
 class Logs: public Handler
 {
 	public:
-		 nlohmann::json HandleMessage(const std::string &cmd, const configuration::Json &j_params);
+		 nlohmann::json HandleMessage(const std::string &cmd, const configuration::Json &j_params) override;
 };
 
 }

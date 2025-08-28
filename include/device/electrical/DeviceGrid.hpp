@@ -45,7 +45,7 @@ class DeviceGrid: public DevicePassive
 		static void CheckConfig(const configuration::Json &conf);
 		virtual void Reload(const std::string &name, const configuration::Json &config) override;
 
-		std::string GetType() const { return "grid"; }
+		std::string GetType() const override { return "grid"; }
 
 		const std::map<datetime::Date, energy::Amount> &GetExcessHistory() const { return consumption.GetExcessHistory(); }
 

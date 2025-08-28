@@ -45,7 +45,7 @@ ConfigurationEnergy::~ConfigurationEnergy(void)
 {
 }
 
-void ConfigurationEnergy::Check(void)
+void ConfigurationEnergy::Check(void) const
 {
 	check_energy_entry("energy.hws.min");
 	check_bool_entry("energy.debug.enabled");

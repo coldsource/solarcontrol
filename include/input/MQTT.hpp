@@ -52,10 +52,10 @@ class MQTT: public Input, public control::HTTP, public mqtt::Subscriber
 
 		static void CheckConfig(const configuration::Json &conf);
 
-		virtual bool GetState() const;
-		virtual void UpdateState();
+		virtual bool GetState() const override;
+		virtual void UpdateState() override;
 
-		void HandleMessage(const std::string &message, const std::string & /*topic*/);
+		void HandleMessage(const std::string &message, const std::string & /*topic*/) override;
 };
 
 }

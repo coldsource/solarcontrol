@@ -27,7 +27,7 @@ namespace thread {
 class LCD: public WaiterThread
 {
 	protected:
-		void main(void);
+		void main(void) override;
 
 		std::string format_power(double e) const;
 		std::string format_energy(double e) const;

@@ -52,11 +52,11 @@ class Relay: public HTTP, public OnOff, public mqtt::Subscriber
 
 		static void CheckConfig(const configuration::Json & conf);
 
-		void Switch(bool state);
-		bool GetState() const;
-		void UpdateState();
+		void Switch(bool state) override;
+		bool GetState() const override;
+		void UpdateState() override;
 
-		void HandleMessage(const std::string &message, const std::string & /*topic*/);
+		void HandleMessage(const std::string &message, const std::string & /*topic*/) override;
 };
 
 }

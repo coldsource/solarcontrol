@@ -53,7 +53,7 @@ ConfigurationSolarControl::~ConfigurationSolarControl(void)
 {
 }
 
-void ConfigurationSolarControl::Check(void)
+void ConfigurationSolarControl::Check(void) const
 {
 	check_int_entry("core.history.maxdays");
 	check_time_entry("core.history.sync");

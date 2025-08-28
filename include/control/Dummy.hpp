@@ -30,9 +30,9 @@ class Dummy: public OnOff
 		Dummy() {}
 		virtual ~Dummy() {}
 
-		void Switch(bool) {}
-		bool GetState() const { return false; }
-		void UpdateState() {}
+		void Switch(bool) override {}
+		bool GetState() const override { return false; }
+		void UpdateState() override {}
 };
 
 }

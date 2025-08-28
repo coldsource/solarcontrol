@@ -33,9 +33,9 @@ class ConfigurationEnergy:public ConfigurationPart
 		ConfigurationEnergy(void);
 		virtual ~ConfigurationEnergy(void);
 
-		std::string GetType() const { return "energy"; }
+		std::string GetType() const override { return "energy"; }
 
-		void Check(void);
+		void Check(void) const override;
 };
 
 }

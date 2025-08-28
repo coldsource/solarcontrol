@@ -33,8 +33,8 @@ class DevicePassive: public DeviceElectrical
 
 		static void CheckConfig(const configuration::Json &conf);
 
-		en_category GetCategory() const { return PASSIVE; }
-		std::string GetType() const { return "passive"; }
+		en_category GetCategory() const override { return PASSIVE; }
+		std::string GetType() const override { return "passive"; }
 };
 
 }

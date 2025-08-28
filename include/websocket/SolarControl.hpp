@@ -69,16 +69,16 @@ class SolarControl: public Server
 		void NotifyAll(unsigned int protocol);
 
 	protected:
-		std::map<std::string, unsigned int> get_protocols();
-		void context_creation(struct lws_context_creation_info *info);
+		std::map<std::string, unsigned int> get_protocols() override;
+		void context_creation(struct lws_context_creation_info *info) override;
 
-		void start_thread(void);
-		void stop_thread(void);
+		void start_thread(void) override;
+		void stop_thread(void) override;
 
-		void *lws_callback_established(struct lws *wsi, unsigned int protocol);
-		void lws_callback_closed(struct lws *wsi, unsigned int protocol, void *user_data);
-		void lws_callback_receive(struct lws *wsi, unsigned int protocol, const std::string &message, void *user_data);
-		std::string lws_callback_server_writeable(struct lws * /* wsi */, unsigned int protocol, void *user_data);
+		void *lws_callback_established(struct lws *wsi, unsigned int protocol) override;
+		void lws_callback_closed(struct lws *wsi, unsigned int protocol, void *user_data) override;
+		void lws_callback_receive(struct lws *wsi, unsigned int protocol, const std::string &message, void *user_data) override;
+		std::string lws_callback_server_writeable(struct lws * /* wsi */, unsigned int protocol, void *user_data) override;
 };
 
 }

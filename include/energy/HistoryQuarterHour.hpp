@@ -35,8 +35,8 @@ class HistoryQuarterHour: public stat::History<datetime::QuarterHour, Amount>
 	int device_id;
 
 	protected:
-		virtual void store_entry(const datetime::QuarterHour period, Amount value);
-		virtual void save();
+		virtual void store_entry(const datetime::QuarterHour period, Amount value) override;
+		virtual void save() override;
 
 	public:
 		HistoryQuarterHour(int device_id, const std::string &type = "");

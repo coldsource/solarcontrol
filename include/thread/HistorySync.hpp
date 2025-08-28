@@ -45,7 +45,7 @@ class HistorySync: public WaiterThread
 	int sync_interval;
 	std::set<stat::HistorySync *> clients;
 
-	void main(void);
+	void main(void) override;
 
 	public:
 		HistorySync();

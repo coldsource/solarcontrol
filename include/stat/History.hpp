@@ -47,9 +47,9 @@ class History: public HistorySync
 		int retention;
 
 		virtual void store_entry(const Period period, DataType value) = 0;
-		virtual void save() = 0;
+		virtual void save() override = 0;
 
-		void purge()
+		void purge() override
 		{
 			Period period_ago = Period() - retention;
 

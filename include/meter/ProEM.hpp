@@ -39,7 +39,7 @@ class ProEM: public Pro3EM
 
 		static void CheckConfig(const configuration::Json &conf);
 
-		void HandleMessage(const std::string &message, const std::string & /*topic*/);
+		void HandleMessage(const std::string &message, const std::string & /*topic*/) override;
 };
 
 }

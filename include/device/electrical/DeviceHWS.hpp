@@ -40,16 +40,17 @@ class DeviceHWS: public DeviceTimeRange, public configuration::ConfigurationObse
 		std::atomic_bool absence;
 
 	public:
-		DeviceHWS(unsigned int id, const std::string &name, const configuration::Json &config);
+		DeviceHWS(int id);
 		virtual ~DeviceHWS();
 
-		void ConfigurationChanged(const configuration::ConfigurationPart * config);
+		void ConfigurationChanged(const configuration::ConfigurationPart * config) override;
 
 		static void CheckConfig(const configuration::Json &conf);
+		virtual void Reload(const std::string &name, const configuration::Json &config) override;
 
-		bool WantRemainder(configuration::Json *data_ptr = 0) const;
+		bool WantRemainder(configuration::Json *data_ptr = 0) const override;
 
-		std::string GetType() const { return "hws"; }
+		std::string GetType() const override { return "hws"; }
 
 		static void CreateInDB();
 };

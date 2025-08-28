@@ -32,9 +32,21 @@ using nlohmann::json;
 
 namespace device {
 
-DeviceElectrical::DeviceElectrical(unsigned int id, const std::string &name, const configuration::Json &config):
-Device(id, name, config), consumption(id, "consumption"), offload(id, "offload")
+DeviceElectrical::DeviceElectrical(int id):
+Device(id), consumption(id, "consumption"), offload(id, "offload")
 {
+}
+
+DeviceElectrical::~DeviceElectrical()
+{
+}
+
+void DeviceElectrical::Reload(const string &name, const configuration::Json &config)
+{
+	unique_lock<recursive_mutex> llock(mutex);
+
+	Device::Reload(name, config);
+
 	if(config.Has("control"))
 		ctrl = control::OnOffFactory::GetFromConfig(config.GetObject("control"));
 	else
@@ -44,10 +56,6 @@ Device(id, name, config), consumption(id, "consumption"), offload(id, "offload")
 		meter = meter::MeterFactory::GetFromConfig(config.GetObject("meter")); // Device has a dedicated metering configuration
 	else
 		meter = meter::MeterFactory::GetFromConfig(config.GetObject("control")); // Fallback on control for metering also
-}
-
-DeviceElectrical::~DeviceElectrical()
-{
 }
 
 double DeviceElectrical::GetPower() const

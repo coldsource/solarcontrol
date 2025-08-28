@@ -29,16 +29,15 @@ using nlohmann::json;
 namespace device
 {
 
-DeviceBattery::DeviceBattery(unsigned int id, const string &name, const configuration::Json &config):DevicePassive(id, name, config)
+DeviceBattery::DeviceBattery(int id):DevicePassive(id)
 {
 	// Override default counter for storing production
 	consumption = energy::Counter(id, "production");
 
-	voltmeter = make_unique<meter::Voltmeter>(config.GetObject("voltmeter"));
-
 	auto state = state_restore();
 	double voltage = state.GetFloat("voltage", 0);
-	voltmeter->SetVoltage(voltage);
+	// voltmeter->SetVoltage(voltage);
+	// TODO : Ne marche plus
 }
 
 DeviceBattery::~DeviceBattery()
@@ -54,6 +53,15 @@ void DeviceBattery::CheckConfig(const configuration::Json &conf)
 
 	conf.Check("voltmeter", "object"); // Meter is mandatory for passive devices
 	meter::Voltmeter::CheckConfig(conf.GetObject("voltmeter"));
+}
+
+void DeviceBattery::Reload(const string &name, const configuration::Json &config)
+{
+	unique_lock<recursive_mutex> llock(mutex);
+
+	DevicePassive::Reload(name, config);
+
+	voltmeter = make_unique<meter::Voltmeter>(config.GetObject("voltmeter"));
 }
 
 double DeviceBattery::GetVoltage() const

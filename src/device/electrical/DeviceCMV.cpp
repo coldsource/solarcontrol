@@ -30,12 +30,8 @@ using nlohmann::json;
 namespace device
 {
 
-DeviceCMV::DeviceCMV(unsigned int id, const string &name, const configuration::Json &config):DeviceTimeRange(id, name, config)
+DeviceCMV::DeviceCMV(int id):DeviceTimeRange(id)
 {
-	for(auto device_id : config.GetArray("ht_device_ids"))
-		ht_device_ids.insert(device_id);
-
-	max_on = config.GetFloat("max_on");
 }
 
 void DeviceCMV::CheckConfig(const configuration::Json &conf)
@@ -60,6 +56,18 @@ void DeviceCMV::CheckConfig(const configuration::Json &conf)
 	{
 		throw invalid_argument("Associated hygrometer is mandatory");
 	}
+}
+
+void DeviceCMV::Reload(const string &name, const configuration::Json &config)
+{
+	unique_lock<recursive_mutex> llock(mutex);
+
+	DeviceTimeRange::Reload(name, config);
+
+	for(auto device_id : config.GetArray("ht_device_ids"))
+		ht_device_ids.insert(device_id);
+
+	max_on = config.GetFloat("max_on");
 }
 
 void DeviceCMV::check_timeranges(const configuration::Json &conf, const string &name)

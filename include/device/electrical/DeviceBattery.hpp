@@ -40,18 +40,19 @@ class DeviceBattery: public DevicePassive
 		std::unique_ptr<meter::Voltmeter> voltmeter;
 
 	public:
-		DeviceBattery(unsigned int id, const std::string &name, const configuration::Json &config);
+		DeviceBattery(int id);
 		virtual ~DeviceBattery();
 
-		std::string GetType() const { return "battery"; }
+		std::string GetType() const override { return "battery"; }
 
 		const std::map<datetime::Date, energy::Amount> &GetProductionHistory() const { return consumption.GetConsumptionHistory(); }
 
 		static void CheckConfig(const configuration::Json &conf);
+		virtual void Reload(const std::string &name, const configuration::Json &config) override;
 
 		double GetVoltage() const;
 		double GetSOC() const;
-		virtual nlohmann::json ToJson() const;
+		virtual nlohmann::json ToJson() const override;
 
 		static void CreateInDB();
 };

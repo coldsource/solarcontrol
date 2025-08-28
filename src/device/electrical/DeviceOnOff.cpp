@@ -30,12 +30,9 @@ using nlohmann::json;
 
 namespace device {
 
-DeviceOnOff::DeviceOnOff(unsigned int id, const std::string &name, const configuration::Json &config):
-DeviceElectrical(id, name, config), on_history(id)
+DeviceOnOff::DeviceOnOff(int id):
+DeviceElectrical(id), on_history(id)
 {
-	prio = config.GetInt("prio");
-	expected_consumption = config.GetInt("expected_consumption", 0);
-
 	auto state = state_restore();
 	manual = state.GetBool("manual", false);
 }
@@ -56,6 +53,16 @@ void DeviceOnOff::CheckConfig(const configuration::Json &conf)
 
 	conf.Check("prio", "int"); // Prio is mandatory for all onoff devices
 	conf.Check("expected_consumption", "int", false);
+}
+
+void DeviceOnOff::Reload(const std::string &name, const configuration::Json &config)
+{
+	unique_lock<recursive_mutex> llock(mutex);
+
+	DeviceElectrical::Reload(name, config);
+
+	prio = config.GetInt("prio");
+	expected_consumption = config.GetInt("expected_consumption", 0);
 }
 
 void DeviceOnOff::SetState(bool new_state)

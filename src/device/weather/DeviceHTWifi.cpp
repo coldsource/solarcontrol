@@ -27,8 +27,7 @@ using namespace std;
 namespace device
 {
 
-DeviceHTWifi::DeviceHTWifi(unsigned int id, const string &name, const configuration::Json &config):
-DeviceHT(id, name, config, make_shared<control::HTWifi>(config.GetString("mqtt_id")))
+DeviceHTWifi::DeviceHTWifi(int id):DeviceHT(id)
 {
 }
 
@@ -41,6 +40,15 @@ void DeviceHTWifi::CheckConfig(const configuration::Json &conf)
 	DeviceHT::CheckConfig(conf);
 
 	control::HTWifi::CheckConfig(conf);
+}
+
+void DeviceHTWifi::Reload(const string &name, const configuration::Json &config)
+{
+	unique_lock<recursive_mutex> llock(mutex);
+
+	DeviceHT::Reload(name, config);
+
+	ctrl = make_shared<control::HTWifi>(config.GetString("mqtt_id"));
 }
 
 }

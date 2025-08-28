@@ -33,12 +33,13 @@ namespace device {
 class DeviceHTWifi: public DeviceHT
 {
 	public:
-		DeviceHTWifi(unsigned int id, const std::string &name, const configuration::Json &config);
+		DeviceHTWifi(int id);
 		virtual ~DeviceHTWifi();
 
 		static void CheckConfig(const configuration::Json &conf);
+		virtual void Reload(const std::string &name, const configuration::Json &config) override;
 
-		std::string GetType() const { return "ht"; }
+		std::string GetType() const override { return "ht"; }
 };
 
 }

@@ -41,10 +41,11 @@ GlobalMeter::GlobalMeter()
 {
 	instance = this;
 
-	ObserveDevice(DEVICE_ID_GRID);
-	ObserveDevice(DEVICE_ID_PV);
-	ObserveDevice(DEVICE_ID_HWS);
-	ObserveDevice(DEVICE_ID_BATTERY);
+	device::Devices devices;
+	hws = dynamic_pointer_cast<DeviceHWS>(devices.GetElectricalByID(DEVICE_ID_HWS));
+	grid = dynamic_pointer_cast<DeviceGrid>(devices.GetElectricalByID(DEVICE_ID_GRID));
+	pv = dynamic_pointer_cast<DevicePV>(devices.GetElectricalByID(DEVICE_ID_PV));
+	battery = dynamic_pointer_cast<DeviceBattery>(devices.GetElectricalByID(DEVICE_ID_BATTERY));
 
 	// Register as configuration observer and trigger ConfigurationChanged() for initial config loading
 	ObserveConfiguration("energy");
@@ -77,20 +78,6 @@ void GlobalMeter::ConfigurationChanged(const configuration::ConfigurationPart *c
 
 	if(websocket::SolarControl::GetInstance())
 		websocket::SolarControl::GetInstance()->NotifyAll(websocket::SolarControl::en_protocols::METER);
-}
-
-void GlobalMeter::DeviceChanged(shared_ptr<Device> device)
-{
-	unique_lock<recursive_mutex> llock(lock);
-
-	if(device->GetID()==DEVICE_ID_HWS)
-		hws = dynamic_pointer_cast<DeviceHWS>(device);
-	else if(device->GetID()==DEVICE_ID_GRID)
-		grid = dynamic_pointer_cast<DeviceGrid>(device);
-	else if(device->GetID()==DEVICE_ID_PV)
-		pv = dynamic_pointer_cast<DevicePV>(device);
-	else if(device->GetID()==DEVICE_ID_BATTERY)
-		battery = dynamic_pointer_cast<DeviceBattery>(device);
 }
 
 bool GlobalMeter::HasBattery() const

@@ -31,10 +31,10 @@ namespace device {
 class DevicePV: public DevicePassive
 {
 	public:
-		DevicePV(unsigned int id, const std::string &name, const configuration::Json &config);
+		DevicePV(int id);
 		virtual ~DevicePV() {}
 
-		std::string GetType() const { return "pv"; }
+		std::string GetType() const override { return "pv"; }
 
 		const std::map<datetime::Date, energy::Amount> &GetProductionHistory() const { return consumption.GetConsumptionHistory(); }
 

@@ -77,9 +77,7 @@ json DeviceElectrical::HandleMessage(const string &cmd, const configuration::Jso
 		auto device_config = j_params.GetObject("device_config");
 		device::DeviceFactory::CheckConfig(device_type, device_config);
 
-		int device_id = insert_device(device_type, device_name, device_config);
-
-		devices.Reload(device_id);
+		insert_device(device_type, device_name, device_config);
 
 		return json();
 	}
@@ -87,9 +85,7 @@ json DeviceElectrical::HandleMessage(const string &cmd, const configuration::Jso
 	{
 		int device_id = j_params.GetInt("device_id");
 
-		delete_device(device_id);
-
-		devices.Reload(device_id);
+		devices.Delete(device_id);
 
 		return json();
 	}

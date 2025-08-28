@@ -30,11 +30,8 @@ using nlohmann::json;
 namespace device
 {
 
-DeviceHWS::DeviceHWS(unsigned int id, const string &name, const configuration::Json &config):DeviceTimeRange(id, name, config)
+DeviceHWS::DeviceHWS(int id):DeviceTimeRange(id)
 {
-	min_energy = config.GetInt("min_energy");
-	min_energy_for_last = config.GetInt("min_energy_for_last");
-
 	ObserveConfiguration("control");
 }
 
@@ -56,6 +53,16 @@ void DeviceHWS::CheckConfig(const configuration::Json &conf)
 
 	conf.Check("meter", "object"); // Meter is mandatory for HWS
 	meter::MeterFactory::CheckConfig(conf.GetObject("meter"));
+}
+
+void DeviceHWS::Reload(const string &name, const configuration::Json &config)
+{
+	unique_lock<recursive_mutex> llock(mutex);
+
+	DeviceTimeRange::Reload(name, config);
+
+	min_energy = config.GetInt("min_energy");
+	min_energy_for_last = config.GetInt("min_energy_for_last");
 }
 
 bool DeviceHWS::WantRemainder(configuration::Json *data_ptr) const

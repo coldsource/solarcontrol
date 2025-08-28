@@ -50,18 +50,19 @@ class DeviceTimeRange: public DeviceOnOff
 		virtual en_wanted_state get_wanted_state(configuration::Json *data_ptr = 0) const;
 
 	public:
-		DeviceTimeRange(unsigned int id, const std::string &name, const configuration::Json &config);
+		DeviceTimeRange(unsigned int id);
 		virtual ~DeviceTimeRange();
 
 		static void CheckConfig(const configuration::Json &conf);
+		virtual void Reload(const std::string &name, const configuration::Json &config) override;
 
-		std::string GetType() const { return "timerange"; }
+		std::string GetType() const override { return "timerange"; }
 
 		virtual bool IsForced(configuration::Json *data_ptr = 0) const;
 		virtual bool WantOffload(configuration::Json *data_ptr = 0) const;
 		virtual bool WantRemainder(configuration::Json *data_ptr = 0) const;
 
-		virtual en_wanted_state GetWantedState() const;
+		virtual en_wanted_state GetWantedState() const override;
 };
 
 }

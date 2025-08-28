@@ -28,10 +28,8 @@ using namespace std;
 namespace device
 {
 
-DeviceWind::DeviceWind(unsigned int id, const string &name, const configuration::Json &config):
-DeviceWeather(id, name, config), history(id)
+DeviceWind::DeviceWind(int id):DeviceWeather(id), history(id)
 {
-	ctrl = make_shared<control::Wind>(config.GetString("mqtt_id"));
 }
 
 DeviceWind::~DeviceWind()
@@ -43,6 +41,15 @@ void DeviceWind::CheckConfig(const configuration::Json &conf)
 	DeviceWeather::CheckConfig(conf);
 
 	control::Wind::CheckConfig(conf);
+}
+
+void DeviceWind::Reload(const string &name, const configuration::Json &config)
+{
+	unique_lock<recursive_mutex> llock(mutex);
+
+	DeviceWeather::Reload(name, config);
+
+	ctrl = make_shared<control::Wind>(config.GetString("mqtt_id"));
 }
 
 double DeviceWind::GetTemperature() const

@@ -46,7 +46,12 @@ int Device::insert_device(const std::string &type, const std::string &name, cons
 		<<type<<name<<config.ToString()
 	);
 
-	return db.InsertID();
+	int id = db.InsertID();
+
+	Devices devices;
+	devices.Load(id, name, type, config);
+
+	return id;
 }
 
 void Device::update_device(unsigned int id, const std::string &name, const configuration::Json &config)
@@ -79,18 +84,6 @@ void Device::update_prio(unsigned int id, int new_prio)
 		"UPDATE t_device SET device_config=%s WHERE device_id=%i"_sql
 		<<j_config.dump()<<onoff->GetID()
 	);
-}
-
-void Device::delete_device(unsigned int id)
-{
-	DB db;
-
-	db.Query("DELETE FROM t_device WHERE device_id=%i"_sql<<id);
-	db.Query("DELETE FROM  t_device_state WHERE device_id=%i"_sql<<id);
-	db.Query("DELETE FROM  t_log_energy_detail WHERE device_id=%i"_sql<<id);
-	db.Query("DELETE FROM  t_log_ht WHERE device_id=%i"_sql<<id);
-	db.Query("DELETE FROM  t_log_wind WHERE device_id=%i"_sql<<id);
-	db.Query("DELETE FROM  t_log_state WHERE device_id=%i"_sql<<id);
 }
 
 }

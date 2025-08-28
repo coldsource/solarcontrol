@@ -40,18 +40,19 @@ class DeviceWind: public DeviceWeather
 		weather::HistoryQuarterHourWind history;
 
 	public:
-		DeviceWind(unsigned int id, const std::string &name, const configuration::Json &config);
+		DeviceWind(int id);
 		virtual ~DeviceWind();
 
 		static void CheckConfig(const configuration::Json &conf);
+		virtual void Reload(const std::string &name, const configuration::Json &config) override;
 
-		std::string GetType() const { return "wind"; }
+		std::string GetType() const override { return "wind"; }
 
-		double GetTemperature() const;
-		double GetHumidity() const;
-		double GetWind() const;
+		double GetTemperature() const override;
+		double GetHumidity() const override;
+		double GetWind() const override;
 
-		void Log();
+		void Log() override;
 };
 
 }

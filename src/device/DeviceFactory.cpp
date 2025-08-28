@@ -30,7 +30,6 @@
 #include <device/weather/DeviceWind.hpp>
 #include <device/weather/DeviceHTWifi.hpp>
 #include <device/weather/DeviceHTBluetooth.hpp>
-#include <device/DeviceObserver.hpp>
 #include <configuration/Json.hpp>
 
 #include <stdexcept>
@@ -42,32 +41,38 @@ namespace device
 
 shared_ptr<Device> DeviceFactory::Get(int id, const string &name, const string &type, const configuration::Json &config)
 {
+	shared_ptr<Device> dev;
+
 	if(type=="timerange")
-		return make_shared<DeviceTimeRange>(id, name, config);
+		dev = make_shared<DeviceTimeRange>(id);
 	else if(type=="heater")
-		return make_shared<DeviceHeater>(id, name, config);
+		dev = make_shared<DeviceHeater>(id);
 	else if(type=="cooler")
-		return make_shared<DeviceCooler>(id, name, config);
+		dev = make_shared<DeviceCooler>(id);
 	else if(type=="cmv")
-		return make_shared<DeviceCMV>(id, name, config);
+		dev = make_shared<DeviceCMV>(id);
 	else if(type=="hws")
-		return make_shared<DeviceHWS>(id, name, config);
+		dev = make_shared<DeviceHWS>(id);
 	else if(type=="passive")
-		return make_shared<DevicePassive>(id, name, config);
+		dev = make_shared<DevicePassive>(id);
 	else if(type=="ht")
-		return make_shared<DeviceHTWifi>(id, name, config);
+		dev = make_shared<DeviceHTWifi>(id);
 	else if(type=="htmini")
-		return make_shared<DeviceHTBluetooth>(id, name, config);
+		dev = make_shared<DeviceHTBluetooth>(id);
 	else if(type=="wind")
-		return make_shared<DeviceWind>(id, name, config);
+		dev = make_shared<DeviceWind>(id);
 	else if(type=="grid")
-		return make_shared<DeviceGrid>(id, name, config);
+		dev = make_shared<DeviceGrid>(id);
 	else if(type=="pv")
-		return make_shared<DevicePV>(id, name, config);
+		dev = make_shared<DevicePV>(id);
 	else if(type=="battery")
-		return make_shared<DeviceBattery>(id, name, config);
+		dev = make_shared<DeviceBattery>(id);
 	else
 		throw invalid_argument("Invalid device type « " + type + " »");
+
+	dev->Reload(name, config);
+
+	return dev;
 }
 
 void DeviceFactory::CheckConfig(const string &type, const configuration::Json &config)

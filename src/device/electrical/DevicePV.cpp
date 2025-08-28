@@ -28,7 +28,7 @@ using nlohmann::json;
 namespace device
 {
 
-DevicePV::DevicePV(unsigned int id, const string &name, const configuration::Json &config):DevicePassive(id, name, config)
+DevicePV::DevicePV(int id):DevicePassive(id)
 {
 	// Override default counter for storing production
 	consumption = energy::Counter(id, "production");

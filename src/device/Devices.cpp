@@ -22,7 +22,6 @@
 #include <device/Device.hpp>
 #include <device/electrical/DeviceElectrical.hpp>
 #include <device/weather/DeviceWeather.hpp>
-#include <device/DeviceObserver.hpp>
 #include <configuration/Json.hpp>
 #include <database/DB.hpp>
 #include <logs/Logger.hpp>
@@ -42,13 +41,17 @@ map<int, shared_ptr<Device>> Devices::devices;
 unordered_set<shared_ptr<DeviceElectrical>> Devices::devices_electrical;
 unordered_set<shared_ptr<DeviceWeather>> Devices::devices_weather;
 
-map<int, set<DeviceObserver *>> Devices::observers;
-
 Devices::Devices()
 {
 	if(instance==0)
 	{
-		Reload();
+		database::DB db;
+
+		database::Query q("SELECT device_id, device_name, device_type, device_config FROM t_device");
+		auto res = db.Query(q);
+		while(res.FetchRow())
+			Load(res["device_id"], res["device_name"], res["device_type"], configuration::Json((string)res["device_config"]));
+
 		instance = this;
 		return;
 	}
@@ -56,6 +59,20 @@ Devices::Devices()
 
 Devices::~Devices()
 {
+}
+
+void Devices::Load(int id, const string &name, const string &type, const configuration::Json &config)
+{
+	auto device = DeviceFactory::Get(id, name, type, config);
+
+	devices.insert(pair<int, shared_ptr<Device>>(device->GetID(), device));
+	if(device->GetCategory()==ONOFF || device->GetCategory()==PASSIVE)
+		devices_electrical.insert(dynamic_pointer_cast<DeviceElectrical>(device));
+	if(device->GetCategory()==WEATHER)
+		devices_weather.insert(dynamic_pointer_cast<DeviceWeather>(device));
+
+	if(websocket::SolarControl::GetInstance())
+		websocket::SolarControl::GetInstance()->NotifyAll(websocket::SolarControl::en_protocols::DEVICE);
 }
 
 void Devices::Reload(int id)
@@ -69,8 +86,6 @@ void Devices::Reload(int id)
 		else
 			logs::Logger::Log(LOG_NOTICE, "Reloading device " + to_string(id));
 
-		Unload(id);
-
 		database::DB db;
 
 		string WHERE = "";
@@ -82,23 +97,11 @@ void Devices::Reload(int id)
 		while(res.FetchRow())
 		{
 			configuration::Json config((string)res["device_config"]);
-
 			int device_id = res["device_id"];
-			auto device = DeviceFactory::Get(device_id, res["device_name"], res["device_type"], config);
+			string name = res["device_name"];
 
-			auto it = observers.find(device_id);
-			if(it!=observers.end())
-			{
-				// Notify observers that device has changed before removing old one
-				for(auto observer : it->second)
-					observer->DeviceChanged(device);
-			}
-
-			devices.insert(pair<int, shared_ptr<Device>>(device->GetID(), device));
-			if(device->GetCategory()==ONOFF || device->GetCategory()==PASSIVE)
-				devices_electrical.insert(dynamic_pointer_cast<DeviceElectrical>(device));
-			if(device->GetCategory()==WEATHER)
-				devices_weather.insert(dynamic_pointer_cast<DeviceWeather>(device));
+			auto device = get_by_id(device_id);
+			device->Reload(name, config);
 		}
 
 		if(websocket::SolarControl::GetInstance())
@@ -110,30 +113,37 @@ void Devices::Reload(int id)
 	}
 }
 
-void Devices::Unload(int id)
+void Devices::Unload()
 {
 	// No locking here as it's only called by Reload or main thread (which is not locked)
 
-	if(id!=0)
-	{
-		auto it = devices.find(id);
-		if(it==devices.end())
-			return; // No error if device is not found : it's a creation
-
-		auto device = it->second;
-		if(device->GetCategory()==ONOFF || device->GetCategory()==PASSIVE)
-			devices_electrical.erase(dynamic_pointer_cast<DeviceElectrical>(device));
-		else if(device->GetCategory()==WEATHER)
-			devices_weather.erase(dynamic_pointer_cast<DeviceWeather>(device));
-		devices.erase(device->GetID());
-
-		return;
-	}
-
-	// Unload and delete all devices objects
 	devices.clear();
 	devices_electrical.clear();
 	devices_weather.clear();
+}
+
+void Devices::Delete(int id)
+{
+	unique_lock<mutex> llock(mutex_w);
+
+	auto it = devices.find(id);
+	if(it==devices.end())
+		throw runtime_error("Unable to delete unknown device : " + to_string(id));
+
+	auto device = it->second;
+
+	// Flag device for removal once last shared pointed is released
+	device->Delete();
+
+	// Then erase it from our inventory
+	if(device->GetCategory()==ONOFF || device->GetCategory()==PASSIVE)
+		devices_electrical.erase(dynamic_pointer_cast<DeviceElectrical>(device));
+	else if(device->GetCategory()==WEATHER)
+		devices_weather.erase(dynamic_pointer_cast<DeviceWeather>(device));
+	devices.erase(device->GetID());
+
+	if(websocket::SolarControl::GetInstance())
+		websocket::SolarControl::GetInstance()->NotifyAll(websocket::SolarControl::en_protocols::DEVICE);
 }
 
 
@@ -212,28 +222,6 @@ shared_ptr<Device> Devices::IsInUse(int device_id) const
 	}
 
 	return nullptr;
-}
-
-void Devices::RegisterObserver(int device_id, DeviceObserver *observer)
-{
-	unique_lock<mutex> llock(mutex_w);
-
-	observer->DeviceChanged(get_by_id(device_id));
-	observers[device_id].insert(observer);
-}
-
-void Devices::UnregisterObserver(int device_id, DeviceObserver *observer)
-{
-	unique_lock<mutex> llock(mutex_w);
-
-	auto it = observers.find(device_id);
-	if(it==observers.end())
-		return;
-
-	it->second.erase(observer);
-
-	if(it->second.size()==0)
-		observers.erase(device_id);
 }
 
 }

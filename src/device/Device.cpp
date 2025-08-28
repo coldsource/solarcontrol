@@ -25,9 +25,26 @@ using database::DB;
 
 namespace device {
 
-Device::Device(unsigned int id, const string &name, const configuration::Json &config)
+Device::~Device()
 {
-	this->id = id;
+	if(deleted)
+	{
+		// We are marked for destruction, we muse remove ourselved from database
+		DB db;
+
+		db.Query("DELETE FROM t_device WHERE device_id=%i"_sql<<id);
+		db.Query("DELETE FROM t_device_state WHERE device_id=%i"_sql<<id);
+		db.Query("DELETE FROM t_log_energy_detail WHERE device_id=%i"_sql<<id);
+		db.Query("DELETE FROM t_log_ht WHERE device_id=%i"_sql<<id);
+		db.Query("DELETE FROM t_log_wind WHERE device_id=%i"_sql<<id);
+		db.Query("DELETE FROM t_log_state WHERE device_id=%i"_sql<<id);
+	}
+}
+
+void Device::Reload(const std::string &name, const configuration::Json &config)
+{
+	unique_lock<recursive_mutex> llock(mutex);
+
 	this->name = name;
 	this->config = config;
 }

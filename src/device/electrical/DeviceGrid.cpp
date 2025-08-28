@@ -30,12 +30,10 @@ using nlohmann::json;
 namespace device
 {
 
-DeviceGrid::DeviceGrid(unsigned int id, const string &name, const configuration::Json &config):DevicePassive(id, name, config)
+DeviceGrid::DeviceGrid(int id):DevicePassive(id)
 {
 	// Override default counter for storing excess
 	consumption = energy::Counter(id, "consumption", "excess");
-
-	offpeak_ctrl = input::InputFactory::GetFromConfig(config.GetObject("input"));
 }
 
 DeviceGrid::~DeviceGrid()
@@ -48,6 +46,15 @@ void DeviceGrid::CheckConfig(const configuration::Json &conf)
 
 	conf.Check("input", "object"); // Input is mandatory for Grid
 	input::InputFactory::CheckConfig(conf.GetObject("input"));
+}
+
+void DeviceGrid::Reload(const string &name, const configuration::Json &config)
+{
+	unique_lock<recursive_mutex> llock(mutex);
+
+	DevicePassive::Reload(name, config);
+
+	offpeak_ctrl = input::InputFactory::GetFromConfig(config.GetObject("input"));
 }
 
 bool DeviceGrid::GetOffPeak() const

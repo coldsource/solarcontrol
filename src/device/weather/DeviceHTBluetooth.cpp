@@ -27,9 +27,7 @@ using namespace std;
 namespace device
 {
 
-DeviceHTBluetooth::DeviceHTBluetooth(unsigned int id, const string &name, const configuration::Json &config):
-DeviceHT(id, name, config, make_shared<control::HTBluetooth>(config.GetString("ble_addr"))),
-ble_addr(config.GetString("ble_addr"))
+DeviceHTBluetooth::DeviceHTBluetooth(int id):DeviceHT(id)
 {
 }
 
@@ -42,6 +40,16 @@ void DeviceHTBluetooth::CheckConfig(const configuration::Json &conf)
 	DeviceHT::CheckConfig(conf);
 
 	control::HTBluetooth::CheckConfig(conf);
+}
+
+void DeviceHTBluetooth::Reload(const string &name, const configuration::Json &config)
+{
+	unique_lock<recursive_mutex> llock(mutex);
+
+	DeviceHT::Reload(name, config);
+
+	ble_addr = config.GetString("ble_addr");
+	ctrl = make_shared<control::HTBluetooth>(ble_addr);
 }
 
 }

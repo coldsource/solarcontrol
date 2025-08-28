@@ -41,19 +41,20 @@ class DeviceTemperature: public DeviceTimeRange, public configuration::Configura
 
 		static void check_timeranges(const configuration::Json &conf, const std::string &name);
 
-		virtual en_wanted_state get_wanted_state(configuration::Json *data_ptr = 0) const;
+		virtual en_wanted_state get_wanted_state(configuration::Json *data_ptr = 0) const override;
 		virtual bool temp_check_force(double current_temp, double timerange_temp) const = 0;
 		virtual bool temp_check_offload(double current_temp, double timerange_temp) const = 0;
 
 	public:
-		DeviceTemperature(unsigned int id, const std::string &name, const configuration::Json &config);
+		DeviceTemperature(unsigned int id);
 		virtual ~DeviceTemperature();
 
-		void ConfigurationChanged(const configuration::ConfigurationPart * config);
+		void ConfigurationChanged(const configuration::ConfigurationPart * config) override;
 
 		static void CheckConfig(const configuration::Json &conf);
+		virtual void Reload(const std::string &name, const configuration::Json &config) override;
 
-		bool Depends(int device_id) const;
+		bool Depends(int device_id) const override;
 };
 
 }

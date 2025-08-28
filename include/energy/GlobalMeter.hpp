@@ -20,7 +20,6 @@
 #ifndef __ENERGY_GLOBALMETER_HPP__
 #define __ENERGY_GLOBALMETER_HPP__
 
-#include <device/DeviceObserver.hpp>
 #include <configuration/ConfigurationObserver.hpp>
 
 #include <mutex>
@@ -37,7 +36,7 @@ namespace device {
 
 namespace energy {
 
-class GlobalMeter: public device::DeviceObserver, public configuration::ConfigurationObserver
+class GlobalMeter: public configuration::ConfigurationObserver
 {
 	std::shared_ptr<device::DeviceGrid> grid;
 	std::shared_ptr<device::DevicePV> pv;
@@ -65,7 +64,6 @@ protected:
 		static GlobalMeter *GetInstance() { return instance; }
 
 		void ConfigurationChanged(const configuration::ConfigurationPart *config);
-		void DeviceChanged(std::shared_ptr<device::Device> device);
 
 		bool HasBattery() const;
 		double GetBatteryVoltage() const;

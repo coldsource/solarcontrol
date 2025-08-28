@@ -37,12 +37,15 @@
 #define DEVICE_NAME_HWS     "hws"
 #define DEVICE_NAME_BATTERY "battery"
 
+namespace configuration {
+	class Json;
+}
+
 namespace device {
 
 class Device;
 class DeviceElectrical;
 class DeviceWeather;
-class DeviceObserver;
 
 class Devices
 {
@@ -53,16 +56,16 @@ class Devices
 	static std::unordered_set<std::shared_ptr<DeviceElectrical>> devices_electrical;
 	static std::unordered_set<std::shared_ptr<DeviceWeather>> devices_weather;
 
-	static std::map<int, std::set<DeviceObserver *>> observers;
-
 	std::shared_ptr<Device> get_by_id(int id) const;
 
 	public:
 		Devices();
 		~Devices();
 
+		void Load(int id, const std::string &name, const std::string &type, const configuration::Json &config);
 		void Reload(int id = 0);
-		void Unload(int id = 0);
+		void Unload();
+		void Delete(int id);
 
 		std::string IDToName(int id) const;
 		std::shared_ptr<DeviceElectrical> GetElectricalByID(int id) const;
@@ -72,9 +75,6 @@ class Devices
 		const std::unordered_set<std::shared_ptr<DeviceWeather>> GetWeather() const;
 
 		std::shared_ptr<Device> IsInUse(int device_id) const;
-
-		void RegisterObserver(int device_id, DeviceObserver *observer);
-		void UnregisterObserver(int device_id, DeviceObserver *observer);
 };
 
 }

@@ -30,10 +30,8 @@ using nlohmann::json;
 namespace device
 {
 
-DeviceTemperature::DeviceTemperature(unsigned int id, const string &name, const configuration::Json &config):DeviceTimeRange(id, name, config)
+DeviceTemperature::DeviceTemperature(unsigned int id):DeviceTimeRange(id)
 {
-	ht_device_id = config.GetInt("ht_device_id");
-
 	ObserveConfiguration("control");
 }
 
@@ -66,6 +64,15 @@ void DeviceTemperature::CheckConfig(const configuration::Json &conf)
 	{
 		throw invalid_argument("Associated thermometer is mandatory");
 	}
+}
+
+void DeviceTemperature::Reload(const string &name, const configuration::Json &config)
+{
+	unique_lock<recursive_mutex> llock(mutex);
+
+	DeviceTimeRange::Reload(name, config);
+
+	ht_device_id = config.GetInt("ht_device_id");
 }
 
 void DeviceTemperature::check_timeranges(const configuration::Json &conf, const string &name)

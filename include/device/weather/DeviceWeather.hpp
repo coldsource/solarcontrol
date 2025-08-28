@@ -27,11 +27,11 @@ namespace device {
 class DeviceWeather: public Device
 {
 	public:
-		DeviceWeather(unsigned int id, const std::string &name, const configuration::Json &config): Device(id, name, config) {}
+		DeviceWeather(int id): Device(id) {}
 		virtual ~DeviceWeather() {}
 
 		en_category GetCategory() const { return WEATHER; }
-		virtual nlohmann::json ToJson() const;
+		virtual nlohmann::json ToJson() const override;
 
 		virtual double GetTemperature() const = 0;
 		virtual double GetHumidity() const = 0;

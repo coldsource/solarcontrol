@@ -30,23 +30,8 @@ using datetime::Timestamp;
 
 namespace device {
 
-DeviceTimeRange::DeviceTimeRange(unsigned int id, const string &name, const configuration::Json &config): DeviceOnOff(id, name,config)
+DeviceTimeRange::DeviceTimeRange(unsigned int id): DeviceOnOff(id)
 {
-	for(auto it : config.GetArray("force", json::array()))
-		force.push_back(datetime::TimeRange(it));
-
-	for(auto it : config.GetArray("offload", json::array()))
-		offload.push_back(datetime::TimeRange(it));
-
-	for(auto it : config.GetArray("remainder", json::array()))
-		remainder.push_back(datetime::TimeRange(it));
-
-	min_on_time = config.GetInt("min_on_time", 0);
-	min_on_for_last = config.GetInt("min_on_for_last", 0);
-
-	min_on = config.GetInt("min_on", 0);
-	max_on = config.GetInt("max_on", 0);
-	min_off = config.GetInt("min_off", 0);
 }
 
 DeviceTimeRange::~DeviceTimeRange()
@@ -67,6 +52,29 @@ void DeviceTimeRange::CheckConfig(const configuration::Json &conf)
 	conf.Check("min_on", "int", false);
 	conf.Check("max_on", "int", false);
 	conf.Check("min_off", "int", false);
+}
+
+void DeviceTimeRange::Reload(const string &name, const configuration::Json &config)
+{
+	unique_lock<recursive_mutex> llock(mutex);
+
+	DeviceOnOff::Reload(name, config);
+
+	for(auto it : config.GetArray("force", json::array()))
+		force.push_back(datetime::TimeRange(it));
+
+	for(auto it : config.GetArray("offload", json::array()))
+		offload.push_back(datetime::TimeRange(it));
+
+	for(auto it : config.GetArray("remainder", json::array()))
+		remainder.push_back(datetime::TimeRange(it));
+
+	min_on_time = config.GetInt("min_on_time", 0);
+	min_on_for_last = config.GetInt("min_on_for_last", 0);
+
+	min_on = config.GetInt("min_on", 0);
+	max_on = config.GetInt("max_on", 0);
+	min_off = config.GetInt("min_off", 0);
 }
 
 bool DeviceTimeRange::IsForced(configuration::Json *data_ptr) const

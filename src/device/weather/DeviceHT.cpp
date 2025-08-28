@@ -29,15 +29,16 @@ using namespace std;
 
 namespace device {
 
-DeviceHT::DeviceHT(unsigned int id, const std::string &name, const configuration::Json &config, shared_ptr<control::HT> ctrl):
-DeviceWeather(id, name, config), ctrl(ctrl), history(id)
+DeviceHT::DeviceHT(int id):
+DeviceWeather(id), history(id)
 {
 	auto state = state_restore();
 
 	double h = state.GetFloat("humidity", std::numeric_limits<double>::quiet_NaN());
 	double t = state.GetFloat("temperature", std::numeric_limits<double>::quiet_NaN());
 
-	ctrl->SetHT(h, t);
+	// TODO A gérer avec l'observateur
+	// ctrl->SetHT(h, t);
 }
 
 DeviceHT::~DeviceHT()

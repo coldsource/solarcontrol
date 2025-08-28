@@ -39,10 +39,11 @@ class DeviceGrid: public DevicePassive
 	std::shared_ptr<input::Input> offpeak_ctrl;
 
 	public:
-		DeviceGrid(unsigned int id, const std::string &name, const configuration::Json &config);
+		DeviceGrid(int id);
 		virtual ~DeviceGrid();
 
 		static void CheckConfig(const configuration::Json &conf);
+		virtual void Reload(const std::string &name, const configuration::Json &config) override;
 
 		std::string GetType() const { return "grid"; }
 

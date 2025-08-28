@@ -48,8 +48,10 @@ class DeviceElectrical: public Device
 		energy::Counter offload;
 
 	public:
-		DeviceElectrical(unsigned int id, const std::string &name, const configuration::Json &config);
+		DeviceElectrical(int id);
 		virtual ~DeviceElectrical();
+
+		virtual void Reload(const std::string &name, const configuration::Json &config) override;
 
 		double GetPower() const;
 
@@ -60,7 +62,7 @@ class DeviceElectrical: public Device
 		const std::map<datetime::Date, energy::Amount> &GetConsumptionHistory() const { return consumption.GetConsumptionHistory(); }
 		const std::map<datetime::Date, energy::Amount> &GetOffloadHistory() const { return offload.GetConsumptionHistory(); }
 
-		virtual nlohmann::json ToJson() const;
+		virtual nlohmann::json ToJson() const override;
 
 		virtual bool GetState() const;
 		virtual void SetState(bool new_state);

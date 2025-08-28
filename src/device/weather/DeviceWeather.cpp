@@ -23,6 +23,7 @@ using namespace std;
 using nlohmann::json;
 
 namespace device {
+
 json DeviceWeather::ToJson() const
 {
 	json j_device;

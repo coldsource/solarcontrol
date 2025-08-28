@@ -39,7 +39,7 @@ class DeviceHT: public DeviceWeather
 		weather::HistoryQuarterHourHT history;
 
 	public:
-		DeviceHT(unsigned int id, const std::string &name, const configuration::Json &config, std::shared_ptr<control::HT> ctrl);
+		DeviceHT(int id);
 		virtual ~DeviceHT();
 
 		double GetTemperature() const;

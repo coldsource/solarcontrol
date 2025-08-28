@@ -31,7 +31,7 @@ class DeviceCooler: public DeviceTemperature
 		virtual bool temp_check_offload(double current_temp, double timerange_temp) const;
 
 	public:
-		DeviceCooler(unsigned int id, const std::string &name, const configuration::Json &config): DeviceTemperature(id, name, config) {}
+		DeviceCooler(int id): DeviceTemperature(id) {}
 		virtual ~DeviceCooler() {}
 
 		std::string GetType() const { return "cooler"; }

@@ -24,6 +24,7 @@
 #include <nlohmann/json.hpp>
 
 #include <string>
+#include <mutex>
 
 namespace device {
 
@@ -38,19 +39,24 @@ enum en_category
 class Device
 {
 	int id;
-	std::string name;
 	configuration::Json config;
+	std::string name;
+
+	bool deleted = false;
 
 	protected:
+		std::recursive_mutex mutex;
+
 		void state_backup(const configuration::Json &state);
 		const configuration::Json state_restore();
 
 	public:
-		Device(unsigned int id, const std::string &name, const configuration::Json &config);
+		Device(int id):id(id) {}
 		Device(const Device&) = delete;
-		virtual ~Device() {}
+		virtual ~Device();
 
 		static void CheckConfig(const configuration::Json & /* conf */) {}
+		virtual void Reload(const std::string &name, const configuration::Json &config);
 
 		virtual std::string GetType() const = 0;
 		virtual en_category GetCategory() const = 0;
@@ -61,6 +67,8 @@ class Device
 		const configuration::Json GetConfig() const { return config; }
 
 		virtual bool Depends(int /* device_id */) const { return false; }
+
+		void Delete() { deleted = true; } // Device might be in use, flag for removal in destructor
 };
 
 }

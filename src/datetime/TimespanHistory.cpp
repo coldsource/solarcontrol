@@ -34,15 +34,15 @@ using namespace std;
 namespace datetime
 {
 
-TimespanHistory::TimespanHistory(unsigned int device_id)
+TimespanHistory::TimespanHistory(int device_id)
 {
-	retention_days = configuration::Configuration::FromType("solarcontrol")->GetInt("core.history.maxdays");
+	retention_days = configuration::Configuration::FromType("solarcontrol")->GetUInt("core.history.maxdays");
 
 	if(device_id!=0)
 	{
 		// Reload database on/off history if device_id is provided
 		database::DB db;
-		Date days_ago = Date() - retention_days;
+		Date days_ago = Date() - (int)retention_days;
 		auto res = db.Query(
 			"SELECT log_state_date, log_state FROM t_log_state  WHERE device_id=%i AND log_state IS NOT NULL AND log_state_date>=%s ORDER BY log_state_date"_sql
 			<<device_id<<string(days_ago)
@@ -147,7 +147,7 @@ unsigned long TimespanHistory::GetTotalForLast(unsigned int nseconds) const
 
 	time_t now = Timestamp(TS_REAL);
 	time_t from_lookup_t = now - nseconds;
-	unsigned long long total = 0;
+	unsigned long total = 0;
 	for(auto timespan : history)
 	{
 		Timestamp from;
@@ -176,7 +176,7 @@ unsigned long TimespanHistory::GetTotalForLast(unsigned int nseconds) const
 				continue;
 			}
 
-			total += ts-last_ts;
+			total += (unsigned long)(ts-last_ts);
 
 			DateTime cur_day(last_ts);
 			cur_day.ToNoon();

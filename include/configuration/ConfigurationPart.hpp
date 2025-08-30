@@ -54,15 +54,16 @@ class ConfigurationPart
 		const std::map<std::string,std::string> GetAll() const { return entries; }
 		const std::string &Get(const std::string &entry) const;
 		int GetInt(const std::string &entry) const;
+		unsigned int GetUInt(const std::string &entry) const;
 		double GetDouble(const std::string &entry) const;
 		int GetSize(const std::string &entry) const;
-		int GetTime(const std::string &entry) const;
+		unsigned long GetTime(const std::string &entry) const;
 		int GetPower(const std::string &entry) const;
 		int GetEnergy(const std::string &entry) const;
 		int GetPercent(const std::string &entry) const;
 		bool GetBool(const std::string &entry) const;
-		int GetUID(const std::string &entry) const;
-		int GetGID(const std::string &entry) const;
+		unsigned int GetUID(const std::string &entry) const;
+		unsigned int GetGID(const std::string &entry) const;
 		bool Exists(const std::string &name) const;
 
 		void Backup(const std::string &name);

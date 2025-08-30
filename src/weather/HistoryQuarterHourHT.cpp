@@ -28,7 +28,7 @@ using datetime::QuarterHour;
 
 namespace weather {
 
-HistoryQuarterHourHT::HistoryQuarterHourHT(unsigned int device_id)
+HistoryQuarterHourHT::HistoryQuarterHourHT(int device_id)
 :History(0), device_id(device_id)
 {
 	DB db;

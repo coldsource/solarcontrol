@@ -64,7 +64,7 @@ string Dispatcher::Dispatch(const std::string &message)
 		throw invalid_argument("Invalid API command : not valid json");
 	}
 
-	unsigned int id = api.GetInt("id");
+	int id = api.GetInt("id");
 	string module = api.GetString("module");
 	string cmd = api.GetString("cmd");
 

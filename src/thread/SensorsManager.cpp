@@ -97,7 +97,7 @@ void SensorsManager::main()
 			}
 
 			Timestamp now(TS_MONOTONIC);
-			if(now-last_state_update>state_update_interval)
+			if(now-last_state_update>(long)state_update_interval)
 			{
 				std::set<std::shared_ptr<sensor::Sensor>> local_sensors;
 

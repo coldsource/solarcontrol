@@ -51,7 +51,7 @@ class DeviceTimeRange: public DeviceOnOff
 		virtual void reload(const configuration::Json &config) override;
 
 	public:
-		DeviceTimeRange(unsigned int id);
+		DeviceTimeRange(int id);
 		virtual ~DeviceTimeRange();
 
 		static void CheckConfig(const configuration::Json &conf);

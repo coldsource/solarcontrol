@@ -29,7 +29,7 @@ namespace mqtt {
 
 Client * Client::instance = 0;
 
-Client::Client(const string &host, unsigned int port)
+Client::Client(const string &host, int port)
 {
 	string id = configuration::Configuration::FromType("solarcontrol")->Get("mqtt.id");
 	mosqh = mosquitto_new(id.c_str(), true, this);

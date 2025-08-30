@@ -30,8 +30,8 @@ class State
 	public:
 		enum en_mode { automatic, manual };
 
-		static void LogModeChange(unsigned int device_id, en_mode mode);
-		static void LogStateChange(unsigned int device_id, en_mode mode, bool state);
+		static void LogModeChange(int device_id, en_mode mode);
+		static void LogStateChange(int device_id, en_mode mode, bool state);
 };
 
 }

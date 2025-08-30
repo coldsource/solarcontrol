@@ -63,7 +63,7 @@ int MovingAverage::GetHigherValuesPercentile(double value) const
 			percentile++;
 	}
 
-	return percentile * 100 / data.size();
+	return percentile * 100 / (int)data.size();
 }
 
 void MovingAverage::Reset()

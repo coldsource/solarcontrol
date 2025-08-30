@@ -69,7 +69,7 @@ void LCD::main()
 
 	string path = config->Get("display.lcd.path");
 	int address = config->GetInt("display.lcd.address");
-	size_t line_size = config->GetInt("display.lcd.linesize");
+	size_t line_size = config->GetUInt("display.lcd.linesize");
 	bool debug = config->GetBool("display.lcd.debug");
 
 	unique_ptr<LCDDisplay> lcd;

@@ -46,6 +46,8 @@ class Json
 		std::string GetString(const std::string &name, const std::string &default_value) const;
 		int GetInt(const std::string &name) const;
 		int GetInt(const std::string &name, int default_value) const;
+		unsigned int GetUInt(const std::string &name) const;
+		unsigned int GetUInt(const std::string &name, unsigned int default_value) const;
 		double GetFloat(const std::string &name) const;
 		double GetFloat(const std::string &name, double default_value) const;
 		bool GetBool(const std::string &name) const;

@@ -30,7 +30,7 @@ using stat::MinMaxAvg;
 
 namespace weather {
 
-HistoryQuarterHourWind::HistoryQuarterHourWind(unsigned int device_id)
+HistoryQuarterHourWind::HistoryQuarterHourWind(int device_id)
 :History(0), device_id(device_id)
 {
 	DB db;

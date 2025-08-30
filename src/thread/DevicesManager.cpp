@@ -143,7 +143,7 @@ void DevicesManager::main()
 
 		// Compute moving average of available power (we don't want to count during cooldown to let power be accurate)
 		// global_meter is locked before locking devices (and never locked after)
-		if(now-last_change_ts>=cooldown)
+		if((unsigned long)(now-last_change_ts)>=cooldown)
 			available_power_avg->Add(global_meter->GetNetAvailablePower(true), now - last_power_update);
 		last_power_update = now;
 
@@ -183,7 +183,7 @@ void DevicesManager::main()
 				state_changed |= force(forced_devices);
 
 				// Apply cooldown time for offload devices
-				if(now-last_change_ts>=cooldown && !state_changed)
+				if((unsigned int)(now-last_change_ts)>=cooldown && !state_changed)
 					state_changed |= offload(offload_devices);
 
 				if(state_changed)

@@ -28,7 +28,7 @@ using database::DB;
 namespace logs
 {
 
-void State::LogModeChange(unsigned int device_id, en_mode mode)
+void State::LogModeChange(int device_id, en_mode mode)
 {
 	DB db;
 
@@ -37,7 +37,7 @@ void State::LogModeChange(unsigned int device_id, en_mode mode)
 	db.Query("INSERT INTO  t_log_state(device_id, log_state_mode) VALUES(%i, %s)"_sql <<device_id<<mode_str);
 }
 
-void State::LogStateChange(unsigned int device_id, en_mode mode, bool state)
+void State::LogStateChange(int device_id, en_mode mode, bool state)
 {
 	DB db;
 

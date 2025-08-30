@@ -42,7 +42,7 @@ class Timestamp
 		bool Isempty() { return ts_i==0; }
 
 		Timestamp& operator+=(time_t t_inc);
-		unsigned long operator-(const Timestamp &rts) const;
+		long operator-(const Timestamp &rts) const;
 		bool operator<(const Timestamp& r) const { return ts_i < r.ts_i; }
 
 		operator time_t() const;

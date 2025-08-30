@@ -30,7 +30,7 @@ using nlohmann::json;
 namespace device
 {
 
-DeviceTemperature::DeviceTemperature(unsigned int id):DeviceTimeRange(id)
+DeviceTemperature::DeviceTemperature(int id):DeviceTimeRange(id)
 {
 	ObserveConfiguration("control");
 }

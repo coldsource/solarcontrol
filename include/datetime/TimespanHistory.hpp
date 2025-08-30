@@ -42,7 +42,7 @@ class TimespanHistory
 	void purge();
 
 	public:
-		TimespanHistory(unsigned int device_id = 0);
+		TimespanHistory(int device_id = 0);
 
 		void ClockIn();
 		void ClockIn(const Timestamp &ts);

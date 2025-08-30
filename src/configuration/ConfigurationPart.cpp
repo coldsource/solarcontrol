@@ -115,6 +115,11 @@ int ConfigurationPart::GetInt(const string &entry) const
 	return strtol(value.c_str(),0,10);
 }
 
+unsigned int ConfigurationPart::GetUInt(const string &entry) const
+{
+	return (unsigned int)GetInt(entry);
+}
+
 double ConfigurationPart::GetDouble(const string &entry) const
 {
 	return stod(Get(entry));
@@ -134,10 +139,10 @@ int ConfigurationPart::GetSize(const string &entry) const
 		return i;
 }
 
-int ConfigurationPart::GetTime(const string &entry) const
+unsigned long ConfigurationPart::GetTime(const string &entry) const
 {
 	const string value = Get(entry);
-	int i = strtol(value.c_str(),0,10);
+	unsigned long i = (unsigned long)strtol(value.c_str(),0,10);
 	if(value.substr(value.length()-1,1)=="d")
 		return i*86400;
 	else if(value.substr(value.length()-1,1)=="h")
@@ -193,11 +198,11 @@ bool ConfigurationPart::GetBool(const string &entry) const
 	return false;
 }
 
-int ConfigurationPart::GetUID(const string &entry) const
+unsigned int ConfigurationPart::GetUID(const string &entry) const
 {
 	try
 	{
-		return std::stoi(Get(entry));
+		return (unsigned int)std::stoi(Get(entry));
 	}
 	catch(const std::invalid_argument& excpt)
 	{
@@ -218,11 +223,11 @@ bool ConfigurationPart::Exists(const std::string &name) const
 	return entries.contains(name);
 }
 
-int ConfigurationPart::GetGID(const string &entry) const
+unsigned int ConfigurationPart::GetGID(const string &entry) const
 {
 	try
 	{
-		return std::stoi(Get(entry));
+		return (unsigned int)std::stoi(Get(entry));
 	}
 	catch(const std::invalid_argument& excpt)
 	{
@@ -367,9 +372,13 @@ void ConfigurationPart::check_time_entry(const string &name) const
 	try
 	{
 		size_t l;
-		stoi(value,&l);
+		int val = stoi(value,&l);
 		if(l==value.length())
+		{
+			if(val<0)
+				throw 1;
 			return;
+		}
 
 		string unit = value.substr(l);
 		if(unit!="d" && unit!="h" && unit!="m" && unit!="s")

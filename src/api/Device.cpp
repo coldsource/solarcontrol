@@ -54,7 +54,7 @@ int Device::insert_device(const std::string &type, const std::string &name, cons
 	return id;
 }
 
-void Device::update_device(unsigned int id, const std::string &name, const configuration::Json &config)
+void Device::update_device(int id, const std::string &name, const configuration::Json &config)
 {
 	if(name=="")
 		throw invalid_argument("Name cannot be empty");
@@ -67,7 +67,7 @@ void Device::update_device(unsigned int id, const std::string &name, const confi
 	);
 }
 
-void Device::update_prio(unsigned int id, int new_prio)
+void Device::update_prio(int id, int new_prio)
 {
 	device::Devices devices;
 	auto device = devices.GetElectricalByID(id);

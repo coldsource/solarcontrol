@@ -29,7 +29,7 @@ using datetime::Timestamp;
 
 namespace device {
 
-DeviceTimeRange::DeviceTimeRange(unsigned int id): DeviceOnOff(id)
+DeviceTimeRange::DeviceTimeRange(int id): DeviceOnOff(id)
 {
 }
 
@@ -66,12 +66,12 @@ void DeviceTimeRange::reload(const configuration::Json &config)
 	for(auto it : config.GetArray("remainder", json::array()))
 		remainder.push_back(datetime::TimeRange(it));
 
-	min_on_time = config.GetInt("min_on_time", 0);
-	min_on_for_last = config.GetInt("min_on_for_last", 0);
+	min_on_time = config.GetUInt("min_on_time", 0);
+	min_on_for_last = config.GetUInt("min_on_for_last", 0);
 
-	min_on = config.GetInt("min_on", 0);
-	max_on = config.GetInt("max_on", 0);
-	min_off = config.GetInt("min_off", 0);
+	min_on = config.GetUInt("min_on", 0);
+	max_on = config.GetUInt("max_on", 0);
+	min_off = config.GetUInt("min_off", 0);
 }
 
 bool DeviceTimeRange::IsForced(configuration::Json *data_ptr) const
@@ -101,13 +101,13 @@ en_wanted_state DeviceTimeRange::get_wanted_state(configuration::Json *data_ptr)
 		return UNCHANGED;
 
 	Timestamp now(TS_MONOTONIC);
-	if(GetState() && now-last_on<min_on)
+	if(GetState() && (unsigned long)(now-last_on)<min_on)
 		return UNCHANGED; // Stay on at least 'min_on' seconds
 
-	if(GetState() && max_on>0 && now-last_on>max_on)
+	if(GetState() && max_on>0 && (unsigned long)(now-last_on)>max_on)
 		return OFF; // Stay on no longer than 'max_on' seconds
 
-	if(!GetState() && now-last_off<min_off)
+	if(!GetState() && (unsigned long)(now-last_off)<min_off)
 		return UNCHANGED; // Stay of at least 'min_off' seconds
 
 	if(IsForced(data_ptr) || WantRemainder(data_ptr))

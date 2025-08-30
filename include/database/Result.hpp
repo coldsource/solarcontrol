@@ -45,8 +45,8 @@ class ResultField
 		bool IsNull() const { return isnull; }
 
 		operator std::string() const { return value; }
+		operator unsigned int() const { return (unsigned int)std::stoi(value); }
 		operator int() const { return std::stoi(value); }
-		operator unsigned int() const { return std::stoi(value); }
 		operator double() const { return std::stod(value); }
 };
 
@@ -55,7 +55,7 @@ class Result
 	MYSQL_RES *res;
 
 	unsigned int cols;
-	std::map<std::string, int> col_name_idx;
+	std::map<std::string, unsigned int> col_name_idx;
 
 	MYSQL_ROW row;
 	unsigned long *row_field_length;

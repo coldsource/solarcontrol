@@ -63,7 +63,7 @@ Timestamp& Timestamp::operator+=(time_t t_inc)
 	return *this;
 }
 
-unsigned long Timestamp::operator-(const Timestamp &rts) const
+long Timestamp::operator-(const Timestamp &rts) const
 {
 	time_t r_t = (time_t)rts;
 	if(r_t>ts_i)

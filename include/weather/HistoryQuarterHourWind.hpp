@@ -29,13 +29,13 @@ namespace weather {
 class HistoryQuarterHourWind: public stat::History<datetime::QuarterHour, stat::MinMaxAvg<double>>
 {
 	protected:
-		unsigned int device_id;
+		int device_id;
 
 		virtual void store_entry(const datetime::QuarterHour period, stat::MinMaxAvg<double> value) override;
 		virtual void save() override;
 
 	public:
-		HistoryQuarterHourWind(unsigned int device_id);
+		HistoryQuarterHourWind(int device_id);
 		~HistoryQuarterHourWind();
 };
 

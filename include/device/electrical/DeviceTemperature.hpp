@@ -45,7 +45,7 @@ class DeviceTemperature: public DeviceTimeRange, public configuration::Configura
 		virtual void reload(const configuration::Json &config) override;
 
 	public:
-		DeviceTemperature(unsigned int id);
+		DeviceTemperature(int id);
 		virtual ~DeviceTemperature();
 
 		void ConfigurationChanged(const configuration::ConfigurationPart * config) override;

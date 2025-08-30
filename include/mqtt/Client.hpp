@@ -49,7 +49,7 @@ class Client
 	bool clean_shutdown = false;
 
 	public:
-		Client(const std::string &host, unsigned int port);
+		Client(const std::string &host, int port);
 		~Client();
 
 		static Client *GetInstance() { return instance; }

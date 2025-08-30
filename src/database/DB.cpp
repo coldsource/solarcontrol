@@ -77,14 +77,14 @@ Result DB::Query(const database::Query &q)
 	auto words_begin = sregex_iterator(query.begin(), query.end(), prct_regex);
 	auto words_end = sregex_iterator();
 
-	int last_pos = 0;
-	int match_i = 0;
+	size_t last_pos = 0;
+	unsigned int match_i = 0;
 	string escaped_query;
 	for (sregex_iterator i = words_begin; i != words_end; ++i)
 	{
 		smatch m = *i;
-		escaped_query += query.substr(last_pos, m.position()-last_pos) + get_query_value(m.str()[1], match_i, q);
-		last_pos = m.position()+m.length();
+		escaped_query += query.substr(last_pos, (size_t)m.position()-last_pos) + get_query_value(m.str()[1], match_i, q);
+		last_pos = (size_t)(m.position()+m.length());
 
 		match_i++;
 	}
@@ -101,7 +101,7 @@ Result DB::Query(const database::Query &q)
 	return Result(res);
 }
 
-string DB::get_query_value(char type, int idx, const database::Query &q)
+string DB::get_query_value(char type, unsigned int idx, const database::Query &q)
 {
 	auto param = q.GetParam(idx);
 

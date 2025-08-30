@@ -47,6 +47,8 @@ void Json::check_entry(const string &name, const string &type) const
 	auto jtype = json[name].type();
 	if(type=="int" && jtype!=json::value_t::number_integer && jtype!=json::value_t::number_unsigned)
 		throw invalid_argument("Parameter « " + name + " » must be integer");
+	if(type=="uint" && jtype!=json::value_t::number_unsigned)
+		throw invalid_argument("Parameter « " + name + " » must be integer");
 	else if(type=="unsigned int" && jtype!=json::value_t::number_unsigned)
 		throw invalid_argument("Parameter « " + name + " » must be unsigned integer");
 	else if(type=="float" && jtype!=json::value_t::number_float && jtype!=json::value_t::number_integer && jtype!=json::value_t::number_unsigned)
@@ -100,6 +102,20 @@ int Json::GetInt(const string &name,int default_value) const
 		return default_value;
 
 	return GetInt(name);
+}
+
+unsigned int Json::GetUInt(const string &name) const
+{
+	check_entry(name, "uint");
+	return json[name];
+}
+
+unsigned int Json::GetUInt(const string &name, unsigned int default_value) const
+{
+	if(!json.contains(name))
+		return default_value;
+
+	return GetUInt(name);
 }
 
 double Json::GetFloat(const std::string &name) const

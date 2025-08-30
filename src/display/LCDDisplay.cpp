@@ -142,7 +142,7 @@ void LCDDisplay::WriteLine(int line, const std::string &str)
 
 	size_t i;
 	for(i=0; i<str.size(); i++)
-		lcd_write(str[i], Rs);
+		lcd_write((unsigned char)str[i], Rs);
 	for(; i<line_size; i++)
 		lcd_write(' ', Rs);
 }

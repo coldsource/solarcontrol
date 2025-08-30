@@ -42,7 +42,7 @@ class HistorySync: public WaiterThread
 
 	std::mutex lock;
 
-	int sync_interval;
+	unsigned long sync_interval;
 	std::set<stat::HistorySync *> clients;
 
 	void main(void) override;

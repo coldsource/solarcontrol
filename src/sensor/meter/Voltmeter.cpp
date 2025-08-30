@@ -163,7 +163,7 @@ void Voltmeter::HandleMessage(const string &message, const std::string & /*topic
 		if(ev.contains("voltage"))
 		{
 			double voltage = ev["voltage"];
-			avg->Add(voltage * 1000, now - last_voltage_update); // V to mV
+			avg->Add(voltage * 1000, (double)(now - last_voltage_update)); // V to mV
 			last_voltage_update = now;
 		}
 	}

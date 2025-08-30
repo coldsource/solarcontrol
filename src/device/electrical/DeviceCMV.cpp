@@ -65,7 +65,7 @@ void DeviceCMV::reload(const configuration::Json &config)
 	for(auto device_id : config.GetArray("ht_device_ids"))
 		ht_device_ids.insert(device_id);
 
-	max_on = config.GetFloat("max_on");
+	max_on = config.GetUInt("max_on");
 }
 
 void DeviceCMV::check_timeranges(const configuration::Json &conf, const string &name)

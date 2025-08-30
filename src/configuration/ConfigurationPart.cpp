@@ -111,8 +111,8 @@ int ConfigurationPart::GetInt(const string &entry) const
 {
 	const string value = Get(entry);
 	if(value.substr(0,2)=="0x")
-		return strtol(value.c_str(),0,16);
-	return strtol(value.c_str(),0,10);
+		return (int)strtol(value.c_str(),0,16);
+	return (int)strtol(value.c_str(),0,10);
 }
 
 unsigned int ConfigurationPart::GetUInt(const string &entry) const
@@ -128,7 +128,7 @@ double ConfigurationPart::GetDouble(const string &entry) const
 int ConfigurationPart::GetSize(const string &entry) const
 {
 	const string value = Get(entry);
-	int i = strtol(value.c_str(),0,10);
+	int i = (int)strtol(value.c_str(),0,10);
 	if(value.substr(value.length()-1,1)=="K")
 		return i*1024;
 	else if(value.substr(value.length()-1,1)=="M")

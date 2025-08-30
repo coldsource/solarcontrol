@@ -42,7 +42,7 @@ class WaiterThread
 		using wait_predicate = std::function<bool()>;
 
 		void start();
-		bool wait(int seconds, wait_predicate p = 0);
+		bool wait(unsigned long seconds, wait_predicate p = 0);
 		void set_enabled(bool enabled) { this->enabled = enabled; }
 
 		static void thread_main(WaiterThread *ptr);

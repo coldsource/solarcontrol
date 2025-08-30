@@ -140,13 +140,13 @@ void TimespanHistory::ClockOut(const Timestamp &ts)
 	}
 }
 
-unsigned long TimespanHistory::GetTotalForLast(unsigned int nseconds) const
+unsigned long TimespanHistory::GetTotalForLast(unsigned long nseconds) const
 {
 	if(nseconds>retention_days * 86400)
 		throw invalid_argument("History lookup can't be greater than retention days");
 
 	time_t now = Timestamp(TS_REAL);
-	time_t from_lookup_t = now - nseconds;
+	time_t from_lookup_t = now - (time_t)nseconds;
 	unsigned long total = 0;
 	for(auto timespan : history)
 	{

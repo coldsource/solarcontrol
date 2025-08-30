@@ -49,7 +49,7 @@ class TimespanHistory
 		void ClockOut();
 		void ClockOut(const Timestamp &ts);
 
-		unsigned long GetTotalForLast(unsigned int nseconds) const;
+		unsigned long GetTotalForLast(unsigned long nseconds) const;
 };
 
 }

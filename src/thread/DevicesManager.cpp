@@ -144,7 +144,7 @@ void DevicesManager::main()
 		// Compute moving average of available power (we don't want to count during cooldown to let power be accurate)
 		// global_meter is locked before locking devices (and never locked after)
 		if((unsigned long)(now-last_change_ts)>=cooldown)
-			available_power_avg->Add(global_meter->GetNetAvailablePower(true), now - last_power_update);
+			available_power_avg->Add(global_meter->GetNetAvailablePower(true), (double)(now - last_power_update));
 		last_power_update = now;
 
 		{

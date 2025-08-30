@@ -58,7 +58,7 @@ class DB
 		std::string get_query_value(char type, unsigned int idx, const database::Query &q);
 		std::string EscapeString(const std::string &str);
 
-		int InsertID();
+		unsigned long long InsertID();
 };
 
 }

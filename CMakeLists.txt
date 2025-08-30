@@ -76,7 +76,7 @@ else()
     message(FATAL_ERROR "Compiler ${CMAKE_CXX_COMPILER} has no C++20 support.")
 endif()
 
-target_compile_options(solarcontrol PRIVATE -Wall -Wextra -Wpedantic -Wsuggest-override -Wsign-conversion)
+target_compile_options(solarcontrol PRIVATE -Wall -Wextra -Wpedantic -Wsuggest-override -Wsign-conversion -Wconversion)
 
 find_path(MYSQL_INCLUDE mysql.h /usr/include/mysql)
 find_path(MARIADB_INCLUDE mysql.h /usr/include/mariadb)

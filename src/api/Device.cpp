@@ -46,7 +46,7 @@ int Device::insert_device(const std::string &type, const std::string &name, cons
 		<<type<<name<<config.ToString()
 	);
 
-	int id = db.InsertID();
+	int id = (int)db.InsertID(); // Hope we don't have more then 2^32 devices ;)
 
 	Devices devices;
 	devices.Load(id, name, type, config);

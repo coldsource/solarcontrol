@@ -32,7 +32,7 @@ void WaiterThread::start()
 	thread_handle = std::thread(thread_main, this);
 }
 
-bool WaiterThread::wait(int seconds, wait_predicate p)
+bool WaiterThread::wait(unsigned long seconds, wait_predicate p)
 {
 	while(true)
 	{

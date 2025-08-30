@@ -134,7 +134,7 @@ string DB::EscapeString(const string &str)
 	return escaped_str;
 }
 
-int DB::InsertID(void)
+unsigned long long DB::InsertID(void)
 {
 	return mysql_insert_id(mysql);
 }

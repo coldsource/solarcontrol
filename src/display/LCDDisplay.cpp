@@ -158,7 +158,7 @@ void LCDDisplay::i2c_send_byte(unsigned char data)
 
 void LCDDisplay::lcd_strobe(unsigned char data)
 {
-	i2c_send_byte(data | En);
+	i2c_send_byte(data | (unsigned char)En);
 	usleep(5000);
 	i2c_send_byte(data);
 	usleep(2000);
@@ -166,7 +166,7 @@ void LCDDisplay::lcd_strobe(unsigned char data)
 
 void LCDDisplay::lcd_write_four_bits(unsigned char data)
 {
-	data |= backlight;
+	data |= (unsigned char)backlight;
 	i2c_send_byte(data);
 	lcd_strobe(data);
 }

@@ -38,7 +38,7 @@ namespace configuration
 void ConfigurationReader::Read(const string &filename, Configuration *config)
 {
 	FILE *f;
-	int i,len,entry_len,value_len,lineno = 0;
+	size_t i,len,entry_len,value_len,lineno = 0;
 	int quoted;
 	char line[CONFIGURATION_LINE_MAXLEN];
 	char *entry,*value;
@@ -93,7 +93,7 @@ void ConfigurationReader::Read(const string &filename, Configuration *config)
 			if(line[i]=='\0')
 				throw runtime_error("Missing value on line "+to_string(lineno));
 
-			entry_len=(line+i)-entry;
+			entry_len=(size_t)((line+i)-entry);
 
 			// Skip spaces
 			while(line[i]==' ' || line[i]=='\t')
@@ -140,7 +140,7 @@ void ConfigurationReader::Read(const string &filename, Configuration *config)
 				i++;
 			}
 
-			value_len=(line+i)-value;
+			value_len=(size_t)((line+i)-value);
 
 			if(quoted>0 && line[i]=='\0')
 				throw runtime_error("Missing ending quote on line "+to_string(lineno));

@@ -51,6 +51,8 @@ void DeviceHTWifi::reload(const configuration::Json &config)
 
 void DeviceHTWifi::SensorChanged(const sensor::Sensor *sensor)
 {
+	unique_lock<recursive_mutex> llock(lock);
+
 	sensor::weather::HTWifi * htwifi = (sensor::weather::HTWifi *)sensor;
 	temperature = htwifi->GetTemperature();
 	humidity = htwifi->GetHumidity();

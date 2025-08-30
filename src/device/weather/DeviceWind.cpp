@@ -62,6 +62,8 @@ void DeviceWind::Log()
 
 void DeviceWind::SensorChanged(const sensor::Sensor *sensor)
 {
+	unique_lock<recursive_mutex> llock(lock);
+
 	wind = ((sensor::weather::Wind *)sensor)->GetWind();
 }
 

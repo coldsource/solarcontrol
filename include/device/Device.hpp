@@ -55,7 +55,7 @@ class Device: public sensor::SensorObserver
 	bool deleted = false;
 
 	protected:
-		mutable std::mutex lock;
+		mutable std::recursive_mutex lock;
 
 		void state_backup(const configuration::Json &state);
 		const configuration::Json state_restore();

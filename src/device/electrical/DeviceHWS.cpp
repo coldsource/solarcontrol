@@ -40,6 +40,8 @@ DeviceHWS::~DeviceHWS()
 
 void DeviceHWS::ConfigurationChanged(const configuration::ConfigurationPart * config)
 {
+	unique_lock<recursive_mutex> llock(lock);
+
 	absence = config->GetBool("control.absence.enabled");
 }
 
@@ -63,6 +65,8 @@ void DeviceHWS::reload(const configuration::Json &config)
 
 bool DeviceHWS::WantRemainder(configuration::Json *data_ptr) const
 {
+	unique_lock<recursive_mutex> llock(lock);
+
 	if(absence)
 		return false; // No remainder in absence mode
 

@@ -26,6 +26,8 @@ namespace device {
 
 json DeviceWeather::ToJson() const
 {
+	unique_lock<recursive_mutex> llock(lock);
+
 	json j_device;
 
 	j_device["device_id"] = GetID();

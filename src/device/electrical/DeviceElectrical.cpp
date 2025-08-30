@@ -77,6 +77,8 @@ void DeviceElectrical::reload(const configuration::Json &config)
 
 json DeviceElectrical::ToJson() const
 {
+	unique_lock<recursive_mutex> llock(lock);
+
 	json j_device;
 
 	j_device["device_id"] = GetID();
@@ -93,6 +95,8 @@ json DeviceElectrical::ToJson() const
 
 void DeviceElectrical::SetState(bool new_state)
 {
+	unique_lock<recursive_mutex> llock(lock);
+
 	state = new_state;
 	ctrl->Switch(new_state);
 
@@ -101,6 +105,8 @@ void DeviceElectrical::SetState(bool new_state)
 
 void DeviceElectrical::SetManualState(bool new_state)
 {
+	unique_lock<recursive_mutex> llock(lock);
+
 	manual = true;
 
 	state = new_state;
@@ -111,6 +117,8 @@ void DeviceElectrical::SetManualState(bool new_state)
 
 void DeviceElectrical::SetAutoState()
 {
+	unique_lock<recursive_mutex> llock(lock);
+
 	manual = false;
 
 	logs::State::LogModeChange(GetID(), logs::State::en_mode::automatic);
@@ -118,6 +126,8 @@ void DeviceElectrical::SetAutoState()
 
 void DeviceElectrical::SensorChanged(const sensor::Sensor *sensor)
 {
+	unique_lock<recursive_mutex> llock(lock);
+
 	const string name = sensor->GetName();
 	if(name=="switch")
 		state = ((sensor::sw::Switch *)sensor)->GetState();

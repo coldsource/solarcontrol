@@ -25,7 +25,6 @@
 
 #include <string>
 #include <memory>
-#include <atomic>
 
 namespace control {
 	class OnOff;
@@ -38,9 +37,9 @@ class DeviceElectrical: public Device
 	protected:
 		std::shared_ptr<control::OnOff> ctrl;
 
-		std::atomic_bool manual = false;
-		std::atomic_bool state = false;
-		std::atomic<double> power = -1;
+		bool manual = false;
+		bool state = false;
+		double power = -1;
 
 		energy::Counter consumption;
 		energy::Counter offload;

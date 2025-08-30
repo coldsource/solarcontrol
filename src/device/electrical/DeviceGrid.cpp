@@ -58,6 +58,8 @@ void DeviceGrid::reload(const configuration::Json &config)
 
 void DeviceGrid::SensorChanged(const  sensor::Sensor *sensor)
 {
+	unique_lock<recursive_mutex> llock(lock);
+
 	if(sensor->GetName()=="offpeak_ctrl")
 		offpeak = ((sensor::input::Input *)sensor)->GetState();
 	else

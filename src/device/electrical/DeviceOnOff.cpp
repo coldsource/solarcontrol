@@ -86,6 +86,8 @@ void DeviceOnOff::clock(bool new_state)
 
 void DeviceOnOff::SetState(bool new_state)
 {
+	unique_lock<recursive_mutex> llock(lock);
+
 	clock(new_state);
 
 	DeviceElectrical::SetState(new_state);
@@ -93,6 +95,8 @@ void DeviceOnOff::SetState(bool new_state)
 
 void DeviceOnOff::SetManualState(bool new_state)
 {
+	unique_lock<recursive_mutex> llock(lock);
+
 	clock(new_state);
 
 	DeviceElectrical::SetManualState(new_state);
@@ -100,6 +104,8 @@ void DeviceOnOff::SetManualState(bool new_state)
 
 double DeviceOnOff::GetExpectedConsumption() const
 {
+	unique_lock<recursive_mutex> llock(lock);
+
 	if(GetState() && power>=0)
 		return power; // If device is on and is metered, we take the real consumption
 
@@ -108,6 +114,8 @@ double DeviceOnOff::GetExpectedConsumption() const
 
 void DeviceOnOff::SensorChanged(const sensor::Sensor *sensor)
 {
+	unique_lock<recursive_mutex> llock(lock);
+
 	const string name = sensor->GetName();
 	if(name=="switch")
 	{

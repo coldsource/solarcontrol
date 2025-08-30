@@ -76,16 +76,22 @@ void DeviceTimeRange::reload(const configuration::Json &config)
 
 bool DeviceTimeRange::IsForced(configuration::Json *data_ptr) const
 {
+	unique_lock<recursive_mutex> llock(lock);
+
 	return force.IsActive(data_ptr);
 }
 
 bool DeviceTimeRange::WantOffload(configuration::Json *data_ptr) const
 {
+	unique_lock<recursive_mutex> llock(lock);
+
 	return offload.IsActive(data_ptr);
 }
 
 bool DeviceTimeRange::WantRemainder(configuration::Json *data_ptr) const
 {
+	unique_lock<recursive_mutex> llock(lock);
+
 	return remainder.IsActive(data_ptr) && on_history.GetTotalForLast(min_on_for_last)<min_on_time;
 }
 
@@ -115,6 +121,8 @@ en_wanted_state DeviceTimeRange::get_wanted_state(configuration::Json *data_ptr)
 
 en_wanted_state DeviceTimeRange::GetWantedState() const
 {
+	unique_lock<recursive_mutex> llock(lock);
+
 	return get_wanted_state();
 }
 

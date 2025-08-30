@@ -41,6 +41,8 @@ DeviceTemperature::~DeviceTemperature()
 
 void DeviceTemperature::ConfigurationChanged(const configuration::ConfigurationPart * config)
 {
+	unique_lock<recursive_mutex> llock(lock);
+
 	absence_temperature = config->GetDouble("control.absence.temperature");
 	absence = config->GetBool("control.absence.enabled");
 }
@@ -131,6 +133,8 @@ en_wanted_state DeviceTemperature::get_wanted_state(configuration::Json *data_pt
 
 bool DeviceTemperature::Depends(int device_id) const
 {
+	unique_lock<recursive_mutex> llock(lock);
+
 	return device_id==ht_device_id;
 }
 

@@ -45,12 +45,12 @@ void DeviceTimeRange::CheckConfig(const configuration::Json &conf)
 	conf.Check("offload", "array", false);
 
 	conf.Check("remainder", "array", false);
-	conf.Check("min_on_time", "int", false);
-	conf.Check("min_on_for_last", "int", false);
+	conf.Check("min_on_time", "uint", false);
+	conf.Check("min_on_for_last", "uint", false);
 
-	conf.Check("min_on", "int", false);
-	conf.Check("max_on", "int", false);
-	conf.Check("min_off", "int", false);
+	conf.Check("min_on", "uint", false);
+	conf.Check("max_on", "uint", false);
+	conf.Check("min_off", "uint", false);
 }
 
 void DeviceTimeRange::reload(const configuration::Json &config)

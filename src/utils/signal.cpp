@@ -31,14 +31,14 @@ void set_sighandler(void (*sigh) (int), const std::vector<int> &sigs)
 	sigemptyset(&block_mask);
 
 	for(size_t i=0;i<sigs.size();i++)
-			sigaddset(&block_mask, sigs[i]);
+		sigaddset(&block_mask, sigs[i]);
 
 	sa.sa_handler = sigh;
 	sa.sa_mask = block_mask;
 	sa.sa_flags = 0;
 
 	for(size_t i=0;i<sigs.size();i++)
-			sigaction(sigs[i],&sa,0);
+		sigaction(sigs[i],&sa,0);
 
 }
 

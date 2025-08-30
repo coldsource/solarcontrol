@@ -31,8 +31,13 @@
 using nlohmann::json;
 using namespace std;
 
+bool startup_finished = false;
+
 void signal_callback_handler(int signum)
 {
+	if(!startup_finished)
+		return; // Ignore signals while booting
+
 	if(signum==SIGINT || signum==SIGTERM)
 	{
 		::thread::SensorsManager::GetInstance()->Shutdown();
@@ -138,6 +143,9 @@ int main(int argc, char **argv)
 		sensors_manager.Start();
 		dev_manager.Start();
 		mqtt.Start();
+
+		// Flag startup sequence as completed, from now we can trigger exit from signals
+		startup_finished = true;
 
 		sensors_manager.WaitForShutdown();
 		dev_manager.WaitForShutdown();

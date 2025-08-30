@@ -24,7 +24,6 @@
 #include <sensor/SensorObserver.hpp>
 
 #include <memory>
-#include <atomic>
 
 namespace configuration {
 	class Json;
@@ -34,7 +33,7 @@ namespace device {
 
 class DeviceGrid: public DevicePassive
 {
-	std::atomic_bool offpeak = false;
+	bool offpeak = false;
 
 	protected:
 		virtual void reload(const configuration::Json &config) override;

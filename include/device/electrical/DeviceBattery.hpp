@@ -23,7 +23,6 @@
 #include <device/electrical/DevicePassive.hpp>
 
 #include <memory>
-#include <atomic>
 
 namespace configuration {
 	class Json;
@@ -37,7 +36,7 @@ namespace device {
 
 class DeviceBattery: public DevicePassive
 {
-	std::atomic<double> voltage = -1, soc = 0;
+	double voltage = -1, soc = 0;
 
 	protected:
 		virtual void reload(const configuration::Json &config) override;

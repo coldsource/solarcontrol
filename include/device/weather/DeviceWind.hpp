@@ -25,7 +25,6 @@
 
 #include <string>
 #include <memory>
-#include <atomic>
 #include <limits>
 
 namespace control {
@@ -36,7 +35,7 @@ namespace device {
 
 class DeviceWind: public DeviceWeather
 {
-	std::atomic<double> wind;
+	double wind;
 
 	weather::HistoryQuarterHourWind history;
 
@@ -56,8 +55,6 @@ class DeviceWind: public DeviceWeather
 		double GetWind() const override { return wind; }
 
 		virtual void SensorChanged(const sensor::Sensor *sensor) override;
-
-		void Log() override;
 };
 
 }

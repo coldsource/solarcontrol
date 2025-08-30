@@ -43,8 +43,8 @@ DeviceBattery::DeviceBattery(int id):DevicePassive(id)
 DeviceBattery::~DeviceBattery()
 {
 	json state;
-	state["voltage"] = (double)voltage;
-	state["soc"] = (double)soc;
+	state["voltage"] = voltage;
+	state["soc"] = soc;
 	state_backup(configuration::Json(state));
 }
 

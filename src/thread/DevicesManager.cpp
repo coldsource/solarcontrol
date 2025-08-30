@@ -148,13 +148,6 @@ void DevicesManager::main()
 		last_power_update = now;
 
 		{
-			Devices devices;
-			auto weather = devices.GetWeather();
-			for(auto it = weather.begin(); it!=weather.end(); ++it)
-				(*it)->Log();
-		}
-
-		{
 			// Lock devices during computations
 			Devices devices;
 

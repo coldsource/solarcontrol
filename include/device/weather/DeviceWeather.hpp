@@ -36,8 +36,6 @@ class DeviceWeather: public Device
 		virtual double GetTemperature() const = 0;
 		virtual double GetHumidity() const = 0;
 		virtual double GetWind() const = 0;
-
-		virtual void Log() = 0;
 };
 
 }

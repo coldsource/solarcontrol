@@ -49,16 +49,4 @@ DeviceHT::~DeviceHT()
 	state_backup(configuration::Json(state));
 }
 
-void DeviceHT::Log()
-{
-	double h = GetHumidity();
-	double t = GetTemperature();
-
-	if(std::isnan(h) || std::isnan(t))
-		return;
-
-	weather::MinMaxHT ht(h, t);
-	history.Add(ht);
-}
-
 }

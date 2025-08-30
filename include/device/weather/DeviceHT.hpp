@@ -25,7 +25,6 @@
 
 #include <memory>
 #include <limits>
-#include <atomic>
 
 namespace control {
 	class HT;
@@ -36,7 +35,8 @@ namespace device {
 class DeviceHT: public DeviceWeather
 {
 	protected:
-		std::atomic<double> humidity, temperature;
+		double humidity;
+		double temperature;
 
 		weather::HistoryQuarterHourHT history;
 
@@ -47,8 +47,6 @@ class DeviceHT: public DeviceWeather
 		double GetTemperature() const override { return temperature; }
 		double GetHumidity() const override { return humidity; }
 		double GetWind() const override { return std::numeric_limits<double>::quiet_NaN(); }
-
-		void Log() override;
 };
 
 }

@@ -24,16 +24,25 @@
 #include <stat/MinMaxAvg.hpp>
 
 using namespace std;
+using nlohmann::json;
 
 namespace device
 {
 
 DeviceWind::DeviceWind(int id):DeviceWeather(id), history(id)
 {
+	auto state = state_restore();
+
+	wind = state.GetFloat("wind", std::numeric_limits<double>::quiet_NaN());
 }
 
 DeviceWind::~DeviceWind()
 {
+	json state;
+	if(!std::isnan(GetWind()))
+		state["wind"] = GetWind();
+
+	state_backup(configuration::Json(state));
 }
 
 void DeviceWind::CheckConfig(const configuration::Json &conf)
@@ -50,21 +59,13 @@ void DeviceWind::reload(const configuration::Json &config)
 	add_sensor(make_shared<sensor::weather::Wind>(config.GetString("mqtt_id")), "ht");
 }
 
-void DeviceWind::Log()
-{
-	double w = GetWind();
-
-	if(std::isnan(w))
-		return;
-
-	history.Add(stat::MinMaxAvg(w));
-}
-
 void DeviceWind::SensorChanged(const sensor::Sensor *sensor)
 {
 	unique_lock<recursive_mutex> llock(lock);
 
 	wind = ((sensor::weather::Wind *)sensor)->GetWind();
+
+	history.Add(stat::MinMaxAvg(wind));
 }
 
 }

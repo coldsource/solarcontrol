@@ -56,6 +56,8 @@ void DeviceHTWifi::SensorChanged(const sensor::Sensor *sensor)
 	sensor::weather::HTWifi * htwifi = (sensor::weather::HTWifi *)sensor;
 	temperature = htwifi->GetTemperature();
 	humidity = htwifi->GetHumidity();
+
+	history.Add(weather::MinMaxHT(temperature, humidity));
 }
 
 }

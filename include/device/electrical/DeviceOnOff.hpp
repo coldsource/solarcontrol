@@ -43,7 +43,7 @@ class DeviceOnOff: public DeviceElectrical
 		datetime::Timestamp last_on;
 		datetime::Timestamp last_off;
 
-		int prio = 0;
+		int prio;
 		double expected_consumption;
 
 		datetime::TimespanHistory on_history;

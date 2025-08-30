@@ -17,8 +17,8 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __CONTROL_MQTT_HPP__
-#define __CONTROL_MQTT_HPP__
+#ifndef __SHELLY_MQTT_HPP__
+#define __SHELLY_MQTT_HPP__
 
 #include <nlohmann/json.hpp>
 

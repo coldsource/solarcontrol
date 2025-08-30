@@ -18,7 +18,7 @@
  */
 
 #include <shelly/MQTT.hpp>
-#include <control/HTTP.hpp>
+#include <shelly/HTTP.hpp>
 
 #include <stdexcept>
 
@@ -29,7 +29,7 @@ namespace shelly {
 
 json MQTT::Get()
 {
-	control::HTTP http(ip);
+	shelly::HTTP http(ip);
 
 	json j;
 	j["id"] = 1;
@@ -40,7 +40,7 @@ json MQTT::Get()
 
 json MQTT::Set(const string &server, const string &topic)
 {
-	control::HTTP http(ip);
+	shelly::HTTP http(ip);
 
 	json j;
 	j["id"] = 1;

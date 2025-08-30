@@ -34,15 +34,19 @@ class DeviceHTBluetooth: public DeviceHT
 {
 	std::string ble_addr;
 
+	protected:
+		virtual void reload(const configuration::Json &config) override;
+
 	public:
 		DeviceHTBluetooth(int id);
 		virtual ~DeviceHTBluetooth();
 
 		static void CheckConfig(const configuration::Json &conf);
-		virtual void Reload(const std::string &name, const configuration::Json &config) override;
 
 		std::string GetType() const override { return "htmini"; }
 		std::string GetBLEAddr() const { return ble_addr; }
+
+		virtual void SensorChanged(const sensor::Sensor *sensor) override;
 };
 
 }

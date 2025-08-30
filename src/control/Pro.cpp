@@ -27,10 +27,6 @@ using nlohmann::json;
 
 namespace control {
 
-Pro::Pro(const string &ip, int outlet, const string &mqtt_id): Relay(ip, outlet, mqtt_id)
-{
-}
-
 void Pro::CheckConfig(const configuration::Json &conf)
 {
 	Relay::CheckConfig(conf);

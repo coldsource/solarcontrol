@@ -20,7 +20,6 @@
 #include <device/electrical/DeviceHWS.hpp>
 #include <device/Devices.hpp>
 #include <configuration/Json.hpp>
-#include <meter/MeterFactory.hpp>
 #include <database/DB.hpp>
 #include <configuration/ConfigurationPart.hpp>
 
@@ -46,20 +45,17 @@ void DeviceHWS::ConfigurationChanged(const configuration::ConfigurationPart * co
 
 void DeviceHWS::CheckConfig(const configuration::Json &conf)
 {
-	DeviceTimeRange::CheckConfig(conf);
-
 	conf.Check("min_energy", "float");
 	conf.Check("min_energy_for_last", "int");
 
 	conf.Check("meter", "object"); // Meter is mandatory for HWS
-	meter::MeterFactory::CheckConfig(conf.GetObject("meter"));
+
+	DeviceTimeRange::CheckConfig(conf);
 }
 
-void DeviceHWS::Reload(const string &name, const configuration::Json &config)
+void DeviceHWS::reload(const configuration::Json &config)
 {
-	unique_lock<recursive_mutex> llock(mutex);
-
-	DeviceTimeRange::Reload(name, config);
+	DeviceTimeRange::reload(config);
 
 	min_energy = config.GetInt("min_energy");
 	min_energy_for_last = config.GetInt("min_energy_for_last");

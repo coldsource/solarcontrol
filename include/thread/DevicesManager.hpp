@@ -70,6 +70,8 @@ class DevicesManager: public WaiterThread, public configuration::ConfigurationOb
 
 		static DevicesManager *GetInstance() { return instance; }
 
+		void Start() { start(); }
+
 		void ConfigurationChanged(const configuration::ConfigurationPart *config) override;
 };
 

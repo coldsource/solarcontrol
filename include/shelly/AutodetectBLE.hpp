@@ -17,8 +17,8 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __CONTROL_AUTODETECTBLE_HPP__
-#define __CONTROL_AUTODETECTBLE_HPP__
+#ifndef __SHELLY_AUTODETECTBLE_HPP__
+#define __SHELLY_AUTODETECTBLE_HPP__
 
 #include <mqtt/Subscriber.hpp>
 #include <nlohmann/json.hpp>

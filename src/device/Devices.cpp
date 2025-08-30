@@ -104,6 +104,7 @@ void Devices::Reload(int id)
 			device->Reload(name, config);
 		}
 
+		// On startup, Websocket server is not yet started
 		if(websocket::SolarControl::GetInstance())
 			websocket::SolarControl::GetInstance()->NotifyAll(websocket::SolarControl::en_protocols::DEVICE);
 	}

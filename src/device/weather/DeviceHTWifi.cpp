@@ -19,7 +19,7 @@
 
 
 #include <device/weather/DeviceHTWifi.hpp>
-#include <control/HTWifi.hpp>
+#include <sensor/weather/HTWifi.hpp>
 #include <configuration/Json.hpp>
 
 using namespace std;
@@ -39,16 +39,21 @@ void DeviceHTWifi::CheckConfig(const configuration::Json &conf)
 {
 	DeviceHT::CheckConfig(conf);
 
-	control::HTWifi::CheckConfig(conf);
+	sensor::weather::HTWifi::CheckConfig(conf);
 }
 
-void DeviceHTWifi::Reload(const string &name, const configuration::Json &config)
+void DeviceHTWifi::reload(const configuration::Json &config)
 {
-	unique_lock<recursive_mutex> llock(mutex);
+	DeviceHT::reload(config);
 
-	DeviceHT::Reload(name, config);
+	add_sensor(make_shared<sensor::weather::HTWifi>(config.GetString("mqtt_id")), "ht");
+}
 
-	ctrl = make_shared<control::HTWifi>(config.GetString("mqtt_id"));
+void DeviceHTWifi::SensorChanged(const sensor::Sensor *sensor)
+{
+	sensor::weather::HTWifi * htwifi = (sensor::weather::HTWifi *)sensor;
+	temperature = htwifi->GetTemperature();
+	humidity = htwifi->GetHumidity();
 }
 
 }

@@ -29,7 +29,7 @@ namespace control {
 class Plug: public Relay
 {
 	public:
-		Plug(const std::string &ip, const std::string &mqtt_id);
+		Plug(const std::string &ip): Relay(ip, 0) {}
 };
 
 }

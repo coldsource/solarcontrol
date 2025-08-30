@@ -25,13 +25,10 @@
 
 #include <string>
 #include <memory>
+#include <atomic>
 
 namespace control {
 	class OnOff;
-}
-
-namespace meter {
-	class Meter;
 }
 
 namespace device {
@@ -40,20 +37,23 @@ class DeviceElectrical: public Device
 {
 	protected:
 		std::shared_ptr<control::OnOff> ctrl;
-		std::shared_ptr<meter::Meter> meter;
 
-		bool manual = false;
+		std::atomic_bool manual = false;
+		std::atomic_bool state = false;
+		std::atomic<double> power = -1;
 
 		energy::Counter consumption;
 		energy::Counter offload;
+
+		virtual void reload(const configuration::Json &config) override;
 
 	public:
 		DeviceElectrical(int id);
 		virtual ~DeviceElectrical();
 
-		virtual void Reload(const std::string &name, const configuration::Json &config) override;
+		static void CheckConfig(const configuration::Json &conf);
 
-		double GetPower() const;
+		double GetPower() const { return power; }
 
 		energy::Amount GetEnergyConsumption() { return consumption.GetEnergyConsumption(); }
 		energy::Amount GetEnergyOffload() { return offload.GetEnergyConsumption(); }
@@ -64,13 +64,13 @@ class DeviceElectrical: public Device
 
 		virtual nlohmann::json ToJson() const override;
 
-		virtual bool GetState() const;
+		virtual bool GetState() const { return state; }
 		virtual void SetState(bool new_state);
 		virtual void SetManualState(bool new_state);
 		virtual void SetAutoState();
 		virtual bool IsManual() const { return manual; }
 
-		void LogEnergy();
+		virtual void SensorChanged(const sensor::Sensor *sensor) override;
 };
 
 }

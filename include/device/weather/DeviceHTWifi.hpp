@@ -32,14 +32,18 @@ namespace device {
 
 class DeviceHTWifi: public DeviceHT
 {
+	protected:
+		virtual void reload(const configuration::Json &config) override;
+
 	public:
 		DeviceHTWifi(int id);
 		virtual ~DeviceHTWifi();
 
 		static void CheckConfig(const configuration::Json &conf);
-		virtual void Reload(const std::string &name, const configuration::Json &config) override;
 
 		std::string GetType() const override { return "ht"; }
+
+		virtual void SensorChanged(const sensor::Sensor *sensor) override;
 };
 
 }

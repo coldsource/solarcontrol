@@ -20,6 +20,7 @@
 #include <database/DBConfig.hpp>
 #include <websocket/SolarControl.hpp>
 #include <thread/DevicesManager.hpp>
+#include <thread/SensorsManager.hpp>
 #include <thread/LCD.hpp>
 #include <thread/HistorySync.hpp>
 
@@ -34,6 +35,7 @@ void signal_callback_handler(int signum)
 {
 	if(signum==SIGINT || signum==SIGTERM)
 	{
+		::thread::SensorsManager::GetInstance()->Shutdown();
 		::thread::DevicesManager::GetInstance()->Shutdown();
 	}
 	else if(signum==SIGHUP)
@@ -108,6 +110,7 @@ int main(int argc, char **argv)
 		// Create history sync thread before devices
 		::thread::HistorySync histo_sync;
 
+		// Create MQTT client before devices so they can register to it
 		auto config_sc = configuration::Configuration::FromType("solarcontrol");
 		mqtt::Client mqtt(config_sc->Get("mqtt.host"), config_sc->GetInt("mqtt.port"));
 
@@ -117,9 +120,12 @@ int main(int argc, char **argv)
 		device::DevicePV::CreateInDB();
 		device::DeviceBattery::CreateInDB();
 
+		// Create sensors manager before devices so they can register to it
+		::thread::SensorsManager sensors_manager;
+
 		device::Devices devices;
 
-		// Create global energy meter (grid, pv, hws)
+		// Create global energy meter (grid, pv, hws, battery)
 		energy::GlobalMeter globalmeter;
 
 		websocket::SolarControl ws;
@@ -127,7 +133,13 @@ int main(int argc, char **argv)
 
 		::thread::LCD lcd;
 
+		// Once all is setup, start devices related threads
 		::thread::DevicesManager dev_manager;
+		sensors_manager.Start();
+		dev_manager.Start();
+		mqtt.Start();
+
+		sensors_manager.WaitForShutdown();
 		dev_manager.WaitForShutdown();
 
 		mqtt.Shutdown();

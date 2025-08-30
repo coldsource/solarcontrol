@@ -54,6 +54,8 @@ class Client
 
 		static Client *GetInstance() { return instance; }
 
+		void Start();
+
 		void Subscribe(const std::string &topic, Subscriber *subscriber);
 		void Unsubscribe(const std::string &topic, Subscriber *subscriber);
 

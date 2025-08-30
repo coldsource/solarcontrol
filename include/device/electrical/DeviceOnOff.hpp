@@ -40,9 +40,6 @@ enum en_wanted_state
 class DeviceOnOff: public DeviceElectrical
 {
 	protected:
-		bool need_update = true; // Force state update on reload
-		bool manual_state_changed = false; // Notify we have a change from API
-
 		datetime::Timestamp last_on;
 		datetime::Timestamp last_off;
 
@@ -51,12 +48,14 @@ class DeviceOnOff: public DeviceElectrical
 
 		datetime::TimespanHistory on_history;
 
+		void clock(bool new_state);
+		virtual void reload(const configuration::Json &config) override;
+
 	public:
 		DeviceOnOff(int id);
 		virtual ~DeviceOnOff();
 
 		static void CheckConfig(const configuration::Json &conf);
-		virtual void Reload(const std::string &name, const configuration::Json &config) override;
 
 		en_category GetCategory() const override { return ONOFF; }
 
@@ -66,13 +65,9 @@ class DeviceOnOff: public DeviceElectrical
 		virtual void SetState(bool new_state) override;
 		virtual void SetManualState(bool new_state) override;
 
-		bool WasChanged() const { return manual_state_changed; }
-		void AckChanged() { manual_state_changed = false; }
-
-		bool NeedStateUpdate() const { return need_update; }
-		void UpdateState();
-
 		double GetExpectedConsumption() const;
+
+		virtual void SensorChanged(const sensor::Sensor *sensor) override;
 
 		struct PrioComparator {
 			bool operator()(std::shared_ptr<DeviceOnOff> a, std::shared_ptr<DeviceOnOff> b) const { return a->GetPrio() < b->GetPrio(); }

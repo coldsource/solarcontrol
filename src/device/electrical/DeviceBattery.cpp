@@ -19,12 +19,13 @@
 
 #include <device/electrical/DeviceBattery.hpp>
 #include <device/Devices.hpp>
-#include <meter/Voltmeter.hpp>
+#include <sensor/meter/Voltmeter.hpp>
 #include <configuration/Json.hpp>
 #include <database/DB.hpp>
 
 using namespace std;
 using nlohmann::json;
+using sensor::meter::Voltmeter;
 
 namespace device
 {
@@ -35,15 +36,15 @@ DeviceBattery::DeviceBattery(int id):DevicePassive(id)
 	consumption = energy::Counter(id, "production");
 
 	auto state = state_restore();
-	double voltage = state.GetFloat("voltage", 0);
-	// voltmeter->SetVoltage(voltage);
-	// TODO : Ne marche plus
+	voltage = state.GetFloat("voltage", 0);
+	soc = state.GetFloat("soc", 0);
 }
 
 DeviceBattery::~DeviceBattery()
 {
 	json state;
-	state["voltage"] = GetVoltage();
+	state["voltage"] = (double)voltage;
+	state["soc"] = (double)soc;
 	state_backup(configuration::Json(state));
 }
 
@@ -52,36 +53,36 @@ void DeviceBattery::CheckConfig(const configuration::Json &conf)
 	DevicePassive::CheckConfig(conf);
 
 	conf.Check("voltmeter", "object"); // Meter is mandatory for passive devices
-	meter::Voltmeter::CheckConfig(conf.GetObject("voltmeter"));
+	Voltmeter::CheckConfig(conf.GetObject("voltmeter"));
 }
 
-void DeviceBattery::Reload(const string &name, const configuration::Json &config)
+void DeviceBattery::reload(const configuration::Json &config)
 {
-	unique_lock<recursive_mutex> llock(mutex);
+	DevicePassive::reload(config);
 
-	DevicePassive::Reload(name, config);
-
-	voltmeter = make_unique<meter::Voltmeter>(config.GetObject("voltmeter"));
-}
-
-double DeviceBattery::GetVoltage() const
-{
-	return voltmeter->GetVoltage();
-}
-
-double DeviceBattery::GetSOC() const
-{
-	return voltmeter->GetSOC();
+	add_sensor(make_unique<Voltmeter>(config.GetObject("voltmeter")), "voltmeter");
 }
 
 json DeviceBattery::ToJson() const
 {
 	json j_device = DevicePassive::ToJson();
 
-	j_device["voltage"] = voltmeter->GetVoltage();
-	j_device["soc"] = voltmeter->GetSOC();
+	j_device["voltage"] = (double)voltage;
+	j_device["soc"] = (double)soc;
 
 	return j_device;
+}
+
+void DeviceBattery::SensorChanged(const sensor::Sensor *sensor)
+{
+	if(sensor->GetName()=="voltmeter")
+	{
+		Voltmeter *voltmeter = (Voltmeter *)sensor;
+		voltage = voltmeter->GetVoltage();
+		soc = voltmeter->GetSOC();
+	}
+	else
+		DevicePassive::SensorChanged(sensor); // Forward messages of meter
 }
 
 void DeviceBattery::CreateInDB()

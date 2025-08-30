@@ -19,7 +19,7 @@
 
 
 #include <device/weather/DeviceWind.hpp>
-#include <control/Wind.hpp>
+#include <sensor/weather/Wind.hpp>
 #include <configuration/Json.hpp>
 #include <stat/MinMaxAvg.hpp>
 
@@ -40,31 +40,14 @@ void DeviceWind::CheckConfig(const configuration::Json &conf)
 {
 	DeviceWeather::CheckConfig(conf);
 
-	control::Wind::CheckConfig(conf);
+	sensor::weather::Wind::CheckConfig(conf);
 }
 
-void DeviceWind::Reload(const string &name, const configuration::Json &config)
+void DeviceWind::reload(const configuration::Json &config)
 {
-	unique_lock<recursive_mutex> llock(mutex);
+	DeviceWeather::reload(config);
 
-	DeviceWeather::Reload(name, config);
-
-	ctrl = make_shared<control::Wind>(config.GetString("mqtt_id"));
-}
-
-double DeviceWind::GetTemperature() const
-{
-	return std::numeric_limits<double>::quiet_NaN();
-}
-
-double DeviceWind::GetHumidity() const
-{
-	return std::numeric_limits<double>::quiet_NaN();
-}
-
-double DeviceWind::GetWind() const
-{
-	return ctrl->GetWind();
+	add_sensor(make_shared<sensor::weather::Wind>(config.GetString("mqtt_id")), "ht");
 }
 
 void DeviceWind::Log()
@@ -75,6 +58,11 @@ void DeviceWind::Log()
 		return;
 
 	history.Add(stat::MinMaxAvg(w));
+}
+
+void DeviceWind::SensorChanged(const sensor::Sensor *sensor)
+{
+	wind = ((sensor::weather::Wind *)sensor)->GetWind();
 }
 
 }

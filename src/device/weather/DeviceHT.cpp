@@ -18,7 +18,6 @@
  */
 
 #include <device/weather/DeviceHT.hpp>
-#include <control/HT.hpp>
 #include <configuration/Json.hpp>
 #include <nlohmann/json.hpp>
 
@@ -34,11 +33,8 @@ DeviceWeather(id), history(id)
 {
 	auto state = state_restore();
 
-	double h = state.GetFloat("humidity", std::numeric_limits<double>::quiet_NaN());
-	double t = state.GetFloat("temperature", std::numeric_limits<double>::quiet_NaN());
-
-	// TODO A gérer avec l'observateur
-	// ctrl->SetHT(h, t);
+	humidity = state.GetFloat("humidity", std::numeric_limits<double>::quiet_NaN());
+	temperature = state.GetFloat("temperature", std::numeric_limits<double>::quiet_NaN());
 }
 
 DeviceHT::~DeviceHT()
@@ -51,21 +47,6 @@ DeviceHT::~DeviceHT()
 		state["temperature"] = GetTemperature();
 
 	state_backup(configuration::Json(state));
-}
-
-double DeviceHT::GetTemperature() const
-{
-	return ctrl->GetTemperature();
-}
-
-double DeviceHT::GetHumidity() const
-{
-	return ctrl->GetHumidity();
-}
-
-double DeviceHT::GetWind() const
-{
-	return std::numeric_limits<double>::quiet_NaN();
 }
 
 void DeviceHT::Log()

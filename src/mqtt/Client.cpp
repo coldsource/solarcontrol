@@ -41,8 +41,6 @@ Client::Client(const string &host, unsigned int port)
 	if(re!=MOSQ_ERR_SUCCESS)
 		throw runtime_error("Could connect to host " + host + "on port " + to_string(port));
 
-	loop_handle = thread(loop, this);
-
 	instance = this;
 }
 
@@ -54,6 +52,11 @@ Client::~Client()
 	mosquitto_destroy(mosqh);
 
 	instance = 0;
+}
+
+void Client::Start()
+{
+	loop_handle = thread(loop, this);
 }
 
 void Client::Subscribe(const string &topic, Subscriber *subscriber)

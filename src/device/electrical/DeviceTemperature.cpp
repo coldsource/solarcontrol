@@ -66,11 +66,10 @@ void DeviceTemperature::CheckConfig(const configuration::Json &conf)
 	}
 }
 
-void DeviceTemperature::Reload(const string &name, const configuration::Json &config)
+void DeviceTemperature::reload(const configuration::Json &config)
 {
-	unique_lock<recursive_mutex> llock(mutex);
 
-	DeviceTimeRange::Reload(name, config);
+	DeviceTimeRange::reload(config);
 
 	ht_device_id = config.GetInt("ht_device_id");
 }

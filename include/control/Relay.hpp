@@ -20,9 +20,7 @@
 #ifndef __CONTROL_RELAY_HPP__
 #define __CONTROL_RELAY_HPP__
 
-#include <control/HTTP.hpp>
 #include <control/OnOff.hpp>
-#include <mqtt/Subscriber.hpp>
 
 #include <string>
 #include <mutex>
@@ -34,29 +32,20 @@ namespace configuration {
 
 namespace control {
 
-class Relay: public HTTP, public OnOff, public mqtt::Subscriber
+class Relay: public OnOff
 {
+	const std::string ip = "";
 	const int outlet = 0;
-	const std::string topic = "";
-
-	std::atomic_bool state = false;
 
 	std::mutex lock;
 
-	protected:
-		bool get_output() const;
-
 	public:
-		Relay(const std::string &ip, int outlet, const std::string &mqtt_id);
-		virtual ~Relay();
+		Relay(const std::string &ip, int outlet):ip(ip), outlet(outlet) {}
+		virtual ~Relay() {}
 
 		static void CheckConfig(const configuration::Json & conf);
 
 		void Switch(bool state) override;
-		bool GetState() const override;
-		void UpdateState() override;
-
-		void HandleMessage(const std::string &message, const std::string & /*topic*/) override;
 };
 
 }

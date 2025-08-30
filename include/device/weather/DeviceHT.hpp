@@ -24,6 +24,8 @@
 #include <weather/HistoryQuarterHourHT.hpp>
 
 #include <memory>
+#include <limits>
+#include <atomic>
 
 namespace control {
 	class HT;
@@ -34,7 +36,7 @@ namespace device {
 class DeviceHT: public DeviceWeather
 {
 	protected:
-		std::shared_ptr<control::HT> ctrl;
+		std::atomic<double> humidity, temperature;
 
 		weather::HistoryQuarterHourHT history;
 
@@ -42,9 +44,9 @@ class DeviceHT: public DeviceWeather
 		DeviceHT(int id);
 		virtual ~DeviceHT();
 
-		double GetTemperature() const override;
-		double GetHumidity() const override;
-		double GetWind() const override;
+		double GetTemperature() const override { return temperature; }
+		double GetHumidity() const override { return humidity; }
+		double GetWind() const override { return std::numeric_limits<double>::quiet_NaN(); }
 
 		void Log() override;
 };

@@ -23,6 +23,7 @@
 #include <device/electrical/DevicePassive.hpp>
 
 #include <memory>
+#include <atomic>
 
 namespace configuration {
 	class Json;
@@ -36,8 +37,10 @@ namespace device {
 
 class DeviceBattery: public DevicePassive
 {
+	std::atomic<double> voltage = -1, soc = 0;
+
 	protected:
-		std::unique_ptr<meter::Voltmeter> voltmeter;
+		virtual void reload(const configuration::Json &config) override;
 
 	public:
 		DeviceBattery(int id);
@@ -48,11 +51,12 @@ class DeviceBattery: public DevicePassive
 		const std::map<datetime::Date, energy::Amount> &GetProductionHistory() const { return consumption.GetConsumptionHistory(); }
 
 		static void CheckConfig(const configuration::Json &conf);
-		virtual void Reload(const std::string &name, const configuration::Json &config) override;
 
-		double GetVoltage() const;
-		double GetSOC() const;
+		double GetVoltage() const { return voltage; }
+		double GetSOC() const { return soc; }
 		virtual nlohmann::json ToJson() const override;
+
+		virtual void SensorChanged(const sensor::Sensor *sensor) override;
 
 		static void CreateInDB();
 };

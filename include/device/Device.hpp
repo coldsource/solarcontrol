@@ -20,11 +20,19 @@
 #ifndef __DEVICE_DEVICE_HPP__
 #define __DEVICE_DEVICE_HPP__
 
+#include <sensor/Sensors.hpp>
+#include <sensor/SensorObserver.hpp>
 #include <configuration/Json.hpp>
 #include <nlohmann/json.hpp>
 
 #include <string>
 #include <mutex>
+#include <set>
+#include <memory>
+
+namespace sensor {
+	class Sensor;
+}
 
 namespace device {
 
@@ -36,19 +44,25 @@ enum en_category
 	WEATHER
 };
 
-class Device
+class Device: public sensor::SensorObserver
 {
 	int id;
 	configuration::Json config;
 	std::string name;
 
+	sensor::Sensors sensors;
+
 	bool deleted = false;
 
 	protected:
-		std::recursive_mutex mutex;
+		mutable std::mutex lock;
 
 		void state_backup(const configuration::Json &state);
 		const configuration::Json state_restore();
+
+		void add_sensor(std::shared_ptr<sensor::Sensor> sensor, const std::string &name);
+
+		virtual void reload(const configuration::Json & /* config */) {}
 
 	public:
 		Device(int id):id(id) {}
@@ -56,19 +70,18 @@ class Device
 		virtual ~Device();
 
 		static void CheckConfig(const configuration::Json & /* conf */) {}
-		virtual void Reload(const std::string &name, const configuration::Json &config);
+		virtual void Reload(const std::string &name, const configuration::Json &config) final;
+		void Delete();
 
 		virtual std::string GetType() const = 0;
 		virtual en_category GetCategory() const = 0;
 		virtual nlohmann::json ToJson() const = 0;
 
 		int GetID() const { return id; }
-		std::string GetName() const { return name; }
-		const configuration::Json GetConfig() const { return config; }
+		std::string GetName() const;
+		const configuration::Json GetConfig() const;
 
 		virtual bool Depends(int /* device_id */) const { return false; }
-
-		void Delete() { deleted = true; } // Device might be in use, flag for removal in destructor
 };
 
 }

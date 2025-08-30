@@ -45,8 +45,6 @@ DevicesManager::DevicesManager()
 
 	global_meter = energy::GlobalMeter::GetInstance();
 
-	start();
-
 	instance = this;
 }
 
@@ -142,7 +140,6 @@ void DevicesManager::main()
 	{
 		Timestamp now(TS_MONOTONIC);
 		bool state_changed = false;
-		bool state_updated = false;
 
 		// Compute moving average of available power (we don't want to count during cooldown to let power be accurate)
 		// global_meter is locked before locking devices (and never locked after)
@@ -155,13 +152,6 @@ void DevicesManager::main()
 			auto weather = devices.GetWeather();
 			for(auto it = weather.begin(); it!=weather.end(); ++it)
 				(*it)->Log();
-		}
-
-		{
-			Devices devices;
-			auto electrical = devices.GetElectrical();
-			for(auto it = electrical.begin(); it!=electrical.end(); ++it)
-				(*it)->LogEnergy();
 		}
 
 		{
@@ -181,37 +171,6 @@ void DevicesManager::main()
 
 			try
 			{
-
-				if(now-last_state_update>state_update_interval)
-				{
-					// Update all devices' state
-					for(auto it = onoff.begin(); it!=onoff.end(); ++it)
-					{
-						(*it)->UpdateState();
-						state_updated = true;
-					}
-
-					last_state_update = now;
-				}
-
-				// Update devices that have been reloaded or have had a manuel change
-				for(auto it = onoff.begin(); it!=onoff.end(); ++it)
-				{
-					// Reloaded device
-					if((*it)->NeedStateUpdate())
-					{
-						(*it)->UpdateState();
-						state_updated = true;
-					}
-
-					// Manual change
-					if((*it)->WasChanged())
-					{
-						(*it)->AckChanged();
-						state_changed = true;
-					}
-				}
-
 				// Fetch all devices wanted state
 				map<shared_ptr<DeviceOnOff>, bool> forced_devices;
 				vector<shared_ptr<DeviceOnOff>> offload_devices;
@@ -246,8 +205,8 @@ void DevicesManager::main()
 			}
 		}
 
-		if(websocket::SolarControl::GetInstance() && (state_changed || state_updated))
-			websocket::SolarControl::GetInstance()->NotifyAll(websocket::SolarControl::en_protocols::DEVICE);
+		websocket::SolarControl::GetInstance()->NotifyAll(websocket::SolarControl::en_protocols::DEVICE);
+		websocket::SolarControl::GetInstance()->NotifyAll(websocket::SolarControl::en_protocols::METER);
 
 		if(!wait(1))
 			return;

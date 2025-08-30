@@ -20,13 +20,18 @@
 #include <device/electrical/DeviceElectrical.hpp>
 #include <configuration/Json.hpp>
 #include <control/OnOffFactory.hpp>
-#include <control/Dummy.hpp>
-#include <meter/MeterFactory.hpp>
-#include <meter/Meter.hpp>
+#include <control/OnOff.hpp>
+#include <sensor/sw/SwitchFactory.hpp>
+#include <sensor/sw/Switch.hpp>
+#include <sensor/meter/MeterFactory.hpp>
+#include <sensor/meter/Meter.hpp>
 #include <energy/GlobalMeter.hpp>
 #include <logs/State.hpp>
 
 using namespace std;
+using sensor::sw::SwitchFactory;
+using sensor::meter::MeterFactory;
+using control::OnOffFactory;
 using datetime::Timestamp;
 using nlohmann::json;
 
@@ -41,26 +46,33 @@ DeviceElectrical::~DeviceElectrical()
 {
 }
 
-void DeviceElectrical::Reload(const string &name, const configuration::Json &config)
+void DeviceElectrical::CheckConfig(const configuration::Json &conf)
 {
-	unique_lock<recursive_mutex> llock(mutex);
+	Device::CheckConfig(conf);
 
-	Device::Reload(name, config);
+	if(conf.Has("control"))
+		SwitchFactory::CheckConfig(conf.GetObject("control"));
 
-	if(config.Has("control"))
-		ctrl = control::OnOffFactory::GetFromConfig(config.GetObject("control"));
-	else
-		ctrl = make_shared<control::Dummy>(); // Passive devices have no control
-
-	if(config.Has("meter"))
-		meter = meter::MeterFactory::GetFromConfig(config.GetObject("meter")); // Device has a dedicated metering configuration
-	else
-		meter = meter::MeterFactory::GetFromConfig(config.GetObject("control")); // Fallback on control for metering also
+	if(conf.Has("meter"))
+		MeterFactory::CheckConfig(conf.GetObject("meter"));
 }
 
-double DeviceElectrical::GetPower() const
+void DeviceElectrical::reload(const configuration::Json &config)
 {
-	return meter->GetPower();
+	Device::reload(config);
+
+	if(config.Has("control"))
+		ctrl = OnOffFactory::GetFromConfig(config.GetObject("control")); // Passive devices have no control, get a dummy controller
+	else
+		ctrl = OnOffFactory::GetFromConfig(); // Passive devices have no control, get a dummy controller
+
+	if(config.Has("control"))
+		add_sensor(SwitchFactory::GetFromConfig(config.GetObject("control")), "switch");
+
+	if(config.Has("meter"))
+		add_sensor(MeterFactory::GetFromConfig(config.GetObject("meter")), "meter"); // Device has a dedicated metering configuration
+	else
+		add_sensor(MeterFactory::GetFromConfig(config.GetObject("control")), "meter"); // Fallback on control for metering also
 }
 
 json DeviceElectrical::ToJson() const
@@ -79,22 +91,22 @@ json DeviceElectrical::ToJson() const
 	return j_device;
 }
 
-bool DeviceElectrical::GetState() const
-{
-	return ctrl->GetState();
-}
-
 void DeviceElectrical::SetState(bool new_state)
 {
+	state = new_state;
 	ctrl->Switch(new_state);
 
-	logs::State::LogStateChange(GetID(), manual?logs::State::en_mode::manual:logs::State::en_mode::automatic, new_state);
+	logs::State::LogStateChange(GetID(), logs::State::en_mode::automatic, new_state);
 }
 
 void DeviceElectrical::SetManualState(bool new_state)
 {
 	manual = true;
-	SetState(new_state);
+
+	state = new_state;
+	ctrl->Switch(new_state);
+
+	logs::State::LogStateChange(GetID(), logs::State::en_mode::manual, new_state);
 }
 
 void DeviceElectrical::SetAutoState()
@@ -104,14 +116,25 @@ void DeviceElectrical::SetAutoState()
 	logs::State::LogModeChange(GetID(), logs::State::en_mode::automatic);
 }
 
-void DeviceElectrical::LogEnergy()
+void DeviceElectrical::SensorChanged(const sensor::Sensor *sensor)
 {
-	double device_consumption = meter->GetConsumption();
-	double device_excess = meter->GetExcess();
-	double pv_ratio = energy::GlobalMeter::GetInstance()->GetPVPowerRatio();
+	const string name = sensor->GetName();
+	if(name=="switch")
+		state = ((sensor::sw::Switch *)sensor)->GetState();
+	else if(name=="meter")
+	{
+		sensor::meter::Meter *meter = (sensor::meter::Meter *)sensor;
 
-	consumption.AddEnergy(device_consumption, device_excess);
-	offload.AddEnergy(device_consumption * pv_ratio);
+		power = meter->GetPower();
+
+		// Log energy
+		double device_consumption = meter->GetConsumption();
+		double device_excess = meter->GetExcess();
+		double pv_ratio = energy::GlobalMeter::GetInstance()->GetPVPowerRatio();
+
+		consumption.AddEnergy(device_consumption, device_excess);
+		offload.AddEnergy(device_consumption * pv_ratio);
+	}
 }
 
 }

@@ -18,7 +18,7 @@
  */
 
 #include <shelly/Autodetect.hpp>
-#include <control/HTTP.hpp>
+#include <shelly/HTTP.hpp>
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -132,7 +132,7 @@ string Autodetect::ip_to_network(const string &ip)
 
 void Autodetect::worker(Autodetect *instance, const string &ip)
 {
-	control::HTTP http(ip);
+	shelly::HTTP http(ip);
 
 	try
 	{

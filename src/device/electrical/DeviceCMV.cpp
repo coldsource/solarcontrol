@@ -58,11 +58,9 @@ void DeviceCMV::CheckConfig(const configuration::Json &conf)
 	}
 }
 
-void DeviceCMV::Reload(const string &name, const configuration::Json &config)
+void DeviceCMV::reload(const configuration::Json &config)
 {
-	unique_lock<recursive_mutex> llock(mutex);
-
-	DeviceTimeRange::Reload(name, config);
+	DeviceTimeRange::reload(config);
 
 	for(auto device_id : config.GetArray("ht_device_ids"))
 		ht_device_ids.insert(device_id);

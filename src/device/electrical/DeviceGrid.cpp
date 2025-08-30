@@ -19,13 +19,14 @@
 
 #include <device/electrical/DeviceGrid.hpp>
 #include <device/Devices.hpp>
-#include <input/InputFactory.hpp>
-#include <input/Input.hpp>
+#include <sensor/input/InputFactory.hpp>
+#include <sensor/input/Input.hpp>
 #include <configuration/Json.hpp>
 #include <database/DB.hpp>
 
 using namespace std;
 using nlohmann::json;
+using sensor::input::InputFactory;
 
 namespace device
 {
@@ -45,24 +46,22 @@ void DeviceGrid::CheckConfig(const configuration::Json &conf)
 	DevicePassive::CheckConfig(conf);
 
 	conf.Check("input", "object"); // Input is mandatory for Grid
-	input::InputFactory::CheckConfig(conf.GetObject("input"));
+	InputFactory::CheckConfig(conf.GetObject("input"));
 }
 
-void DeviceGrid::Reload(const string &name, const configuration::Json &config)
+void DeviceGrid::reload(const configuration::Json &config)
 {
-	unique_lock<recursive_mutex> llock(mutex);
+	DevicePassive::reload(config);
 
-	DevicePassive::Reload(name, config);
-
-	offpeak_ctrl = input::InputFactory::GetFromConfig(config.GetObject("input"));
+	add_sensor(InputFactory::GetFromConfig(config.GetObject("input")), "offpeak_ctrl");
 }
 
-bool DeviceGrid::GetOffPeak() const
+void DeviceGrid::SensorChanged(const  sensor::Sensor *sensor)
 {
-	if(!offpeak_ctrl)
-		return false;
-
-	return offpeak_ctrl->GetState();
+	if(sensor->GetName()=="offpeak_ctrl")
+		offpeak = ((sensor::input::Input *)sensor)->GetState();
+	else
+		DevicePassive::SensorChanged(sensor); // Forward message
 }
 
 void DeviceGrid::CreateInDB()

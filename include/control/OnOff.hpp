@@ -34,8 +34,6 @@ class OnOff
 		static void CheckConfig(const configuration::Json & /* conf */) {}
 
 		virtual void Switch(bool) = 0;
-		virtual bool GetState() const = 0;
-		virtual void UpdateState() = 0;
 };
 
 }

@@ -19,6 +19,7 @@
 
 #include <device/Device.hpp>
 #include <database/DB.hpp>
+#include <sensor/Sensor.hpp>
 
 using namespace std;
 using database::DB;
@@ -41,12 +42,37 @@ Device::~Device()
 	}
 }
 
-void Device::Reload(const std::string &name, const configuration::Json &config)
+void Device::Reload(const string &name, const configuration::Json &config)
 {
-	unique_lock<recursive_mutex> llock(mutex);
+	unique_lock<mutex> llock(lock);
 
 	this->name = name;
 	this->config = config;
+
+	// Reinit sensors before reload
+	sensors.clear();
+
+	reload(config); // Call protected reload to let children reload
+}
+
+void Device::Delete()
+{
+	unique_lock<mutex> llock(lock);
+
+	deleted = true; // Device might be in use, flag for removal in destructor
+}
+
+string Device::GetName() const
+{
+	unique_lock<mutex> llock(lock);
+
+	return name;
+}
+const configuration::Json Device::GetConfig() const
+{
+	unique_lock<mutex> llock(lock);
+
+	return config;
 }
 
 void Device::state_backup(const configuration::Json &state)
@@ -64,6 +90,11 @@ const configuration::Json Device::state_restore()
 	if(res.FetchRow())
 		return configuration::Json(string(res["device_state"]));
 	return configuration::Json();
+}
+
+void Device::add_sensor(shared_ptr<sensor::Sensor> sensor, const string &name)
+{
+	sensors.insert(name, this, sensor);
 }
 
 }

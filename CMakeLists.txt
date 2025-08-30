@@ -30,6 +30,12 @@ aux_source_directory(src/weather srcWeather)
 aux_source_directory(src/meter srcMeter)
 aux_source_directory(src/shelly srcShelly)
 aux_source_directory(src/stat srcStat)
+aux_source_directory(src/control srcControl)
+aux_source_directory(src/sensor srcSensor)
+aux_source_directory(src/sensor/weather srcSensorWeather)
+aux_source_directory(src/sensor/input srcSensorInput)
+aux_source_directory(src/sensor/sw srcSensorSW)
+aux_source_directory(src/sensor/meter srcSensorMeter)
 
 add_executable(solarcontrol
 	${srcMQTT}
@@ -52,6 +58,12 @@ add_executable(solarcontrol
 	${srcMeter}
 	${srcShelly}
 	${srcStat}
+	${srcControl}
+	${srcSensor}
+	${srcSensorWeather}
+	${srcSensorInput}
+	${srcSensorSW}
+	${srcSensorMeter}
 	
 	src/solarcontrol.cpp
 	)

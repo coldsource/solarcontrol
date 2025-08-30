@@ -25,6 +25,8 @@
 
 #include <string>
 #include <memory>
+#include <atomic>
+#include <limits>
 
 namespace control {
 	class Wind;
@@ -34,23 +36,26 @@ namespace device {
 
 class DeviceWind: public DeviceWeather
 {
-	protected:
-		std::shared_ptr<control::Wind> ctrl;
+	std::atomic<double> wind;
 
-		weather::HistoryQuarterHourWind history;
+	weather::HistoryQuarterHourWind history;
+
+	protected:
+		virtual void reload(const configuration::Json &config) override;
 
 	public:
 		DeviceWind(int id);
 		virtual ~DeviceWind();
 
 		static void CheckConfig(const configuration::Json &conf);
-		virtual void Reload(const std::string &name, const configuration::Json &config) override;
 
 		std::string GetType() const override { return "wind"; }
 
-		double GetTemperature() const override;
-		double GetHumidity() const override;
-		double GetWind() const override;
+		double GetTemperature() const override { return std::numeric_limits<double>::quiet_NaN(); }
+		double GetHumidity() const override { return std::numeric_limits<double>::quiet_NaN(); }
+		double GetWind() const override { return wind; }
+
+		virtual void SensorChanged(const sensor::Sensor *sensor) override;
 
 		void Log() override;
 };

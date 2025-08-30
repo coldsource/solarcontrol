@@ -18,9 +18,7 @@
  */
 
 #include <device/electrical/DeviceOnOff.hpp>
-#include <control/OnOffFactory.hpp>
-#include <control/OnOff.hpp>
-#include <meter/Meter.hpp>
+#include <sensor/sw/Switch.hpp>
 #include <configuration/Json.hpp>
 #include <nlohmann/json.hpp>
 
@@ -33,79 +31,95 @@ namespace device {
 DeviceOnOff::DeviceOnOff(int id):
 DeviceElectrical(id), on_history(id)
 {
-	auto state = state_restore();
-	manual = state.GetBool("manual", false);
+	auto state_backup = state_restore();
+	manual = state_backup.GetBool("manual", false);
+	state = state_backup.GetBool("state", false);
 }
 
 DeviceOnOff::~DeviceOnOff()
 {
-	json state;
-	state["manual"] = manual;
-	state_backup(configuration::Json(state));
+	json backup_state;
+	backup_state["manual"] = (bool)manual;
+	backup_state["state"] = (bool)state;
+	state_backup(configuration::Json(backup_state));
 }
 
 void DeviceOnOff::CheckConfig(const configuration::Json &conf)
 {
-	Device::CheckConfig(conf);
-
 	conf.Check("control", "object"); // Control is mandatory for OnOff devices
-	control::OnOffFactory::CheckConfig(conf.GetObject("control"));
+
+	DeviceElectrical::CheckConfig(conf);
 
 	conf.Check("prio", "int"); // Prio is mandatory for all onoff devices
 	conf.Check("expected_consumption", "int", false);
 }
 
-void DeviceOnOff::Reload(const std::string &name, const configuration::Json &config)
+void DeviceOnOff::reload(const configuration::Json &config)
 {
-	unique_lock<recursive_mutex> llock(mutex);
-
-	DeviceElectrical::Reload(name, config);
+	DeviceElectrical::reload(config);
 
 	prio = config.GetInt("prio");
 	expected_consumption = config.GetInt("expected_consumption", 0);
 }
 
+void DeviceOnOff::clock(bool new_state)
+{
+	try
+	{
+		// Internal function to handle Clock In/Out and last_on/last_off
+
+		if(new_state==state)
+			return; // Nothing to do already in current state
+
+		if(new_state)
+			on_history.ClockIn();
+		else
+			on_history.ClockOut();
+
+		if(new_state)
+			last_on = Timestamp(TS_MONOTONIC);
+		else
+			last_off = Timestamp(TS_MONOTONIC);
+	}
+	catch(...) {} // Ignore clock in/out exception
+}
+
 void DeviceOnOff::SetState(bool new_state)
 {
+	clock(new_state);
+
 	DeviceElectrical::SetState(new_state);
-
-	if(new_state)
-		on_history.ClockIn();
-	else
-		on_history.ClockOut();
-
-	if(new_state)
-		last_on = Timestamp(TS_MONOTONIC);
-	else
-		last_off = Timestamp(TS_MONOTONIC);
 }
 
 void DeviceOnOff::SetManualState(bool new_state)
 {
+	clock(new_state);
+
 	DeviceElectrical::SetManualState(new_state);
-	manual_state_changed = true;
-}
-
-void DeviceOnOff::UpdateState()
-{
-	bool cur_state = ctrl->GetState();
-	ctrl->UpdateState();
-
-	bool new_state = ctrl->GetState();
-
-	// If we are reloading we do not need to clock in/out as data has already been reloaded from database
-	if(new_state!=cur_state && !need_update)
-		SetState(new_state);
-
-	need_update = false;
 }
 
 double DeviceOnOff::GetExpectedConsumption() const
 {
-	if(ctrl->GetState() && meter->GetPower()>=0)
-		return meter->GetPower();
+	if(GetState() && power>=0)
+		return power; // If device is on and is metered, we take the real consumption
 
-	return expected_consumption;
+	return expected_consumption; // Take estimated consumption
+}
+
+void DeviceOnOff::SensorChanged(const sensor::Sensor *sensor)
+{
+	const string name = sensor->GetName();
+	if(name=="switch")
+	{
+		bool new_state = ((sensor::sw::Switch *)sensor)->GetState();
+
+		if(new_state==state)
+			return; // Already in the good state, state change has been made through SetState() or SetManualState() and we are just getting notification of it
+
+		SetManualState(new_state);
+	}
+	else
+		DeviceElectrical::SensorChanged(sensor);
 }
 
 }

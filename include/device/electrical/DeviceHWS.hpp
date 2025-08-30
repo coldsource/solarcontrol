@@ -39,6 +39,8 @@ class DeviceHWS: public DeviceTimeRange, public configuration::ConfigurationObse
 
 		std::atomic_bool absence;
 
+		virtual void reload(const configuration::Json &config) override;
+
 	public:
 		DeviceHWS(int id);
 		virtual ~DeviceHWS();
@@ -46,7 +48,6 @@ class DeviceHWS: public DeviceTimeRange, public configuration::ConfigurationObse
 		void ConfigurationChanged(const configuration::ConfigurationPart * config) override;
 
 		static void CheckConfig(const configuration::Json &conf);
-		virtual void Reload(const std::string &name, const configuration::Json &config) override;
 
 		bool WantRemainder(configuration::Json *data_ptr = 0) const override;
 

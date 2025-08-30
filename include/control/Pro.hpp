@@ -29,7 +29,7 @@ namespace control {
 class Pro: public Relay
 {
 	public:
-		Pro(const std::string &ip, int outlet, const std::string &mqtt_id);
+		Pro(const std::string &ip, int outlet) : Relay(ip, outlet) {}
 
 		static void CheckConfig(const configuration::Json &conf);
 

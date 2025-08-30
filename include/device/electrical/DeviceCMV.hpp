@@ -38,13 +38,13 @@ class DeviceCMV: public DeviceTimeRange
 		static void check_timeranges(const configuration::Json &conf, const std::string &name);
 
 		virtual en_wanted_state get_wanted_state(configuration::Json *data_ptr = 0) const override;
+		virtual void reload(const configuration::Json &config) override;
 
 	public:
 		DeviceCMV(int id);
 		virtual ~DeviceCMV() {}
 
 		static void CheckConfig(const configuration::Json &conf);
-		virtual void Reload(const std::string &name, const configuration::Json &config) override;
 
 		std::string GetType() const override { return "cmv"; }
 

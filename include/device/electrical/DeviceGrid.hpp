@@ -21,35 +21,37 @@
 #define __DEVICE_DEVICEGRID_HPP__
 
 #include <device/electrical/DevicePassive.hpp>
+#include <sensor/SensorObserver.hpp>
 
 #include <memory>
+#include <atomic>
 
 namespace configuration {
 	class Json;
-}
-
-namespace input {
-	class Input;
 }
 
 namespace device {
 
 class DeviceGrid: public DevicePassive
 {
-	std::shared_ptr<input::Input> offpeak_ctrl;
+	std::atomic_bool offpeak = false;
+
+	protected:
+		virtual void reload(const configuration::Json &config) override;
 
 	public:
 		DeviceGrid(int id);
 		virtual ~DeviceGrid();
 
 		static void CheckConfig(const configuration::Json &conf);
-		virtual void Reload(const std::string &name, const configuration::Json &config) override;
 
 		std::string GetType() const override { return "grid"; }
 
 		const std::map<datetime::Date, energy::Amount> &GetExcessHistory() const { return consumption.GetExcessHistory(); }
 
-		bool GetOffPeak() const;
+		bool GetOffPeak() const { return offpeak; }
+
+		virtual void SensorChanged(const sensor::Sensor *sensor) override;
 
 		static void CreateInDB();
 };

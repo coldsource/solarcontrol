@@ -19,7 +19,7 @@
 
 
 #include <device/weather/DeviceHTBluetooth.hpp>
-#include <control/HTBluetooth.hpp>
+#include <sensor/weather/HTBluetooth.hpp>
 #include <configuration/Json.hpp>
 
 using namespace std;
@@ -39,17 +39,22 @@ void DeviceHTBluetooth::CheckConfig(const configuration::Json &conf)
 {
 	DeviceHT::CheckConfig(conf);
 
-	control::HTBluetooth::CheckConfig(conf);
+	sensor::weather::HTBluetooth::CheckConfig(conf);
 }
 
-void DeviceHTBluetooth::Reload(const string &name, const configuration::Json &config)
+void DeviceHTBluetooth::reload(const configuration::Json &config)
 {
-	unique_lock<recursive_mutex> llock(mutex);
-
-	DeviceHT::Reload(name, config);
+	DeviceHT::reload(config);
 
 	ble_addr = config.GetString("ble_addr");
-	ctrl = make_shared<control::HTBluetooth>(ble_addr);
+	add_sensor(make_shared<sensor::weather::HTBluetooth>(ble_addr), "ht");
+}
+
+void DeviceHTBluetooth::SensorChanged(const sensor::Sensor *sensor)
+{
+	sensor::weather::HTBluetooth * htble = (sensor::weather::HTBluetooth *)sensor;
+	temperature = htble->GetTemperature();
+	humidity = htble->GetHumidity();
 }
 
 }

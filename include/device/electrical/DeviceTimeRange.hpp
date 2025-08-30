@@ -48,13 +48,13 @@ class DeviceTimeRange: public DeviceOnOff
 		unsigned long min_on_for_last;
 
 		virtual en_wanted_state get_wanted_state(configuration::Json *data_ptr = 0) const;
+		virtual void reload(const configuration::Json &config) override;
 
 	public:
 		DeviceTimeRange(unsigned int id);
 		virtual ~DeviceTimeRange();
 
 		static void CheckConfig(const configuration::Json &conf);
-		virtual void Reload(const std::string &name, const configuration::Json &config) override;
 
 		std::string GetType() const override { return "timerange"; }
 

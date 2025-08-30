@@ -18,7 +18,6 @@
  */
 
 #include <device/electrical/DevicePassive.hpp>
-#include <meter/MeterFactory.hpp>
 #include <configuration/Json.hpp>
 
 using namespace std;
@@ -29,10 +28,10 @@ namespace device {
 
 void DevicePassive::CheckConfig(const configuration::Json &conf)
 {
+	conf.Check("meter", "object"); // Meter is mandatory for passive devices
+
 	DeviceElectrical::CheckConfig(conf);
 
-	conf.Check("meter", "object"); // Meter is mandatory for passive devices
-	meter::MeterFactory::CheckConfig(conf.GetObject("meter"));
 }
 
 }

@@ -20,6 +20,7 @@
 #include <control/OnOffFactory.hpp>
 #include <control/Plug.hpp>
 #include <control/Pro.hpp>
+#include <control/Dummy.hpp>
 #include <configuration/Json.hpp>
 
 #include <string>
@@ -36,10 +37,16 @@ shared_ptr<OnOff> OnOffFactory::GetFromConfig(const configuration::Json &conf)
 
 	string type = conf.GetString("type");
 	if(type=="plug")
-		return make_shared<Plug>(conf.GetString("ip"), conf.GetString("mqtt_id", ""));
+		return make_shared<Plug>(conf.GetString("ip"));
 	if(type=="pro")
-		return make_shared<Pro>(conf.GetString("ip"), conf.GetInt("outlet"), conf.GetString("mqtt_id", ""));
+		return make_shared<Pro>(conf.GetString("ip"), conf.GetInt("outlet"));
 	return 0;
+}
+
+// Special method to get a dummy controller
+shared_ptr<OnOff> OnOffFactory::GetFromConfig()
+{
+	return make_shared<Dummy>();
 }
 
 void OnOffFactory::CheckConfig(const configuration::Json &conf)

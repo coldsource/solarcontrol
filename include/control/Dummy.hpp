@@ -27,12 +27,9 @@ namespace control {
 class Dummy: public OnOff
 {
 	public:
-		Dummy() {}
 		virtual ~Dummy() {}
 
-		void Switch(bool) override {}
-		bool GetState() const override { return false; }
-		void UpdateState() override {}
+		void Switch(bool) override {} // Dummy controller that does nothing
 };
 
 }

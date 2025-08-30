@@ -34,6 +34,8 @@ class OnOffFactory
 {
 	public:
 		static std::shared_ptr<OnOff> GetFromConfig(const configuration::Json &conf);
+		static std::shared_ptr<OnOff> GetFromConfig();
+
 		static void CheckConfig(const configuration::Json &conf);
 };
 

@@ -23,6 +23,7 @@
 #include <thread>
 #include <mutex>
 #include <condition_variable>
+#include <functional>
 
 namespace thread {
 
@@ -34,19 +35,23 @@ class WaiterThread
 	std::condition_variable shutdown_requested;
 
 	bool enabled = true;
+	bool is_signaled = false;
 	bool is_shutting_down = false;
 
 	protected:
+		using wait_predicate = std::function<bool()>;
+
 		void start();
-		bool wait(int seconds);
+		bool wait(int seconds, wait_predicate p = 0);
 		void set_enabled(bool enabled) { this->enabled = enabled; }
 
 		static void thread_main(WaiterThread *ptr);
 		virtual void main(void) = 0;
 
 	public:
-		void Shutdown(void);
-		void WaitForShutdown(void);
+		void Signal();
+		void Shutdown();
+		void WaitForShutdown();
 };
 
 }

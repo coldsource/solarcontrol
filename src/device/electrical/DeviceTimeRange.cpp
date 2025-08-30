@@ -18,7 +18,6 @@
  */
 
 #include <device/electrical/DeviceTimeRange.hpp>
-#include <control/OnOff.hpp>
 #include <configuration/Json.hpp>
 
 #include <stdexcept>
@@ -54,11 +53,9 @@ void DeviceTimeRange::CheckConfig(const configuration::Json &conf)
 	conf.Check("min_off", "int", false);
 }
 
-void DeviceTimeRange::Reload(const string &name, const configuration::Json &config)
+void DeviceTimeRange::reload(const configuration::Json &config)
 {
-	unique_lock<recursive_mutex> llock(mutex);
-
-	DeviceOnOff::Reload(name, config);
+	DeviceOnOff::reload(config);
 
 	for(auto it : config.GetArray("force", json::array()))
 		force.push_back(datetime::TimeRange(it));

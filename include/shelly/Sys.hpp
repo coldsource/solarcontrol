@@ -17,8 +17,8 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __CONTROL_SYS_HPP__
-#define __CONTROL_SYS_HPP__
+#ifndef __SHELLY_SYS_HPP__
+#define __SHELLY_SYS_HPP__
 
 #include <nlohmann/json.hpp>
 
@@ -30,7 +30,7 @@ class Sys
 {
 	std::string ip;
 
-public:
+	public:
 		Sys(const std::string &ip): ip(ip) {}
 
 		nlohmann::json Get();

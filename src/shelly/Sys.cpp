@@ -18,7 +18,7 @@
  */
 
 #include <shelly/Sys.hpp>
-#include <control/HTTP.hpp>
+#include <shelly/HTTP.hpp>
 
 #include <stdexcept>
 
@@ -29,7 +29,7 @@ namespace shelly {
 
 json Sys::Get()
 {
-	control::HTTP http(ip);
+	shelly::HTTP http(ip);
 
 	json j;
 	j["id"] = 1;
@@ -40,7 +40,7 @@ json Sys::Get()
 
 json Sys::Set(const string &name)
 {
-	control::HTTP http(ip);
+	shelly::HTTP http(ip);
 
 	json j;
 	j["id"] = 1;
@@ -57,7 +57,7 @@ json Sys::Set(const string &name)
 
 json Sys::Reboot()
 {
-	control::HTTP http(ip);
+	shelly::HTTP http(ip);
 
 	json j;
 	j["id"] = 1;

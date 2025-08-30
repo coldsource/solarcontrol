@@ -32,17 +32,23 @@ void WaiterThread::start()
 	thread_handle = std::thread(thread_main, this);
 }
 
-bool WaiterThread::wait(int seconds)
+bool WaiterThread::wait(int seconds, wait_predicate p)
 {
 	while(true)
 	{
 		unique_lock<mutex> llock(wait_lock);
 
 		cv_status ret;
-		if(!is_shutting_down)
+		if(!is_shutting_down && (!p || p()))
 			ret = shutdown_requested.wait_for(llock, chrono::seconds(seconds));
 
 		llock.unlock();
+
+		if(is_signaled)
+		{
+			is_signaled = false;
+			return true;
+		}
 
 		if(is_shutting_down)
 			return false;
@@ -66,7 +72,16 @@ void WaiterThread::thread_main(WaiterThread *ptr)
 	}
 }
 
-void WaiterThread::Shutdown(void)
+void WaiterThread::Signal()
+{
+	wait_lock.lock();
+	is_signaled = true;
+	shutdown_requested.notify_one();
+	wait_lock.unlock();
+}
+
+
+void WaiterThread::Shutdown()
 {
 	if(!enabled)
 		return;
@@ -80,7 +95,7 @@ void WaiterThread::Shutdown(void)
 	wait_lock.unlock();
 }
 
-void WaiterThread::WaitForShutdown(void)
+void WaiterThread::WaitForShutdown()
 {
 	if(!enabled)
 		return;

@@ -17,8 +17,8 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __CONTROL_AUTODETECT_HPP__
-#define __CONTROL_AUTODETECT_HPP__
+#ifndef __SHELLY_AUTODETECT_HPP__
+#define __SHELLY_AUTODETECT_HPP__
 
 #include <nlohmann/json.hpp>
 

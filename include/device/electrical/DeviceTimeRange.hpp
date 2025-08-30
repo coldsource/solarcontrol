@@ -58,6 +58,8 @@ class DeviceTimeRange: public DeviceOnOff
 
 		std::string GetType() const override { return "timerange"; }
 
+		virtual unsigned long GetMinOn() override;
+
 		virtual bool IsForced(configuration::Json *data_ptr = 0) const;
 		virtual bool WantOffload(configuration::Json *data_ptr = 0) const;
 		virtual bool WantRemainder(configuration::Json *data_ptr = 0) const;

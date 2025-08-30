@@ -60,6 +60,7 @@ class DeviceOnOff: public DeviceElectrical
 		en_category GetCategory() const override { return ONOFF; }
 
 		int GetPrio() const { return prio; }
+		virtual unsigned long GetMinOn() { return 0; }
 
 		virtual en_wanted_state GetWantedState() const = 0;
 		virtual void SetState(bool new_state) override;

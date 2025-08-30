@@ -74,6 +74,13 @@ void DeviceTimeRange::reload(const configuration::Json &config)
 	min_off = config.GetUInt("min_off", 0);
 }
 
+unsigned long DeviceTimeRange::GetMinOn()
+{
+	unique_lock<recursive_mutex> llock(lock);
+
+	return min_on;
+}
+
 bool DeviceTimeRange::IsForced(configuration::Json *data_ptr) const
 {
 	unique_lock<recursive_mutex> llock(lock);

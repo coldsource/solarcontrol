@@ -50,7 +50,7 @@ class MovingAverage
 		double Get() const;
 		size_t Size() const { return data.size(); }
 
-		int GetHigherValuesPercentile(double value) const;
+		int GetHigherValuesPercentile(double value, unsigned long max_period = 0) const;
 
 		void Reset();
 };

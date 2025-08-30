@@ -63,6 +63,7 @@ void DevicesManager::ConfigurationChanged(const configuration::ConfigurationPart
 	cooldown = config->GetTime("control.cooldown");
 
 	available_power_avg = make_unique<stat::MovingAverage>(config->GetTime("control.hysteresis.smoothing"));
+	available_power_histo = make_unique<stat::MovingAverage>(config->GetTime("control.hysteresis.max_history"));
 }
 
 bool DevicesManager::hysteresis(double power_delta, const shared_ptr<DeviceOnOff> device) const
@@ -75,8 +76,17 @@ bool DevicesManager::hysteresis(double power_delta, const shared_ptr<DeviceOnOff
 		return (available_power - consumption > -hysteresis_import); // We are already on, so stay on as long as we have power to offload
 	}
 
+	// Get device minimum on time
+	// We need more precision for a device that we can't switch off quickly
+	unsigned long long min_on = device->GetMinOn();
+	if(min_on==0)
+		min_on = 10; // Device has no minimum on time configuration, set a default of 10s
+
 	// We are off, turn on only if we have enough power to offload
-	return (available_power_avg->GetHigherValuesPercentile(consumption + hysteresis_export - power_delta) >= hysteresis_precision);
+	// Look into the past to see the percentage of the time the device could have been on without importing
+	// We check for a longer period if the device can't be quickly switched off
+	// Compare this to the required precision
+	return (available_power_histo->GetHigherValuesPercentile(consumption + hysteresis_export - power_delta, min_on) >= hysteresis_precision);
 }
 
 bool DevicesManager::force(const map<shared_ptr<device::DeviceOnOff>, bool> &devices)
@@ -141,10 +151,14 @@ void DevicesManager::main()
 		Timestamp now(TS_MONOTONIC);
 		bool state_changed = false;
 
+		// Compute available power history
+		available_power_histo->Add(global_meter->GetNetAvailablePower(true), (double)(now - last_power_update));
+
 		// Compute moving average of available power (we don't want to count during cooldown to let power be accurate)
 		// global_meter is locked before locking devices (and never locked after)
 		if((unsigned long)(now-last_change_ts)>=cooldown)
 			available_power_avg->Add(global_meter->GetNetAvailablePower(true), (double)(now - last_power_update));
+
 		last_power_update = now;
 
 		{
@@ -188,8 +202,8 @@ void DevicesManager::main()
 
 				if(state_changed)
 				{
-					last_change_ts = now;
-					available_power_avg->Reset(); // We have made changes, state is no longer stable
+					last_change_ts = now; // Apply new cooldown
+					available_power_avg->Reset(); // We have made changes, start new average as power will certainly quickly change
 				}
 			}
 			catch(exception &e)

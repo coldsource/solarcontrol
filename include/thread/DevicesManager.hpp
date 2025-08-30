@@ -50,7 +50,8 @@ class DevicesManager: public WaiterThread, public configuration::ConfigurationOb
 
 	protected:
 		energy::GlobalMeter *global_meter = 0;
-		std::unique_ptr<stat::MovingAverage> available_power_avg;
+		std::unique_ptr<stat::MovingAverage> available_power_avg; // Average available power, used to switch devices off
+		std::unique_ptr<stat::MovingAverage> available_power_histo; // History of available power, used to switch devices on
 
 		int hysteresis_export = 0;
 		int hysteresis_import = 0;

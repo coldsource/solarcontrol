@@ -53,17 +53,29 @@ double MovingAverage::Get(void) const
 	return avg;
 }
 
-int MovingAverage::GetHigherValuesPercentile(double value) const
+int MovingAverage::GetHigherValuesPercentile(double value, unsigned long max_period) const
 {
 	int64_t ivalue = (int64_t)value;
 	int percentile = 0;
-	for(auto point : data)
+
+	size_t size = 0;
+	int64_t total_period = 0;
+	int64_t lmax_period = (int64_t)max_period * 1000;
+
+	for(auto point = data.rbegin(); point!=data.rend(); ++point)
 	{
-		if(point.value>ivalue)
+		total_period +=point->duration;
+
+		if(point->value>ivalue)
 			percentile++;
+
+		size++;
+
+		if(lmax_period!=0 && total_period>=lmax_period)
+			break;
 	}
 
-	return percentile * 100 / (int)data.size();
+	return percentile * 100 / (int)size;
 }
 
 void MovingAverage::Reset()

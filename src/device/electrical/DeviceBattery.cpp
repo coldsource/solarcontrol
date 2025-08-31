@@ -76,14 +76,15 @@ void DeviceBattery::reload(const configuration::Json &config)
 {
 	DeviceOnOff::reload(config);
 
-	add_sensor(make_unique<Voltmeter>(config.GetObject("voltmeter")), "voltmeter");
-
 	if(config.GetObject("voltmeter").GetString("mqtt_id")=="")
 	{
 		// Battery is disabled
 		voltage = -1;
 		soc = -1;
+		return;
 	}
+
+	add_sensor(make_unique<Voltmeter>(config.GetObject("voltmeter")), "voltmeter");
 
 	if(config.Has("backup"))
 	{

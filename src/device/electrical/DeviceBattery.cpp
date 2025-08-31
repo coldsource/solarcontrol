@@ -53,8 +53,6 @@ DeviceBattery::~DeviceBattery()
 	state_backup(configuration::Json(state));
 }
 
-
-
 void DeviceBattery::CheckConfig(const configuration::Json &conf)
 {
 	DeviceOnOff::CheckConfig(conf);

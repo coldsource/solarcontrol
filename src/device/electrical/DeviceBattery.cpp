@@ -56,7 +56,7 @@ void DeviceBattery::CheckConfig(const configuration::Json &conf)
 {
 	DevicePassive::CheckConfig(conf);
 
-	conf.Check("voltmeter", "object"); // Meter is mandatory for passive devices
+	conf.Check("voltmeter", "object"); // Voltmeter is mandatory for battery
 	Voltmeter::CheckConfig(conf.GetObject("voltmeter"));
 
 	// Check battery backup config, passive batteries have no backup so this is optional
@@ -76,6 +76,13 @@ void DeviceBattery::reload(const configuration::Json &config)
 	DevicePassive::reload(config);
 
 	add_sensor(make_unique<Voltmeter>(config.GetObject("voltmeter")), "voltmeter");
+
+	if(config.GetObject("voltmeter").GetString("mqtt_id")=="")
+	{
+		// Battery is disabled
+		voltage = -1;
+		soc = -1;
+	}
 
 	if(config.Has("backup"))
 	{

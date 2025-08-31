@@ -83,7 +83,7 @@ void GlobalMeter::ConfigurationChanged(const configuration::ConfigurationPart *c
 bool GlobalMeter::HasBattery() const
 {
 	unique_lock<recursive_mutex> llock(lock);
-	return battery->GetPower()!=-1;
+	return battery->GetVoltage()!=-1;
 }
 
 double GlobalMeter::GetBatteryVoltage() const

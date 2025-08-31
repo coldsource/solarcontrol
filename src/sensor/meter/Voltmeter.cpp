@@ -82,6 +82,9 @@ void Voltmeter::CheckConfig(const configuration::Json &conf)
 	conf.Check("mqtt_id", "string", false);
 	conf.Check("thresholds", "array");
 
+	if(conf.GetString("mqtt_id")=="")
+		return; // Voltmeter is not configured
+
 	if(conf.GetArray("thresholds").size()==0)
 		throw invalid_argument("Battery SOC configuration is empty");
 

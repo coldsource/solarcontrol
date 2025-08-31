@@ -17,24 +17,22 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __SENSOR_SW_PRO_HPP__
-#define __SENSOR_SW_PRO_HPP__
+#ifndef __SENSOR_SW_UNI_HPP__
+#define __SENSOR_SW_UNI_HPP__
 
-#include <sensor/sw/Relay.hpp>
+#include <sensor/sw/Pro.hpp>
 
 #include <string>
 
 namespace sensor::sw {
 
-class Pro: public Relay
+class Uni: public Pro
 {
 	public:
-		Pro(const std::string &ip, int outlet, const std::string &mqtt_id);
-
-		static void CheckConfig(const configuration::Json &conf);
-
+		Uni(const std::string &ip, int outlet, const std::string &mqtt_id): Pro(ip, outlet, mqtt_id) {}
 };
 
 }
 
 #endif
+

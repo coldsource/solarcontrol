@@ -126,6 +126,8 @@ en_wanted_state DeviceCMV::get_wanted_state(configuration::Json *data_ptr) const
 
 bool DeviceCMV::Depends(int device_id) const
 {
+	unique_lock<recursive_mutex> llock(lock);
+
 	for(auto ht_device_id : ht_device_ids)
 		if(ht_device_id==device_id)
 			return true;

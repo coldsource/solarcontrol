@@ -70,6 +70,8 @@ class DeviceElectrical: public Device
 		virtual bool IsManual() const { return manual; }
 
 		virtual void SensorChanged(const sensor::Sensor *sensor) override;
+
+		virtual void HandleNonStateActions() {} // Used for non state related devices special operation
 };
 
 }

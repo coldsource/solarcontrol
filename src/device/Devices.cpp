@@ -45,15 +45,22 @@ Devices::Devices()
 {
 	if(instance==0)
 	{
-		database::DB db;
+		try
+		{
+			database::DB db;
 
-		database::Query q("SELECT device_id, device_name, device_type, device_config FROM t_device");
-		auto res = db.Query(q);
-		while(res.FetchRow())
-			Load(res["device_id"], res["device_name"], res["device_type"], configuration::Json((string)res["device_config"]));
+			database::Query q("SELECT device_id, device_name, device_type, device_config FROM t_device");
+			auto res = db.Query(q);
+			while(res.FetchRow())
+				Load(res["device_id"], res["device_name"], res["device_type"], configuration::Json((string)res["device_config"]));
 
-		instance = this;
-		return;
+			instance = this;
+			return;
+		}
+		catch(exception &e)
+		{
+			logs::Logger::Log(LOG_ERR, "Error loading devices : « " + string(e.what()) + " »");
+		}
 	}
 }
 

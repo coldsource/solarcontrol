@@ -20,6 +20,7 @@
 #include <control/OnOffFactory.hpp>
 #include <control/Plug.hpp>
 #include <control/Pro.hpp>
+#include <control/Uni.hpp>
 #include <control/Dummy.hpp>
 #include <configuration/Json.hpp>
 
@@ -40,6 +41,8 @@ shared_ptr<OnOff> OnOffFactory::GetFromConfig(const configuration::Json &conf)
 		return make_shared<Plug>(conf.GetString("ip"));
 	if(type=="pro")
 		return make_shared<Pro>(conf.GetString("ip"), conf.GetInt("outlet"));
+	if(type=="uni")
+		return make_shared<Uni>(conf.GetString("ip"), conf.GetInt("outlet"));
 	return 0;
 }
 
@@ -57,6 +60,8 @@ void OnOffFactory::CheckConfig(const configuration::Json &conf)
 		Plug::CheckConfig(conf);
 	else if(type=="pro")
 		Pro::CheckConfig(conf);
+	else if(type=="uni")
+		Uni::CheckConfig(conf);
 	else
 		throw invalid_argument("Unknown control type « " + type + " »");
 }

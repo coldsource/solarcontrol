@@ -20,6 +20,7 @@
 #include <sensor/sw/SwitchFactory.hpp>
 #include <sensor/sw/Plug.hpp>
 #include <sensor/sw/Pro.hpp>
+#include <sensor/sw/Uni.hpp>
 #include <configuration/Json.hpp>
 
 #include <string>
@@ -39,6 +40,8 @@ shared_ptr<Switch> SwitchFactory::GetFromConfig(const configuration::Json &conf)
 		return make_shared<Plug>(conf.GetString("ip"), conf.GetString("mqtt_id", ""));
 	if(type=="pro")
 		return make_shared<Pro>(conf.GetString("ip"), conf.GetInt("outlet"), conf.GetString("mqtt_id", ""));
+	if(type=="uni")
+		return make_shared<Uni>(conf.GetString("ip"), conf.GetInt("outlet"), conf.GetString("mqtt_id", ""));
 	return 0;
 }
 
@@ -50,8 +53,10 @@ void SwitchFactory::CheckConfig(const configuration::Json &conf)
 		Plug::CheckConfig(conf);
 	else if(type=="pro")
 		Pro::CheckConfig(conf);
+	else if(type=="uni")
+		Uni::CheckConfig(conf);
 	else
-		throw invalid_argument("Unknown control type « " + type + " »");
+		throw invalid_argument("Unknown switch type « " + type + " »");
 }
 
 }

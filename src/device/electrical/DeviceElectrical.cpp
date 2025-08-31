@@ -62,7 +62,7 @@ void DeviceElectrical::reload(const configuration::Json &config)
 	Device::reload(config);
 
 	if(config.Has("control"))
-		ctrl = OnOffFactory::GetFromConfig(config.GetObject("control")); // Passive devices have no control, get a dummy controller
+		ctrl = OnOffFactory::GetFromConfig(config.GetObject("control")); // Init control from config
 	else
 		ctrl = OnOffFactory::GetFromConfig(); // Passive devices have no control, get a dummy controller
 

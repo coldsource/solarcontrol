@@ -56,7 +56,7 @@ class DevicesManager: public WaiterThread, public configuration::ConfigurationOb
 		int hysteresis_export = 0;
 		int hysteresis_import = 0;
 		int hysteresis_precision = 0;
-		unsigned long state_update_interval;
+		unsigned long nonstate_update_interval;
 		unsigned long cooldown;
 
 		bool hysteresis(double power_delta, const std::shared_ptr<device::DeviceOnOff> device) const;

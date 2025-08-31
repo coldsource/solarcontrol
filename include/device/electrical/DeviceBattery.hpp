@@ -21,6 +21,7 @@
 #define __DEVICE_DEVICEBATTERY_HPP__
 
 #include <device/electrical/DevicePassive.hpp>
+#include <datetime/Timestamp.hpp>
 
 #include <memory>
 
@@ -36,7 +37,14 @@ namespace device {
 
 class DeviceBattery: public DevicePassive
 {
-	double voltage = -1, soc = 0;
+	// Config
+	bool has_backup = false;
+	unsigned int battery_low, battery_high;
+	unsigned long min_grid_time;
+
+	// State
+	double voltage = -1, soc = -1;
+	datetime::Timestamp last_grid_switch;
 
 	protected:
 		virtual void reload(const configuration::Json &config) override;
@@ -56,6 +64,8 @@ class DeviceBattery: public DevicePassive
 		virtual nlohmann::json ToJson() const override;
 
 		virtual void SensorChanged(const sensor::Sensor *sensor) override;
+
+		virtual void HandleNonStateActions() override;
 
 		static void CreateInDB();
 };

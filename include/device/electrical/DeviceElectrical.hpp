@@ -35,8 +35,6 @@ namespace device {
 class DeviceElectrical: public Device
 {
 	protected:
-		std::shared_ptr<control::OnOff> ctrl;
-
 		bool manual = false;
 		bool state = false;
 		double power = -1;
@@ -63,15 +61,7 @@ class DeviceElectrical: public Device
 
 		virtual nlohmann::json ToJson() const override;
 
-		virtual bool GetState() const { return state; }
-		virtual void SetState(bool new_state);
-		virtual void SetManualState(bool new_state);
-		virtual void SetAutoState();
-		virtual bool IsManual() const { return manual; }
-
 		virtual void SensorChanged(const sensor::Sensor *sensor) override;
-
-		virtual void HandleNonStateActions() {} // Used for non state related devices special operation
 };
 
 }

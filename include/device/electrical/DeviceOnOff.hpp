@@ -40,6 +40,8 @@ enum en_wanted_state
 class DeviceOnOff: public DeviceElectrical
 {
 	protected:
+		std::shared_ptr<control::OnOff> ctrl;
+
 		datetime::Timestamp last_on;
 		datetime::Timestamp last_off;
 
@@ -63,12 +65,17 @@ class DeviceOnOff: public DeviceElectrical
 		virtual unsigned long GetMinOn() { return 0; }
 
 		virtual en_wanted_state GetWantedState() const = 0;
-		virtual void SetState(bool new_state) override;
-		virtual void SetManualState(bool new_state) override;
+		virtual bool GetState() const { return state; }
+		virtual void SetState(bool new_state);
+		virtual void SetManualState(bool new_state);
+		virtual void SetAutoState();
+		virtual bool IsManual() const { return manual; }
 
 		double GetExpectedConsumption() const;
 
 		virtual void SensorChanged(const sensor::Sensor *sensor) override;
+
+		virtual nlohmann::json ToJson() const override;
 
 		struct PrioComparator {
 			bool operator()(std::shared_ptr<DeviceOnOff> a, std::shared_ptr<DeviceOnOff> b) const { return a->GetPrio() < b->GetPrio(); }

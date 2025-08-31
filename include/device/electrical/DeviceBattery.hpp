@@ -20,7 +20,7 @@
 #ifndef __DEVICE_DEVICEBATTERY_HPP__
 #define __DEVICE_DEVICEBATTERY_HPP__
 
-#include <device/electrical/DevicePassive.hpp>
+#include <device/electrical/DeviceOnOff.hpp>
 #include <datetime/Timestamp.hpp>
 
 #include <memory>
@@ -29,13 +29,9 @@ namespace configuration {
 	class Json;
 }
 
-namespace meter {
-	class Voltmeter;
-}
-
 namespace device {
 
-class DeviceBattery: public DevicePassive
+class DeviceBattery: public DeviceOnOff
 {
 	// Config
 	bool has_backup = false;
@@ -59,13 +55,15 @@ class DeviceBattery: public DevicePassive
 
 		static void CheckConfig(const configuration::Json &conf);
 
+		virtual en_wanted_state GetWantedState() const override;
+
+		virtual void SetState(bool new_state) override;
+
 		double GetVoltage() const { return voltage; }
 		double GetSOC() const { return soc; }
 		virtual nlohmann::json ToJson() const override;
 
 		virtual void SensorChanged(const sensor::Sensor *sensor) override;
-
-		virtual void HandleNonStateActions() override;
 
 		static void CreateInDB();
 };

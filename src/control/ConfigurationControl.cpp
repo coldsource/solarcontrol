@@ -42,7 +42,6 @@ ConfigurationControl::ConfigurationControl(void)
 	entries["control.absence.enabled"] = "no";
 	entries["control.absence.temperature"] = "12";
 	entries["control.priority"] = "hws";
-	entries["control.nonstate.update_interval"] = "1m";
 }
 
 ConfigurationControl::~ConfigurationControl(void)
@@ -60,7 +59,6 @@ void ConfigurationControl::Check(void) const
 	check_time_entry("control.state.update_interval");
 	check_bool_entry("control.absence.enabled");
 	check_double_entry("control.absence.temperature");
-	check_time_entry("control.nonstate.update_interval");
 
 	string priority = Get("control.priority");
 	if(priority!="hws" && priority!="offload")

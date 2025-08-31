@@ -22,6 +22,7 @@
 #include <device/Devices.hpp>
 #include <device/DeviceFactory.hpp>
 #include <device/electrical/DeviceElectrical.hpp>
+#include <device/electrical/DeviceOnOff.hpp>
 #include <websocket/SolarControl.hpp>
 
 #include <stdexcept>
@@ -98,13 +99,15 @@ json DeviceElectrical::HandleMessage(const string &cmd, const configuration::Jso
 
 		auto device = devices.GetElectricalByID(device_id);
 
-		if(device->GetType()=="passive")
+		if(device->GetCategory()!=device::ONOFF)
 			throw invalid_argument("Could not change state on passive device");
 
+		auto device_onoff = dynamic_pointer_cast<device::DeviceOnOff>(device);
+
 		if(state=="auto")
-			device->SetAutoState();
+			device_onoff->SetAutoState();
 		else
-			device->SetManualState(state=="on"?true:false);
+			device_onoff->SetManualState(state=="on"?true:false);
 
 		websocket::SolarControl::GetInstance()->NotifyAll(websocket::SolarControl::en_protocols::DEVICE);
 

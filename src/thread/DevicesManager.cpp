@@ -59,7 +59,6 @@ void DevicesManager::ConfigurationChanged(const configuration::ConfigurationPart
 	hysteresis_export = config->GetPower("control.hysteresis.export");
 	hysteresis_import = config->GetPower("control.hysteresis.import");
 	hysteresis_precision = config->GetPower("control.hysteresis.precision");
-	nonstate_update_interval = config->GetTime("control.nonstate.update_interval");
 	cooldown = config->GetTime("control.cooldown");
 
 	available_power_avg = make_unique<stat::MovingAverage>(config->GetTime("control.hysteresis.smoothing"));
@@ -145,7 +144,6 @@ void DevicesManager::main()
 	Timestamp last_change_ts(TS_MONOTONIC);
 	Timestamp last_state_update(TS_MONOTONIC);
 	Timestamp last_power_update(TS_MONOTONIC);
-	Timestamp last_non_state_update(TS_MONOTONIC);
 
 	while(true)
 	{
@@ -204,15 +202,6 @@ void DevicesManager::main()
 				{
 					last_change_ts = now; // Apply new cooldown
 					available_power_avg->Reset(); // We have made changes, start new average as power will certainly quickly change
-				}
-
-				if((unsigned long)(now - last_non_state_update) >= nonstate_update_interval)
-				{
-					// Special devices operations
-					for(auto device : devices.GetElectrical())
-						device->HandleNonStateActions();
-
-					last_non_state_update = now;
 				}
 			}
 			catch(exception &e)

@@ -20,6 +20,7 @@
 #include <device/electrical/DeviceBattery.hpp>
 #include <device/Devices.hpp>
 #include <sensor/meter/Voltmeter.hpp>
+#include <sensor/sw/Switch.hpp>
 #include <control/OnOff.hpp>
 #include <configuration/Json.hpp>
 #include <database/DB.hpp>
@@ -32,7 +33,7 @@ using datetime::Timestamp;
 namespace device
 {
 
-DeviceBattery::DeviceBattery(int id):DevicePassive(id)
+DeviceBattery::DeviceBattery(int id):DeviceOnOff(id)
 {
 	// Override default counter for storing production
 	consumption = energy::Counter(id, "production");
@@ -52,9 +53,11 @@ DeviceBattery::~DeviceBattery()
 	state_backup(configuration::Json(state));
 }
 
+
+
 void DeviceBattery::CheckConfig(const configuration::Json &conf)
 {
-	DevicePassive::CheckConfig(conf);
+	DeviceOnOff::CheckConfig(conf);
 
 	conf.Check("voltmeter", "object"); // Voltmeter is mandatory for battery
 	Voltmeter::CheckConfig(conf.GetObject("voltmeter"));
@@ -73,7 +76,7 @@ void DeviceBattery::CheckConfig(const configuration::Json &conf)
 
 void DeviceBattery::reload(const configuration::Json &config)
 {
-	DevicePassive::reload(config);
+	DeviceOnOff::reload(config);
 
 	add_sensor(make_unique<Voltmeter>(config.GetObject("voltmeter")), "voltmeter");
 
@@ -98,7 +101,7 @@ json DeviceBattery::ToJson() const
 {
 	unique_lock<recursive_mutex> llock(lock);
 
-	json j_device = DevicePassive::ToJson();
+	json j_device = DeviceOnOff::ToJson();
 
 	j_device["voltage"] = voltage;
 	j_device["soc"] = soc;
@@ -118,35 +121,40 @@ void DeviceBattery::SensorChanged(const sensor::Sensor *sensor)
 		soc = voltmeter->GetSOC();
 	}
 	else
-		DevicePassive::SensorChanged(sensor); // Forward messages of meter
+		DeviceOnOff::SensorChanged(sensor); // Forward other messages
 }
 
-void DeviceBattery::HandleNonStateActions()
+void DeviceBattery::SetState(bool new_state)
 {
 	unique_lock<recursive_mutex> llock(lock);
 
-	if(!has_backup)
-		return; // We are a passive battery, nothing to do
+	if(state && !new_state)
+		last_grid_switch = Timestamp(TS_MONOTONIC);
+
+	DeviceOnOff::SetState(new_state);
+}
+
+en_wanted_state DeviceBattery::GetWantedState() const
+{
+	unique_lock<recursive_mutex> llock(lock);
 
 	if(soc==-1)
-		return; // SOC Not yet updated
+		return UNCHANGED; // SOC Not yet updated
 
 	// If battery is too low, we always switch back to grid to backup power supply
 	if(soc<battery_low && state)
-	{
-		ctrl->Switch(false);
-		return;
-	}
+		return OFF;
 
 	if(soc>=battery_high && !state)
 	{
 		Timestamp now(TS_MONOTONIC);
 		if((unsigned long)(now - last_grid_switch) <= min_grid_time)
-			return; // Last grid swich is too recent apply cooldown
+			return UNCHANGED; // Last grid swich is too recent apply cooldown
 
-		ctrl->Switch(true);
-		last_grid_switch = now;
+		return ON;
 	}
+
+	return UNCHANGED;
 }
 
 void DeviceBattery::CreateInDB()
@@ -157,6 +165,7 @@ void DeviceBattery::CreateInDB()
 		return; // Already in database
 
 	json config;
+	config["prio"] = -1;
 
 	json meter;
 	meter["type"] = "dummy";

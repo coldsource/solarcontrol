@@ -18,12 +18,21 @@
  */
 
 #include <device/electrical/DeviceOnOff.hpp>
+#include <control/OnOffFactory.hpp>
+#include <control/OnOff.hpp>
+#include <sensor/sw/SwitchFactory.hpp>
 #include <sensor/sw/Switch.hpp>
+#include <sensor/meter/MeterFactory.hpp>
+#include <sensor/meter/Meter.hpp>
 #include <configuration/Json.hpp>
+#include <logs/State.hpp>
 #include <nlohmann/json.hpp>
 
 using namespace std;
 using datetime::Timestamp;
+using sensor::meter::MeterFactory;
+using sensor::sw::SwitchFactory;
+using control::OnOffFactory;
 using nlohmann::json;
 
 namespace device {
@@ -50,6 +59,9 @@ void DeviceOnOff::CheckConfig(const configuration::Json &conf)
 
 	DeviceElectrical::CheckConfig(conf);
 
+	SwitchFactory::CheckConfig(conf.GetObject("control"));
+	OnOffFactory::CheckConfig(conf.GetObject("control"));
+
 	conf.Check("prio", "int"); // Prio is mandatory for all onoff devices
 	conf.Check("expected_consumption", "int", false);
 }
@@ -60,6 +72,12 @@ void DeviceOnOff::reload(const configuration::Json &config)
 
 	prio = config.GetInt("prio");
 	expected_consumption = config.GetInt("expected_consumption", 0);
+
+	ctrl = OnOffFactory::GetFromConfig(config.GetObject("control")); // Init control from config
+	add_sensor(SwitchFactory::GetFromConfig(config.GetObject("control")), "switch");
+
+	if(!config.Has("meter")) // Device has no dedicated meter, control will be used
+		add_sensor(MeterFactory::GetFromConfig(config.GetObject("control")), "meter"); // Fallback on control for metering also
 }
 
 void DeviceOnOff::clock(bool new_state)
@@ -90,7 +108,10 @@ void DeviceOnOff::SetState(bool new_state)
 
 	clock(new_state);
 
-	DeviceElectrical::SetState(new_state);
+	state = new_state;
+	ctrl->Switch(new_state);
+
+	logs::State::LogStateChange(GetID(), logs::State::en_mode::automatic, new_state);
 }
 
 void DeviceOnOff::SetManualState(bool new_state)
@@ -99,7 +120,21 @@ void DeviceOnOff::SetManualState(bool new_state)
 
 	clock(new_state);
 
-	DeviceElectrical::SetManualState(new_state);
+	manual = true;
+
+	state = new_state;
+	ctrl->Switch(new_state);
+
+	logs::State::LogStateChange(GetID(), logs::State::en_mode::manual, new_state);
+}
+
+void DeviceOnOff::SetAutoState()
+{
+	unique_lock<recursive_mutex> llock(lock);
+
+	manual = false;
+
+	logs::State::LogModeChange(GetID(), logs::State::en_mode::automatic);
 }
 
 double DeviceOnOff::GetExpectedConsumption() const
@@ -128,6 +163,16 @@ void DeviceOnOff::SensorChanged(const sensor::Sensor *sensor)
 	}
 	else
 		DeviceElectrical::SensorChanged(sensor);
+}
+
+nlohmann::json DeviceOnOff::ToJson() const
+{
+	auto j_device = DeviceElectrical::ToJson();
+
+	j_device["state"] = GetState();
+	j_device["manual"] = IsManual();
+
+	return j_device;
 }
 
 }

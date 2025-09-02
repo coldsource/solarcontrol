@@ -156,10 +156,7 @@ void DeviceOnOff::SensorChanged(const sensor::Sensor *sensor)
 	{
 		bool new_state = ((sensor::sw::Switch *)sensor)->GetState();
 
-		if(new_state==state)
-			return; // Already in the good state, state change has been made through SetState() or SetManualState() and we are just getting notification of it
-
-		SetManualState(new_state);
+		state = new_state;
 	}
 	else
 		DeviceElectrical::SensorChanged(sensor);

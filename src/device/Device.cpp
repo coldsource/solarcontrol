@@ -75,23 +75,6 @@ const configuration::Json Device::GetConfig() const
 	return config;
 }
 
-void Device::state_backup(const configuration::Json &state)
-{
-	DB db;
-
-	db.Query("REPLACE INTO t_device_state(device_id, device_state) VALUES(%i, %s)"_sql<<id<<state.ToString());
-}
-
-const configuration::Json Device::state_restore()
-{
-	DB db;
-
-	auto res = db.Query("SELECT device_state FROM t_device_state WHERE device_id=%i"_sql<<id);
-	if(res.FetchRow())
-		return configuration::Json(string(res["device_state"]));
-	return configuration::Json();
-}
-
 void Device::add_sensor(shared_ptr<sensor::Sensor> sensor, const string &name)
 {
 	sensors.insert(name, this, sensor);

@@ -41,6 +41,8 @@ class DeviceWind: public DeviceWeather
 
 	protected:
 		virtual void reload(const configuration::Json &config) override;
+		virtual void state_restore(const  configuration::Json &last_state) override;
+		virtual configuration::Json state_backup() override;
 
 	public:
 		DeviceWind(int id);

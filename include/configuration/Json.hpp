@@ -56,6 +56,11 @@ class Json
 		const Json GetArray(const std::string &name, const nlohmann::json &default_value) const;
 		const Json GetObject(const std::string &name) const;
 
+		void Set(const std::string &name, const std::string &value) { json[name] = value; }
+		void Set(const std::string &name, bool value) { json[name] = value; }
+		void Set(const std::string &name, int value) { json[name] = value; }
+		void Set(const std::string &name, double value) { json[name] = value; }
+
 		const std::string ToString() const { return json.dump(); }
 		operator nlohmann::json() const { return json; }
 		operator int() const { return (int)json; }

@@ -38,7 +38,7 @@ ConfigurationControl::ConfigurationControl(void)
 	entries["control.hysteresis.precision"] = "100%";
 	entries["control.hysteresis.max_history"] = "30m";
 	entries["control.cooldown"] = "10s";
-	entries["control.state.update_interval"] = "1m";
+	entries["control.state.update_interval"] = "5m";
 	entries["control.absence.enabled"] = "no";
 	entries["control.absence.temperature"] = "12";
 	entries["control.priority"] = "hws";

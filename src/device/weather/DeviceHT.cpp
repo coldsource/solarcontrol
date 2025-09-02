@@ -31,22 +31,31 @@ namespace device {
 DeviceHT::DeviceHT(int id):
 DeviceWeather(id), history(id)
 {
-	auto state = state_restore();
-
-	humidity = state.GetFloat("humidity", std::numeric_limits<double>::quiet_NaN());
-	temperature = state.GetFloat("temperature", std::numeric_limits<double>::quiet_NaN());
 }
 
 DeviceHT::~DeviceHT()
 {
-	json state;
+}
+
+void DeviceHT::state_restore(const  configuration::Json &last_state)
+{
+	humidity = last_state.GetFloat("humidity", std::numeric_limits<double>::quiet_NaN());
+	temperature = last_state.GetFloat("temperature", std::numeric_limits<double>::quiet_NaN());
+
+	Device::state_restore(last_state);
+}
+
+configuration::Json DeviceHT::state_backup()
+{
+	auto backup = Device::state_backup();
+
 	if(!std::isnan(GetHumidity()))
-		state["humidity"] = GetHumidity();
+		backup.Set("humidity", GetHumidity());
 
 	if(!std::isnan(GetTemperature()))
-		state["temperature"] = GetTemperature();
+		backup.Set("temperature", GetTemperature());
 
-	state_backup(configuration::Json(state));
+	return backup;
 }
 
 }

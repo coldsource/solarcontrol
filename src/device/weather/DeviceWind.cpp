@@ -31,18 +31,27 @@ namespace device
 
 DeviceWind::DeviceWind(int id):DeviceWeather(id), history(id)
 {
-	auto state = state_restore();
-
-	wind = state.GetFloat("wind", std::numeric_limits<double>::quiet_NaN());
 }
 
 DeviceWind::~DeviceWind()
 {
-	json state;
-	if(!std::isnan(GetWind()))
-		state["wind"] = GetWind();
+}
 
-	state_backup(configuration::Json(state));
+void DeviceWind::state_restore(const  configuration::Json &last_state)
+{
+	wind = last_state.GetFloat("wind", std::numeric_limits<double>::quiet_NaN());
+
+	Device::state_restore(last_state);
+}
+
+configuration::Json DeviceWind::state_backup()
+{
+	auto backup = Device::state_backup();
+
+	if(!std::isnan(GetWind()))
+		backup.Set("wind", GetWind());
+
+	return backup;
 }
 
 void DeviceWind::CheckConfig(const configuration::Json &conf)

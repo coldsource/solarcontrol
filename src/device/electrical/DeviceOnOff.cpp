@@ -40,17 +40,10 @@ namespace device {
 DeviceOnOff::DeviceOnOff(int id):
 DeviceElectrical(id), on_history(id)
 {
-	auto state_backup = state_restore();
-	manual = state_backup.GetBool("manual", false);
-	state = state_backup.GetBool("state", false);
 }
 
 DeviceOnOff::~DeviceOnOff()
 {
-	json backup_state;
-	backup_state["manual"] = (bool)manual;
-	backup_state["state"] = (bool)state;
-	state_backup(configuration::Json(backup_state));
 }
 
 void DeviceOnOff::CheckConfig(const configuration::Json &conf)
@@ -78,6 +71,24 @@ void DeviceOnOff::reload(const configuration::Json &config)
 
 	if(!config.Has("meter")) // Device has no dedicated meter, control will be used
 		add_sensor(MeterFactory::GetFromConfig(config.GetObject("control")), "meter"); // Fallback on control for metering also
+}
+
+void DeviceOnOff::state_restore(const  configuration::Json &last_state)
+{
+	manual = last_state.GetBool("manual", false);
+	state = last_state.GetBool("state", false);
+
+	DeviceElectrical::state_restore(last_state);
+}
+
+configuration::Json DeviceOnOff::state_backup()
+{
+	auto backup = DeviceElectrical::state_backup();
+
+	backup.Set("manual", manual);
+	backup.Set("state", state);
+
+	return backup;
 }
 
 void DeviceOnOff::clock(bool new_state)

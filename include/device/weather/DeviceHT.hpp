@@ -22,6 +22,7 @@
 
 #include <device/weather/DeviceWeather.hpp>
 #include <weather/HistoryQuarterHourHT.hpp>
+#include <configuration/Json.hpp>
 
 #include <memory>
 #include <limits>
@@ -39,6 +40,9 @@ class DeviceHT: public DeviceWeather
 		double temperature;
 
 		weather::HistoryQuarterHourHT history;
+
+		virtual void state_restore(const  configuration::Json &last_state) override;
+		virtual configuration::Json state_backup() override;
 
 	public:
 		DeviceHT(int id);

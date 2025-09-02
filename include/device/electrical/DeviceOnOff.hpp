@@ -52,6 +52,8 @@ class DeviceOnOff: public DeviceElectrical
 
 		void clock(bool new_state);
 		virtual void reload(const configuration::Json &config) override;
+		virtual void state_restore(const  configuration::Json &last_state) override;
+		virtual configuration::Json state_backup() override;
 
 	public:
 		DeviceOnOff(int id);

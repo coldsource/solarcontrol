@@ -49,10 +49,18 @@ Devices::Devices()
 		{
 			database::DB db;
 
-			database::Query q("SELECT device_id, device_name, device_type, device_config FROM t_device");
+			database::Query q(" \
+				SELECT DEV.device_id, DEV.device_name, DEV.device_type, DEV.device_config, STATE.device_state \
+				FROM t_device DEV \
+				LEFT JOIN t_device_state STATE ON DEV.device_id=STATE.device_id \
+				");
 			auto res = db.Query(q);
 			while(res.FetchRow())
-				Load(res["device_id"], res["device_name"], res["device_type"], configuration::Json((string)res["device_config"]));
+			{
+				auto device = Load(res["device_id"], res["device_name"], res["device_type"], configuration::Json((string)res["device_config"]));
+				if(!res["device_state"].IsNull())
+					device->StateRestore(configuration::Json((string)res["device_state"]));
+			}
 
 			instance = this;
 			return;
@@ -68,7 +76,7 @@ Devices::~Devices()
 {
 }
 
-void Devices::Load(int id, const string &name, const string &type, const configuration::Json &config)
+std::shared_ptr<Device> Devices::Load(int id, const string &name, const string &type, const configuration::Json &config)
 {
 	auto device = DeviceFactory::Get(id, name, type, config);
 
@@ -78,8 +86,7 @@ void Devices::Load(int id, const string &name, const string &type, const configu
 	if(device->GetCategory()==WEATHER)
 		devices_weather.insert(dynamic_pointer_cast<DeviceWeather>(device));
 
-	if(websocket::SolarControl::GetInstance())
-		websocket::SolarControl::GetInstance()->NotifyAll(websocket::SolarControl::en_protocols::DEVICE);
+	return device;
 }
 
 void Devices::Reload(int id)
@@ -124,6 +131,22 @@ void Devices::Reload(int id)
 void Devices::Unload()
 {
 	// No locking here as it's only called by Reload or main thread (which is not locked)
+
+	// First backup states
+	database::DB db;
+
+	try
+	{
+		for(auto device : devices)
+		{
+			auto state = device.second->StateBackup();
+			db.Query("REPLACE INTO t_device_state(device_id, device_state) VALUES(%i, %s)"_sql << device.second->GetID() << state.ToString());
+		}
+	}
+	catch(exception &e)
+	{
+		logs::Logger::Log(LOG_NOTICE, "Error backuping devices state : « " + string(e.what()) + " »");
+	}
 
 	devices.clear();
 	devices_electrical.clear();

@@ -38,19 +38,11 @@ DeviceBattery::DeviceBattery(int id):DeviceOnOff(id)
 	// Override default counter for storing production
 	consumption = energy::Counter(id, "production");
 
-	auto state = state_restore();
-	voltage = state.GetFloat("voltage", 0);
-	soc = state.GetFloat("soc", 0);
-
 	last_grid_switch = Timestamp(TS_MONOTONIC);
 }
 
 DeviceBattery::~DeviceBattery()
 {
-	json state;
-	state["voltage"] = voltage;
-	state["soc"] = soc;
-	state_backup(configuration::Json(state));
 }
 
 void DeviceBattery::CheckConfig(const configuration::Json &conf)
@@ -94,6 +86,24 @@ void DeviceBattery::reload(const configuration::Json &config)
 		battery_high = backup.GetUInt("battery_high");
 		min_grid_time = backup.GetUInt("min_grid_time");
 	}
+}
+
+void DeviceBattery::state_restore(const  configuration::Json &last_state)
+{
+	voltage = last_state.GetFloat("voltage", 0);
+	soc = last_state.GetFloat("soc", 0);
+
+	DeviceOnOff::state_restore(last_state);
+}
+
+configuration::Json DeviceBattery::state_backup()
+{
+	auto backup = DeviceOnOff::state_backup();
+
+	backup.Set("voltage", voltage);
+	backup.Set("soc", soc);
+
+	return backup;
 }
 
 json DeviceBattery::ToJson() const

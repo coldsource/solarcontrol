@@ -57,12 +57,11 @@ class Device: public sensor::SensorObserver
 	protected:
 		mutable std::recursive_mutex lock;
 
-		void state_backup(const configuration::Json &state);
-		const configuration::Json state_restore();
-
 		void add_sensor(std::shared_ptr<sensor::Sensor> sensor, const std::string &name);
 
 		virtual void reload(const configuration::Json & /* config */) {}
+		virtual void state_restore(const configuration::Json & /* last_state */ ) {}
+		virtual configuration::Json state_backup() { return configuration::Json(); }
 
 	public:
 		Device(int id):id(id) {}
@@ -72,6 +71,9 @@ class Device: public sensor::SensorObserver
 		static void CheckConfig(const configuration::Json & /* conf */) {}
 		virtual void Reload(const std::string &name, const configuration::Json &config) final;
 		void Delete();
+
+		virtual void StateRestore(const configuration::Json &last_state) final { state_restore(last_state); }
+		virtual  configuration::Json StateBackup() { return state_backup(); }
 
 		virtual std::string GetType() const = 0;
 		virtual en_category GetCategory() const = 0;

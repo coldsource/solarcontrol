@@ -62,8 +62,8 @@ void Server::Start()
 	info.timeout_secs = 30;
 	info.port = 7000;
 	info.protocols = protocols.data();
-	info.gid = (unsigned int)-1;
-	info.uid = (unsigned int)-1;
+	info.gid = (gid_t)-1;
+	info.uid = (uid_t)-1;
 	info.count_threads = 1;
 	info.server_string = "libWebsockets Server";
 	info.vhost_name = "default";

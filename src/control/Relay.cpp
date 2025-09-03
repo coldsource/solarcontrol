@@ -33,12 +33,16 @@ void Relay::CheckConfig(const configuration::Json &conf)
 	OnOff::CheckConfig(conf);
 
 	conf.Check("ip", "string");
+	conf.Check("reverted", "bool", false);
 }
 
 void Relay::Switch(bool new_state)
 {
 	if(ip=="")
 		return;
+
+	if(reverted)
+		new_state = !new_state;
 
 	shelly::HTTP api(ip);
 

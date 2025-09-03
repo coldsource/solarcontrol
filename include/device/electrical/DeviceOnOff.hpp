@@ -40,6 +40,10 @@ enum en_wanted_state
 class DeviceOnOff: public DeviceElectrical
 {
 	protected:
+		// State
+		bool manual = false;
+		bool state = false;
+
 		std::shared_ptr<control::OnOff> ctrl;
 
 		datetime::Timestamp last_on;

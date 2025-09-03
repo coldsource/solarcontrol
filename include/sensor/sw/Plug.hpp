@@ -29,7 +29,7 @@ namespace sensor::sw {
 class Plug: public Relay
 {
 	public:
-		Plug(const std::string &ip, const std::string &mqtt_id): Relay(ip, 0, mqtt_id) {}
+		Plug(const std::string &ip, const std::string &mqtt_id, bool reverted): Relay(ip, 0, mqtt_id, reverted) {}
 };
 
 }

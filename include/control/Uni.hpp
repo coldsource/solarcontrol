@@ -29,7 +29,7 @@ namespace control {
 class Uni: public Pro
 {
 	public:
-		Uni(const std::string &ip, int outlet) : Pro(ip, outlet) {}
+		Uni(const std::string &ip, int outlet, bool reverted = false) : Pro(ip, outlet, reverted) {}
 };
 
 }

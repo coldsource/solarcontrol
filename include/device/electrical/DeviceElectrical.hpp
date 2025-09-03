@@ -35,8 +35,6 @@ namespace device {
 class DeviceElectrical: public Device
 {
 	protected:
-		bool manual = false;
-		bool state = false;
 		double power = -1;
 
 		energy::Counter consumption;

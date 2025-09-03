@@ -34,7 +34,6 @@ namespace device {
 class DeviceBattery: public DeviceOnOff
 {
 	// Config
-	bool has_backup = false;
 	unsigned int battery_low, battery_high;
 	unsigned long min_grid_time;
 

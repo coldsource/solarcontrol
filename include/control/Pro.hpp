@@ -29,7 +29,7 @@ namespace control {
 class Pro: public Relay
 {
 	public:
-		Pro(const std::string &ip, int outlet) : Relay(ip, outlet) {}
+		Pro(const std::string &ip, int outlet, bool reverted = false) : Relay(ip, outlet, reverted) {}
 
 		static void CheckConfig(const configuration::Json &conf);
 

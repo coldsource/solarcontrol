@@ -27,7 +27,7 @@ using nlohmann::json;
 
 namespace sensor::sw {
 
-Pro::Pro(const string &ip, int outlet, const string &mqtt_id): Relay(ip, outlet, mqtt_id)
+Pro::Pro(const string &ip, int outlet, const string &mqtt_id, bool reverted): Relay(ip, outlet, mqtt_id, reverted)
 {
 }
 

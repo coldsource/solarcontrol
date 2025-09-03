@@ -29,10 +29,11 @@ using nlohmann::json;
 
 namespace sensor::sw {
 
-Relay::Relay(const std::string &ip, int outlet, const string &mqtt_id):
+Relay::Relay(const std::string &ip, int outlet, const string &mqtt_id, bool reverted):
 ip(ip),
 outlet(outlet),
-topic(mqtt_id!=""?mqtt_id + "/events/rpc":"")
+topic(mqtt_id!=""?mqtt_id + "/events/rpc":""),
+reverted(reverted)
 {
 	state = false;
 
@@ -54,6 +55,7 @@ void Relay::CheckConfig(const configuration::Json &conf)
 	Switch::CheckConfig(conf);
 
 	conf.Check("ip", "string");
+	conf.Check("reverted", "bool", false);
 }
 
 bool Relay::get_output() const
@@ -78,6 +80,14 @@ bool Relay::get_output() const
 		logs::Logger::Log(LOG_WARNING, "Unable to get plug state : « " + string(e.what()) + " »");
 		return false;
 	}
+}
+
+bool Relay::GetState() const
+{
+	if(!reverted)
+		return state;
+
+	return !state;
 }
 
 void Relay::ForceUpdate()

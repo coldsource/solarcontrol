@@ -37,10 +37,12 @@ class Relay: public OnOff
 	const std::string ip = "";
 	const int outlet = 0;
 
+	bool reverted = false;
+
 	std::mutex lock;
 
 	public:
-		Relay(const std::string &ip, int outlet):ip(ip), outlet(outlet) {}
+		Relay(const std::string &ip, int outlet, bool reverted = false):ip(ip), outlet(outlet), reverted(reverted) {}
 		virtual ~Relay() {}
 
 		static void CheckConfig(const configuration::Json & conf);

@@ -52,16 +52,13 @@ void DeviceBattery::CheckConfig(const configuration::Json &conf)
 	conf.Check("voltmeter", "object"); // Voltmeter is mandatory for battery
 	Voltmeter::CheckConfig(conf.GetObject("voltmeter"));
 
-	// Check battery backup config, passive batteries have no backup so this is optional
-	if(conf.Has("backup"))
-	{
-		conf.Check("backup", "object");
-		auto backup = conf.GetObject("backup");
+	// Check battery backup config
+	conf.Check("backup", "object");
+	auto backup = conf.GetObject("backup");
 
-		backup.Check("battery_low", "uint");
-		backup.Check("battery_high", "uint");
-		backup.Check("min_grid_time", "uint");
-	}
+	backup.Check("battery_low", "uint");
+	backup.Check("battery_high", "uint");
+	backup.Check("min_grid_time", "uint");
 }
 
 void DeviceBattery::reload(const configuration::Json &config)
@@ -78,14 +75,13 @@ void DeviceBattery::reload(const configuration::Json &config)
 
 	add_sensor(make_unique<Voltmeter>(config.GetObject("voltmeter")), "voltmeter");
 
-	if(config.Has("backup"))
-	{
-		has_backup = true;
-		auto backup = config.GetObject("backup");
-		battery_low = backup.GetUInt("battery_low");
-		battery_high = backup.GetUInt("battery_high");
-		min_grid_time = backup.GetUInt("min_grid_time");
-	}
+	auto backup = config.GetObject("backup");
+	battery_low = backup.GetUInt("battery_low");
+	battery_high = backup.GetUInt("battery_high");
+	min_grid_time = backup.GetUInt("min_grid_time");
+
+	// Control « reverted » may have changed, force state update
+	ctrl->Switch(state);
 }
 
 void DeviceBattery::state_restore(const  configuration::Json &last_state)
@@ -114,7 +110,7 @@ json DeviceBattery::ToJson() const
 
 	j_device["voltage"] = voltage;
 	j_device["soc"] = soc;
-	j_device["state"] = state?"battery":"grid";
+	j_device["state"] = state?"grid":"battery";
 
 	return j_device;
 }
@@ -145,22 +141,25 @@ void DeviceBattery::SetState(bool new_state)
 
 en_wanted_state DeviceBattery::GetWantedState() const
 {
+	// State ON is GRID mode
+	// State OFF is BATTERY mode
+
 	unique_lock<recursive_mutex> llock(lock);
 
 	if(soc==-1)
 		return UNCHANGED; // SOC Not yet updated
 
 	// If battery is too low, we always switch back to grid to backup power supply
-	if(soc<battery_low && state)
-		return OFF;
+	if(soc<battery_low && !state)
+		return ON;
 
-	if(soc>=battery_high && !state)
+	if(soc>=battery_high && state)
 	{
 		Timestamp now(TS_MONOTONIC);
 		if((unsigned long)(now - last_grid_switch) <= min_grid_time)
 			return UNCHANGED; // Last grid swich is too recent apply cooldown
 
-		return ON;
+		return OFF;
 	}
 
 	return UNCHANGED;
@@ -191,6 +190,7 @@ void DeviceBattery::CreateInDB()
 	control["type"] = "uni";
 	control["ip"] = "";
 	control["outlet"] = 0;
+	control["reverted"] = true;
 	config["control"] = control;
 
 	json backup;

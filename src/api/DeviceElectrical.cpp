@@ -44,7 +44,7 @@ json DeviceElectrical::HandleMessage(const string &cmd, const configuration::Jso
 	{
 		int device_id =j_params.GetInt("device_id");
 		string device_name = j_params.GetString("device_name");
-		string device_type = devices.GetElectricalByID(device_id)->GetType();
+		string device_type = Devices::GetByID<device::DeviceElectrical>(device_id)->GetType();
 		auto device_config = j_params.GetObject("device_config");
 
 		device::DeviceFactory::CheckConfig(device_type, device_config);
@@ -97,7 +97,7 @@ json DeviceElectrical::HandleMessage(const string &cmd, const configuration::Jso
 		if(state!="on" && state!="off" && state!="auto")
 			throw invalid_argument("Invalid state : « " + state + " »");
 
-		auto device = devices.GetElectricalByID(device_id);
+		auto device = Devices::GetByID<device::DeviceElectrical>(device_id);
 
 		if(device->GetCategory()!=device::ONOFF)
 			throw invalid_argument("Could not change state on passive device");

@@ -28,6 +28,7 @@
 
 using namespace std;
 using device::Device;
+using device::Devices;
 using device::DeviceHWS;
 using device::DeviceGrid;
 using device::DevicePV;
@@ -41,11 +42,10 @@ GlobalMeter::GlobalMeter()
 {
 	instance = this;
 
-	device::Devices devices;
-	hws = dynamic_pointer_cast<DeviceHWS>(devices.GetElectricalByID(DEVICE_ID_HWS));
-	grid = dynamic_pointer_cast<DeviceGrid>(devices.GetElectricalByID(DEVICE_ID_GRID));
-	pv = dynamic_pointer_cast<DevicePV>(devices.GetElectricalByID(DEVICE_ID_PV));
-	battery = dynamic_pointer_cast<DeviceBattery>(devices.GetElectricalByID(DEVICE_ID_BATTERY));
+	hws = Devices::GetByID<DeviceHWS>(DEVICE_ID_HWS);
+	grid = Devices::GetByID<DeviceGrid>(DEVICE_ID_GRID);
+	pv = Devices::GetByID<DevicePV>(DEVICE_ID_PV);
+	battery = Devices::GetByID<DeviceBattery>(DEVICE_ID_BATTERY);
 
 	// Register as configuration observer and trigger ConfigurationChanged() for initial config loading
 	ObserveConfiguration("energy");

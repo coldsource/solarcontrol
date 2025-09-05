@@ -56,7 +56,7 @@ class Devices
 	static std::unordered_set<std::shared_ptr<DeviceElectrical>> devices_electrical;
 	static std::unordered_set<std::shared_ptr<DeviceWeather>> devices_weather;
 
-	std::shared_ptr<Device> get_by_id(int id) const;
+	static std::shared_ptr<Device> get_by_id(int id);
 
 	public:
 		Devices();
@@ -68,11 +68,31 @@ class Devices
 		void Delete(int id);
 
 		std::string IDToName(int id) const;
-		std::shared_ptr<DeviceElectrical> GetElectricalByID(int id) const;
-		std::shared_ptr<DeviceWeather> GetWeatherByID(int id) const;
 
-		const std::unordered_set<std::shared_ptr<DeviceElectrical>> GetElectrical() const;
-		const std::unordered_set<std::shared_ptr<DeviceWeather>> GetWeather() const;
+		template<typename T>
+		static std::shared_ptr<T> GetByID(int id)
+		{
+			std::unique_lock<std::mutex> llock(mutex_w);
+
+			auto res = std::dynamic_pointer_cast<T>(get_by_id(id));
+			if(res==nullptr)
+				throw std::runtime_error("Incorrect device type for ID " + std::to_string(id));
+			return res;
+		}
+
+		template<typename T>
+		static const std::multiset<std::shared_ptr<T>, decltype(T::CompareTo) *> Get()
+		{
+			std::multiset<std::shared_ptr<T>, decltype(T::CompareTo) *> res(T::CompareTo);
+			for(auto device : devices)
+			{
+				auto device_ptr = std::dynamic_pointer_cast<T>(device.second);
+				if(device_ptr!=nullptr) // Take all devices than are derived from the specified class
+					res.insert(device_ptr);
+			}
+
+			return res;
+		}
 
 		std::shared_ptr<Device> IsInUse(int device_id) const;
 };

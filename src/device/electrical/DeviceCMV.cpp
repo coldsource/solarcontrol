@@ -48,9 +48,8 @@ void DeviceCMV::CheckConfig(const configuration::Json &conf)
 
 	try
 	{
-		Devices devices;
 		for(auto device_id : conf.GetArray("ht_device_ids"))
-			devices.GetWeatherByID((int)device_id);
+			Devices::GetByID<DeviceWeather>(device_id); // Check device exists
 	}
 	catch(exception &e)
 	{
@@ -86,14 +85,12 @@ void DeviceCMV::check_timeranges(const configuration::Json &conf, const string &
 
 en_wanted_state DeviceCMV::get_wanted_state(configuration::Json *data_ptr) const
 {
-	Devices devices;
-
 	double max_moisture = 0;
 	try
 	{
 		for(auto ht_device_id : ht_device_ids)
 		{
-			auto ht = devices.GetWeatherByID(ht_device_id);
+			auto ht = Devices::GetByID<DeviceWeather>(ht_device_id);
 			if(ht->GetHumidity()>max_moisture)
 				max_moisture = ht->GetHumidity();
 		}

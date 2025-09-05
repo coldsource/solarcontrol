@@ -199,47 +199,13 @@ string Devices::IDToName(int id) const
 	return ""; // Unknown device
 }
 
-shared_ptr<Device> Devices::get_by_id(int id) const
+shared_ptr<Device> Devices::get_by_id(int id)
 {
 	auto it = devices.find(id);
 	if(it==devices.end())
 		throw out_of_range("Unknown device id : " + to_string(id));
 
 	return it->second;
-}
-
-shared_ptr<DeviceElectrical> Devices::GetElectricalByID(int id) const
-{
-	unique_lock<mutex> llock(mutex_w);
-
-	auto device = get_by_id(id);
-	if(device->GetCategory()!=ONOFF && device->GetCategory()!=PASSIVE)
-		throw runtime_error("Not an OnOff device : " + to_string(id));
-	return dynamic_pointer_cast<DeviceElectrical>(device);
-}
-
-shared_ptr<DeviceWeather> Devices::GetWeatherByID(int id) const
-{
-	unique_lock<mutex> llock(mutex_w);
-
-	auto device = get_by_id(id);
-	if(device->GetCategory()!=WEATHER)
-		throw runtime_error("Not a Weather device : " + to_string(id));
-	return dynamic_pointer_cast<DeviceWeather>(device);
-}
-
-const unordered_set<shared_ptr<DeviceElectrical>> Devices::GetElectrical() const
-{
-	unique_lock<mutex> llock(mutex_w);
-
-	return devices_electrical;
-}
-
-const unordered_set<shared_ptr<DeviceWeather>> Devices::GetWeather() const
-{
-	unique_lock<mutex> llock(mutex_w);
-
-	return devices_weather;
 }
 
 shared_ptr<Device> Devices::IsInUse(int device_id) const

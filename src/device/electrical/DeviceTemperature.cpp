@@ -59,8 +59,7 @@ void DeviceTemperature::CheckConfig(const configuration::Json &conf)
 	int ht_device_id = conf.GetInt("ht_device_id");
 	try
 	{
-		Devices devices;
-		devices.GetWeatherByID(ht_device_id);
+		Devices::GetByID<DeviceWeather>(ht_device_id); // Check device exists
 	}
 	catch(exception &e)
 	{
@@ -94,11 +93,10 @@ void DeviceTemperature::check_timeranges(const configuration::Json &conf, const 
 
 en_wanted_state DeviceTemperature::get_wanted_state(configuration::Json *data_ptr) const
 {
-	Devices devices;
 	shared_ptr<DeviceWeather> ht;
 	try
 	{
-		ht = devices.GetWeatherByID(ht_device_id);
+		ht = Devices::GetByID<DeviceWeather>(ht_device_id);
 	}
 	catch(exception &e)
 	{

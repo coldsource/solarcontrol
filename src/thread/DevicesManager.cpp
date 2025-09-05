@@ -161,15 +161,8 @@ void DevicesManager::main()
 		last_power_update = now;
 
 		{
-			Devices devices;
-
 			// Sort OnOff devices by priority
-			std::multiset<shared_ptr<DeviceOnOff>, DeviceOnOff::PrioComparator> onoff;
-			for(auto device : devices.GetElectrical())
-			{
-				if(device->GetCategory()==ONOFF)
-					onoff.insert(dynamic_pointer_cast<DeviceOnOff>(device));
-			}
+			auto onoff = Devices::Get<DeviceOnOff>();
 
 			// Lock our config
 			unique_lock<mutex> llock(lock);

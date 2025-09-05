@@ -224,14 +224,7 @@ std::string SolarControl::lws_callback_server_writeable(struct lws * /* wsi */, 
 	{
 		json j_devices = json::array();
 
-		device::Devices devices;
-
-		auto devices_electrical = devices.GetElectrical();
-		for(auto device : devices_electrical)
-			j_devices.push_back(device->ToJson());
-
-		auto devices_weather = devices.GetWeather();
-		for(auto device : devices_weather)
+		for(auto device : device::Devices::Get<device::Device>())
 			j_devices.push_back(device->ToJson());
 
 		return string(j_devices.dump());

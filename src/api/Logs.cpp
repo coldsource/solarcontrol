@@ -81,8 +81,7 @@ json Logs::HandleMessage(const string &cmd, const configuration::Json &j_params)
 		{
 			j_res = json::object();
 
-			device::Devices devices;
-			for(auto device : devices.GetElectrical())
+			for(auto device : device::Devices::Get<device::DeviceElectrical>())
 			{
 				for(auto consumption : device->GetConsumptionHistory())
 					j_res[string(consumption.first)][device->GetName()]["consumption"] = consumption.second;

@@ -69,8 +69,7 @@ void Device::update_device(int id, const std::string &name, const configuration:
 
 void Device::update_prio(int id, int new_prio)
 {
-	device::Devices devices;
-	auto device = devices.GetElectricalByID(id);
+	auto device = Devices::GetByID<DeviceElectrical>(id);
 	if(device->GetCategory()!=ONOFF)
 		throw invalid_argument("Device has no priority");
 

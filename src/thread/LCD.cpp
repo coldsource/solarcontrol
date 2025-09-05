@@ -87,9 +87,7 @@ void LCD::main()
 		double max_energy = 0;
 
 		{
-			device::Devices devices;
-			auto electrical = devices.GetElectrical();
-			for(auto device : electrical)
+			for(auto device : device::Devices::Get<device::DeviceElectrical>())
 			{
 				if(device->GetID()==DEVICE_ID_GRID || device->GetID()==DEVICE_ID_PV)
 					continue; // Exclude special devices

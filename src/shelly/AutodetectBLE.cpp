@@ -48,11 +48,9 @@ void AutodetectBLE::HandleMessage(const string & /*message*/, const std::string 
 
 	string addr = topic.substr(15);
 
-	device::Devices devices;
-	auto weather = devices.GetWeather();
-	for(auto it = weather.begin(); it!=weather.end(); ++it)
+	for(auto device : device::Devices::Get<device::DeviceHTBluetooth>())
 	{
-		if((*it)->GetType()=="htmini" && (dynamic_pointer_cast<device::DeviceHTBluetooth>(*it))->GetBLEAddr()==addr)
+		if(device->GetBLEAddr()==addr)
 			return; // Ignore already known devices
 	}
 

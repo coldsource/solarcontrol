@@ -83,9 +83,10 @@ class DeviceOnOff: public DeviceElectrical
 
 		virtual nlohmann::json ToJson() const override;
 
-		struct PrioComparator {
-			bool operator()(std::shared_ptr<DeviceOnOff> a, std::shared_ptr<DeviceOnOff> b) const { return a->GetPrio() < b->GetPrio(); }
-		};
+		static bool CompareTo(std::shared_ptr<DeviceOnOff> a, std::shared_ptr<DeviceOnOff> b) // OnOff devices are sorted by prio
+		{
+			return a->GetPrio() < b->GetPrio();
+		}
 };
 
 }

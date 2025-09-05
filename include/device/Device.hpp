@@ -84,6 +84,11 @@ class Device: public sensor::SensorObserver
 		const configuration::Json GetConfig() const;
 
 		virtual bool Depends(int /* device_id */) const { return false; }
+
+		static bool CompareTo(std::shared_ptr<Device> a, std::shared_ptr<Device> b) // By default devices are sorted by name
+		{
+			return a->GetName() < b->GetName();
+		}
 };
 
 }

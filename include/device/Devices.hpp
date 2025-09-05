@@ -87,7 +87,7 @@ class Devices
 			for(auto device : devices)
 			{
 				auto device_ptr = std::dynamic_pointer_cast<T>(device.second);
-				if(device_ptr!=nullptr) // Take all devices than are derived from the specified class
+				if(device_ptr!=nullptr) // Take all devices thant are derived from the specified class
 					res.insert(device_ptr);
 			}
 

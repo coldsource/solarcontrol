@@ -58,7 +58,7 @@ void DeviceHTBluetooth::SensorChanged(const sensor::Sensor *sensor)
 	temperature = htble->GetTemperature();
 	humidity = htble->GetHumidity();
 
-	history.Add(weather::MinMaxHT(temperature, humidity));
+	history.Add(weather::MinMaxHT(humidity, temperature));
 }
 
 }

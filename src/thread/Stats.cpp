@@ -186,6 +186,16 @@ json Stats::devices_predictions_to_json() const
 
 		j_device["prediction"] = get_device_prediction(device, controlled_power);
 
+		auto wanted_state = device->GetWantedState();
+		if(wanted_state==ON)
+			j_device["wanted_state"] = "on";
+		else if(wanted_state==OFF)
+			j_device["wanted_state"] = "off";
+		else if(wanted_state==OFFLOAD)
+			j_device["wanted_state"] = "offload";
+		else if(wanted_state==UNCHANGED)
+			j_device["wanted_state"] = "unchanged";
+
 		j_res.push_back(j_device);
 	}
 

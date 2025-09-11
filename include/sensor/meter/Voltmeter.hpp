@@ -24,6 +24,7 @@
 #include <mqtt/Subscriber.hpp>
 #include <configuration/ConfigurationObserver.hpp>
 #include <datetime/Timestamp.hpp>
+#include <stat/MovingAverage.hpp>
 
 #include <string>
 #include <mutex>
@@ -32,10 +33,6 @@
 
 namespace configuration {
 	class Json;
-}
-
-namespace stat {
-	class MovingAverage;
 }
 
 namespace sensor::meter {
@@ -51,7 +48,7 @@ class Voltmeter: public Sensor, public mqtt::Subscriber, public configuration::C
 
 	std::string topic = "";
 
-	std::atomic<std::shared_ptr<stat::MovingAverage>> voltage_avg; // Average voltage in mV
+	std::atomic<std::shared_ptr<stat::MovingAverage<double>>> voltage_avg; // Average voltage in mV
 	std::atomic<datetime::Timestamp> last_voltage_update;
 
 	std::map<int, double> thresholds; // Voltate thresholds used for computing SOC

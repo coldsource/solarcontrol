@@ -20,7 +20,6 @@
 #include <sensor/meter/Voltmeter.hpp>
 #include <mqtt/Client.hpp>
 #include <configuration/Json.hpp>
-#include <stat/MovingAverage.hpp>
 #include <configuration/ConfigurationPart.hpp>
 #include <nlohmann/json.hpp>
 
@@ -61,7 +60,7 @@ Voltmeter::~Voltmeter()
 
 void Voltmeter::ConfigurationChanged(const configuration::ConfigurationPart *config)
 {
-	voltage_avg = make_unique<stat::MovingAverage>(config->GetTime("energy.battery.smoothing"));
+	voltage_avg = make_unique<stat::MovingAverage<double>>(config->GetTime("energy.battery.smoothing"));
 	last_voltage_update = Timestamp(TS_MONOTONIC);
 }
 
@@ -74,7 +73,7 @@ double Voltmeter::GetVoltage() const
 	if(avg->Size()==0)
 		return -1; // No measurement yet
 
-	return avg->Get() / 1000; // mV to V
+	return avg->Get();
 }
 
 void Voltmeter::CheckConfig(const configuration::Json &conf)
@@ -169,7 +168,7 @@ void Voltmeter::HandleMessage(const string &message, const std::string & /*topic
 		if(ev.contains("voltage"))
 		{
 			double voltage = ev["voltage"];
-			avg->Add(voltage * 1000, (double)(now - last_voltage_update)); // V to mV
+			avg->Add(voltage, (double)(now - last_voltage_update));
 			last_voltage_update = now;
 		}
 	}

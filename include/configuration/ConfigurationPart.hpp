@@ -60,7 +60,7 @@ class ConfigurationPart
 		unsigned long GetTime(const std::string &entry) const;
 		int GetPower(const std::string &entry) const;
 		int GetEnergy(const std::string &entry) const;
-		int GetPercent(const std::string &entry) const;
+		double GetPercent(const std::string &entry) const;
 		bool GetBool(const std::string &entry) const;
 		unsigned int GetUID(const std::string &entry) const;
 		unsigned int GetGID(const std::string &entry) const;

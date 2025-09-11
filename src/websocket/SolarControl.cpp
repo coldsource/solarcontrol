@@ -25,6 +25,7 @@
 #include <device/weather/DeviceWeather.hpp>
 #include <configuration/Configuration.hpp>
 #include <configuration/ConfigurationPart.hpp>
+#include <thread/Stats.hpp>
 #include <logs/Logger.hpp>
 #include <nlohmann/json.hpp>
 
@@ -65,6 +66,7 @@ map<string, unsigned int> SolarControl::get_protocols()
 	protocols["meter"] = en_protocols::METER;
 	protocols["device"] = en_protocols::DEVICE;
 	protocols["config"] = en_protocols::CONFIG;
+	protocols["stats"] = en_protocols::STATS;
 	return protocols;
 }
 
@@ -126,7 +128,7 @@ void *SolarControl::lws_callback_established(struct lws *wsi, unsigned int proto
 
 	clients[protocol].insert(wsi);
 
-	if(protocol==DEVICE || protocol==METER || protocol==CONFIG)
+	if(protocol==DEVICE || protocol==METER || protocol==CONFIG || protocol==STATS)
 		NotifyAll(protocol);
 
 	if(protocol==API)
@@ -175,7 +177,7 @@ void SolarControl::lws_callback_receive(struct lws *wsi, unsigned int protocol, 
 
 		api_ctx->message = message;
 		api_ctx->worker_alive = true;
-		api_ctx->worker = thread(worker, wsi, api_ctx);
+		api_ctx->worker = std::thread(worker, wsi, api_ctx);
 	}
 }
 
@@ -257,6 +259,10 @@ std::string SolarControl::lws_callback_server_writeable(struct lws * /* wsi */, 
 		j_res["current"] = j_config;
 
 		return string(j_res.dump());
+	}
+	else if(protocol==STATS)
+	{
+		return string(::thread::Stats::GetInstance()->ToJson().dump());
 	}
 
 	return "";

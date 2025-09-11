@@ -35,13 +35,16 @@ ConfigurationControl::ConfigurationControl(void)
 	entries["control.hysteresis.smoothing"] = "3m";
 	entries["control.hysteresis.export"] = "50W";
 	entries["control.hysteresis.import"] = "30W";
-	entries["control.hysteresis.precision"] = "100%";
-	entries["control.hysteresis.max_history"] = "30m";
+	entries["control.hysteresis.precision"] = "95%";
+	entries["control.hysteresis.fast"] = "1m";
+	entries["control.hysteresis.medium"] = "5m";
+	entries["control.hysteresis.slow"] = "10m";
 	entries["control.cooldown"] = "10s";
 	entries["control.state.update_interval"] = "5m";
 	entries["control.absence.enabled"] = "no";
 	entries["control.absence.temperature"] = "12";
 	entries["control.priority"] = "hws";
+	entries["control.offload.max"] = "3kW";
 }
 
 ConfigurationControl::~ConfigurationControl(void)
@@ -54,11 +57,14 @@ void ConfigurationControl::Check(void) const
 	check_power_entry("control.hysteresis.export");
 	check_power_entry("control.hysteresis.import");
 	check_percent_entry("control.hysteresis.precision");
-	check_time_entry("control.hysteresis.max_history");
+	check_time_entry("control.hysteresis.fast");
+	check_time_entry("control.hysteresis.medium");
+	check_time_entry("control.hysteresis.slow");
 	check_time_entry("control.cooldown");
 	check_time_entry("control.state.update_interval");
 	check_bool_entry("control.absence.enabled");
 	check_double_entry("control.absence.temperature");
+	check_power_entry("control.offload.max");
 
 	string priority = Get("control.priority");
 	if(priority!="hws" && priority!="offload")

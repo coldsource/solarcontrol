@@ -20,6 +20,7 @@
 #include <database/DBConfig.hpp>
 #include <websocket/SolarControl.hpp>
 #include <thread/DevicesManager.hpp>
+#include <thread/Stats.hpp>
 #include <thread/SensorsManager.hpp>
 #include <thread/LCD.hpp>
 #include <thread/HistorySync.hpp>
@@ -42,6 +43,7 @@ void signal_callback_handler(int signum)
 	{
 		::thread::SensorsManager::GetInstance()->Shutdown();
 		::thread::DevicesManager::GetInstance()->Shutdown();
+		::thread::Stats::GetInstance()->Shutdown();
 	}
 	else if(signum==SIGHUP)
 	{
@@ -139,7 +141,9 @@ int main(int argc, char **argv)
 		::thread::LCD lcd;
 
 		// Once all is setup, start devices related threads
+		::thread::Stats stats;
 		::thread::DevicesManager dev_manager;
+		stats.Start();
 		sensors_manager.Start();
 		dev_manager.Start();
 		mqtt.Start();
@@ -147,6 +151,7 @@ int main(int argc, char **argv)
 		// Flag startup sequence as completed, from now we can trigger exit from signals
 		startup_finished = true;
 
+		stats.WaitForShutdown();
 		sensors_manager.WaitForShutdown();
 		dev_manager.WaitForShutdown();
 

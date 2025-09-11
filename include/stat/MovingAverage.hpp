@@ -21,42 +21,61 @@
 #define __STAT_MOVINGAVERAGE_HPP__
 
 #include <list>
-#include <cstdint>
-#include <cstddef>
 
 namespace stat {
 
+template<typename T>
 class MovingAverage
 {
 	protected:
-		// Store values in integer to avoid rounding errors
-		struct st_point
+		struct st_value
 		{
-			int64_t value;
-			int64_t duration;
+			T value;
+			double weighting;
 		};
 
-		int64_t value_sum = 0;
-		int64_t duration_sum = 0;
-		double avg = 0;
-		int period;
+		std::list<st_value> values;
+		double window_size;
 
-		std::list<st_point> data;
+		T last_window_sum = 0;
+		double last_windows_size = 0;
+		T current_window_sum = 0;
+		double current_window_size = 0;
 
 	public:
-		MovingAverage(int period): period(period * 1000) {}
+		MovingAverage(double window_size):window_size(window_size) {}
 
-		void Add(double value, double duration);
-		double Get() const;
-		size_t Size() const { return data.size(); }
+		void Add(T value, double weighting = 1)
+		{
+			if(current_window_size>=window_size)
+			{
+				last_window_sum = current_window_sum;
+				last_windows_size = current_window_size;
+				current_window_sum = 0;
+				current_window_size = 0;
+			}
 
-		int GetHigherValuesPercentile(double value, unsigned long max_period = 0) const;
+			current_window_size += weighting;
+			current_window_sum += weighting==1?value:(value * weighting);
+			values.push_back({value, weighting});
 
-		void Reset();
+			while(last_windows_size + current_window_size > window_size && values.size()>1)
+			{
+				auto last = values.front();
+				last_windows_size -= last.weighting;
+				last_window_sum -= last.weighting==1?last.value:(last.value * last.weighting);
+				values.pop_front();
+			}
+		}
+
+		T Get()
+		{
+			return (last_window_sum + current_window_sum) / (double)(last_windows_size + current_window_size);
+		}
+
+		size_t Size() { return values.size(); }
 };
 
 }
 
 #endif
-
-

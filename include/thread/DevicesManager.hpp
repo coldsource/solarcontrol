@@ -32,15 +32,14 @@ namespace energy {
 	class GlobalMeter;
 }
 
-namespace stat {
-	class MovingAverage;
-}
-
 namespace device {
 	class DeviceOnOff;
 }
 
+
 namespace thread {
+
+class Stats;
 
 class DevicesManager: public WaiterThread, public configuration::ConfigurationObserver
 {
@@ -50,17 +49,24 @@ class DevicesManager: public WaiterThread, public configuration::ConfigurationOb
 
 	protected:
 		energy::GlobalMeter *global_meter = 0;
-		std::unique_ptr<stat::MovingAverage> available_power_avg; // Average available power, used to switch devices off
-		std::unique_ptr<stat::MovingAverage> available_power_histo; // History of available power, used to switch devices on
+		Stats *stats = 0;
 
+		// Config
 		int hysteresis_export = 0;
 		int hysteresis_import = 0;
-		int hysteresis_precision = 0;
+		double hysteresis_precision = 0;
 		unsigned long cooldown;
 
-		bool hysteresis(double power_delta, const std::shared_ptr<device::DeviceOnOff> device) const;
+		// State
+		double controllable_power = 0;
+		double forced_power = 0;
+		double offloaded_power = 0;
+
+		bool hysteresis(const std::shared_ptr<device::DeviceOnOff> device) const;
 		bool force(const std::map<std::shared_ptr<device::DeviceOnOff>, bool> &devices);
 		bool offload(const std::vector<std::shared_ptr<device::DeviceOnOff>> &devices);
+
+		double get_controllable_power() const;
 
 		void main(void) override;
 

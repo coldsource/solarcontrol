@@ -58,7 +58,8 @@ class SolarControl: public Server
 			API,
 			METER,
 			DEVICE,
-			CONFIG
+			CONFIG,
+			STATS
 		};
 
 		SolarControl();

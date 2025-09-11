@@ -185,9 +185,9 @@ int ConfigurationPart::GetEnergy(const string &entry) const
 		return i;
 }
 
-int ConfigurationPart::GetPercent(const string &entry) const
+double ConfigurationPart::GetPercent(const string &entry) const
 {
-	return stoi(Get(entry));
+	return (double)stoi(Get(entry)) / 100;
 }
 
 bool ConfigurationPart::GetBool(const string &entry) const

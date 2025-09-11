@@ -83,8 +83,6 @@ bool DevicesManager::hysteresis(const shared_ptr<DeviceOnOff> device) const
 	// Look into the past to see the percentage of the time the device could have been on without importing
 	// We check for a longer period if the device can't be quickly switched off
 	// Compare this to the required precision
-	printf("OK %s\n", device->GetName().c_str());
-	printf("%f %f\n", stats->GetDevicePrediction(device, active_power), hysteresis_precision);
 	return stats->GetDevicePrediction(device, active_power) >= hysteresis_precision;
 }
 

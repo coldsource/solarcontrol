@@ -40,7 +40,7 @@ class MovingAverage
 		T last_window_sum = 0;
 		double last_windows_size = 0;
 		T current_window_sum = 0;
-		double current_window_size = 1;
+		double current_window_size = 0;
 
 	public:
 		MovingAverage(double window_size):window_size(window_size) {}

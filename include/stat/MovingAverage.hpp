@@ -40,7 +40,7 @@ class MovingAverage
 		T last_window_sum = 0;
 		double last_windows_size = 0;
 		T current_window_sum = 0;
-		double current_window_size = 0;
+		double current_window_size = 1;
 
 	public:
 		MovingAverage(double window_size):window_size(window_size) {}
@@ -68,12 +68,12 @@ class MovingAverage
 			}
 		}
 
-		T Get()
+		T Get() const
 		{
 			return (last_window_sum + current_window_sum) / (double)(last_windows_size + current_window_size);
 		}
 
-		size_t Size() { return values.size(); }
+		size_t Size() const { return values.size(); }
 };
 
 }

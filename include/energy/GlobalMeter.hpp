@@ -21,6 +21,7 @@
 #define __ENERGY_GLOBALMETER_HPP__
 
 #include <configuration/ConfigurationObserver.hpp>
+#include <nlohmann/json.hpp>
 
 #include <mutex>
 #include <string>
@@ -90,6 +91,8 @@ protected:
 		bool GetOffPeak() const;
 
 		bool HWSIsFull() const;
+
+		nlohmann::json ToJson() const;
 };
 
 }

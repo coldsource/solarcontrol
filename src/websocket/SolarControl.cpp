@@ -193,35 +193,7 @@ std::string SolarControl::lws_callback_server_writeable(struct lws * /* wsi */, 
 		return api_ctx->response;
 	}
 	else if(protocol==METER)
-	{
-		auto global = energy::GlobalMeter::GetInstance();
-
-		json j;
-		j["has_battery"] = global->HasBattery();
-		j["battery_voltage"] = global->GetBatteryVoltage();
-		j["battery_soc"] = global->GetBatterySOC();
-
-		j["grid"] = global->GetGridPower();
-		j["pv"] = global->GetPVPower();
-		j["battery"] = global->GetBatteryPower();
-		j["hws"] = global->GetHWSPower();
-
-		j["total"] = global->GetPower();
-		j["net_available"] = global->GetNetAvailablePower();
-		j["gross_available"] = global->GetGrossAvailablePower();
-		j["excess"] = global->GetExcessPower();
-
-		j["grid_energy"] = global->GetGridEnergy();
-		j["grid_exported_energy"] = global->GetExportedEnergy();
-		j["pv_energy"] = global->GetPVEnergy();
-		j["battery_energy"] = global->GetBatteryEnergy();
-		j["hws_energy"] = global->GetHWSEnergy();
-		j["hws_energy_offload"] = global->GetHWSOffloadEnergy();
-
-		j["offpeak"] = global->GetOffPeak();
-
-		return string(j.dump());
-	}
+		return string(energy::GlobalMeter::GetInstance()->ToJson().dump());
 	else if(protocol==DEVICE)
 	{
 		json j_devices = json::array();

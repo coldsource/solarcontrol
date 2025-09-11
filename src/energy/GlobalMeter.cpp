@@ -25,6 +25,7 @@
 #include <device/electrical/DeviceBattery.hpp>
 #include <websocket/SolarControl.hpp>
 #include <configuration/ConfigurationPart.hpp>
+#include <nlohmann/json.hpp>
 
 using namespace std;
 using device::Device;
@@ -33,6 +34,7 @@ using device::DeviceHWS;
 using device::DeviceGrid;
 using device::DevicePV;
 using device::DeviceBattery;
+using nlohmann::json;
 
 namespace energy {
 
@@ -253,6 +255,35 @@ bool GlobalMeter::HWSIsFull() const
 		return true; // Offload priority, consider HWS is always full
 
 	return hws->GetEnergyConsumption()>hws_min_energy;
+}
+
+json GlobalMeter::ToJson() const
+{
+	json j;
+	j["has_battery"] = HasBattery();
+	j["battery_voltage"] = GetBatteryVoltage();
+	j["battery_soc"] = GetBatterySOC();
+
+	j["grid"] = GetGridPower();
+	j["pv"] = GetPVPower();
+	j["battery"] = GetBatteryPower();
+	j["hws"] = GetHWSPower();
+
+	j["total"] = GetPower();
+	j["net_available"] = GetNetAvailablePower();
+	j["gross_available"] = GetGrossAvailablePower();
+	j["excess"] = GetExcessPower();
+
+	j["grid_energy"] = GetGridEnergy();
+	j["grid_exported_energy"] = GetExportedEnergy();
+	j["pv_energy"] = GetPVEnergy();
+	j["battery_energy"] = GetBatteryEnergy();
+	j["hws_energy"] = GetHWSEnergy();
+	j["hws_energy_offload"] = GetHWSOffloadEnergy();
+
+	j["offpeak"] = GetOffPeak();
+
+	return j;
 }
 
 }

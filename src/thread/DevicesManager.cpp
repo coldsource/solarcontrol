@@ -66,6 +66,7 @@ bool DevicesManager::hysteresis(const shared_ptr<DeviceOnOff> device) const
 {
 	double consumption = device->GetExpectedConsumption();
 	double active_power = forced_power + offloaded_power;
+	printf("Gum\n");
 
 	if(device->GetState())
 	{

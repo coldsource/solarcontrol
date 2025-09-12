@@ -177,8 +177,11 @@ void Voltmeter::HandleMessage(const string &message, const std::string & /*topic
 		return;
 	}
 
-	// Notify observer unlocked
-	notify_observer();
+	if(avg->Size()>0) // Ensure we have at least one value
+	{
+		// Notify observer unlocked
+		notify_observer();
+	}
 }
 
 }

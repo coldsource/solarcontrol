@@ -21,6 +21,7 @@
 #define __STAT_MOVINGAVERAGE_HPP__
 
 #include <list>
+#include <stdexcept>
 
 namespace stat {
 
@@ -47,6 +48,9 @@ class MovingAverage
 
 		void Add(T value, double weighting = 1)
 		{
+			if(weighting==0)
+				weighting = 1; // Can't zero weight one point
+
 			if(current_window_size>=window_size)
 			{
 				last_window_sum = current_window_sum;
@@ -70,6 +74,9 @@ class MovingAverage
 
 		T Get() const
 		{
+			if(last_windows_size + current_window_size==0)
+				throw std::runtime_error("Moving Average is empty");
+
 			return (last_window_sum + current_window_sum) / (double)(last_windows_size + current_window_size);
 		}
 

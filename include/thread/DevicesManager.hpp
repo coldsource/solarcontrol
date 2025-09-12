@@ -58,15 +58,12 @@ class DevicesManager: public WaiterThread, public configuration::ConfigurationOb
 		unsigned long cooldown;
 
 		// State
-		double controllable_power = 0;
 		double forced_power = 0;
 		double offloaded_power = 0;
 
 		bool hysteresis(const std::shared_ptr<device::DeviceOnOff> device) const;
 		bool force(const std::map<std::shared_ptr<device::DeviceOnOff>, bool> &devices);
 		bool offload(const std::vector<std::shared_ptr<device::DeviceOnOff>> &devices);
-
-		double get_controllable_power() const;
 
 		void main(void) override;
 

@@ -137,21 +137,6 @@ bool DevicesManager::force(const map<shared_ptr<device::DeviceOnOff>, bool> &dev
 	return state_changed;
 }
 
-double DevicesManager::get_controllable_power() const
-{
-	auto onoff = Devices::Get<DeviceOnOff>();
-
-	double controlled_active_power = 0;
-
-	for(auto device : onoff)
-	{
-		if(device->GetState())
-			controlled_active_power += device->GetExpectedConsumption();
-	}
-
-	return controlled_active_power + global_meter->GetNetAvailablePower(true);
-}
-
 void DevicesManager::main()
 {
 	Timestamp last_change_ts(TS_MONOTONIC);
@@ -167,8 +152,6 @@ void DevicesManager::main()
 
 			Timestamp now(TS_MONOTONIC);
 			bool state_changed = false;
-
-			controllable_power = get_controllable_power();
 
 			last_power_update = now;
 

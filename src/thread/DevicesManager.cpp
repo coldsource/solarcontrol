@@ -73,12 +73,6 @@ bool DevicesManager::hysteresis(const shared_ptr<DeviceOnOff> device) const
 		return consumption - available_power < hysteresis_import; // We are already on, so stay on as long as we have power to offload
 	}
 
-	// Get device minimum on time
-	// We need more precision for a device that we can't switch off quickly
-	unsigned long long min_on = device->GetMinOn();
-	if(min_on==0)
-		min_on = 10; // Device has no minimum on time configuration, set a default of 10s
-
 	// We are off, turn on only if we have enough power to offload
 	// Look into the past to see the percentage of the time the device could have been on without importing
 	// We check for a longer period if the device can't be quickly switched off

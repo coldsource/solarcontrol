@@ -38,8 +38,6 @@ Devices *Devices::instance = 0;
 mutex Devices::mutex_w;
 
 map<int, shared_ptr<Device>> Devices::devices;
-unordered_set<shared_ptr<DeviceElectrical>> Devices::devices_electrical;
-unordered_set<shared_ptr<DeviceWeather>> Devices::devices_weather;
 
 Devices::Devices()
 {
@@ -81,10 +79,6 @@ std::shared_ptr<Device> Devices::Load(int id, const string &name, const string &
 	auto device = DeviceFactory::Get(id, name, type, config);
 
 	devices.insert(pair<int, shared_ptr<Device>>(device->GetID(), device));
-	if(device->GetCategory()==ONOFF || device->GetCategory()==PASSIVE)
-		devices_electrical.insert(dynamic_pointer_cast<DeviceElectrical>(device));
-	if(device->GetCategory()==WEATHER)
-		devices_weather.insert(dynamic_pointer_cast<DeviceWeather>(device));
 
 	return device;
 }
@@ -149,8 +143,6 @@ void Devices::Unload()
 	}
 
 	devices.clear();
-	devices_electrical.clear();
-	devices_weather.clear();
 }
 
 void Devices::Delete(int id)
@@ -167,10 +159,6 @@ void Devices::Delete(int id)
 	device->Delete();
 
 	// Then erase it from our inventory
-	if(device->GetCategory()==ONOFF || device->GetCategory()==PASSIVE)
-		devices_electrical.erase(dynamic_pointer_cast<DeviceElectrical>(device));
-	else if(device->GetCategory()==WEATHER)
-		devices_weather.erase(dynamic_pointer_cast<DeviceWeather>(device));
 	devices.erase(device->GetID());
 
 	if(websocket::SolarControl::GetInstance())

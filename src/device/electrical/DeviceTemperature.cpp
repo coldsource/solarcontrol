@@ -43,8 +43,13 @@ void DeviceTemperature::ConfigurationChanged(const configuration::ConfigurationP
 {
 	unique_lock<recursive_mutex> llock(lock);
 
-	absence_temperature = config->GetDouble("control.absence.temperature");
-	absence = config->GetBool("control.absence.enabled");
+	if(config->GetType()=="control")
+	{
+		absence_temperature = config->GetDouble("control.absence.temperature");
+		absence = config->GetBool("control.absence.enabled");
+	}
+
+	DeviceTimeRange::ConfigurationChanged(config);
 }
 
 void DeviceTemperature::CheckConfig(const configuration::Json &conf)

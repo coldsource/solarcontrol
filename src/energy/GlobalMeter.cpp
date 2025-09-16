@@ -64,15 +64,7 @@ void GlobalMeter::ConfigurationChanged(const configuration::ConfigurationPart *c
 		unique_lock<recursive_mutex> llock(lock);
 
 		if(config->GetType()=="energy")
-		{
 			hws_min_energy = config->GetEnergy("energy.hws.min");
-
-			debug = config->GetBool("energy.debug.enabled");
-			debug_grid = config->GetPower("energy.debug.grid");
-			debug_pv= config->GetPower("energy.debug.pv");
-			debug_battery= config->GetPower("energy.debug.battery");
-			debug_hws = config->GetPower("energy.debug.hws");
-		}
 
 		if(config->GetType()=="control")
 			priority = config->Get("control.priority");
@@ -104,18 +96,12 @@ double GlobalMeter::GetGridPower() const
 {
 	unique_lock<recursive_mutex> llock(lock);
 
-	if(debug)
-		return debug_grid;
-
 	return grid->GetPower();
 }
 
 double GlobalMeter::GetPVPower() const
 {
 	unique_lock<recursive_mutex> llock(lock);
-
-	if(debug)
-		return debug_pv;
 
 	double power = pv->GetPower();
 	return power>=0?power:0;
@@ -125,9 +111,6 @@ double GlobalMeter::GetBatteryPower() const
 {
 	unique_lock<recursive_mutex> llock(lock);
 
-	if(debug)
-		return debug_battery;
-
 	double power = battery->GetPower();
 	return power>=0?power:0;
 }
@@ -135,9 +118,6 @@ double GlobalMeter::GetBatteryPower() const
 double GlobalMeter::GetHWSPower() const
 {
 	unique_lock<recursive_mutex> llock(lock);
-
-	if(debug)
-		return debug_hws;
 
 	double power = hws->GetPower();
 	return power>=0?power:0;

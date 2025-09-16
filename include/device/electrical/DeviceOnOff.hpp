@@ -50,7 +50,7 @@ class DeviceOnOff: public DeviceElectrical
 		datetime::Timestamp last_off;
 
 		int prio;
-		double expected_consumption;
+		double expected_consumption = 0;
 
 		datetime::TimespanHistory on_history;
 
@@ -77,7 +77,7 @@ class DeviceOnOff: public DeviceElectrical
 		virtual void SetAutoState();
 		virtual bool IsManual() const { return manual; }
 
-		double GetExpectedConsumption() const;
+		virtual double GetExpectedConsumption() const;
 
 		virtual void SensorChanged(const sensor::Sensor *sensor) override;
 

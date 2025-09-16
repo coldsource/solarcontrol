@@ -42,7 +42,10 @@ void DeviceHWS::ConfigurationChanged(const configuration::ConfigurationPart * co
 {
 	unique_lock<recursive_mutex> llock(lock);
 
-	absence = config->GetBool("control.absence.enabled");
+	if(config->GetType()=="control")
+		absence = config->GetBool("control.absence.enabled");
+
+	DeviceTimeRange::ConfigurationChanged(config);
 }
 
 void DeviceHWS::CheckConfig(const configuration::Json &conf)

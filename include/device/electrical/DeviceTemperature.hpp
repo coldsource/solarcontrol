@@ -21,7 +21,6 @@
 #define __DEVICE_DEVICETEMPERATURE_HPP__
 
 #include <device/electrical/DeviceTimeRange.hpp>
-#include <configuration/ConfigurationObserver.hpp>
 
 namespace configuration {
 	class Json;
@@ -29,7 +28,7 @@ namespace configuration {
 
 namespace device {
 
-class DeviceTemperature: public DeviceTimeRange, public configuration::ConfigurationObserver
+class DeviceTemperature: public DeviceTimeRange
 {
 	protected:
 		int ht_device_id;

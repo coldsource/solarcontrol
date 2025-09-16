@@ -18,7 +18,9 @@
  */
 
 #include <device/electrical/DeviceElectrical.hpp>
+#include <device/Devices.hpp>
 #include <configuration/Json.hpp>
+#include <configuration/ConfigurationPart.hpp>
 #include <sensor/meter/MeterFactory.hpp>
 #include <sensor/meter/Meter.hpp>
 #include <energy/GlobalMeter.hpp>
@@ -33,10 +35,26 @@ namespace device {
 DeviceElectrical::DeviceElectrical(int id):
 Device(id), consumption(id, "consumption"), offload(id, "offload")
 {
+	ObserveConfiguration("energy");
 }
 
 DeviceElectrical::~DeviceElectrical()
 {
+}
+
+void DeviceElectrical::ConfigurationChanged(const configuration::ConfigurationPart *config)
+{
+	unique_lock<recursive_mutex> llock(lock);
+
+	if(config->GetType()=="energy")
+	{
+		// Debug mode
+		debug = config->GetBool("energy.debug.enabled");
+		debug_grid = config->GetPower("energy.debug.grid");
+		debug_pv = config->GetPower("energy.debug.pv");
+		debug_hws = config->GetPower("energy.debug.hws");
+		debug_battery= config->GetPower("energy.debug.battery");
+	}
 }
 
 void DeviceElectrical::CheckConfig(const configuration::Json &conf)
@@ -80,7 +98,20 @@ void DeviceElectrical::SensorChanged(const sensor::Sensor *sensor)
 	{
 		sensor::meter::Meter *meter = (sensor::meter::Meter *)sensor;
 
-		power = meter->GetPower();
+		if(debug && GetID() < 0)
+		{
+			// Debug mode is on, use debug power instead of real one
+			if(GetID()==DEVICE_ID_GRID)
+				power = debug_grid;
+			else if(GetID()==DEVICE_ID_PV)
+				power = debug_pv;
+			else if(GetID()==DEVICE_ID_HWS)
+				power = debug_hws;
+			else if(GetID()==DEVICE_ID_BATTERY)
+				power = debug_battery;
+		}
+		else
+			power = meter->GetPower(); // Use real power
 
 		// Log energy
 		double device_consumption = meter->GetConsumption();

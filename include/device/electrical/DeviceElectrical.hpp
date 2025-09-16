@@ -20,6 +20,7 @@
 #ifndef __DEVICE_DEVICEELECTRICAL_HPP__
 #define __DEVICE_DEVICEELECTRICAL_HPP__
 
+#include <configuration/ConfigurationObserver.hpp>
 #include <device/Device.hpp>
 #include <energy/Counter.hpp>
 
@@ -32,10 +33,18 @@ namespace control {
 
 namespace device {
 
-class DeviceElectrical: public Device
+class DeviceElectrical: public Device, public configuration::ConfigurationObserver
 {
 	protected:
+		// State
 		double power = -1;
+
+		// Global config
+		bool debug = false;
+		double debug_grid = 0;
+		double debug_pv = 0;
+		double debug_battery = 0;
+		double debug_hws = 0;
 
 		energy::Counter consumption;
 		energy::Counter offload;
@@ -45,6 +54,8 @@ class DeviceElectrical: public Device
 	public:
 		DeviceElectrical(int id);
 		virtual ~DeviceElectrical();
+
+		void ConfigurationChanged(const configuration::ConfigurationPart *config) override;
 
 		static void CheckConfig(const configuration::Json &conf);
 

@@ -46,12 +46,6 @@ class GlobalMeter: public configuration::ConfigurationObserver
 
 	double hws_min_energy = 0;
 
-	bool debug = false;
-	double debug_grid = 0;
-	double debug_pv = 0;
-	double debug_battery = 0;
-	double debug_hws = 0;
-
 	std::string priority;
 
 	static GlobalMeter *instance;

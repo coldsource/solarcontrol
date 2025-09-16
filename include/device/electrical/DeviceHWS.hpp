@@ -21,7 +21,6 @@
 #define __DEVICE_DEVICEHWS_HPP__
 
 #include <device/electrical/DeviceTimeRange.hpp>
-#include <configuration/ConfigurationObserver.hpp>
 
 namespace configuration {
 	class Json;
@@ -29,7 +28,7 @@ namespace configuration {
 
 namespace device {
 
-class DeviceHWS: public DeviceTimeRange, public configuration::ConfigurationObserver
+class DeviceHWS: public DeviceTimeRange
 {
 	protected:
 		double min_energy; // kWh

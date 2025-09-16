@@ -87,7 +87,11 @@ std::string DeviceBattery::policy_to_string(en_battery_policy policy)
 
 DeviceBattery::en_battery_state DeviceBattery::string_to_state(const string &str)
 {
-	if(str=="float")
+	if(str=="discharging")
+		return DISCHARGING;
+	else if(str=="charging")
+		return CHARGING;
+	else if(str=="float")
 		return FLOAT;
 	else if(str=="backup")
 		return BACKUP;
@@ -97,7 +101,11 @@ DeviceBattery::en_battery_state DeviceBattery::string_to_state(const string &str
 
 std::string DeviceBattery::state_to_string(en_battery_state state)
 {
-	if(state==FLOAT)
+	if(state==DISCHARGING)
+		return "discharging";
+	else if(state==CHARGING)
+		return "charging";
+	else if(state==FLOAT)
 		return "float";
 	return "backup";
 }
@@ -169,6 +177,7 @@ void DeviceBattery::SensorChanged(const sensor::Sensor *sensor)
 	{
 		Voltmeter *voltmeter = (Voltmeter *)sensor;
 		voltage = voltmeter->GetVoltage();
+		double old_soc = soc;
 		soc = voltmeter->GetSOC();
 
 		// Update soc_state
@@ -180,6 +189,16 @@ void DeviceBattery::SensorChanged(const sensor::Sensor *sensor)
 		{
 			soc_state = FLOAT; // Switch out of backup state once we have enough charge and last switch was not too recent
 			last_grid_switch = now;
+		}
+
+		if(soc_state!=BACKUP)
+		{
+			if(soc>100)
+				soc_state = CHARGING;
+			else if(soc==100)
+				soc_state = FLOAT;
+			else if(soc<old_soc)
+				soc_state = DISCHARGING;
 		}
 	}
 	else

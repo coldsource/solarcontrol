@@ -35,7 +35,7 @@ class DeviceBattery: public DeviceOnOff
 {
 	public:
 		enum en_battery_policy {GRID, BATTERY, OFFLOAD};
-		enum en_battery_state {FLOAT, BACKUP};
+		enum en_battery_state {DISCHARGING, CHARGING, FLOAT, BACKUP};
 
 	private:
 	// Config

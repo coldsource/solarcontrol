@@ -102,8 +102,8 @@ bool DevicesManager::offload(const vector<shared_ptr<device::DeviceOnOff>> &devi
 		}
 		catch(exception &e)
 		{
-			// Continue even if some deveices have errors, they may simply be offline
-			logs::Logger::Log(LOG_ERR, e.what());
+			// Continue even if some devices have errors, they may simply be offline
+			logs::Logger::Log(LOG_WARNING, e.what());
 		}
 	}
 
@@ -118,10 +118,18 @@ bool DevicesManager::force(const map<shared_ptr<device::DeviceOnOff>, bool> &dev
 	// Change all forced devices (no cool down between forced actions)
 	for(auto [device, new_state] : devices)
 	{
-		if(device->GetState()!=new_state)
+		try
 		{
-			device->SetState(new_state);
-			state_changed = true;
+			if(device->GetState()!=new_state)
+			{
+				device->SetState(new_state);
+				state_changed = true;
+			}
+		}
+		catch(exception &e)
+		{
+			// Continue even if some devices have errors, they may simply be offline
+			logs::Logger::Log(LOG_WARNING, e.what());
 		}
 
 		if(device->GetState())

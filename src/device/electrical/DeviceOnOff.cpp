@@ -117,10 +117,11 @@ void DeviceOnOff::SetState(bool new_state)
 {
 	unique_lock<recursive_mutex> llock(lock);
 
+	ctrl->Switch(new_state); // Set controller state first, this might fail and throw exception
+
 	clock(new_state);
 
 	state = new_state;
-	ctrl->Switch(new_state);
 
 	logs::State::LogStateChange(GetID(), logs::State::en_mode::automatic, new_state);
 }
@@ -129,12 +130,13 @@ void DeviceOnOff::SetManualState(bool new_state)
 {
 	unique_lock<recursive_mutex> llock(lock);
 
+	ctrl->Switch(new_state); // Set controller state first, this might fail and throw exception
+
 	clock(new_state);
 
 	manual = true;
 
 	state = new_state;
-	ctrl->Switch(new_state);
 
 	logs::State::LogStateChange(GetID(), logs::State::en_mode::manual, new_state);
 }

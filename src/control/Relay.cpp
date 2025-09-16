@@ -54,15 +54,7 @@ void Relay::Switch(bool new_state)
 	j["params"]["id"] = outlet;
 	j["params"]["on"] = new_state;
 
-	try
-	{
-		api.Post(j);
-	}
-	catch(exception &e)
-	{
-		logs::Logger::Log(LOG_WARNING, "Unable to set plug state : « " + string(e.what()) + " »");
-		return;
-	}
+	api.Post(j);
 }
 
 }

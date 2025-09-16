@@ -52,6 +52,9 @@ void DeviceBattery::CheckConfig(const configuration::Json &conf)
 	conf.Check("voltmeter", "object"); // Voltmeter is mandatory for battery
 	Voltmeter::CheckConfig(conf.GetObject("voltmeter"));
 
+	conf.Check("policy", "string");
+	string_to_policy(conf.GetString("policy")); // Check policy is valid
+
 	// Check battery backup config
 	conf.Check("backup", "object");
 	auto backup = conf.GetObject("backup");
@@ -61,9 +64,49 @@ void DeviceBattery::CheckConfig(const configuration::Json &conf)
 	backup.Check("min_grid_time", "uint");
 }
 
+DeviceBattery::en_battery_policy DeviceBattery::string_to_policy(const string &str)
+{
+	if(str=="grid")
+		return GRID;
+	else if(str=="battery")
+		return BATTERY;
+	else if(str=="offload")
+		return OFFLOAD;
+
+	throw invalid_argument("Invalid battery policy « " + str + " »");
+}
+
+std::string DeviceBattery::policy_to_string(en_battery_policy policy)
+{
+	if(policy==GRID)
+		return "grid";
+	else if(policy==BATTERY)
+		return "battery";
+	return "offload";
+}
+
+DeviceBattery::en_battery_state DeviceBattery::string_to_state(const string &str)
+{
+	if(str=="float")
+		return FLOAT;
+	else if(str=="backup")
+		return BACKUP;
+
+	return FLOAT; // Default value, no exception here as it's internal state
+}
+
+std::string DeviceBattery::state_to_string(en_battery_state state)
+{
+	if(state==FLOAT)
+		return "float";
+	return "backup";
+}
+
 void DeviceBattery::reload(const configuration::Json &config)
 {
 	DeviceOnOff::reload(config);
+
+	policy = string_to_policy(config.GetString("policy"));
 
 	if(config.GetObject("voltmeter").GetString("mqtt_id")=="")
 	{
@@ -88,6 +131,7 @@ void DeviceBattery::state_restore(const  configuration::Json &last_state)
 {
 	voltage = last_state.GetFloat("voltage", 0);
 	soc = last_state.GetFloat("soc", 0);
+	soc_state = string_to_state(last_state.GetString("soc_state", "float"));
 
 	DeviceOnOff::state_restore(last_state);
 }
@@ -98,6 +142,7 @@ configuration::Json DeviceBattery::state_backup()
 
 	backup.Set("voltage", voltage);
 	backup.Set("soc", soc);
+	backup.Set("soc_state", state_to_string(soc_state));
 
 	return backup;
 }
@@ -110,6 +155,7 @@ json DeviceBattery::ToJson() const
 
 	j_device["voltage"] = voltage;
 	j_device["soc"] = soc;
+	j_device["soc_state"] = state_to_string(soc_state);
 	j_device["state"] = state?"grid":"battery";
 
 	return j_device;
@@ -124,19 +170,20 @@ void DeviceBattery::SensorChanged(const sensor::Sensor *sensor)
 		Voltmeter *voltmeter = (Voltmeter *)sensor;
 		voltage = voltmeter->GetVoltage();
 		soc = voltmeter->GetSOC();
+
+		// Update soc_state
+		if(soc<battery_low)
+			soc_state = BACKUP; // Always switch to backup mode if battery is too low
+
+		Timestamp now(TS_MONOTONIC);
+		if(soc_state==BACKUP && soc>battery_high && (unsigned long)(now - last_grid_switch) > min_grid_time)
+		{
+			soc_state = FLOAT; // Switch out of backup state once we have enough charge and last switch was not too recent
+			last_grid_switch = now;
+		}
 	}
 	else
 		DeviceOnOff::SensorChanged(sensor); // Forward other messages
-}
-
-void DeviceBattery::SetState(bool new_state)
-{
-	unique_lock<recursive_mutex> llock(lock);
-
-	if(state && !new_state)
-		last_grid_switch = Timestamp(TS_MONOTONIC);
-
-	DeviceOnOff::SetState(new_state);
 }
 
 en_wanted_state DeviceBattery::GetWantedState() const
@@ -149,20 +196,31 @@ en_wanted_state DeviceBattery::GetWantedState() const
 	if(soc==-1)
 		return UNCHANGED; // SOC Not yet updated
 
-	// If battery is too low, we always switch back to grid to backup power supply
-	if(soc<battery_low && !state)
-		return ON;
+	if(policy==GRID)
+		return ON; // Forced grid mode
 
-	if(soc>=battery_high && state)
-	{
-		Timestamp now(TS_MONOTONIC);
-		if((unsigned long)(now - last_grid_switch) <= min_grid_time)
-			return UNCHANGED; // Last grid swich is too recent apply cooldown
+	// Battery or Offload policy, see whether we want to use battery
 
-		return OFF;
-	}
+	if(soc_state==BACKUP)
+		return ON; // Backup mode is on (not enough power), request forced grid power
+
+	if(policy==BATTERY)
+		return OFF; // Battery policy, always used battery (as this stage we know we have enough power)
+
+	if(policy==OFFLOAD)
+		return en_wanted_state::OFFLOAD; // Request offload whenever it is possible
 
 	return UNCHANGED;
+}
+
+double DeviceBattery::GetExpectedConsumption() const
+{
+	unique_lock<recursive_mutex> llock(lock);
+
+	if(!GetState() && power>=0)
+		return power; // Battery has metered consumption only when on battery
+
+	return expected_consumption; // Take estimated consumption
 }
 
 void DeviceBattery::CreateInDB()
@@ -173,7 +231,7 @@ void DeviceBattery::CreateInDB()
 		return; // Already in database
 
 	json config;
-	config["prio"] = -1;
+	config["prio"] = 1000; // Very low offload priority
 
 	json meter;
 	meter["type"] = "dummy";

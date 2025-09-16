@@ -33,18 +33,30 @@ namespace device {
 
 class DeviceBattery: public DeviceOnOff
 {
+	public:
+		enum en_battery_policy {GRID, BATTERY, OFFLOAD};
+		enum en_battery_state {FLOAT, BACKUP};
+
+	private:
 	// Config
 	unsigned int battery_low, battery_high;
 	unsigned long min_grid_time;
+	en_battery_policy policy;
 
 	// State
 	double voltage = -1, soc = -1;
 	datetime::Timestamp last_grid_switch;
+	en_battery_state soc_state;
 
 	protected:
 		virtual void reload(const configuration::Json &config) override;
 		virtual void state_restore(const  configuration::Json &last_state) override;
 		virtual configuration::Json state_backup() override;
+
+		static en_battery_policy string_to_policy(const std::string &str);
+		static std::string policy_to_string(en_battery_policy policy);
+		static en_battery_state string_to_state(const std::string &str);
+		static std::string state_to_string(en_battery_state state);
 
 	public:
 		DeviceBattery(int id);
@@ -58,13 +70,13 @@ class DeviceBattery: public DeviceOnOff
 
 		virtual en_wanted_state GetWantedState() const override;
 
-		virtual void SetState(bool new_state) override;
-
 		double GetVoltage() const { return voltage; }
 		double GetSOC() const { return soc; }
 		virtual nlohmann::json ToJson() const override;
 
 		virtual void SensorChanged(const sensor::Sensor *sensor) override;
+
+		virtual double GetExpectedConsumption() const override;
 
 		static void CreateInDB();
 };
@@ -72,4 +84,3 @@ class DeviceBattery: public DeviceOnOff
 }
 
 #endif
-

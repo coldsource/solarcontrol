@@ -165,8 +165,8 @@ json Stats::devices_predictions_to_json() const
 	json j_res = json::array();
 	for(auto device : onoff)
 	{
-		if(device->GetID()<0)
-			continue; // Skip special devices
+		if(device->GetID()==DEVICE_ID_HWS)
+			continue; // Skip HWS
 
 		if(device->GetState())
 			continue; // Already ON

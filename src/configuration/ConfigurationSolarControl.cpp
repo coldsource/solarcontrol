@@ -33,7 +33,7 @@ ConfigurationSolarControl::ConfigurationSolarControl(void)
 {
 	// Load default configuration
 	entries["core.history.maxdays"] = "30";
-	entries["core.history.sync"] = "3h";
+	entries["core.history.sync"] = "30m";
 	entries["mqtt.id"] = "solarcontrol";
 	entries["mqtt.host"] = "127.0.0.1";
 	entries["mqtt.port"] = "1883";

@@ -132,7 +132,8 @@ void DeviceBattery::reload(const configuration::Json &config)
 	min_grid_time = backup.GetUInt("min_grid_time");
 
 	// Control « reverted » may have changed, force state update
-	ctrl->Switch(state);
+	if(state_restored)
+		ctrl->Switch(state);
 }
 
 void DeviceBattery::state_restore(const  configuration::Json &last_state)

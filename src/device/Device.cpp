@@ -75,6 +75,12 @@ const configuration::Json Device::GetConfig() const
 	return config;
 }
 
+void Device::StateRestore(const configuration::Json &last_state)
+{
+	state_restore(last_state);
+	state_restored = true;
+}
+
 void Device::add_sensor(shared_ptr<sensor::Sensor> sensor, const string &name)
 {
 	sensors.insert(name, this, sensor);

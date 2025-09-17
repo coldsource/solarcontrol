@@ -23,6 +23,7 @@
 #include <sensor/sw/Switch.hpp>
 #include <control/OnOff.hpp>
 #include <configuration/Json.hpp>
+#include <configuration/ConfigurationPart.hpp>
 #include <database/DB.hpp>
 
 using namespace std;
@@ -39,10 +40,22 @@ DeviceBattery::DeviceBattery(int id):DeviceOnOff(id)
 	consumption = energy::Counter(id, "production");
 
 	last_grid_switch = Timestamp(TS_MONOTONIC);
+
+	ObserveConfiguration("control");
 }
 
 DeviceBattery::~DeviceBattery()
 {
+}
+
+void DeviceBattery::ConfigurationChanged(const configuration::ConfigurationPart * config)
+{
+	unique_lock<recursive_mutex> llock(lock);
+
+	if(config->GetType()=="control")
+		battery_cooldown = config->GetTime("control.battery.cooldown");
+
+	DeviceOnOff::ConfigurationChanged(config);
 }
 
 void DeviceBattery::CheckConfig(const configuration::Json &conf)
@@ -227,7 +240,8 @@ en_wanted_state DeviceBattery::GetWantedState() const
 	if(policy==BATTERY)
 		return OFF; // Battery policy, always used battery (as this stage we know we have enough power)
 
-	if(policy==OFFLOAD)
+	Timestamp now(TS_MONOTONIC);
+	if(policy==OFFLOAD && (unsigned long)(now-last_on)>battery_cooldown)
 		return en_wanted_state::OFFLOAD; // Request offload whenever it is possible
 
 	return UNCHANGED;

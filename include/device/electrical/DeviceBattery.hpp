@@ -41,6 +41,7 @@ class DeviceBattery: public DeviceOnOff
 	// Config
 	unsigned int battery_low, battery_high;
 	unsigned long min_grid_time;
+	unsigned long battery_cooldown;
 	en_battery_policy policy;
 
 	// State
@@ -61,6 +62,8 @@ class DeviceBattery: public DeviceOnOff
 	public:
 		DeviceBattery(int id);
 		virtual ~DeviceBattery();
+
+		void ConfigurationChanged(const configuration::ConfigurationPart * config) override;
 
 		std::string GetType() const override { return "battery"; }
 

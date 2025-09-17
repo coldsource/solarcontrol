@@ -45,6 +45,7 @@ ConfigurationControl::ConfigurationControl(void)
 	entries["control.absence.temperature"] = "12";
 	entries["control.priority"] = "hws";
 	entries["control.offload.max"] = "3kW";
+	entries["control.battery.cooldown"] = "5m";
 }
 
 ConfigurationControl::~ConfigurationControl(void)
@@ -65,6 +66,7 @@ void ConfigurationControl::Check(void) const
 	check_bool_entry("control.absence.enabled");
 	check_double_entry("control.absence.temperature");
 	check_power_entry("control.offload.max");
+	check_time_entry("control.battery.cooldown");
 
 	string priority = Get("control.priority");
 	if(priority!="hws" && priority!="offload")

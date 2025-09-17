@@ -66,6 +66,7 @@ class DeviceBattery: public DeviceOnOff
 		void ConfigurationChanged(const configuration::ConfigurationPart * config) override;
 
 		std::string GetType() const override { return "battery"; }
+		virtual unsigned long GetMinOn() override { return battery_cooldown; }
 
 		const std::map<datetime::Date, energy::Amount> &GetProductionHistory() const { return consumption.GetConsumptionHistory(); }
 

@@ -45,4 +45,15 @@ void Sensors::clear()
 
 }
 
+bool Sensors::has(const std::string &category) const
+{
+	for(auto sensor : sensors)
+	{
+		if(sensor->GetCategory()==category)
+			return true;
+	}
+
+	return false;
+}
+
 }

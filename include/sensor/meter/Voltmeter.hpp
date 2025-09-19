@@ -64,6 +64,8 @@ class Voltmeter: public Sensor, public mqtt::Subscriber, public configuration::C
 		double GetSOC() const;
 
 		void HandleMessage(const std::string &message, const std::string & /*topic*/) override;
+
+		virtual std::string GetCategory() const override { return "voltmeter"; }
 };
 
 }

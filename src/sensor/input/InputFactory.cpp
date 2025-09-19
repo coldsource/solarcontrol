@@ -19,7 +19,6 @@
 
 #include <sensor/input/InputFactory.hpp>
 #include <sensor/input/Input.hpp>
-#include <sensor/input/Dummy.hpp>
 #include <sensor/input/Plus1PM.hpp>
 #include <sensor/input/Pro.hpp>
 #include <configuration/Json.hpp>
@@ -37,7 +36,7 @@ shared_ptr<Input> InputFactory::GetFromConfig(const configuration::Json &conf)
 	string type = conf.GetString("type");
 
 	if(type=="dummy")
-		return make_shared<Dummy>();
+		return nullptr;
 	if(type=="plus1pm")
 		return make_shared<Plus1PM>(conf.GetString("mqtt_id", ""), conf.GetString("ip", ""));
 	if(type=="pro")
@@ -51,7 +50,7 @@ void InputFactory::CheckConfig(const configuration::Json &conf)
 	string type = conf.GetString("type");
 
 	if(type=="dummy")
-		return Dummy::CheckConfig(conf);
+		return;
 	if(type=="plus1pm")
 		return Plus1PM::CheckConfig(conf);
 	else if(type=="pro")

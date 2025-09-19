@@ -26,6 +26,7 @@
 
 #include <string>
 #include <memory>
+#include <atomic>
 
 namespace control {
 	class OnOff;
@@ -37,7 +38,7 @@ class DeviceElectrical: public Device, public configuration::ConfigurationObserv
 {
 	protected:
 		// State
-		double power = -1;
+		std::atomic<double> power = 0;
 
 		// Global config
 		bool debug = false;
@@ -59,7 +60,8 @@ class DeviceElectrical: public Device, public configuration::ConfigurationObserv
 
 		static void CheckConfig(const configuration::Json &conf);
 
-		double GetPower() const { return power; }
+		double GetPower() const;
+		bool IsMetered() const { return has_sensor("meter"); }
 
 		energy::Amount GetEnergyConsumption() { return consumption.GetEnergyConsumption(); }
 		energy::Amount GetEnergyOffload() { return offload.GetEnergyConsumption(); }

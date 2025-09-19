@@ -89,6 +89,14 @@ json DeviceElectrical::ToJson() const
 	return j_device;
 }
 
+double DeviceElectrical::GetPower() const
+{
+	if(!IsMetered())
+		return -1; // No power on unmetered devices
+
+	return power;
+}
+
 void DeviceElectrical::SensorChanged(const sensor::Sensor *sensor)
 {
 	unique_lock<recursive_mutex> llock(lock);

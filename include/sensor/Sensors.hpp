@@ -38,6 +38,7 @@ class Sensors
 
 		void insert(const std::string &name, SensorObserver *observer, std::shared_ptr<Sensor> sensor);
 		void clear();
+		bool has(const std::string &category) const;
 };
 
 }

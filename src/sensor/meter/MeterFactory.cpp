@@ -18,7 +18,6 @@
  */
 
 #include <sensor/meter/MeterFactory.hpp>
-#include <sensor/meter/Dummy.hpp>
 #include <sensor/meter/Plug.hpp>
 #include <sensor/meter/Pro3EM.hpp>
 #include <sensor/meter/ProEM.hpp>
@@ -38,15 +37,15 @@ shared_ptr<Meter> MeterFactory::GetFromConfig(const configuration::Json &conf)
 	if(type=="plug")
 		return make_shared<Plug>(conf.GetString("mqtt_id", ""));
 	if(type=="pro")
-		return make_shared<Dummy>(); // Shelly Pro has no energy measurement
+		return nullptr; // Shelly Pro has no energy measurement
 	if(type=="3em")
 		return make_shared<Pro3EM>(conf.GetString("mqtt_id"), conf.GetString("phase"));
 	if(type=="em")
 		return make_shared<ProEM>(conf.GetString("mqtt_id"), conf.GetString("phase"));
 	if(type=="dummy")
-		return make_shared<Dummy>();
+		return nullptr;
 
-	return 0;
+	return nullptr;
 }
 
 void MeterFactory::CheckConfig(const configuration::Json &conf)

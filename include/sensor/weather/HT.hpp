@@ -20,7 +20,7 @@
 #ifndef __SENSOR_WEATHER_HT_HPP__
 #define __SENSOR_WEATHER_HT_HPP__
 
-#include <sensor/Sensor.hpp>
+#include <sensor/weather/Weather.hpp>
 
 #include <atomic>
 #include <limits>
@@ -31,7 +31,7 @@ namespace configuration {
 
 namespace sensor::weather {
 
-class HT: public Sensor
+class HT: public Weather
 {
 	protected:
 		std::atomic<double> temperature = std::numeric_limits<double>::quiet_NaN();

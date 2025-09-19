@@ -154,7 +154,7 @@ double DeviceOnOff::GetExpectedConsumption() const
 {
 	unique_lock<recursive_mutex> llock(lock);
 
-	if(GetState() && power>=0)
+	if(GetState() && IsMetered())
 		return power; // If device is on and is metered, we take the real consumption
 
 	return expected_consumption; // Take estimated consumption

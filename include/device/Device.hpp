@@ -60,6 +60,7 @@ class Device: public sensor::SensorObserver
 		bool state_restored = false;
 
 		void add_sensor(std::shared_ptr<sensor::Sensor> sensor, const std::string &name);
+		bool has_sensor(const std::string &category) const;
 
 		virtual void reload(const configuration::Json & /* config */) {}
 		virtual void state_restore(const configuration::Json & /* last_state */ ) {}

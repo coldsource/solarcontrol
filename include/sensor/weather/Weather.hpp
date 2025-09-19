@@ -17,24 +17,22 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __INPUT_WEATHER_DUMMY_HPP__
-#define __INPUT_WEATHER_DUMMY_HPP__
+#ifndef __SENSOR_WEATHER_WEATHER_HPP__
+#define __SENSOR_WEATHER_WEATHER_HPP__
 
-#include <sensor/input/Input.hpp>
+#include <sensor/Sensor.hpp>
 
-#include <string>
+namespace sensor::weather {
 
-namespace sensor::input {
-
-class Dummy: public Input
+class Weather: public Sensor
 {
 	public:
-		virtual ~Dummy() {}
-
-		virtual bool GetState() const override { return false; }
+		virtual std::string GetCategory() const override { return "weather"; }
 };
 
 }
 
 #endif
+
+
 

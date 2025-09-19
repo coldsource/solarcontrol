@@ -20,7 +20,7 @@
 #ifndef __SENSOR_WEATHER_WIND_HPP__
 #define __SENSOR_WEATHER_WIND_HPP__
 
-#include <sensor/Sensor.hpp>
+#include <sensor/weather/Weather.hpp>
 #include <mqtt/Subscriber.hpp>
 
 #include <atomic>
@@ -32,7 +32,7 @@ namespace configuration {
 
 namespace sensor::weather {
 
-class Wind: public Sensor, public mqtt::Subscriber
+class Wind: public Weather, public mqtt::Subscriber
 {
 	const std::string topic;
 

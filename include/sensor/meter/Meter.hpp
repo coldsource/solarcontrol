@@ -49,6 +49,8 @@ class Meter: public Sensor
 		double GetPower() const;
 		double GetConsumption();
 		double GetExcess();
+
+		virtual std::string GetCategory() const override { return "meter"; }
 };
 
 }

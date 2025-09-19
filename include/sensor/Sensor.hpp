@@ -51,6 +51,8 @@ class Sensor: public std::enable_shared_from_this<Sensor>
 		void SetName(const std::string &name) { this->name = name; }
 
 		virtual void ForceUpdate() {}
+
+		virtual std::string GetCategory() const = 0;
 };
 
 }

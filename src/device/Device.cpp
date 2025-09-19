@@ -83,7 +83,13 @@ void Device::StateRestore(const configuration::Json &last_state)
 
 void Device::add_sensor(shared_ptr<sensor::Sensor> sensor, const string &name)
 {
-	sensors.insert(name, this, sensor);
+	if(sensor!=nullptr)
+		sensors.insert(name, this, sensor);
+}
+
+bool Device::has_sensor(const std::string &category) const
+{
+	return sensors.has(category);
 }
 
 }

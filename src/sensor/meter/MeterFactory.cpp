@@ -34,6 +34,11 @@ shared_ptr<Meter> MeterFactory::GetFromConfig(const configuration::Json &conf)
 	CheckConfig(conf);
 
 	string type = conf.GetString("type");
+	string mqtt_id = conf.GetString("mqtt_id");
+
+	if(mqtt_id=="")
+		return nullptr; // No MQTT ID set, metering is disabled
+
 	if(type=="plug")
 		return make_shared<Plug>(conf.GetString("mqtt_id", ""));
 	if(type=="pro")

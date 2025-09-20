@@ -42,6 +42,8 @@ shared_ptr<Meter> MeterFactory::GetFromConfig(const configuration::Json &conf)
 		return make_shared<Plug>(conf.GetString("mqtt_id"));
 	if(type=="pro")
 		return nullptr; // Shelly Pro has no energy measurement
+	if(type=="uni")
+		return nullptr; // Shelly uni has no energy measurement
 	if(type=="3em")
 		return make_shared<Pro3EM>(conf.GetString("mqtt_id"), conf.GetString("phase"));
 	if(type=="em")
@@ -58,7 +60,9 @@ void MeterFactory::CheckConfig(const configuration::Json &conf)
 
 	if(type=="plug")
 		return Plug::CheckConfig(conf);
-	else if(type=="pro")
+	if(type=="pro")
+		return;
+	if(type=="uni")
 		return;
 	if(type=="3em")
 		return Pro3EM::CheckConfig(conf);

@@ -28,6 +28,7 @@
 #include <device/electrical/Grid.hpp>
 #include <device/electrical/Battery.hpp>
 #include <device/electrical/BatteryPassive.hpp>
+#include <device/electrical/BatteryController.hpp>
 #include <device/weather/Wind.hpp>
 #include <device/weather/HTWifi.hpp>
 #include <device/weather/HTBluetooth.hpp>
@@ -70,6 +71,8 @@ shared_ptr<Device> DeviceFactory::Get(int id, const string &name, const string &
 		dev = make_shared<Battery>(id);
 	else if(type=="battery-passive")
 		dev = make_shared<BatteryPassive>(id);
+	else if(type=="battery-controller")
+		dev = make_shared<BatteryController>(id);
 	else
 		throw invalid_argument("Invalid device type « " + type + " »");
 
@@ -106,6 +109,8 @@ void DeviceFactory::CheckConfig(const string &type, const configuration::Json &c
 		return Battery::CheckConfig(config);
 	else if(type=="battery-passive")
 		return BatteryPassive::CheckConfig(config);
+	else if(type=="battery-controller")
+		return BatteryController::CheckConfig(config);
 	else
 		throw invalid_argument("Invalid device type « " + type + " »");
 }

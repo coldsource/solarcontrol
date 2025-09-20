@@ -32,21 +32,19 @@ namespace sensor::sw {
 Relay::Relay(const std::string &ip, int outlet, const string &mqtt_id, bool reverted):
 ip(ip),
 outlet(outlet),
-topic(mqtt_id!=""?mqtt_id + "/events/rpc":""),
+topic(mqtt_id + "/events/rpc"),
 reverted(reverted)
 {
 	state = false;
 
 	auto mqtt = mqtt::Client::GetInstance();
-
-	if(topic!="")
-		mqtt->Subscribe(topic, this);
+	mqtt->Subscribe(topic, this);
 }
 
 Relay::~Relay()
 {
 	auto mqtt = mqtt::Client::GetInstance();
-	if(mqtt && topic!="")
+	if(mqtt)
 		mqtt->Unsubscribe(topic, this);
 }
 

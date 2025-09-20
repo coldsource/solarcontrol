@@ -35,11 +35,11 @@ shared_ptr<Meter> MeterFactory::GetFromConfig(const configuration::Json &conf)
 
 	string type = conf.GetString("type");
 
-	if(conf.Has("mqtt_id") && conf.GetString("mqtt_id")=="")
+	if(!conf.Has("mqtt_id") || conf.GetString("mqtt_id")=="")
 		return nullptr; // No MQTT ID set, metering is disabled
 
 	if(type=="plug")
-		return make_shared<Plug>(conf.GetString("mqtt_id", ""));
+		return make_shared<Plug>(conf.GetString("mqtt_id"));
 	if(type=="pro")
 		return nullptr; // Shelly Pro has no energy measurement
 	if(type=="3em")

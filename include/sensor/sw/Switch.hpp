@@ -38,6 +38,7 @@ class Switch: public Sensor
 		static void CheckConfig(const configuration::Json & /* conf */) {}
 
 		virtual bool GetState() const = 0;
+		virtual bool IsManual() const = 0;
 
 		virtual std::string GetCategory() const override { return "switch"; }
 };

@@ -111,6 +111,12 @@ void Relay::HandleMessage(const string &message, const std::string & /*topic*/)
 			return;
 
 		state = ev["output"];
+
+		if(ev.contains("source") && ev["source"]=="button")
+			manual = true;
+		else
+			manual = false;
+
 		notify_observer();
 	}
 	catch(json::exception &e) {}

@@ -37,11 +37,12 @@ class Relay: public Switch, public mqtt::Subscriber
 {
 	const std::string ip;
 	const int outlet = 0;
-	const std::string topic = "";
+	const std::string topic;
 
 	bool reverted = false;
 
 	std::atomic_bool state = false;
+	std::atomic_bool manual = false;
 
 	std::mutex lock;
 
@@ -56,6 +57,7 @@ class Relay: public Switch, public mqtt::Subscriber
 
 		bool GetState() const override;
 		void ForceUpdate() override;
+		bool IsManual() const override { return manual; }
 
 		void HandleMessage(const std::string &message, const std::string & /*topic*/) override;
 };

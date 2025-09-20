@@ -167,7 +167,11 @@ void DeviceOnOff::SensorChanged(const sensor::Sensor *sensor)
 	const string name = sensor->GetName();
 	if(name=="switch")
 	{
-		bool new_state = ((sensor::sw::Switch *)sensor)->GetState();
+		auto sw = ((sensor::sw::Switch *)sensor);
+		bool new_state = sw->GetState();
+
+		if(sw->IsManual())
+			manual = true;
 
 		state = new_state;
 	}

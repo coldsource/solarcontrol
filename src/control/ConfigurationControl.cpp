@@ -45,7 +45,7 @@ ConfigurationControl::ConfigurationControl(void)
 	entries["control.absence.temperature"] = "12";
 	entries["control.priority"] = "hws";
 	entries["control.offload.max"] = "3kW";
-	entries["control.battery.cooldown"] = "5m";
+	entries["control.battery.cooldown"] = "20m";
 }
 
 ConfigurationControl::~ConfigurationControl(void)

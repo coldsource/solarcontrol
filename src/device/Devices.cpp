@@ -20,8 +20,6 @@
 #include <device/Devices.hpp>
 #include <device/DeviceFactory.hpp>
 #include <device/Device.hpp>
-#include <device/electrical/DeviceElectrical.hpp>
-#include <device/weather/DeviceWeather.hpp>
 #include <configuration/Json.hpp>
 #include <database/DB.hpp>
 #include <logs/Logger.hpp>

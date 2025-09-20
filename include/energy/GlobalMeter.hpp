@@ -29,20 +29,20 @@
 
 namespace device {
 	class Device;
-	class DeviceHWS;
-	class DeviceGrid;
-	class DevicePV;
-	class DeviceBattery;
+	class HWS;
+	class Grid;
+	class PV;
+	class Battery;
 }
 
 namespace energy {
 
 class GlobalMeter: public configuration::ConfigurationObserver
 {
-	std::shared_ptr<device::DeviceGrid> grid;
-	std::shared_ptr<device::DevicePV> pv;
-	std::shared_ptr<device::DeviceHWS> hws;
-	std::shared_ptr<device::DeviceBattery> battery;
+	std::shared_ptr<device::Grid> grid;
+	std::shared_ptr<device::PV> pv;
+	std::shared_ptr<device::HWS> hws;
+	std::shared_ptr<device::Battery> battery;
 
 	double hws_min_energy = 0;
 

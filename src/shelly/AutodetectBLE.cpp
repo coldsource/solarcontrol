@@ -20,7 +20,7 @@
 #include <shelly/AutodetectBLE.hpp>
 #include <mqtt/Client.hpp>
 #include <device/Devices.hpp>
-#include <device/weather/DeviceHTBluetooth.hpp>
+#include <device/weather/HTBluetooth.hpp>
 
 using namespace std;
 using nlohmann::json;
@@ -48,7 +48,7 @@ void AutodetectBLE::HandleMessage(const string & /*message*/, const std::string 
 
 	string addr = topic.substr(15);
 
-	for(auto device : device::Devices::Get<device::DeviceHTBluetooth>())
+	for(auto device : device::Devices::Get<device::HTBluetooth>())
 	{
 		if(device->GetBLEAddr()==addr)
 			return; // Ignore already known devices

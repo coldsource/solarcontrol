@@ -21,8 +21,8 @@
 #include <configuration/Json.hpp>
 #include <device/Devices.hpp>
 #include <device/DeviceFactory.hpp>
-#include <device/electrical/DeviceElectrical.hpp>
-#include <device/electrical/DeviceOnOff.hpp>
+#include <device/electrical/Electrical.hpp>
+#include <device/electrical/OnOff.hpp>
 #include <websocket/SolarControl.hpp>
 
 #include <stdexcept>
@@ -44,7 +44,7 @@ json DeviceElectrical::HandleMessage(const string &cmd, const configuration::Jso
 	{
 		int device_id =j_params.GetInt("device_id");
 		string device_name = j_params.GetString("device_name");
-		string device_type = Devices::GetByID<device::DeviceElectrical>(device_id)->GetType();
+		string device_type = Devices::GetByID<device::Electrical>(device_id)->GetType();
 		auto device_config = j_params.GetObject("device_config");
 
 		device::DeviceFactory::CheckConfig(device_type, device_config);
@@ -97,12 +97,12 @@ json DeviceElectrical::HandleMessage(const string &cmd, const configuration::Jso
 		if(state!="on" && state!="off" && state!="auto")
 			throw invalid_argument("Invalid state : « " + state + " »");
 
-		auto device = Devices::GetByID<device::DeviceElectrical>(device_id);
+		auto device = Devices::GetByID<device::Electrical>(device_id);
 
 		if(device->GetCategory()!=device::ONOFF)
 			throw invalid_argument("Could not change state on passive device");
 
-		auto device_onoff = dynamic_pointer_cast<device::DeviceOnOff>(device);
+		auto device_onoff = dynamic_pointer_cast<device::OnOff>(device);
 
 		if(state=="auto")
 			device_onoff->SetAutoState();

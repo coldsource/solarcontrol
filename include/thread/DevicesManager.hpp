@@ -33,7 +33,7 @@ namespace energy {
 }
 
 namespace device {
-	class DeviceOnOff;
+	class OnOff;
 }
 
 
@@ -61,9 +61,9 @@ class DevicesManager: public WaiterThread, public configuration::ConfigurationOb
 		double forced_power = 0;
 		double offloaded_power = 0;
 
-		bool hysteresis(const std::shared_ptr<device::DeviceOnOff> device) const;
-		bool force(const std::map<std::shared_ptr<device::DeviceOnOff>, bool> &devices);
-		bool offload(const std::vector<std::shared_ptr<device::DeviceOnOff>> &devices);
+		bool hysteresis(const std::shared_ptr<device::OnOff> device) const;
+		bool force(const std::map<std::shared_ptr<device::OnOff>, bool> &devices);
+		bool offload(const std::vector<std::shared_ptr<device::OnOff>> &devices);
 
 		void main(void) override;
 

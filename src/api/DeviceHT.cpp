@@ -20,7 +20,7 @@
 #include <api/DeviceHT.hpp>
 #include <device/Devices.hpp>
 #include <device/DeviceFactory.hpp>
-#include <device/weather/DeviceWeather.hpp>
+#include <device/weather/Weather.hpp>
 #include <configuration/Json.hpp>
 
 #include <stdexcept>
@@ -43,7 +43,7 @@ json DeviceHT::HandleMessage(const string &cmd, const configuration::Json &j_par
 		string device_name = j_params.GetString("device_name");
 		auto device_config = j_params.GetObject("device_config");
 
-		string device_type = device::Devices::GetByID<device::DeviceWeather>(device_id)->GetType();
+		string device_type = device::Devices::GetByID<device::Weather>(device_id)->GetType();
 
 		device::DeviceFactory::CheckConfig(device_type, device_config);
 

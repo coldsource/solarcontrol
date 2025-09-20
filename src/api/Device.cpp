@@ -21,7 +21,7 @@
 #include <database/DB.hpp>
 #include <configuration/Json.hpp>
 #include <device/Devices.hpp>
-#include <device/electrical/DeviceOnOff.hpp>
+#include <device/electrical/OnOff.hpp>
 #include <nlohmann/json.hpp>
 
 #include <stdexcept>
@@ -69,11 +69,11 @@ void Device::update_device(int id, const std::string &name, const configuration:
 
 void Device::update_prio(int id, int new_prio)
 {
-	auto device = Devices::GetByID<DeviceElectrical>(id);
+	auto device = Devices::GetByID<Electrical>(id);
 	if(device->GetCategory()!=ONOFF)
 		throw invalid_argument("Device has no priority");
 
-	auto onoff = dynamic_pointer_cast<DeviceOnOff>(device);
+	auto onoff = dynamic_pointer_cast<OnOff>(device);
 
 	DB db;
 

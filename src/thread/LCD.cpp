@@ -21,7 +21,7 @@
 #include <display/LCDDisplay.hpp>
 #include <energy/GlobalMeter.hpp>
 #include <device/Devices.hpp>
-#include <device/electrical/DeviceElectrical.hpp>
+#include <device/electrical/Electrical.hpp>
 #include <configuration/Configuration.hpp>
 #include <configuration/ConfigurationPart.hpp>
 
@@ -87,7 +87,7 @@ void LCD::main()
 		double max_energy = 0;
 
 		{
-			for(auto device : device::Devices::Get<device::DeviceElectrical>())
+			for(auto device : device::Devices::Get<device::Electrical>())
 			{
 				if(device->GetID()==DEVICE_ID_GRID || device->GetID()==DEVICE_ID_PV)
 					continue; // Exclude special devices

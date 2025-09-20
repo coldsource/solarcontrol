@@ -21,7 +21,7 @@
 #include <thread/Stats.hpp>
 #include <datetime/Timestamp.hpp>
 #include <device/Devices.hpp>
-#include <device/electrical/DeviceOnOff.hpp>
+#include <device/electrical/OnOff.hpp>
 #include <energy/GlobalMeter.hpp>
 #include <websocket/SolarControl.hpp>
 #include <logs/Logger.hpp>
@@ -62,7 +62,7 @@ void DevicesManager::ConfigurationChanged(const configuration::ConfigurationPart
 	cooldown = config->GetTime("control.cooldown");
 }
 
-bool DevicesManager::hysteresis(const shared_ptr<DeviceOnOff> device) const
+bool DevicesManager::hysteresis(const shared_ptr<OnOff> device) const
 {
 	double consumption = device->GetExpectedConsumption();
 	double active_power = forced_power + offloaded_power;
@@ -80,7 +80,7 @@ bool DevicesManager::hysteresis(const shared_ptr<DeviceOnOff> device) const
 	return stats->GetDevicePrediction(device, active_power) >= hysteresis_precision;
 }
 
-bool DevicesManager::offload(const vector<shared_ptr<device::DeviceOnOff>> &devices)
+bool DevicesManager::offload(const vector<shared_ptr<device::OnOff>> &devices)
 {
 	bool state_changed = false;
 	offloaded_power = 0;
@@ -110,7 +110,7 @@ bool DevicesManager::offload(const vector<shared_ptr<device::DeviceOnOff>> &devi
 	return state_changed;
 }
 
-bool DevicesManager::force(const map<shared_ptr<device::DeviceOnOff>, bool> &devices)
+bool DevicesManager::force(const map<shared_ptr<device::OnOff>, bool> &devices)
 {
 	bool state_changed = false;
 	forced_power = 0;
@@ -158,10 +158,10 @@ void DevicesManager::main()
 			last_power_update = now;
 
 			// We only work on controllable (OnOff) devices
-			auto onoff = Devices::Get<DeviceOnOff>();
+			auto onoff = Devices::Get<OnOff>();
 
-			map<shared_ptr<DeviceOnOff>, bool> forced_devices;
-			vector<shared_ptr<DeviceOnOff>> offload_devices;
+			map<shared_ptr<OnOff>, bool> forced_devices;
+			vector<shared_ptr<OnOff>> offload_devices;
 
 			for(auto it = onoff.begin(); it!=onoff.end(); ++it)
 			{

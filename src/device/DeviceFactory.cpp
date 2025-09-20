@@ -18,19 +18,19 @@
  */
 
 #include <device/DeviceFactory.hpp>
-#include <device/electrical/DeviceTimeRange.hpp>
-#include <device/electrical/DeviceHeater.hpp>
-#include <device/electrical/DeviceCooler.hpp>
-#include <device/electrical/DeviceCMV.hpp>
-#include <device/electrical/DeviceHWS.hpp>
-#include <device/electrical/DevicePassive.hpp>
-#include <device/electrical/DevicePV.hpp>
-#include <device/electrical/DeviceGrid.hpp>
-#include <device/electrical/DeviceBattery.hpp>
-#include <device/electrical/DeviceBatteryPassive.hpp>
-#include <device/weather/DeviceWind.hpp>
-#include <device/weather/DeviceHTWifi.hpp>
-#include <device/weather/DeviceHTBluetooth.hpp>
+#include <device/electrical/TimeRange.hpp>
+#include <device/electrical/Heater.hpp>
+#include <device/electrical/Cooler.hpp>
+#include <device/electrical/CMV.hpp>
+#include <device/electrical/HWS.hpp>
+#include <device/electrical/Passive.hpp>
+#include <device/electrical/PV.hpp>
+#include <device/electrical/Grid.hpp>
+#include <device/electrical/Battery.hpp>
+#include <device/electrical/BatteryPassive.hpp>
+#include <device/weather/Wind.hpp>
+#include <device/weather/HTWifi.hpp>
+#include <device/weather/HTBluetooth.hpp>
 #include <configuration/Json.hpp>
 
 #include <stdexcept>
@@ -45,31 +45,31 @@ shared_ptr<Device> DeviceFactory::Get(int id, const string &name, const string &
 	shared_ptr<Device> dev;
 
 	if(type=="timerange")
-		dev = make_shared<DeviceTimeRange>(id);
+		dev = make_shared<TimeRange>(id);
 	else if(type=="heater")
-		dev = make_shared<DeviceHeater>(id);
+		dev = make_shared<Heater>(id);
 	else if(type=="cooler")
-		dev = make_shared<DeviceCooler>(id);
+		dev = make_shared<Cooler>(id);
 	else if(type=="cmv")
-		dev = make_shared<DeviceCMV>(id);
+		dev = make_shared<CMV>(id);
 	else if(type=="hws")
-		dev = make_shared<DeviceHWS>(id);
+		dev = make_shared<HWS>(id);
 	else if(type=="passive")
-		dev = make_shared<DevicePassive>(id);
+		dev = make_shared<Passive>(id);
 	else if(type=="ht")
-		dev = make_shared<DeviceHTWifi>(id);
+		dev = make_shared<HTWifi>(id);
 	else if(type=="htmini")
-		dev = make_shared<DeviceHTBluetooth>(id);
+		dev = make_shared<HTBluetooth>(id);
 	else if(type=="wind")
-		dev = make_shared<DeviceWind>(id);
+		dev = make_shared<Wind>(id);
 	else if(type=="grid")
-		dev = make_shared<DeviceGrid>(id);
+		dev = make_shared<Grid>(id);
 	else if(type=="pv")
-		dev = make_shared<DevicePV>(id);
+		dev = make_shared<PV>(id);
 	else if(type=="battery")
-		dev = make_shared<DeviceBattery>(id);
+		dev = make_shared<Battery>(id);
 	else if(type=="battery-passive")
-		dev = make_shared<DeviceBatteryPassive>(id);
+		dev = make_shared<BatteryPassive>(id);
 	else
 		throw invalid_argument("Invalid device type « " + type + " »");
 
@@ -81,31 +81,31 @@ shared_ptr<Device> DeviceFactory::Get(int id, const string &name, const string &
 void DeviceFactory::CheckConfig(const string &type, const configuration::Json &config)
 {
 	if(type=="timerange")
-		return DeviceTimeRange::CheckConfig(config);
+		return TimeRange::CheckConfig(config);
 	else if(type=="heater")
-		return DeviceHeater::CheckConfig(config);
+		return Heater::CheckConfig(config);
 	else if(type=="cooler")
-		return DeviceCooler::CheckConfig(config);
+		return Cooler::CheckConfig(config);
 	else if(type=="cmv")
-		return DeviceCMV::CheckConfig(config);
+		return CMV::CheckConfig(config);
 	else if(type=="hws")
-		return DeviceHWS::CheckConfig(config);
+		return HWS::CheckConfig(config);
 	else if(type=="passive")
-		return DevicePassive::CheckConfig(config);
+		return Passive::CheckConfig(config);
 	else if(type=="ht")
-		return DeviceHTWifi::CheckConfig(config);
+		return HTWifi::CheckConfig(config);
 	else if(type=="htmini")
-		return DeviceHTBluetooth::CheckConfig(config);
+		return HTBluetooth::CheckConfig(config);
 	else if(type=="wind")
-		return DeviceWind::CheckConfig(config);
+		return Wind::CheckConfig(config);
 	else if(type=="grid")
-		return DeviceGrid::CheckConfig(config);
+		return Grid::CheckConfig(config);
 	else if(type=="pv")
-		return DevicePV::CheckConfig(config);
+		return PV::CheckConfig(config);
 	else if(type=="battery")
-		return DeviceBattery::CheckConfig(config);
+		return Battery::CheckConfig(config);
 	else if(type=="battery-passive")
-		return DeviceBatteryPassive::CheckConfig(config);
+		return BatteryPassive::CheckConfig(config);
 	else
 		throw invalid_argument("Invalid device type « " + type + " »");
 }

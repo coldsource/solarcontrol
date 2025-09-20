@@ -34,7 +34,7 @@ namespace energy {
 }
 
 namespace device {
-	class DeviceOnOff;
+	class OnOff;
 }
 
 namespace thread {
@@ -68,9 +68,9 @@ class Stats: public WaiterThread, public configuration::ConfigurationObserver
 		double controlled_power = 0;
 
 		double get_controlled_power() const;
-		double get_device_prediction(const std::shared_ptr<device::DeviceOnOff> &device, double active_power = 0) const;
+		double get_device_prediction(const std::shared_ptr<device::OnOff> &device, double active_power = 0) const;
 		en_weather_type get_weather_type() const;
-		en_device_speed get_device_type(const std::shared_ptr<device::DeviceOnOff> &device) const;
+		en_device_speed get_device_type(const std::shared_ptr<device::OnOff> &device) const;
 		nlohmann::json frequency_to_json(const std::unique_ptr<stat::CumulativeHigherFrequency<double>> &frequency) const;
 		nlohmann::json devices_predictions_to_json() const;
 
@@ -85,7 +85,7 @@ class Stats: public WaiterThread, public configuration::ConfigurationObserver
 		void Start() { start(); }
 
 		double GetControllablePowerAvg() const;
-		double GetDevicePrediction(const std::shared_ptr<device::DeviceOnOff> &device, double active_power) const;
+		double GetDevicePrediction(const std::shared_ptr<device::OnOff> &device, double active_power) const;
 
 		nlohmann::json ToJson() const;
 

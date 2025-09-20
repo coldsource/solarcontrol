@@ -25,10 +25,10 @@
 #include <datetime/DateTime.hpp>
 #include <datetime/Month.hpp>
 #include <device/Devices.hpp>
-#include <device/electrical/DeviceElectrical.hpp>
-#include <device/electrical/DeviceGrid.hpp>
-#include <device/electrical/DevicePV.hpp>
-#include <device/electrical/DeviceBattery.hpp>
+#include <device/electrical/Electrical.hpp>
+#include <device/electrical/Grid.hpp>
+#include <device/electrical/PV.hpp>
+#include <device/electrical/Battery.hpp>
 
 #include <map>
 #include <stdexcept>
@@ -81,26 +81,26 @@ json Logs::HandleMessage(const string &cmd, const configuration::Json &j_params)
 		{
 			j_res = json::object();
 
-			for(auto device : device::Devices::Get<device::DeviceElectrical>())
+			for(auto device : device::Devices::Get<device::Electrical>())
 			{
 				for(auto consumption : device->GetConsumptionHistory())
 					j_res[string(consumption.first)][device->GetName()]["consumption"] = consumption.second;
 
 				if(device->GetType()=="grid")
 				{
-					for(auto excess : (dynamic_pointer_cast<device::DeviceGrid>(device))->GetExcessHistory())
+					for(auto excess : (dynamic_pointer_cast<device::Grid>(device))->GetExcessHistory())
 						j_res[string(excess.first)][device->GetName()]["excess"] = excess.second;
 				}
 
 				if(device->GetType()=="pv")
 				{
-					for(auto production : (dynamic_pointer_cast<device::DevicePV>(device))->GetProductionHistory())
+					for(auto production : (dynamic_pointer_cast<device::PV>(device))->GetProductionHistory())
 						j_res[string(production.first)][device->GetName()]["production"] = production.second;
 				}
 
 				if(device->GetType()=="battery")
 				{
-					for(auto production : (dynamic_pointer_cast<device::DeviceBattery>(device))->GetProductionHistory())
+					for(auto production : (dynamic_pointer_cast<device::Battery>(device))->GetProductionHistory())
 						j_res[string(production.first)][device->GetName()]["production"] = production.second;
 				}
 

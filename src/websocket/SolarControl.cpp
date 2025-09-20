@@ -21,8 +21,7 @@
 #include <database/DB.hpp>
 #include <energy/GlobalMeter.hpp>
 #include <device/Devices.hpp>
-#include <device/electrical/DeviceElectrical.hpp>
-#include <device/weather/DeviceWeather.hpp>
+#include <device/Device.hpp>
 #include <configuration/Configuration.hpp>
 #include <configuration/ConfigurationPart.hpp>
 #include <thread/Stats.hpp>

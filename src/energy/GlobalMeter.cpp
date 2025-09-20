@@ -19,10 +19,10 @@
 
 #include <energy/GlobalMeter.hpp>
 #include <device/Devices.hpp>
-#include <device/electrical/DeviceHWS.hpp>
-#include <device/electrical/DeviceGrid.hpp>
-#include <device/electrical/DevicePV.hpp>
-#include <device/electrical/DeviceBattery.hpp>
+#include <device/electrical/HWS.hpp>
+#include <device/electrical/Grid.hpp>
+#include <device/electrical/PV.hpp>
+#include <device/electrical/Battery.hpp>
 #include <websocket/SolarControl.hpp>
 #include <configuration/ConfigurationPart.hpp>
 #include <nlohmann/json.hpp>
@@ -30,10 +30,10 @@
 using namespace std;
 using device::Device;
 using device::Devices;
-using device::DeviceHWS;
-using device::DeviceGrid;
-using device::DevicePV;
-using device::DeviceBattery;
+using device::HWS;
+using device::Grid;
+using device::PV;
+using device::Battery;
 using nlohmann::json;
 
 namespace energy {
@@ -44,10 +44,10 @@ GlobalMeter::GlobalMeter()
 {
 	instance = this;
 
-	hws = Devices::GetByID<DeviceHWS>(DEVICE_ID_HWS);
-	grid = Devices::GetByID<DeviceGrid>(DEVICE_ID_GRID);
-	pv = Devices::GetByID<DevicePV>(DEVICE_ID_PV);
-	battery = Devices::GetByID<DeviceBattery>(DEVICE_ID_BATTERY);
+	hws = Devices::GetByID<HWS>(DEVICE_ID_HWS);
+	grid = Devices::GetByID<Grid>(DEVICE_ID_GRID);
+	pv = Devices::GetByID<PV>(DEVICE_ID_PV);
+	battery = Devices::GetByID<Battery>(DEVICE_ID_BATTERY);
 
 	// Register as configuration observer and trigger ConfigurationChanged() for initial config loading
 	ObserveConfiguration("energy");

@@ -19,8 +19,8 @@
 
 #include <thread/Stats.hpp>
 #include <device/Devices.hpp>
-#include <device/electrical/DeviceOnOff.hpp>
-#include <device/weather/DeviceWeather.hpp>
+#include <device/electrical/OnOff.hpp>
+#include <device/weather/Weather.hpp>
 #include <energy/GlobalMeter.hpp>
 #include <websocket/SolarControl.hpp>
 #include <logs/Logger.hpp>
@@ -69,7 +69,7 @@ void Stats::ConfigurationChanged(const configuration::ConfigurationPart *config)
 
 double Stats::get_controlled_power() const
 {
-	auto onoff = Devices::Get<DeviceOnOff>();
+	auto onoff = Devices::Get<OnOff>();
 
 	double controlled_active_power = 0;
 
@@ -99,7 +99,7 @@ Stats::en_weather_type Stats::get_weather_type() const
 	return (total - max)<=1?CONTANT:VARIABLE;
 }
 
-Stats::en_device_speed Stats::get_device_type(const std::shared_ptr<device::DeviceOnOff> &device) const
+Stats::en_device_speed Stats::get_device_type(const std::shared_ptr<device::OnOff> &device) const
 {
 	if(device->GetMinOn()<=fast_time)
 		return FAST;
@@ -160,7 +160,7 @@ nlohmann::json Stats::frequency_to_json(const unique_ptr<stat::CumulativeHigherF
 
 json Stats::devices_predictions_to_json() const
 {
-	auto onoff = Devices::Get<DeviceOnOff>();
+	auto onoff = Devices::Get<OnOff>();
 
 	json j_res = json::array();
 	for(auto device : onoff)
@@ -209,7 +209,7 @@ double Stats::GetControllablePowerAvg() const
 	return controllable_power_avg->Get();
 }
 
-double Stats::get_device_prediction(const std::shared_ptr<device::DeviceOnOff> &device, double active_power) const
+double Stats::get_device_prediction(const std::shared_ptr<device::OnOff> &device, double active_power) const
 {
 	auto device_type = get_device_type(device);
 	if(device_type==SLOW)
@@ -220,7 +220,7 @@ double Stats::get_device_prediction(const std::shared_ptr<device::DeviceOnOff> &
 		return controllable_power_frequency_fast->GetFrequency(device->GetExpectedConsumption() + active_power + hysteresis_export);
 }
 
-double Stats::GetDevicePrediction(const std::shared_ptr<device::DeviceOnOff> &device, double active_power) const
+double Stats::GetDevicePrediction(const std::shared_ptr<device::OnOff> &device, double active_power) const
 {
 	unique_lock<mutex> llock(lock);
 

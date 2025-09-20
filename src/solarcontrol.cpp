@@ -6,10 +6,10 @@
 #include <mqtt/Client.hpp>
 #include <energy/GlobalMeter.hpp>
 #include <device/Devices.hpp>
-#include <device/electrical/DeviceHWS.hpp>
-#include <device/electrical/DeviceGrid.hpp>
-#include <device/electrical/DevicePV.hpp>
-#include <device/electrical/DeviceBattery.hpp>
+#include <device/electrical/HWS.hpp>
+#include <device/electrical/Grid.hpp>
+#include <device/electrical/PV.hpp>
+#include <device/electrical/Battery.hpp>
 #include <utils/signal.hpp>
 #include <configuration/Args.hpp>
 #include <configuration/Configuration.hpp>
@@ -122,10 +122,10 @@ int main(int argc, char **argv)
 		mqtt::Client mqtt(config_sc->Get("mqtt.host"), config_sc->GetInt("mqtt.port"));
 
 		// Create special devices if needed
-		device::DeviceHWS::CreateInDB();
-		device::DeviceGrid::CreateInDB();
-		device::DevicePV::CreateInDB();
-		device::DeviceBattery::CreateInDB();
+		device::HWS::CreateInDB();
+		device::Grid::CreateInDB();
+		device::PV::CreateInDB();
+		device::Battery::CreateInDB();
 
 		// Create sensors manager before devices so they can register to it
 		::thread::SensorsManager sensors_manager;

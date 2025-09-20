@@ -34,11 +34,8 @@ Voltmeter::Voltmeter(const configuration::Json &conf)
 	string mqtt_id = conf.GetString("mqtt_id");
 
 	auto mqtt = mqtt::Client::GetInstance();
-	if(mqtt_id!="")
-		topic = mqtt_id + "/events/rpc";
-
-	if(topic!="")
-		mqtt->Subscribe(topic, this);
+	topic = mqtt_id + "/events/rpc";
+	mqtt->Subscribe(topic, this);
 
 	for(auto it : conf.GetArray("thresholds"))
 	{
@@ -54,7 +51,7 @@ Voltmeter::Voltmeter(const configuration::Json &conf)
 Voltmeter::~Voltmeter()
 {
 	auto mqtt = mqtt::Client::GetInstance();
-	if(mqtt && topic!="")
+	if(mqtt)
 		mqtt->Unsubscribe(topic, this);
 }
 
@@ -78,11 +75,11 @@ double Voltmeter::GetVoltage() const
 
 void Voltmeter::CheckConfig(const configuration::Json &conf)
 {
-	conf.Check("mqtt_id", "string", false);
+	conf.Check("mqtt_id", "string");
 	conf.Check("thresholds", "array");
 
 	if(conf.GetString("mqtt_id")=="")
-		return; // Voltmeter is not configured
+		throw invalid_argument("Missing MQTT ID");
 
 	if(conf.GetArray("thresholds").size()==0)
 		throw invalid_argument("Battery SOC configuration is empty");

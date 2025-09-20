@@ -29,7 +29,7 @@ namespace sensor::meter {
 
 class Plug: public Meter, public mqtt::Subscriber
 {
-	std::string topic = "";
+	std::string topic;
 
 	public:
 		Plug(const std::string &mqtt_id);

@@ -34,7 +34,7 @@ namespace sensor::meter {
 class Pro3EM: public Meter, public mqtt::Subscriber
 {
 	protected:
-		std::string topic = "";
+		std::string topic;
 		std::string phase;
 
 		double last_energy_consumption = 0;

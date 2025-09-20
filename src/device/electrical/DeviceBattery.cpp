@@ -63,6 +63,10 @@ void DeviceBattery::CheckConfig(const configuration::Json &conf)
 	DeviceOnOff::CheckConfig(conf);
 
 	conf.Check("voltmeter", "object"); // Voltmeter is mandatory for battery
+	auto voltmeter = conf.GetObject("voltmeter");
+	if(voltmeter.GetString("mqtt_id")=="")
+		return; // Battery is disabled
+
 	Voltmeter::CheckConfig(conf.GetObject("voltmeter"));
 
 	conf.Check("policy", "string");

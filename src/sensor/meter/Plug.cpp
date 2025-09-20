@@ -30,17 +30,14 @@ namespace sensor::meter {
 Plug::Plug(const string &mqtt_id)
 {
 	auto mqtt = mqtt::Client::GetInstance();
-	if(mqtt_id!="")
-		topic = mqtt_id + "/events/rpc";
-
-	if(topic!="")
-		mqtt->Subscribe(topic, this);
+	topic = mqtt_id + "/events/rpc";
+	mqtt->Subscribe(topic, this);
 }
 
 Plug::~Plug()
 {
 	auto mqtt = mqtt::Client::GetInstance();
-	if(mqtt && topic!="")
+	if(mqtt)
 		mqtt->Unsubscribe(topic, this);
 }
 

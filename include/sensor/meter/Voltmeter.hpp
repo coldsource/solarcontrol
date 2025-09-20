@@ -46,7 +46,7 @@ class Voltmeter: public Sensor, public mqtt::Subscriber, public configuration::C
 {
 	mutable std::mutex lock;
 
-	std::string topic = "";
+	std::string topic;
 
 	std::atomic<std::shared_ptr<stat::MovingAverage<double>>> voltage_avg; // Average voltage in mV
 	std::atomic<datetime::Timestamp> last_voltage_update;

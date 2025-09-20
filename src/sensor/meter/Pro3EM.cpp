@@ -30,17 +30,14 @@ namespace sensor::meter {
 Pro3EM::Pro3EM(const string &mqtt_id, const string &phase):phase(phase)
 {
 	auto mqtt = mqtt::Client::GetInstance();
-	if(mqtt_id!="")
-		topic = mqtt_id + "/events/rpc";
-
-	if(topic!="")
-		mqtt->Subscribe(topic, this);
+	topic = mqtt_id + "/events/rpc";
+	mqtt->Subscribe(topic, this);
 }
 
 Pro3EM::~Pro3EM()
 {
 	auto mqtt = mqtt::Client::GetInstance();
-	if(mqtt && topic!="")
+	if(mqtt)
 		mqtt->Unsubscribe(topic, this);
 }
 

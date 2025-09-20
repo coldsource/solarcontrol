@@ -28,7 +28,7 @@ namespace sensor::meter {
 
 void Meter::CheckConfig(const configuration::Json &conf)
 {
-	conf.Check("mqtt_id", "string", false);
+	conf.Check("mqtt_id", "string");
 }
 
 double Meter::GetPower() const

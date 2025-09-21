@@ -47,7 +47,7 @@ class Battery: public OnOff
 	// State
 	double voltage = -1, soc = -1;
 	datetime::Timestamp last_grid_switch;
-	en_battery_state soc_state;
+	en_battery_state soc_state = FLOAT;
 
 	protected:
 		virtual void reload(const configuration::Json &config) override;

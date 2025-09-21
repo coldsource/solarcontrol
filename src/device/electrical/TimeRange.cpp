@@ -57,12 +57,15 @@ void TimeRange::reload(const configuration::Json &config)
 {
 	OnOff::reload(config);
 
+	force.clear();
 	for(auto it : config.GetArray("force", json::array()))
 		force.push_back(datetime::TimeRange(it));
 
+	offload.clear();
 	for(auto it : config.GetArray("offload", json::array()))
 		offload.push_back(datetime::TimeRange(it));
 
+	remainder.clear();
 	for(auto it : config.GetArray("remainder", json::array()))
 		remainder.push_back(datetime::TimeRange(it));
 

@@ -45,7 +45,10 @@ shared_ptr<OnOff> OnOffFactory::GetFromConfig(const configuration::Json &conf)
 		return make_shared<Pro>(conf.GetString("ip"), conf.GetInt("outlet"), reverted);
 	if(type=="uni")
 		return make_shared<Uni>(conf.GetString("ip"), conf.GetInt("outlet"), reverted);
-	return 0;
+	if(type=="dummy")
+		return nullptr;
+
+	return nullptr;
 }
 
 // Special method to get a dummy controller

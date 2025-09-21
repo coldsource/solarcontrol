@@ -117,6 +117,9 @@ void OnOff::SetState(bool new_state)
 {
 	unique_lock<recursive_mutex> llock(lock);
 
+	if(ctrl==nullptr)
+		return; // No controller
+
 	ctrl->Switch(new_state); // Set controller state first, this might fail and throw exception
 
 	clock(new_state);

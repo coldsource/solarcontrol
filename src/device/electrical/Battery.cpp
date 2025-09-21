@@ -230,6 +230,9 @@ en_wanted_state Battery::GetWantedState() const
 
 	unique_lock<recursive_mutex> llock(lock);
 
+	if(ctrl==nullptr)
+		return UNCHANGED; // Passive battery
+
 	if(soc==-1)
 		return UNCHANGED; // SOC Not yet updated
 

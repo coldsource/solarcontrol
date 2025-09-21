@@ -17,8 +17,8 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __DEVICE_BATTERYCONTROLLER_HPP__
-#define __DEVICE_BATTERYCONTROLLER_HPP__
+#ifndef __DEVICE_CONTROLLER_HPP__
+#define __DEVICE_CONTROLLER_HPP__
 
 #include <device/electrical/TimeRange.hpp>
 
@@ -26,13 +26,13 @@
 
 namespace device {
 
-class BatteryController: public TimeRange
+class Controller: public TimeRange
 {
 	public:
-		BatteryController(int id): TimeRange(id) {}
-		virtual ~BatteryController() {}
+		Controller(int id): TimeRange(id) {}
+		virtual ~Controller() {}
 
-		std::string GetType() const override { return "battery-controller"; }
+		std::string GetType() const override { return "controller"; }
 };
 
 }

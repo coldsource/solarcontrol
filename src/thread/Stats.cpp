@@ -184,7 +184,7 @@ json Stats::devices_predictions_to_json() const
 		else if(device_type==FAST)
 			j_device["type"] = "fast";
 
-		j_device["prediction"] = get_device_prediction(device, controlled_power);
+		j_device["prediction"] = get_device_prediction(device);
 
 		auto wanted_state = device->GetWantedState();
 		if(wanted_state==ON)

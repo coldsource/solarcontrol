@@ -35,7 +35,7 @@ namespace device {
 
 class Wind: public Weather
 {
-	double wind;
+	double wind = 0;
 
 	weather::HistoryQuarterHourWind history;
 

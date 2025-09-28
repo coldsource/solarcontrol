@@ -36,8 +36,8 @@ namespace device {
 class HT: public Weather
 {
 	protected:
-		double humidity;
-		double temperature;
+		double humidity = 0;
+		double temperature = 0;
 
 		weather::HistoryQuarterHourHT history;
 

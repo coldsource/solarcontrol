@@ -41,6 +41,8 @@ Devices::Devices()
 {
 	if(instance==0)
 	{
+		int device_id = 0;
+
 		try
 		{
 			database::DB db;
@@ -53,7 +55,8 @@ Devices::Devices()
 			auto res = db.Query(q);
 			while(res.FetchRow())
 			{
-				auto device = Load(res["device_id"], res["device_name"], res["device_type"], configuration::Json((string)res["device_config"]));
+				device_id = res["device_id"];
+				auto device = Load(device_id, res["device_name"], res["device_type"], configuration::Json((string)res["device_config"]));
 				if(!res["device_state"].IsNull())
 					device->StateRestore(configuration::Json((string)res["device_state"]));
 			}
@@ -63,7 +66,7 @@ Devices::Devices()
 		}
 		catch(exception &e)
 		{
-			logs::Logger::Log(LOG_ERR, "Error loading devices : « " + string(e.what()) + " »");
+			logs::Logger::Log(LOG_ERR, "Error loading device ID " + to_string(device_id) + " : « " + string(e.what()) + " »");
 		}
 	}
 }

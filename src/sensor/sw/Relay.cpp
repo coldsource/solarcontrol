@@ -53,14 +53,18 @@ void Relay::CheckConfig(const configuration::Json &conf)
 	Switch::CheckConfig(conf);
 
 	conf.Check("ip", "string");
+	if(conf.GetString("ip")=="")
+		throw invalid_argument("Missing IP address");
+
+	conf.Check("mqtt_id", "string");
+	if(conf.GetString("mqtt_id")=="")
+		throw invalid_argument("Missing MQTT ID");
+
 	conf.Check("reverted", "bool", false);
 }
 
 bool Relay::get_output() const
 {
-	if(ip=="")
-		return false;
-
 	shelly::HTTP api(ip);
 
 	json j;
@@ -104,7 +108,6 @@ void Relay::HandleMessage(const string &message, const std::string & /*topic*/)
 {
 	try
 	{
-
 		json j = json::parse(message);
 		auto ev = j["params"]["switch:" + to_string(outlet)];
 		if(!ev.contains("output"))

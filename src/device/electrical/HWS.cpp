@@ -53,8 +53,6 @@ void HWS::CheckConfig(const configuration::Json &conf)
 	conf.Check("min_energy", "float");
 	conf.Check("min_energy_for_last", "int");
 
-	conf.Check("meter", "object"); // Meter is mandatory for HWS
-
 	TimeRange::CheckConfig(conf);
 }
 
@@ -86,18 +84,6 @@ void HWS::CreateInDB()
 
 	json config;
 	config["prio"] = 0;
-
-	json control;
-	control["type"] = "pro";
-	control["ip"] = "";
-	control["outlet"] = 0;
-	config["control"] = control;
-
-	json meter;
-	meter["type"] = "3em";
-	meter["mqtt_id"] = "";
-	meter["phase"] = "c";
-	config["meter"] = meter;
 
 	config["force"] = json::array();
 	config["remainder"] = json::array();

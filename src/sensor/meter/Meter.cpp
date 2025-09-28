@@ -29,6 +29,9 @@ namespace sensor::meter {
 void Meter::CheckConfig(const configuration::Json &conf)
 {
 	conf.Check("mqtt_id", "string");
+
+	if(conf.GetString("mqtt_id")=="")
+		throw invalid_argument("Missing MQTT ID");
 }
 
 double Meter::GetPower() const

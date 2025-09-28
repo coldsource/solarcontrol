@@ -41,14 +41,7 @@ void PV::CreateInDB()
 	if(res.FetchRow())
 		return; // Already in database
 
-	json config;
-
-	json meter;
-	meter["type"] = "3em";
-	meter["mqtt_id"] = "";
-	meter["phase"] = "b";
-	config["meter"] = meter;
-
+	json config = json::object();
 	db.Query("INSERT INTO t_device(device_id, device_type, device_name, device_config) VALUES(%i, 'pv', 'pv', %s)"_sql<<DEVICE_ID_PV<<config.dump());
 }
 

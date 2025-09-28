@@ -44,7 +44,7 @@ class OnOff: public Electrical
 		bool manual = false;
 		bool state = false;
 
-		std::shared_ptr<control::OnOff> ctrl;
+		std::shared_ptr<control::OnOff> ctrl = nullptr;
 
 		datetime::Timestamp last_on;
 		datetime::Timestamp last_off;

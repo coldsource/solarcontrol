@@ -45,15 +45,19 @@ void Grid::CheckConfig(const configuration::Json &conf)
 {
 	Passive::CheckConfig(conf);
 
-	conf.Check("input", "object"); // Input is mandatory for Grid
-	InputFactory::CheckConfig(conf.GetObject("input"));
+	if(conf.Has("input"))
+	{
+		conf.Check("input", "object"); // Input is mandatory for Grid
+		InputFactory::CheckConfig(conf.GetObject("input"));
+	}
 }
 
 void Grid::reload(const configuration::Json &config)
 {
 	Passive::reload(config);
 
-	add_sensor(InputFactory::GetFromConfig(config.GetObject("input")), "offpeak_ctrl");
+	if(config.Has("input"))
+		add_sensor(InputFactory::GetFromConfig(config.GetObject("input")), "offpeak_ctrl");
 }
 
 void Grid::SensorChanged(const  sensor::Sensor *sensor)
@@ -73,21 +77,7 @@ void Grid::CreateInDB()
 	if(res.FetchRow())
 		return; // Already in database
 
-	json config;
-
-	json meter;
-	meter["type"] = "3em";
-	meter["mqtt_id"] = "";
-	meter["phase"] = "a";
-	config["meter"] = meter;
-
-	json input;
-	input["type"] = "dummy";
-	input["mqtt_id"] = "";
-	input["outlet"] = 0;
-	input["ip"] = "";
-	config["input"] = input;
-
+	json config = json::object();
 	db.Query("INSERT INTO t_device(device_id, device_type, device_name, device_config) VALUES(%i, 'grid', 'grid', %s)"_sql<<DEVICE_ID_GRID<<config.dump());
 }
 

@@ -62,12 +62,11 @@ void Battery::CheckConfig(const configuration::Json &conf)
 {
 	OnOff::CheckConfig(conf);
 
-	conf.Check("voltmeter", "object"); // Voltmeter is mandatory for battery
-	auto voltmeter = conf.GetObject("voltmeter");
-	if(voltmeter.GetString("mqtt_id")=="")
-		return; // Battery is disabled
-
-	Voltmeter::CheckConfig(conf.GetObject("voltmeter"));
+	if(conf.Has("voltmeter"))
+	{
+		conf.Check("voltmeter", "object");
+		Voltmeter::CheckConfig(conf.GetObject("voltmeter"));
+	}
 
 	conf.Check("policy", "string");
 	string_to_policy(conf.GetString("policy")); // Check policy is valid
@@ -133,13 +132,13 @@ void Battery::reload(const configuration::Json &config)
 
 	policy = string_to_policy(config.GetString("policy"));
 
-	if(config.GetObject("voltmeter").GetString("mqtt_id")=="")
+	if(!config.Has("voltmeter"))
 	{
-		// Battery is disabled
-		voltage = -1;
-		soc = -1;
-		return;
+		enabled = false;
+		return; // Battery is disabled
 	}
+
+	enabled = true;
 
 	add_sensor(make_unique<Voltmeter>(config.GetObject("voltmeter")), "voltmeter");
 
@@ -149,7 +148,7 @@ void Battery::reload(const configuration::Json &config)
 	min_grid_time = backup.GetUInt("min_grid_time");
 
 	// Control « reverted » may have changed, force state update
-	if(state_restored)
+	if(state_restored && ctrl!=nullptr)
 		ctrl->Switch(state);
 }
 
@@ -273,30 +272,13 @@ void Battery::CreateInDB()
 
 	json config;
 	config["prio"] = 1000; // Very low offload priority
-
-	json meter;
-	meter["type"] = "dummy";
-	meter["mqtt_id"] = "";
-	meter["phase"] = "a";
-	config["meter"] = meter;
-
-	json voltmeter;
-	voltmeter["mqtt_id"] = "";
-	voltmeter["thresholds"] = json::array();
-	config["voltmeter"] = voltmeter;
-
-	json control;
-	control["type"] = "uni";
-	control["ip"] = "";
-	control["outlet"] = 0;
-	control["reverted"] = true;
-	config["control"] = control;
+	config["policy"] = "battery";
 
 	json backup;
-	control["battery_low"] = 30;
-	control["battery_high"] = 50;
-	control["min_grid_time"] = 7200;
-	config["backup"] = control;
+	backup["battery_low"] = 30;
+	backup["battery_high"] = 50;
+	backup["min_grid_time"] = 7200;
+	config["backup"] = backup;
 
 	db.Query("INSERT INTO t_device(device_id, device_type, device_name, device_config) VALUES(%i, 'battery', 'battery', %s)"_sql<<DEVICE_ID_BATTERY<<config.dump());
 }

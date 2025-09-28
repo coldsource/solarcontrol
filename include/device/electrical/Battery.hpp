@@ -38,16 +38,17 @@ class Battery: public OnOff
 		enum en_battery_state {DISCHARGING, CHARGING, FLOAT, BACKUP};
 
 	private:
-	// Config
-	unsigned int battery_low, battery_high;
-	unsigned long min_grid_time;
-	unsigned long battery_cooldown;
-	en_battery_policy policy;
+		// Config
+		bool enabled;
+		unsigned int battery_low, battery_high;
+		unsigned long min_grid_time;
+		unsigned long battery_cooldown;
+		en_battery_policy policy;
 
-	// State
-	double voltage = -1, soc = -1;
-	datetime::Timestamp last_grid_switch;
-	en_battery_state soc_state = FLOAT;
+		// State
+		double voltage = -1, soc = -1;
+		datetime::Timestamp last_grid_switch;
+		en_battery_state soc_state = FLOAT;
 
 	protected:
 		virtual void reload(const configuration::Json &config) override;
@@ -64,6 +65,8 @@ class Battery: public OnOff
 		virtual ~Battery();
 
 		void ConfigurationChanged(const configuration::ConfigurationPart * config) override;
+
+		bool IsEnabled() { return enabled; }
 
 		std::string GetType() const override { return "battery"; }
 		virtual unsigned long GetMinOn() override { return battery_cooldown; }

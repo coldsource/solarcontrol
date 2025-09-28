@@ -48,12 +48,15 @@ OnOff::~OnOff()
 
 void OnOff::CheckConfig(const configuration::Json &conf)
 {
-	conf.Check("control", "object"); // Control is mandatory for OnOff devices
-
 	Electrical::CheckConfig(conf);
 
-	SwitchFactory::CheckConfig(conf.GetObject("control"));
-	OnOffFactory::CheckConfig(conf.GetObject("control"));
+	if(conf.Has("control"))
+	{
+		conf.Check("control", "object");
+
+		SwitchFactory::CheckConfig(conf.GetObject("control"));
+		OnOffFactory::CheckConfig(conf.GetObject("control"));
+	}
 
 	conf.Check("prio", "int"); // Prio is mandatory for all onoff devices
 	conf.Check("expected_consumption", "int", false);
@@ -66,11 +69,17 @@ void OnOff::reload(const configuration::Json &config)
 	prio = config.GetInt("prio");
 	expected_consumption = config.GetInt("expected_consumption", 0);
 
-	ctrl = OnOffFactory::GetFromConfig(config.GetObject("control")); // Init control from config
-	add_sensor(SwitchFactory::GetFromConfig(config.GetObject("control")), "switch");
 
-	if(!config.Has("meter")) // Device has no dedicated meter, control will be used
-		add_sensor(MeterFactory::GetFromConfig(config.GetObject("control")), "meter"); // Fallback on control for metering also
+	if(config.Has("control"))
+	{
+		ctrl = OnOffFactory::GetFromConfig(config.GetObject("control")); // Init control from config
+		add_sensor(SwitchFactory::GetFromConfig(config.GetObject("control")), "switch");
+
+		if(!config.Has("meter")) // Device has no dedicated meter, control will be used
+			add_sensor(MeterFactory::GetFromConfig(config.GetObject("control")), "meter"); // Fallback on control for metering also
+	}
+	else
+		ctrl = nullptr; // No control on this device
 }
 
 void OnOff::state_restore(const  configuration::Json &last_state)
@@ -132,6 +141,9 @@ void OnOff::SetState(bool new_state)
 void OnOff::SetManualState(bool new_state)
 {
 	unique_lock<recursive_mutex> llock(lock);
+
+	if(ctrl==nullptr)
+		return; // No controller
 
 	ctrl->Switch(new_state); // Set controller state first, this might fail and throw exception
 

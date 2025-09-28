@@ -38,9 +38,6 @@ shared_ptr<Switch> SwitchFactory::GetFromConfig(const configuration::Json &conf)
 	string type = conf.GetString("type");
 	bool reverted = conf.GetBool("reverted", false);
 
-	if(!conf.Has("mqtt_id") || conf.GetString("mqtt_id")=="")
-		return nullptr;
-
 	if(type=="plug")
 		return make_shared<Plug>(conf.GetString("ip"), conf.GetString("mqtt_id"), reverted);
 	if(type=="pro")
@@ -63,6 +60,10 @@ void SwitchFactory::CheckConfig(const configuration::Json &conf)
 		Uni::CheckConfig(conf);
 	else
 		throw invalid_argument("Unknown switch type « " + type + " »");
+
+	conf.Check("mqtt_id", "string");
+	if(conf.GetString("mqtt_id")=="")
+		throw invalid_argument("Missing MQTT ID");
 }
 
 }

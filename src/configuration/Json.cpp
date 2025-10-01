@@ -18,8 +18,7 @@
  */
 
 #include <configuration/Json.hpp>
-
-#include <stdexcept>
+#include <excpt/Config.hpp>
 
 using namespace std;
 using nlohmann::json;
@@ -35,32 +34,32 @@ Json::Json(const string &json_str)
 	}
 	catch(...)
 	{
-		throw invalid_argument("Invalid json configuration string, not valid json");
+		throw excpt::Config("Invalid json configuration string, not valid json", "parsing data");
 	}
 }
 
 void Json::check_entry(const string &name, const string &type) const
 {
 	if(!json.contains(name))
-		throw invalid_argument("Missing parameter « " + name + " »");
+		throw excpt::Config("Missing parameter « " + name + " »", name);
 
 	auto jtype = json[name].type();
 	if(type=="int" && jtype!=json::value_t::number_integer && jtype!=json::value_t::number_unsigned)
-		throw invalid_argument("Parameter « " + name + " » must be integer");
+		throw excpt::Config("Parameter « " + name + " » must be integer", name);
 	if(type=="uint" && jtype!=json::value_t::number_unsigned)
-		throw invalid_argument("Parameter « " + name + " » must be integer");
+		throw excpt::Config("Parameter « " + name + " » must be integer", name);
 	else if(type=="unsigned int" && jtype!=json::value_t::number_unsigned)
-		throw invalid_argument("Parameter « " + name + " » must be unsigned integer");
+		throw excpt::Config("Parameter « " + name + " » must be unsigned integer", name);
 	else if(type=="float" && jtype!=json::value_t::number_float && jtype!=json::value_t::number_integer && jtype!=json::value_t::number_unsigned)
-		throw invalid_argument("Parameter « " + name + " » must be float");
+		throw excpt::Config("Parameter « " + name + " » must be float", name);
 	else if(type=="string" && jtype!=json::value_t::string)
-		throw invalid_argument("Parameter « " + name + " » must be string");
+		throw excpt::Config("Parameter « " + name + " » must be string", name);
 	else if(type=="bool" && jtype!=json::value_t::boolean)
-		throw invalid_argument("Parameter « " + name + " » must be boolean");
+		throw excpt::Config("Parameter « " + name + " » must be boolean", name);
 	else if(type=="array" && jtype!=json::value_t::array)
-		throw invalid_argument("Parameter « " + name + " » must be array");
+		throw excpt::Config("Parameter « " + name + " » must be array", name);
 	else if(type=="object" && jtype!=json::value_t::object)
-		throw invalid_argument("Parameter « " + name + " » must be object");
+		throw excpt::Config("Parameter « " + name + " » must be object", name);
 }
 
 void Json::Check(const std::string &name, const std::string &type, bool required) const

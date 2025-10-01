@@ -22,8 +22,8 @@
 #include <sensor/meter/Pro3EM.hpp>
 #include <sensor/meter/ProEM.hpp>
 #include <configuration/Json.hpp>
-
-#include <stdexcept>
+#include <excpt/Context.hpp>
+#include <excpt/Config.hpp>
 
 using namespace std;
 
@@ -56,6 +56,8 @@ shared_ptr<Meter> MeterFactory::GetFromConfig(const configuration::Json &conf)
 
 void MeterFactory::CheckConfig(const configuration::Json &conf)
 {
+	excpt::Context ctx("meter", "In meter configuration");
+
 	string type = conf.GetString("type");
 
 	if(type=="plug")
@@ -71,7 +73,7 @@ void MeterFactory::CheckConfig(const configuration::Json &conf)
 	if(type=="dummy")
 		return;
 
-	throw invalid_argument("Unknown meter type « " + type + " »");
+	throw excpt::Config("Unknown meter type « " + type + " »", "type");
 }
 
 }

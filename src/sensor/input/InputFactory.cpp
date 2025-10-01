@@ -22,8 +22,8 @@
 #include <sensor/input/Plus1PM.hpp>
 #include <sensor/input/Pro.hpp>
 #include <configuration/Json.hpp>
-
-#include <stdexcept>
+#include <excpt/Context.hpp>
+#include <excpt/Config.hpp>
 
 using namespace std;
 
@@ -47,6 +47,8 @@ shared_ptr<Input> InputFactory::GetFromConfig(const configuration::Json &conf)
 
 void InputFactory::CheckConfig(const configuration::Json &conf)
 {
+	excpt::Context ctx("input", "In input configuration");
+
 	string type = conf.GetString("type");
 
 	if(type=="dummy")
@@ -54,9 +56,9 @@ void InputFactory::CheckConfig(const configuration::Json &conf)
 	if(type=="plus1pm")
 		return Plus1PM::CheckConfig(conf);
 	else if(type=="pro")
-		return;
+		return Pro::CheckConfig(conf);
 
-	throw invalid_argument("Unknown input type « " + type + " »");
+	throw excpt::Config("Unknown input type « " + type + " »", type);
 }
 
 }

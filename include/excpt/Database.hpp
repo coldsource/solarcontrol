@@ -17,19 +17,25 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __MQTT_SUBSCRIBER_HPP__
-#define __MQTT_SUBSCRIBER_HPP__
+#ifndef __EXCPT_DATABASE_HPP__
+#define __EXCPT_DATABASE_HPP__
 
-#include <string>
+#include <excpt/Exception.hpp>
 
-namespace mqtt {
+namespace excpt {
 
-class Subscriber
+class Database: public Exception
 {
 	public:
-		virtual ~Subscriber() {}
+		Database(const std::string &sql_err, unsigned int sql_errno):Exception("SQL error « " + sql_err + " » code " + std::to_string(sql_errno))
+		{
+			j_excpt["err"] = sql_err;
+			j_excpt["errno"] = sql_errno;
+		}
 
-		virtual void HandleMessage(const std::string &message, const std::string &topic) = 0;
+		Database(const std::string &what):Exception(what) {}
+
+		virtual ~Database() {}
 };
 
 }

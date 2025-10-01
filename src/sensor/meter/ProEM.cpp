@@ -20,6 +20,7 @@
 #include <sensor/meter/ProEM.hpp>
 #include <configuration/Json.hpp>
 #include <nlohmann/json.hpp>
+#include <excpt/Config.hpp>
 
 using namespace std;
 using nlohmann::json;
@@ -37,7 +38,7 @@ void ProEM::CheckConfig(const configuration::Json &conf)
 
 	string phase = conf.GetString("phase");
 	if(phase!="a" && phase!="b")
-		throw invalid_argument("Phase must be a or b");
+		throw excpt::Config("Phase must be a or b", "phase");
 }
 
 void ProEM::HandleMessage(const string &message, const std::string & /*topic*/)

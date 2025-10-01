@@ -17,19 +17,26 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __MQTT_SUBSCRIBER_HPP__
-#define __MQTT_SUBSCRIBER_HPP__
+#ifndef __EXCPT_CONTEXT_HPP__
+#define __EXCPT_CONTEXT_HPP__
 
+#include <nlohmann/json.hpp>
+
+#include <stdexcept>
 #include <string>
 
-namespace mqtt {
+namespace excpt {
 
-class Subscriber
+class Context
 {
-	public:
-		virtual ~Subscriber() {}
+	protected:
+		std::string name;
+		std::string log;
+		nlohmann::json j_ctx;
 
-		virtual void HandleMessage(const std::string &message, const std::string &topic) = 0;
+	public:
+		Context(const std::string &name, const std::string &log, nlohmann::json j_ctx = nlohmann::json::object()):name(name), log(log), j_ctx(j_ctx) {}
+		virtual ~Context();
 };
 
 }

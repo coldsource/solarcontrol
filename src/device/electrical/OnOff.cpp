@@ -27,6 +27,7 @@
 #include <configuration/Json.hpp>
 #include <logs/State.hpp>
 #include <nlohmann/json.hpp>
+#include <excpt/Context.hpp>
 
 using namespace std;
 using datetime::Timestamp;
@@ -36,15 +37,6 @@ using control::OnOffFactory;
 using nlohmann::json;
 
 namespace device {
-
-OnOff::OnOff(int id):
-Electrical(id), on_history(id)
-{
-}
-
-OnOff::~OnOff()
-{
-}
 
 void OnOff::CheckConfig(const configuration::Json &conf)
 {
@@ -124,6 +116,8 @@ void OnOff::clock(bool new_state)
 
 void OnOff::SetState(bool new_state)
 {
+	excpt::Context ctx("device", "In device « " + GetName() + " »", {{"device_id", GetID()}});
+
 	unique_lock<recursive_mutex> llock(lock);
 
 	if(ctrl==nullptr)
@@ -140,6 +134,8 @@ void OnOff::SetState(bool new_state)
 
 void OnOff::SetManualState(bool new_state)
 {
+	excpt::Context ctx("device", "In device « " + GetName() + " »", {{"device_id", GetID()}});
+
 	unique_lock<recursive_mutex> llock(lock);
 
 	if(ctrl==nullptr)

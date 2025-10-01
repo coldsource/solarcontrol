@@ -26,7 +26,7 @@ namespace sensor::input {
 
 void Pro::CheckConfig(const configuration::Json &conf)
 {
-	Input::CheckConfig(conf);
+	MQTT::CheckConfig(conf);
 
 	conf.Check("outlet", "int");
 }

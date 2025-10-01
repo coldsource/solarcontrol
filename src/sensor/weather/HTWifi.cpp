@@ -21,6 +21,7 @@
 #include <mqtt/Client.hpp>
 #include <configuration/Json.hpp>
 #include <nlohmann/json.hpp>
+#include <excpt/Config.hpp>
 
 using namespace std;
 using nlohmann::json;
@@ -48,7 +49,7 @@ void HTWifi::CheckConfig(const configuration::Json &conf)
 
 	conf.Check("mqtt_id", "string");
 	if(conf.GetString("mqtt_id")=="")
-		throw invalid_argument("MQTT ID is mandatory");
+		throw excpt::Config("MQTT ID is mandatory", "mqtt_id");
 }
 
 void HTWifi::HandleMessage(const string &message, const std::string & /*topic*/)

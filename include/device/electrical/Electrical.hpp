@@ -54,6 +54,7 @@ class Electrical: public Device, public configuration::ConfigurationObserver
 
 	public:
 		Electrical(int id);
+		Electrical(int id, const std::string &consumption_type, const std::string consumption_excess_type);
 		virtual ~Electrical();
 
 		void ConfigurationChanged(const configuration::ConfigurationPart *config) override;

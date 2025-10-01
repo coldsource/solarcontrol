@@ -28,16 +28,10 @@ json Weather::ToJson() const
 {
 	unique_lock<recursive_mutex> llock(lock);
 
-	json j_device;
-
-	j_device["device_id"] = GetID();
-	j_device["device_type"] = GetType();
-	j_device["device_name"] = GetName();
-	j_device["device_config"] = (json)GetConfig();
+	json j_device = Device::ToJson();
 	j_device["temperature"] = GetTemperature();
 	j_device["humidity"] = GetHumidity();
 	j_device["wind"] = GetWind();
-
 	return j_device;
 }
 

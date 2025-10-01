@@ -22,6 +22,8 @@
 #include <sensor/sw/Pro.hpp>
 #include <sensor/sw/Uni.hpp>
 #include <configuration/Json.hpp>
+#include <excpt/Context.hpp>
+#include <excpt/Config.hpp>
 
 #include <string>
 #include <stdexcept>
@@ -50,6 +52,8 @@ shared_ptr<Switch> SwitchFactory::GetFromConfig(const configuration::Json &conf)
 
 void SwitchFactory::CheckConfig(const configuration::Json &conf)
 {
+	excpt::Context ctx("switch", "In switch configuration");
+
 	string type = conf.GetString("type");
 
 	if(type=="plug")
@@ -59,11 +63,7 @@ void SwitchFactory::CheckConfig(const configuration::Json &conf)
 	else if(type=="uni")
 		Uni::CheckConfig(conf);
 	else
-		throw invalid_argument("Unknown switch type « " + type + " »");
-
-	conf.Check("mqtt_id", "string");
-	if(conf.GetString("mqtt_id")=="")
-		throw invalid_argument("Missing MQTT ID");
+		throw excpt::Config("Unknown switch type « " + type + " »", "type");
 }
 
 }

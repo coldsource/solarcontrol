@@ -40,7 +40,7 @@ class HistoryDay: public stat::History<datetime::Date, Amount>
 
 	public:
 		HistoryDay(int device_id, const std::string &type = "");
-		~HistoryDay();
+		virtual ~HistoryDay();
 
 		Amount GetTotalForToday() const { return GetTotalForCurrent(); }
 };

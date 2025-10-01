@@ -17,22 +17,24 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __MQTT_SUBSCRIBER_HPP__
-#define __MQTT_SUBSCRIBER_HPP__
+#ifndef __EXCPT_CONFIG_HPP__
+#define __EXCPT_CONFIG_HPP__
 
-#include <string>
+#include <excpt/Exception.hpp>
 
-namespace mqtt {
+namespace excpt {
 
-class Subscriber
+class Config: public Exception
 {
 	public:
-		virtual ~Subscriber() {}
+		Config(const std::string &what, const std::string &field_name):Exception(what)
+		{
+			j_excpt["field_name"] = field_name;
+		}
 
-		virtual void HandleMessage(const std::string &message, const std::string &topic) = 0;
+		virtual ~Config() {}
 };
 
 }
 
 #endif
-

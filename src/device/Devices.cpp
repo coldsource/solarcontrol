@@ -24,6 +24,8 @@
 #include <database/DB.hpp>
 #include <logs/Logger.hpp>
 #include <websocket/SolarControl.hpp>
+#include <excpt/Exception.hpp>
+#include <excpt/Context.hpp>
 
 #include <stdexcept>
 
@@ -41,33 +43,42 @@ Devices::Devices()
 {
 	if(instance==0)
 	{
-		int device_id = 0;
+		database::DB db;
 
-		try
+		database::Query q(" \
+			SELECT DEV.device_id, DEV.device_name, DEV.device_type, DEV.device_config, STATE.device_state \
+			FROM t_device DEV \
+			LEFT JOIN t_device_state STATE ON DEV.device_id=STATE.device_id \
+			");
+		auto res = db.Query(q);
+		while(res.FetchRow())
 		{
-			database::DB db;
+			int device_id = res["device_id"];
+			string device_name = res["device_name"];
 
-			database::Query q(" \
-				SELECT DEV.device_id, DEV.device_name, DEV.device_type, DEV.device_config, STATE.device_state \
-				FROM t_device DEV \
-				LEFT JOIN t_device_state STATE ON DEV.device_id=STATE.device_id \
-				");
-			auto res = db.Query(q);
-			while(res.FetchRow())
+			try
 			{
-				device_id = res["device_id"];
-				auto device = Load(device_id, res["device_name"], res["device_type"], configuration::Json((string)res["device_config"]));
+				configuration::Json config;
+				{
+					excpt::Context ctx("device", "In device « " + device_name + " »", {{"device_id", device_id}});
+					config = configuration::Json((string)res["device_config"]);
+				}
+
+				auto device = Load(device_id, res["device_name"], res["device_type"], config);
 				if(!res["device_state"].IsNull())
 					device->StateRestore(configuration::Json((string)res["device_state"]));
 			}
+			catch(excpt::Exception &e)
+			{
+				logs::Logger::Log(LOG_ERR, "Error loading devices");
+				e.Log(LOG_ERR);
+				if(device_id<0)
+					throw; // System device, unable to continue
+			}
+		}
 
-			instance = this;
-			return;
-		}
-		catch(exception &e)
-		{
-			logs::Logger::Log(LOG_ERR, "Error loading device ID " + to_string(device_id) + " : « " + string(e.what()) + " »");
-		}
+		instance = this;
+		return;
 	}
 }
 

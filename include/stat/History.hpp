@@ -32,6 +32,8 @@ class HistorySync
 		virtual void save() = 0;
 
 	public:
+		virtual ~HistorySync() {}
+
 		virtual void Sync(void)
 		{
 			purge();
@@ -69,6 +71,7 @@ class History: public HistorySync
 	public:
 		History(int retention):retention(retention) {}
 		History(const History &h) = delete;
+		History &operator=(const History &) = delete;
 
 		void Set(DataType val)
 		{

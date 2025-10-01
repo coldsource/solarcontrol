@@ -21,6 +21,7 @@
 #include <mqtt/Client.hpp>
 #include <configuration/Json.hpp>
 #include <nlohmann/json.hpp>
+#include <excpt/Config.hpp>
 
 using namespace std;
 using nlohmann::json;
@@ -47,7 +48,7 @@ void Pro3EM::CheckConfig(const configuration::Json &conf)
 
 	string phase = conf.GetString("phase");
 	if(phase!="a" && phase!="b" && phase!="c")
-		throw invalid_argument("Phase must be a, b or c");
+		throw excpt::Config("Phase must be a, b or c", "phase");
 }
 
 void Pro3EM::HandleMessage(const string &message, const std::string & /*topic*/)

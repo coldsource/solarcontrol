@@ -17,19 +17,18 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __MQTT_SUBSCRIBER_HPP__
-#define __MQTT_SUBSCRIBER_HPP__
+#ifndef __EXCPT_SENSOR_HPP__
+#define __EXCPT_SENSOR_HPP__
 
-#include <string>
+#include <excpt/Exception.hpp>
 
-namespace mqtt {
+namespace excpt {
 
-class Subscriber
+class Shelly: public Exception
 {
 	public:
-		virtual ~Subscriber() {}
-
-		virtual void HandleMessage(const std::string &message, const std::string &topic) = 0;
+		Shelly(const std::string &what):Exception(what) {}
+		virtual ~Shelly() {}
 };
 
 }

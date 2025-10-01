@@ -22,6 +22,8 @@
 #include <configuration/Json.hpp>
 #include <shelly/HTTP.hpp>
 #include <nlohmann/json.hpp>
+#include <excpt/Config.hpp>
+#include <excpt/Context.hpp>
 
 using namespace std;
 using nlohmann::json;
@@ -34,13 +36,15 @@ void Relay::CheckConfig(const configuration::Json &conf)
 
 	conf.Check("ip", "string");
 	if(conf.GetString("ip")=="")
-		throw invalid_argument("Missing IP address");
+		throw excpt::Config("Missing IP address", "ip");
 
 	conf.Check("reverted", "bool", false);
 }
 
 void Relay::Switch(bool new_state)
 {
+	excpt::Context ctx("control", "Setting switch state");
+
 	if(reverted)
 		new_state = !new_state;
 

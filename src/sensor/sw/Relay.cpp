@@ -23,6 +23,8 @@
 #include <configuration/Json.hpp>
 #include <shelly/HTTP.hpp>
 #include <nlohmann/json.hpp>
+#include <excpt/Config.hpp>
+#include <excpt/Context.hpp>
 
 using namespace std;
 using nlohmann::json;
@@ -54,17 +56,19 @@ void Relay::CheckConfig(const configuration::Json &conf)
 
 	conf.Check("ip", "string");
 	if(conf.GetString("ip")=="")
-		throw invalid_argument("Missing IP address");
+		throw excpt::Config("Missing IP address", "ip");
 
 	conf.Check("mqtt_id", "string");
 	if(conf.GetString("mqtt_id")=="")
-		throw invalid_argument("Missing MQTT ID");
+		throw excpt::Config("Missing MQTT ID", "mqtt_id");
 
 	conf.Check("reverted", "bool", false);
 }
 
 bool Relay::get_output() const
 {
+	excpt::Context ctx("relay", "Getting switch state for device « " + GetObserverName() + " »");
+
 	shelly::HTTP api(ip);
 
 	json j;
@@ -72,16 +76,8 @@ bool Relay::get_output() const
 	j["method"] = "Switch.GetStatus";
 	j["params"]["id"] = outlet;
 
-	try
-	{
-		auto out = api.Post(j);
-		return out["result"]["output"];
-	}
-	catch(exception &e)
-	{
-		logs::Logger::Log(LOG_WARNING, "Unable to get plug state : « " + string(e.what()) + " »");
-		return false;
-	}
+	auto out = api.Post(j);
+	return out["result"]["output"];
 }
 
 bool Relay::GetState() const
@@ -92,7 +88,7 @@ bool Relay::GetState() const
 	return !state;
 }
 
-void Relay::ForceUpdate()
+bool Relay::ForceUpdate()
 {
 	{
 		unique_lock<mutex> llock(lock);
@@ -102,6 +98,8 @@ void Relay::ForceUpdate()
 
 	// Notify observer unlocked
 	notify_observer();
+
+	return true;
 }
 
 void Relay::HandleMessage(const string &message, const std::string & /*topic*/)

@@ -34,11 +34,8 @@ using datetime::Timestamp;
 namespace device
 {
 
-Battery::Battery(int id):OnOff(id)
+Battery::Battery(int id):OnOff(id, "production", "") // Override default counter for storing production
 {
-	// Override default counter for storing production
-	consumption = energy::Counter(id, "production");
-
 	last_grid_switch = Timestamp(TS_MONOTONIC);
 
 	ObserveConfiguration("control");

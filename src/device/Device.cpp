@@ -20,9 +20,11 @@
 #include <device/Device.hpp>
 #include <database/DB.hpp>
 #include <sensor/Sensor.hpp>
+#include <excpt/Context.hpp>
 
 using namespace std;
 using database::DB;
+using nlohmann::json;
 
 namespace device {
 
@@ -45,6 +47,8 @@ Device::~Device()
 void Device::Reload(const string &name, const configuration::Json &config)
 {
 	unique_lock<recursive_mutex> llock(lock);
+
+	excpt::Context ctx("device", "In device « " + name + " »", {{"device_id", GetID()}});
 
 	this->name = name;
 	this->config = config;
@@ -81,6 +85,22 @@ void Device::StateRestore(const configuration::Json &last_state)
 	state_restored = true;
 }
 
+json Device::ToJson() const
+{
+	unique_lock<recursive_mutex> llock(lock);
+
+	json j_device;
+
+	j_device["device_id"] = GetID();
+	j_device["device_type"] = GetType();
+	j_device["device_category"] = GetCategory();
+	j_device["device_name"] = GetName();
+	j_device["device_config"] = (json)GetConfig();
+	j_device["offline"] = offline;
+
+	return j_device;
+}
+
 void Device::add_sensor(shared_ptr<sensor::Sensor> sensor, const string &name)
 {
 	if(sensor!=nullptr)
@@ -90,6 +110,26 @@ void Device::add_sensor(shared_ptr<sensor::Sensor> sensor, const string &name)
 bool Device::has_sensor(const std::string &category) const
 {
 	return sensors.has(category);
+}
+
+void Device::SetOffline()
+{
+	unique_lock<recursive_mutex> llock(lock);
+
+	offline = true;
+}
+
+void Device::SetOnline()
+{
+	unique_lock<recursive_mutex> llock(lock);
+
+	offline = false;
+}
+bool Device::IsOffline() const
+{
+	unique_lock<recursive_mutex> llock(lock);
+
+	return offline;
 }
 
 }

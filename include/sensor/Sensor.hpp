@@ -43,14 +43,19 @@ class Sensor: public std::enable_shared_from_this<Sensor>
 
 	public:
 		Sensor():name() {}
+		virtual ~Sensor() {}
 
-		void SetObserver(SensorObserver * observer);
+		void SetObserver(SensorObserver *observer);
 		void SetObserver();
+		std::string GetObserverName() const;
+
+		void DisableObserver();
+		void EnableObserver();
 
 		std::string GetName() const { return name; }
 		void SetName(const std::string &name) { this->name = name; }
 
-		virtual void ForceUpdate() {}
+		virtual bool ForceUpdate() { return false; }
 
 		virtual std::string GetCategory() const = 0;
 };

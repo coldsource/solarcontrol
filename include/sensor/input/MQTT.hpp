@@ -50,7 +50,7 @@ class MQTT: public Input, public mqtt::Subscriber
 		static void CheckConfig(const configuration::Json &conf);
 
 		virtual bool GetState() const override;
-		virtual void ForceUpdate() override;
+		virtual bool ForceUpdate() override;
 
 		void HandleMessage(const std::string &message, const std::string & /*topic*/) override;
 };

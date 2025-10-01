@@ -20,10 +20,9 @@
 #include <shelly/HTTP.hpp>
 #include <configuration/Configuration.hpp>
 #include <configuration/ConfigurationPart.hpp>
+#include <excpt/Shelly.hpp>
 
 #include <curl/curl.h>
-
-#include <stdexcept>
 
 using nlohmann::json;
 using namespace std;
@@ -65,16 +64,16 @@ json HTTP::Post(const json &j) const
 
 		res = curl_easy_perform(curl);
 		if(res != CURLE_OK)
-			throw runtime_error("Error executing HTTP API Command on « " + ip + " »");
+			throw excpt::Shelly("Error executing HTTP API Command on « " + ip + " »");
 
 		int http_code;
 		curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_code);
 		if(http_code!=200)
-			throw runtime_error("Error executing HTTP API Command on « " + ip + " » got " + to_string(http_code) + " http response code");
+			throw excpt::Shelly("Error executing HTTP API Command on « " + ip + " » got " + to_string(http_code) + " http response code");
 
 		auto output_j = json::parse(output);
 		if(output_j.contains("error"))
-			throw runtime_error("Error executing HTTP API Command on « " + ip + " » got error " + "« " + string(output_j["error"]["message"]) + " »");
+			throw excpt::Shelly("Error executing HTTP API Command on « " + ip + " » got error " + "« " + string(output_j["error"]["message"]) + " »");
 
 		curl_easy_cleanup(curl);
 

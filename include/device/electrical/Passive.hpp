@@ -30,6 +30,7 @@ class Passive: public Electrical
 {
 	public:
 		Passive(int id): Electrical(id) {}
+		Passive(int id, const std::string &consumption_type, const std::string consumption_excess_type): Electrical(id, consumption_type, consumption_excess_type) {}
 
 		static void CheckConfig(const configuration::Json &conf);
 

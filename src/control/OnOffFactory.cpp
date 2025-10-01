@@ -23,9 +23,10 @@
 #include <control/Uni.hpp>
 #include <control/Dummy.hpp>
 #include <configuration/Json.hpp>
+#include <excpt/Context.hpp>
+#include <excpt/Config.hpp>
 
 #include <string>
-#include <stdexcept>
 
 using namespace std;
 
@@ -59,6 +60,8 @@ shared_ptr<OnOff> OnOffFactory::GetFromConfig()
 
 void OnOffFactory::CheckConfig(const configuration::Json &conf)
 {
+	excpt::Context ctx("control", "In control on/off configuration");
+
 	string type = conf.GetString("type");
 
 	if(type=="plug")
@@ -68,7 +71,7 @@ void OnOffFactory::CheckConfig(const configuration::Json &conf)
 	else if(type=="uni")
 		Uni::CheckConfig(conf);
 	else
-		throw invalid_argument("Unknown control type « " + type + " »");
+		throw excpt::Config("Unknown control type « " + type + " »", "type");
 }
 
 }

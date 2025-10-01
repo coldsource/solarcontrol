@@ -33,7 +33,17 @@ using nlohmann::json;
 namespace device {
 
 Electrical::Electrical(int id):
-Device(id), consumption(id, "consumption"), offload(id, "offload")
+Device(id),
+consumption(id, "consumption"),
+offload(id, "offload")
+{
+	ObserveConfiguration("energy");
+}
+
+Electrical::Electrical(int id, const string &consumption_type, const string consumption_excess_type):
+Device(id),
+consumption(id, consumption_type, consumption_excess_type),
+offload(id, "offload")
 {
 	ObserveConfiguration("energy");
 }
@@ -77,15 +87,8 @@ json Electrical::ToJson() const
 {
 	unique_lock<recursive_mutex> llock(lock);
 
-	json j_device;
-
-	j_device["device_id"] = GetID();
-	j_device["device_type"] = GetType();
-	j_device["device_category"] = GetCategory();
-	j_device["device_name"] = GetName();
-	j_device["device_config"] = (json)GetConfig();
+	json j_device = Device::ToJson();
 	j_device["power"] = GetPower();
-
 	return j_device;
 }
 

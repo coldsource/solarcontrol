@@ -40,7 +40,7 @@ class HistoryQuarterHour: public stat::History<datetime::QuarterHour, Amount>
 
 	public:
 		HistoryQuarterHour(int device_id, const std::string &type = "");
-		~HistoryQuarterHour();
+		virtual ~HistoryQuarterHour();
 };
 
 }

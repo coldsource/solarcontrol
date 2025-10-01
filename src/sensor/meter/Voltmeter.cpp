@@ -22,6 +22,8 @@
 #include <configuration/Json.hpp>
 #include <configuration/ConfigurationPart.hpp>
 #include <nlohmann/json.hpp>
+#include <excpt/Context.hpp>
+#include <excpt/Config.hpp>
 
 using namespace std;
 using datetime::Timestamp;
@@ -31,6 +33,8 @@ namespace sensor::meter {
 
 Voltmeter::Voltmeter(const configuration::Json &conf)
 {
+	CheckConfig(conf);
+
 	string mqtt_id = conf.GetString("mqtt_id");
 
 	auto mqtt = mqtt::Client::GetInstance();
@@ -75,14 +79,16 @@ double Voltmeter::GetVoltage() const
 
 void Voltmeter::CheckConfig(const configuration::Json &conf)
 {
+	excpt::Context ctx("meter", "In voltmeter configuration");
+
 	conf.Check("mqtt_id", "string");
 	conf.Check("thresholds", "array");
 
 	if(conf.GetString("mqtt_id")=="")
-		throw invalid_argument("Missing MQTT ID");
+		throw excpt::Config("Missing MQTT ID", "mqtt_id");
 
 	if(conf.GetArray("thresholds").size()==0)
-		throw invalid_argument("Battery SOC configuration is empty");
+		throw excpt::Config("Battery SOC configuration is empty", "thresholds");
 
 	int last_percent = -1;
 	double last_tvoltage = -1;
@@ -92,20 +98,20 @@ void Voltmeter::CheckConfig(const configuration::Json &conf)
 		double tvoltage = it.GetFloat("voltage");
 
 		if(last_percent==-1 && percent!=0)
-			throw invalid_argument("First percent must be 0");
+			throw excpt::Config("First percent must be 0", "thresholds");
 
 		if(percent<=last_percent)
-			throw invalid_argument("Percents must be in increasing order");
+			throw excpt::Config("Percents must be in increasing order", "thresholds");
 
 		if(tvoltage<=last_tvoltage)
-			throw invalid_argument("Voltages must be in increasing order");
+			throw excpt::Config("Voltages must be in increasing order", "thresholds");
 
 		last_percent = percent;
 		last_tvoltage = tvoltage;
 	}
 
 	if(last_percent!=100)
-		throw invalid_argument("Last percent must be 100");
+		throw excpt::Config("Last percent must be 100", "thresholds");
 }
 
 double Voltmeter::GetSOC() const

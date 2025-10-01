@@ -36,6 +36,7 @@ aux_source_directory(src/sensor/weather srcSensorWeather)
 aux_source_directory(src/sensor/input srcSensorInput)
 aux_source_directory(src/sensor/sw srcSensorSW)
 aux_source_directory(src/sensor/meter srcSensorMeter)
+aux_source_directory(src/excpt srcExcpt)
 
 add_executable(solarcontrol
 	${srcMQTT}
@@ -64,6 +65,7 @@ add_executable(solarcontrol
 	${srcSensorInput}
 	${srcSensorSW}
 	${srcSensorMeter}
+	${srcExcpt}
 	
 	src/solarcontrol.cpp
 	)
@@ -76,7 +78,7 @@ else()
     message(FATAL_ERROR "Compiler ${CMAKE_CXX_COMPILER} has no C++20 support.")
 endif()
 
-target_compile_options(solarcontrol PRIVATE -Wall -Wextra -Wpedantic -Wsuggest-override -Wsign-conversion -Wconversion)
+target_compile_options(solarcontrol PRIVATE -Wall -Wextra -Wpedantic -Wsuggest-override -Wsign-conversion -Wconversion -Wdelete-non-virtual-dtor -Wnon-virtual-dtor)
 
 find_path(MYSQL_INCLUDE mysql.h /usr/include/mysql)
 find_path(MARIADB_INCLUDE mysql.h /usr/include/mariadb)

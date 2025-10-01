@@ -26,8 +26,8 @@
 #include <websocket/SolarControl.hpp>
 #include <logs/Logger.hpp>
 #include <configuration/ConfigurationPart.hpp>
+#include <excpt/Shelly.hpp>
 
-#include <stdexcept>
 
 using namespace std;
 using namespace device;
@@ -100,10 +100,10 @@ bool DevicesManager::offload(const vector<shared_ptr<device::OnOff>> &devices)
 				state_changed = true;
 			}
 		}
-		catch(exception &e)
+		catch(excpt::Shelly &e)
 		{
 			// Continue even if some devices have errors, they may simply be offline
-			logs::Logger::Log(LOG_WARNING, e.what());
+			e.Log(LOG_WARNING);
 		}
 	}
 
@@ -126,10 +126,10 @@ bool DevicesManager::force(const map<shared_ptr<device::OnOff>, bool> &devices)
 				state_changed = true;
 			}
 		}
-		catch(exception &e)
+		catch(excpt::Shelly &e)
 		{
 			// Continue even if some devices have errors, they may simply be offline
-			logs::Logger::Log(LOG_WARNING, e.what());
+			e.Log(LOG_WARNING);
 		}
 
 		if(device->GetState())
@@ -166,6 +166,9 @@ void DevicesManager::main()
 			for(auto it = onoff.begin(); it!=onoff.end(); ++it)
 			{
 				auto device = *it;
+
+				if(device->IsOffline())
+					continue; // Ignore offline devices (may be offline or misconfigured)
 
 				en_wanted_state new_state = device->GetWantedState();
 				if(new_state==ON || new_state==OFF)

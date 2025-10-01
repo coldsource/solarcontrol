@@ -23,6 +23,8 @@
 #include <configuration/Json.hpp>
 #include <shelly/HTTP.hpp>
 #include <nlohmann/json.hpp>
+#include <excpt/Config.hpp>
+#include <excpt/Context.hpp>
 
 using namespace std;
 using nlohmann::json;
@@ -53,13 +55,15 @@ void MQTT::CheckConfig(const configuration::Json &conf)
 
 	conf.Check("mqtt_id", "string");
 	if(conf.GetString("mqtt_id")=="")
-		throw invalid_argument("MQTT ID is required");
+		throw excpt::Config("MQTT ID is required", "mqtt_id");
 
 	conf.Check("ip", "string", false);
 }
 
 bool MQTT::get_input() const
 {
+	excpt::Context ctx("relay", "Getting input state for device « " + GetObserverName() + " »");
+
 	if(ip=="")
 		return false;
 
@@ -70,22 +74,15 @@ bool MQTT::get_input() const
 	j["method"] = "Input.GetStatus";
 	j["params"]["id"] = input;
 
-	try
-	{
-		auto out = api.Post(j);
-		return out["result"]["state"];
-	}
-	catch(exception &e)
-	{
-		logs::Logger::Log(LOG_WARNING, "Unable to get input state : « " + string(e.what()) + " »");
-		return false;
-	}
+	auto out = api.Post(j);
+	return out["result"]["state"];
 }
 
-void MQTT::ForceUpdate()
+bool MQTT::ForceUpdate()
 {
 	state = get_input();
 	notify_observer();
+	return true;
 }
 
 bool MQTT::GetState() const

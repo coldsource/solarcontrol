@@ -21,6 +21,8 @@
 #include <stat/History.hpp>
 #include <configuration/Configuration.hpp>
 #include <configuration/ConfigurationPart.hpp>
+#include <excpt/Database.hpp>
+#include <logs/Logger.hpp>
 
 using namespace std;
 
@@ -67,10 +69,18 @@ void HistorySync::main()
 			unique_lock<mutex> llock(lock);
 
 			for(auto client : clients)
-				client->Sync();
+			{
+				try
+				{
+					client->Sync();
+				}
+				catch(excpt::Database &e)
+				{
+					e.Log(LOG_ERR);
+				}
+			}
 		}
 	}
 }
 
 }
-

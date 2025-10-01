@@ -46,6 +46,35 @@ void Sensor::SetObserver()
 	::thread::SensorsManager::GetInstance()->Unregister(shared_from_this());
 }
 
+void Sensor::DisableObserver()
+{
+	unique_lock<mutex> llock(observer_lock);
+
+	if(observer)
+		observer->SetOffline();
+
+	websocket::SolarControl::GetInstance()->NotifyAll(websocket::SolarControl::en_protocols::DEVICE);
+}
+void Sensor::EnableObserver()
+{
+	unique_lock<mutex> llock(observer_lock);
+
+	if(observer)
+		observer->SetOnline();
+
+	websocket::SolarControl::GetInstance()->NotifyAll(websocket::SolarControl::en_protocols::DEVICE);
+}
+
+string Sensor::GetObserverName() const
+{
+	unique_lock<mutex> llock(observer_lock);
+
+	if(observer)
+		return observer->GetName();
+
+	return "";
+}
+
 void Sensor::notify_observer()
 {
 	{

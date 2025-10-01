@@ -60,8 +60,9 @@ class OnOff: public Electrical
 		virtual configuration::Json state_backup() override;
 
 	public:
-		OnOff(int id);
-		virtual ~OnOff();
+		OnOff(int id): Electrical(id), on_history(id) {}
+		OnOff(int id, const std::string &consumption_type, const std::string consumption_excess_type): Electrical(id, consumption_type, consumption_excess_type), on_history(id) {}
+		virtual ~OnOff() {}
 
 		static void CheckConfig(const configuration::Json &conf);
 

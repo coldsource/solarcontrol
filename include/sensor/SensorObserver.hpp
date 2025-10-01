@@ -20,6 +20,8 @@
 #ifndef __SENSOR_SENSOROBSERVER_HPP__
 #define __SENSOR_SENSOROBSERVER_HPP__
 
+#include <string>
+
 namespace sensor {
 
 class Sensor;
@@ -27,7 +29,12 @@ class Sensor;
 class SensorObserver
 {
 	public:
+		virtual ~SensorObserver() {}
+
 		virtual void SensorChanged(const Sensor *sensor) = 0;
+		virtual void SetOffline() = 0;
+		virtual void SetOnline() = 0;
+		virtual std::string GetName() const = 0;
 };
 
 }

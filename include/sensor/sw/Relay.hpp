@@ -56,7 +56,7 @@ class Relay: public Switch, public mqtt::Subscriber
 		static void CheckConfig(const configuration::Json & conf);
 
 		bool GetState() const override;
-		void ForceUpdate() override;
+		bool ForceUpdate() override;
 		bool IsManual() const override { return manual; }
 
 		void HandleMessage(const std::string &message, const std::string & /*topic*/) override;

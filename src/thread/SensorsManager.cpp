@@ -21,6 +21,7 @@
 #include <datetime/Timestamp.hpp>
 #include <configuration/ConfigurationPart.hpp>
 #include <logs/Logger.hpp>
+#include <excpt/Shelly.hpp>
 
 #include <stdexcept>
 
@@ -79,40 +80,40 @@ void SensorsManager::main()
 
 		try
 		{
-			if(new_sensors.size()>0)
+			std::set<std::shared_ptr<sensor::Sensor>> local_sensors;
+
 			{
-				std::set<std::shared_ptr<sensor::Sensor>> local_sensors;
+				// Lock to copy all shared pointers
+				unique_lock<mutex> llock(lock);
 
+
+				if(new_sensors.size()>0)
 				{
-					// Lock to copy all shared pointers
-					unique_lock<mutex> llock(lock);
-
-					local_sensors = new_sensors;
+					local_sensors.insert(new_sensors.begin(), new_sensors.end());
 					new_sensors.clear();
 				}
 
-				// Call updated unlocked
-				for(auto sensor : local_sensors)
-					sensor->ForceUpdate();
+				Timestamp now(TS_MONOTONIC);
+				if(now-last_state_update>(long)state_update_interval)
+				{
+					local_sensors.insert(sensors.begin(), sensors.end());
+					last_state_update = now;
+				}
 			}
 
-			Timestamp now(TS_MONOTONIC);
-			if(now-last_state_update>(long)state_update_interval)
+			// Call updated unlocked
+			for(auto sensor : local_sensors)
 			{
-				std::set<std::shared_ptr<sensor::Sensor>> local_sensors;
-
+				try
 				{
-					// Lock to copy all shared pointers
-					unique_lock<mutex> llock(lock);
-
-					local_sensors = sensors;
+					if(sensor->ForceUpdate())
+						sensor->EnableObserver();
 				}
-
-				// Call updated unlocked
-				for(auto sensor : local_sensors)
-					sensor->ForceUpdate();
-
-				last_state_update = now;
+				catch(excpt::Shelly &e)
+				{
+					sensor->DisableObserver();
+					e.Log(LOG_WARNING);
+				}
 			}
 		}
 		catch(exception &e)

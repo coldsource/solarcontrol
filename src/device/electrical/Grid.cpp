@@ -31,10 +31,8 @@ using sensor::input::InputFactory;
 namespace device
 {
 
-Grid::Grid(int id):Passive(id)
+Grid::Grid(int id):Passive(id, "consumption", "excess") // Override default counter for storing excess
 {
-	// Override default counter for storing excess
-	consumption = energy::Counter(id, "consumption", "excess");
 }
 
 Grid::~Grid()

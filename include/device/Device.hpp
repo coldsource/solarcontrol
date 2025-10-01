@@ -52,6 +52,7 @@ class Device: public sensor::SensorObserver
 
 	sensor::Sensors sensors;
 
+	bool offline = false;
 	bool deleted = false;
 
 	protected:
@@ -80,11 +81,15 @@ class Device: public sensor::SensorObserver
 
 		virtual std::string GetType() const = 0;
 		virtual en_category GetCategory() const = 0;
-		virtual nlohmann::json ToJson() const = 0;
+		virtual nlohmann::json ToJson() const;
 
 		int GetID() const { return id; }
-		std::string GetName() const;
+		std::string GetName() const override;
 		const configuration::Json GetConfig() const;
+
+		void SetOffline() override;
+		void SetOnline() override;
+		bool IsOffline() const;
 
 		virtual bool Depends(int /* device_id */) const { return false; }
 

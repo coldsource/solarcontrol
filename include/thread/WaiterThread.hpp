@@ -49,6 +49,8 @@ class WaiterThread
 		virtual void main(void) = 0;
 
 	public:
+		virtual ~WaiterThread() {}
+
 		void Signal();
 		void Shutdown();
 		void WaitForShutdown();

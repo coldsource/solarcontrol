@@ -26,16 +26,17 @@ using namespace std;
 
 namespace energy {
 
-Counter::Counter(int device_id, const string &consumption_history_type, const string &excess_history_type):
-consumption_history(device_id, consumption_history_type),
-excess_history(device_id, excess_history_type),
-consumption_history_detail(device_id, consumption_history_type),
-excess_history_detail(device_id, excess_history_type)
+Counter::Counter(int device_id, const string &consumption_history_type, const string &excess_history_type)
 {
 	last_yday = datetime::DateTime().GetYearDay();
 
-	energy_consumption = consumption_history.GetTotalForToday();
-	energy_excess = excess_history.GetTotalForToday();
+	consumption_history = make_unique<HistoryDay>(device_id, consumption_history_type);
+	excess_history = make_unique<HistoryDay>(device_id, excess_history_type);
+	consumption_history_detail = make_unique<HistoryQuarterHour>(device_id, consumption_history_type);
+	excess_history_detail = make_unique<HistoryQuarterHour>(device_id, excess_history_type);
+
+	energy_consumption = consumption_history->GetTotalForToday();
+	energy_excess = excess_history->GetTotalForToday();
 }
 
 void Counter::AddEnergy(double consumption, double excess)
@@ -52,15 +53,15 @@ void Counter::AddEnergy(double consumption, double excess)
 	if(consumption>0)
 	{
 		energy_consumption += consumption;
-		consumption_history.Add(consumption);
-		consumption_history_detail.Add(consumption);
+		consumption_history->Add(consumption);
+		consumption_history_detail->Add(consumption);
 	}
 
 	if(excess>0)
 	{
 		energy_excess += excess;
-		excess_history.Add(excess);
-		excess_history_detail.Add(excess);
+		excess_history->Add(excess);
+		excess_history_detail->Add(excess);
 	}
 }
 
@@ -78,6 +79,25 @@ Amount Counter::GetEnergyExcess() const
 		return 0;
 
 	return energy_excess;
+}
+
+double Counter::GetTotalConsumptionForLast(int ndays) const
+{
+	return consumption_history->GetTotalForLast(ndays);
+}
+double Counter::GetTotalExcessForLast(int ndays) const
+{
+	return excess_history->GetTotalForLast(ndays);
+}
+
+const std::map<datetime::Date, Amount> &Counter::GetConsumptionHistory() const
+{
+	return consumption_history->Get();
+}
+
+const std::map<datetime::Date, Amount> &Counter::GetExcessHistory() const
+{
+	return excess_history->Get();
 }
 
 }

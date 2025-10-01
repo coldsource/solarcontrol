@@ -20,8 +20,9 @@
 #include <database/DB.hpp>
 #include <configuration/Configuration.hpp>
 #include <configuration/ConfigurationPart.hpp>
+#include <excpt/Database.hpp>
+#include <excpt/Context.hpp>
 
-#include <stdexcept>
 #include <regex>
 
 using namespace std;
@@ -31,6 +32,8 @@ namespace database
 
 DB::DB()
 {
+	excpt::Context("database", "Connecting to database");
+
 	auto config = configuration::Configuration::FromType("solarcontrol");
 	host = config->Get("sql.host");
 	user = config->Get("sql.user");
@@ -40,7 +43,7 @@ DB::DB()
 	mysql = mysql_init(0);
 
 	if(!mysql_real_connect(mysql, host.c_str(), user.c_str(), password.c_str(), database.c_str(), 0, 0, 0))
-		throw runtime_error("SQL connection error " + to_string(mysql_errno(mysql)) + " : « " + string(mysql_error(mysql)) + " »");
+		throw excpt::Database(mysql_error(mysql), mysql_errno(mysql));
 }
 
 DB::~DB()
@@ -74,31 +77,41 @@ Result DB::Query(const database::Query &q)
 
 	string query = q.GetQuery();
 
+
 	auto words_begin = sregex_iterator(query.begin(), query.end(), prct_regex);
 	auto words_end = sregex_iterator();
 
 	size_t last_pos = 0;
 	unsigned int match_i = 0;
-	string escaped_query;
-	for (sregex_iterator i = words_begin; i != words_end; ++i)
-	{
-		smatch m = *i;
-		escaped_query += query.substr(last_pos, (size_t)m.position()-last_pos) + get_query_value(m.str()[1], match_i, q);
-		last_pos = (size_t)(m.position()+m.length());
 
-		match_i++;
+	string escaped_query;
+	{
+		excpt::Context ctx("device", "Executing query « " + query + " »", {{"query", query}});
+
+		for (sregex_iterator i = words_begin; i != words_end; ++i)
+		{
+			smatch m = *i;
+			escaped_query += query.substr(last_pos, (size_t)m.position()-last_pos) + get_query_value(m.str()[1], match_i, q);
+			last_pos = (size_t)(m.position()+m.length());
+
+			match_i++;
+		}
+
+		escaped_query += query.substr(last_pos);
 	}
 
-	escaped_query += query.substr(last_pos);
+	{
+		excpt::Context ctx("device", "Executing query « " + escaped_query + " »", {{"query", query}});
 
-	if(mysql_query(mysql, escaped_query.c_str())!=0)
-		throw runtime_error("SQL error " + to_string(mysql_errno(mysql)) + " « " + string(mysql_error(mysql)) + " » while executing query « " + escaped_query + " »");
+		if(mysql_query(mysql, escaped_query.c_str())!=0)
+			throw excpt::Database(mysql_error(mysql), mysql_errno(mysql));
 
-	MYSQL_RES *res = mysql_store_result(mysql);
-	if(res==0 && mysql_field_count(mysql)!=0)
-		throw runtime_error("SQL error " + to_string(mysql_errno(mysql)) + " « " + string(mysql_error(mysql)) + " » while executing query « " + escaped_query + " »");
+		MYSQL_RES *res = mysql_store_result(mysql);
+		if(res==0 && mysql_field_count(mysql)!=0)
+			throw excpt::Database(mysql_error(mysql), mysql_errno(mysql));
 
-	return Result(res);
+		return Result(res);
+	}
 }
 
 string DB::get_query_value(char type, unsigned int idx, const database::Query &q)
@@ -111,13 +124,13 @@ string DB::get_query_value(char type, unsigned int idx, const database::Query &q
 	switch(type)
 	{
 		case 's':
-			if(param.type!=Query::STRING) throw invalid_argument("Invalid database parameter number " + to_string(idx) + ", expecting string");
+			if(param.type!=Query::STRING) throw excpt::Database("Invalid database parameter number " + to_string(idx) + ", expecting string");
 			return "'" + EscapeString(param.val_string) + "'";
 		case 'i':
-			if(param.type!=Query::INT) throw invalid_argument("Invalid database parameter number " + to_string(idx) + ", expecting int");
+			if(param.type!=Query::INT) throw excpt::Database("Invalid database parameter number " + to_string(idx) + ", expecting int");
 			return to_string(param.val_int);
 		case 'f':
-			if(param.type!=Query::FLOAT) throw invalid_argument("Invalid database parameter number " + to_string(idx) + ", expecting float");
+			if(param.type!=Query::FLOAT) throw excpt::Database("Invalid database parameter number " + to_string(idx) + ", expecting float");
 			return to_string(param.val_float);
 	}
 

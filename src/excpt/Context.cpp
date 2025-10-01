@@ -17,22 +17,23 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __MQTT_SUBSCRIBER_HPP__
-#define __MQTT_SUBSCRIBER_HPP__
+#include <excpt/Context.hpp>
+#include <excpt/Exception.hpp>
 
-#include <string>
+namespace excpt {
 
-namespace mqtt {
+using namespace std;
+using nlohmann::json;
 
-class Subscriber
+Context::~Context()
 {
-	public:
-		virtual ~Subscriber() {}
-
-		virtual void HandleMessage(const std::string &message, const std::string &topic) = 0;
-};
-
+	if(Exception::live_excpt)
+	{
+		j_ctx["log"] = log;
+		Exception::live_excpt->j_excpt[name].push_back(j_ctx);
+		Exception::live_excpt->logs.push_back(log);
+	}
 }
 
-#endif
+}
 

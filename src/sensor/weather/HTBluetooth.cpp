@@ -21,6 +21,7 @@
 #include <mqtt/Client.hpp>
 #include <configuration/Json.hpp>
 #include <nlohmann/json.hpp>
+#include <excpt/Config.hpp>
 
 using namespace std;
 using nlohmann::json;
@@ -48,7 +49,7 @@ void HTBluetooth::CheckConfig(const configuration::Json &conf)
 
 	conf.Check("ble_addr", "string");
 	if(conf.GetString("ble_addr")=="")
-		throw invalid_argument("Bluetooth address is mandatory");
+		throw excpt::Config("Bluetooth address is mandatory", "ble_addr");
 }
 
 void HTBluetooth::HandleMessage(const string &message, const std::string & /*topic*/)

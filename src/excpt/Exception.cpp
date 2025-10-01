@@ -17,22 +17,39 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __MQTT_SUBSCRIBER_HPP__
-#define __MQTT_SUBSCRIBER_HPP__
+#include <excpt/Exception.hpp>
+#include <logs/Logger.hpp>
 
-#include <string>
+namespace excpt {
 
-namespace mqtt {
+using namespace std;
+using nlohmann::json;
 
-class Subscriber
+Exception *Exception::live_excpt = 0;
+
+Exception::Exception(const string &what):runtime_error(what)
 {
-	public:
-		virtual ~Subscriber() {}
+	live_excpt = this;
 
-		virtual void HandleMessage(const std::string &message, const std::string &topic) = 0;
-};
-
+	j_excpt["message"] = string(what);
 }
 
-#endif
+Exception::~Exception()
+{
+	live_excpt = 0;
+}
 
+void Exception::Log(int crit) const
+{
+	logs::Logger::Log(crit, string(what()));
+	for(auto log : logs)
+		logs::Logger::Log(LOG_NOTICE, log);
+}
+
+json Exception::ToJson() const
+{
+	return j_excpt;
+}
+
+
+}

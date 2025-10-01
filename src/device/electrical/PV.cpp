@@ -28,10 +28,8 @@ using nlohmann::json;
 namespace device
 {
 
-PV::PV(int id):Passive(id)
+PV::PV(int id):Passive(id, "production", "") // Override default counter for storing production
 {
-	// Override default counter for storing production
-	consumption = energy::Counter(id, "production");
 }
 
 void PV::CreateInDB()

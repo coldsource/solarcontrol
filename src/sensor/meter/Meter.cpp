@@ -19,8 +19,7 @@
 
 #include <sensor/meter/Meter.hpp>
 #include <configuration/Json.hpp>
-
-#include <stdexcept>
+#include <excpt/Config.hpp>
 
 using namespace std;
 
@@ -31,7 +30,7 @@ void Meter::CheckConfig(const configuration::Json &conf)
 	conf.Check("mqtt_id", "string");
 
 	if(conf.GetString("mqtt_id")=="")
-		throw invalid_argument("Missing MQTT ID");
+		throw excpt::Config("Missing MQTT ID", "mqtt_id");
 }
 
 double Meter::GetPower() const

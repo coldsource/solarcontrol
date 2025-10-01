@@ -23,6 +23,7 @@
 #include <configuration/ConfigurationPart.hpp>
 #include <device/Devices.hpp>
 #include <logs/Logger.hpp>
+#include <excpt/Config.hpp>
 
 using namespace std;
 using nlohmann::json;
@@ -68,7 +69,7 @@ void Temperature::CheckConfig(const configuration::Json &conf)
 	}
 	catch(exception &e)
 	{
-		throw invalid_argument("Associated thermometer is mandatory");
+		throw excpt::Config("Associated thermometer is mandatory", "ht_device_id");
 	}
 }
 
@@ -89,7 +90,7 @@ void Temperature::check_timeranges(const configuration::Json &conf, const string
 	for(auto timerange : timeranges)
 	{
 		if(!timerange.Has("data"))
-			throw invalid_argument("Time range temperature is mandatory");
+			throw excpt::Config("Time range temperature is mandatory", name);
 
 		auto data = timerange.GetObject("data");
 		data.Check("temperature", "float");

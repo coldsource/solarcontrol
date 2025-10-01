@@ -32,8 +32,7 @@
 #include <device/weather/HTWifi.hpp>
 #include <device/weather/HTBluetooth.hpp>
 #include <configuration/Json.hpp>
-
-#include <stdexcept>
+#include <excpt/Config.hpp>
 
 using namespace std;
 
@@ -71,7 +70,7 @@ shared_ptr<Device> DeviceFactory::Get(int id, const string &name, const string &
 	else if(type=="controller")
 		dev = make_shared<Controller>(id);
 	else
-		throw invalid_argument("Invalid device type « " + type + " »");
+		throw excpt::Config("Invalid device type « " + type + " »", "type");
 
 	dev->Reload(name, config);
 
@@ -107,7 +106,7 @@ void DeviceFactory::CheckConfig(const string &type, const configuration::Json &c
 	else if(type=="controller")
 		return Controller::CheckConfig(config);
 	else
-		throw invalid_argument("Invalid device type « " + type + " »");
+		throw excpt::Config("Invalid device type « " + type + " »", "type");
 }
 
 }

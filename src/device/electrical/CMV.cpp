@@ -23,6 +23,7 @@
 #include <datetime/Timestamp.hpp>
 #include <device/Devices.hpp>
 #include <logs/Logger.hpp>
+#include <excpt/Config.hpp>
 
 using namespace std;
 using nlohmann::json;
@@ -44,7 +45,7 @@ void CMV::CheckConfig(const configuration::Json &conf)
 	check_timeranges(conf, "force");
 
 	if(conf.GetArray("ht_device_ids").size()==0)
-		throw invalid_argument("Associated hygrometer is mandatory");
+		throw excpt::Config("Associated hygrometer is mandatory", "ht_device_ids");
 
 	try
 	{
@@ -53,7 +54,7 @@ void CMV::CheckConfig(const configuration::Json &conf)
 	}
 	catch(exception &e)
 	{
-		throw invalid_argument("Associated hygrometer is mandatory");
+		throw excpt::Config("Associated hygrometer is mandatory", "ht_device_ids");
 	}
 }
 
@@ -76,7 +77,7 @@ void CMV::check_timeranges(const configuration::Json &conf, const string &name)
 	for(auto timerange : timeranges)
 	{
 		if(!timerange.Has("data"))
-			throw invalid_argument("Time range moisture is mandatory");
+			throw excpt::Config("Time range moisture is mandatory", "data");
 
 		auto data = timerange.GetObject("data");
 		data.Check("moisture", "float");

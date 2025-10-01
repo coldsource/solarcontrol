@@ -25,6 +25,7 @@
 #include <configuration/Json.hpp>
 #include <configuration/ConfigurationPart.hpp>
 #include <database/DB.hpp>
+#include <excpt/Config.hpp>
 
 using namespace std;
 using nlohmann::json;
@@ -86,7 +87,7 @@ Battery::en_battery_policy Battery::string_to_policy(const string &str)
 	else if(str=="offload")
 		return OFFLOAD;
 
-	throw invalid_argument("Invalid battery policy « " + str + " »");
+	throw excpt::Config("Invalid battery policy « " + str + " »", "policy");
 }
 
 std::string Battery::policy_to_string(en_battery_policy policy)

@@ -24,8 +24,7 @@
 #include <shelly/MQTT.hpp>
 #include <shelly/Sys.hpp>
 #include <nlohmann/json.hpp>
-
-#include <stdexcept>
+#include <excpt/API.hpp>
 
 using namespace std;
 using nlohmann::json;
@@ -79,7 +78,7 @@ json Shelly::HandleMessage(const string &cmd, const configuration::Json &j_param
 		return sys.Reboot();
 	}
 
-	throw invalid_argument("Unknown command « " + cmd + " » in module « shelly »");
+	throw excpt::API("Unknown command « " + cmd + " » in module « shelly »");
 }
 
 }

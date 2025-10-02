@@ -24,8 +24,7 @@
 #include <device/electrical/Electrical.hpp>
 #include <device/electrical/OnOff.hpp>
 #include <websocket/SolarControl.hpp>
-
-#include <stdexcept>
+#include <excpt/API.hpp>
 
 using namespace std;
 using nlohmann::json;
@@ -95,12 +94,12 @@ json DeviceElectrical::HandleMessage(const string &cmd, const configuration::Jso
 		int device_id =j_params.GetInt("device_id");
 		string state = j_params.GetString("state");
 		if(state!="on" && state!="off" && state!="auto")
-			throw invalid_argument("Invalid state : « " + state + " »");
+			throw excpt::API("Invalid state : « " + state + " »");
 
 		auto device = Devices::GetByID<device::Electrical>(device_id);
 
 		if(device->GetCategory()!=device::ONOFF)
-			throw invalid_argument("Could not change state on passive device");
+			throw excpt::API("Could not change state on passive device");
 
 		auto device_onoff = dynamic_pointer_cast<device::OnOff>(device);
 
@@ -114,7 +113,7 @@ json DeviceElectrical::HandleMessage(const string &cmd, const configuration::Jso
 		return json();
 	}
 
-	throw invalid_argument("Unknown command « " + cmd + " » in module « deviceelectrical »");
+	throw excpt::API("Unknown command « " + cmd + " » in module « deviceelectrical »");
 }
 
 }

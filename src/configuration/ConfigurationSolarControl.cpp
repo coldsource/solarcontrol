@@ -20,8 +20,6 @@
 #include <configuration/ConfigurationSolarControl.hpp>
 #include <configuration/Configuration.hpp>
 
-#include <stdexcept>
-
 using namespace std;
 
 namespace configuration
@@ -55,16 +53,13 @@ ConfigurationSolarControl::~ConfigurationSolarControl(void)
 
 void ConfigurationSolarControl::Check(void) const
 {
-	check_int_entry("core.history.maxdays");
+	check_int_entry("core.history.maxdays", false);
 	check_time_entry("core.history.sync");
 	check_int_entry("mqtt.port");
 	check_time_entry("http.timeout");
 	check_int_entry("display.lcd.linesize");
 	check_bool_entry("display.lcd.enable");
 	check_bool_entry("display.lcd.debug");
-
-	if(GetInt("core.history.maxdays")<0)
-		throw invalid_argument("core.history.maxdays : must be greater than 0");
 }
 
 }

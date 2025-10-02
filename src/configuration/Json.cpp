@@ -184,7 +184,7 @@ Json Json::Iterator::operator*() const
 Json::Iterator Json::begin() const
 {
 	if(json.type()!=json::value_t::array)
-		throw invalid_argument("Could not iterate over non array");
+		throw excpt::Config("Could not iterate over non array", "* non array *");
 
 	return Iterator(this, 0);
 }
@@ -192,7 +192,7 @@ Json::Iterator Json::begin() const
 Json::Iterator Json::end() const
 {
 	if(json.type()!=json::value_t::array)
-		throw invalid_argument("Could not iterate over non array");
+		throw excpt::Config("Could not iterate over non array", "* non array *");
 
 	return Iterator(this,json.size());
 }
@@ -200,7 +200,7 @@ Json::Iterator Json::end() const
 size_t Json::size() const
 {
 	if(json.type()!=json::value_t::array)
-		throw invalid_argument("Could not get size of non array");
+		throw excpt::Config("Could not get size of non array", "* non array *");
 
 	return json.size();
 }

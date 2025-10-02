@@ -29,9 +29,9 @@
 #include <device/electrical/Grid.hpp>
 #include <device/electrical/PV.hpp>
 #include <device/electrical/Battery.hpp>
+#include <excpt/API.hpp>
 
 #include <map>
-#include <stdexcept>
 
 using namespace std;
 using nlohmann::json;
@@ -321,7 +321,7 @@ json Logs::HandleMessage(const string &cmd, const configuration::Json &j_params)
 		return j_res;
 	}
 
-	throw invalid_argument("Unknown command « " + cmd + " » in module « logs »");
+	throw excpt::API("Unknown command « " + cmd + " » in module « logs »");
 }
 
 }

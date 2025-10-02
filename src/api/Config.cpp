@@ -23,8 +23,7 @@
 #include <configuration/Configuration.hpp>
 #include <configuration/ConfigurationPart.hpp>
 #include <configuration/Json.hpp>
-
-#include <stdexcept>
+#include <excpt/API.hpp>
 
 using namespace std;
 using nlohmann::json;
@@ -84,7 +83,7 @@ json Config::HandleMessage(const string &cmd, const configuration::Json &j_param
 		return json(default_value);
 	}
 
-	throw invalid_argument("Unknown command « " + cmd + " » in module « config »");
+	throw excpt::API("Unknown command « " + cmd + " » in module « config »");
 }
 
 }

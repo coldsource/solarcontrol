@@ -22,8 +22,7 @@
 #include <device/DeviceFactory.hpp>
 #include <device/weather/Weather.hpp>
 #include <configuration/Json.hpp>
-
-#include <stdexcept>
+#include <excpt/API.hpp>
 
 using namespace std;
 using nlohmann::json;
@@ -71,14 +70,14 @@ json DeviceHT::HandleMessage(const string &cmd, const configuration::Json &j_par
 
 		auto dependent_device = devices.IsInUse(device_id);
 		if(dependent_device)
-			throw runtime_error("Device is in use by « " + dependent_device->GetName() + " »");
+			throw excpt::API("Device is in use by « " + dependent_device->GetName() + " »");
 
 		devices.Delete(device_id);
 
 		return json();
 	}
 
-	throw invalid_argument("Unknown command « " + cmd + " » in module « deviceht »");
+	throw excpt::API("Unknown command « " + cmd + " » in module « deviceht »");
 }
 
 }

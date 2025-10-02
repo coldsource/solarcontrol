@@ -20,8 +20,7 @@
 #include <api/Storage.hpp>
 #include <database/DB.hpp>
 #include <configuration/Json.hpp>
-
-#include <stdexcept>
+#include <excpt/API.hpp>
 
 using namespace std;
 using nlohmann::json;
@@ -65,7 +64,7 @@ json Storage::HandleMessage(const string &cmd, const configuration::Json &j_para
 		return json();
 	}
 
-	throw invalid_argument("Unknown command « " + cmd + " » in module « storage »");
+	throw excpt::API("Unknown command « " + cmd + " » in module « storage »");
 }
 
 }

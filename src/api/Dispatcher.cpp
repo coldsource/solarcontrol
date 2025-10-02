@@ -25,8 +25,7 @@
 #include <api/Storage.hpp>
 #include <api/Shelly.hpp>
 #include <configuration/Json.hpp>
-
-#include <stdexcept>
+#include <excpt/API.hpp>
 
 using namespace std;
 using nlohmann::json;
@@ -61,7 +60,7 @@ string Dispatcher::Dispatch(const std::string &message)
 	}
 	catch(exception &e)
 	{
-		throw invalid_argument("Invalid API command : not valid json");
+		throw excpt::API("Invalid API command : not valid json");
 	}
 
 	int id = api.GetInt("id");
@@ -70,7 +69,7 @@ string Dispatcher::Dispatch(const std::string &message)
 
 	auto handler = handlers.find(module);
 	if(handler==handlers.end())
-		throw invalid_argument("Uknown module « " + module + " »" );
+		throw excpt::API("Uknown module « " + module + " »" );
 
 	configuration::Json params;
 	if(api.Has("parameters"))

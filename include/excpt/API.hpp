@@ -17,21 +17,22 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __EXCPT_SHELLY_HPP__
-#define __EXCPT_SHELLY_HPP__
+#ifndef __EXCPT_API_HPP__
+#define __EXCPT_API_HPP__
 
 #include <excpt/Exception.hpp>
 
 namespace excpt {
 
-class Shelly: public Exception
+class API: public Exception
 {
 	public:
-		Shelly(const std::string &what):Exception(what) {}
-		virtual ~Shelly() {}
+		API(const std::string &what):Exception(what) {}
+		virtual ~API() {}
 };
 
 }
 
 #endif
+
 

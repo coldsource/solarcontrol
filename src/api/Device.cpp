@@ -23,8 +23,8 @@
 #include <device/Devices.hpp>
 #include <device/electrical/OnOff.hpp>
 #include <nlohmann/json.hpp>
-
-#include <stdexcept>
+#include <excpt/Config.hpp>
+#include <excpt/API.hpp>
 
 using namespace std;
 using database::DB;
@@ -37,7 +37,7 @@ namespace api
 int Device::insert_device(const std::string &type, const std::string &name, const configuration::Json &config)
 {
 	if(name=="")
-		throw invalid_argument("Name cannot be empty");
+		throw excpt::Config("Name cannot be empty", "name");
 
 	DB db;
 
@@ -57,7 +57,7 @@ int Device::insert_device(const std::string &type, const std::string &name, cons
 void Device::update_device(int id, const std::string &name, const configuration::Json &config)
 {
 	if(name=="")
-		throw invalid_argument("Name cannot be empty");
+		throw excpt::Config("Name cannot be empty", "name");
 
 	DB db;
 
@@ -71,7 +71,7 @@ void Device::update_prio(int id, int new_prio)
 {
 	auto device = Devices::GetByID<Electrical>(id);
 	if(device->GetCategory()!=ONOFF)
-		throw invalid_argument("Device has no priority");
+		throw excpt::API("Device has no priority");
 
 	auto onoff = dynamic_pointer_cast<OnOff>(device);
 

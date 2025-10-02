@@ -19,8 +19,7 @@
 
 #include <control/ConfigurationControl.hpp>
 #include <configuration/Configuration.hpp>
-
-#include <stdexcept>
+#include <excpt/Config.hpp>
 
 using namespace std;
 
@@ -70,7 +69,7 @@ void ConfigurationControl::Check(void) const
 
 	string priority = Get("control.priority");
 	if(priority!="hws" && priority!="offload")
-		throw runtime_error("control.priority must be « hws » or « offload »");
+		throw excpt::Config("control.priority", priority, "Must be « hws » or « offload »");
 }
 
 }

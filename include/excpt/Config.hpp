@@ -32,6 +32,13 @@ class Config: public Exception
 			j_excpt["field_name"] = field_name;
 		}
 
+		Config(const std::string &name, const std::string &value, const std::string &what):
+		Exception(name + " has invalid value « " + value + " » : " + what)
+		{
+			j_excpt["field_name"] = name;
+			j_excpt["field_value"] = value;
+		}
+
 		virtual ~Config() {}
 };
 

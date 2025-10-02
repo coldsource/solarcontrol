@@ -53,32 +53,29 @@ class ConfigurationPart
 		bool SetCheck(const std::string &entry,const std::string &value);
 		const std::map<std::string,std::string> GetAll() const { return entries; }
 		const std::string &Get(const std::string &entry) const;
-		int GetInt(const std::string &entry) const;
+		int GetInt(const std::string &entry, bool signed_int = false) const;
 		unsigned int GetUInt(const std::string &entry) const;
-		double GetDouble(const std::string &entry) const;
-		int GetSize(const std::string &entry) const;
+		double GetDouble(const std::string &entry, bool signed_double = false) const;
 		unsigned long GetTime(const std::string &entry) const;
-		int GetPower(const std::string &entry) const;
-		int GetEnergy(const std::string &entry) const;
+		int GetPower(const std::string &entry, bool signed_int = false) const;
+		int GetEnergy(const std::string &entry, bool signed_int = false) const;
 		double GetPercent(const std::string &entry) const;
 		bool GetBool(const std::string &entry) const;
-		unsigned int GetUID(const std::string &entry) const;
-		unsigned int GetGID(const std::string &entry) const;
 		bool Exists(const std::string &name) const;
 
 		void Backup(const std::string &name);
 		const std::map<std::string,std::string> GetBackup(const std::string &name);
 
 	protected:
-		void check_f_is_exec(const std::string &filename) const;
-		void check_d_is_writeable(const std::string &path) const;
+		template<typename T>
+		T decode_unit_value(const std::string &value, std::map<std::string, T> units, bool signed_value = false) const;
+
 		void check_bool_entry(const std::string &name) const;
-		void check_int_entry(const std::string &name, bool signed_int=false) const;
-		void check_double_entry(const std::string &name, bool signed_int=false) const;
-		void check_size_entry(const std::string &name) const;
+		void check_int_entry(const std::string &name, bool signed_int = false) const;
+		void check_double_entry(const std::string &name, bool signed_double = false) const;
 		void check_time_entry(const std::string &name) const;
-		void check_power_entry(const std::string &name, bool signed_int=false) const;
-		void check_energy_entry(const std::string &name, bool signed_int=false) const;
+		void check_power_entry(const std::string &name, bool signed_int = false) const;
+		void check_energy_entry(const std::string &name, bool signed_int = false) const;
 		void check_percent_entry(const std::string &name) const;
 };
 

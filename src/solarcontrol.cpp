@@ -24,6 +24,8 @@
 #include <thread/SensorsManager.hpp>
 #include <thread/LCD.hpp>
 #include <thread/HistorySync.hpp>
+#include <logs/Logger.hpp>
+#include <excpt/Config.hpp>
 
 #include <nlohmann/json.hpp>
 
@@ -101,12 +103,22 @@ int main(int argc, char **argv)
 		utils::set_sighandler(signal_callback_handler, {SIGINT, SIGTERM, SIGHUP});
 
 		// Read and check configuration from file
+		logs::Logger::Log(LOG_INFO, "Reading configuration file");
 		auto config = configuration::Configuration::GetInstance();
-		configuration::ConfigurationReader::Read(config_filename, config);
-		config->Check();
 
-		// Backup this version of configuration as master configuration. This is used as a default configuration setup
-		config->Backup("master");
+		try
+		{
+			configuration::ConfigurationReader::Read(config_filename, config);
+			config->Check();
+
+			// Backup this version of configuration as master configuration. This is used as a default configuration setup
+			config->Backup("master");
+		}
+		catch(excpt::Config &e)
+		{
+			e.Log(LOG_ERR);
+			return -1; // Configuration error
+		}
 
 		// Init database tables
 		auto dbconfig = database::DBConfig::GetInstance();

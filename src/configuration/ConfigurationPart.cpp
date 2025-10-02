@@ -20,9 +20,11 @@
 #include <configuration/ConfigurationPart.hpp>
 #include <configuration/Configuration.hpp>
 #include <websocket/SolarControl.hpp>
+#include <excpt/Config.hpp>
 
 #include <regex>
 #include <stdexcept>
+#include <algorithm>
 
 #include <string.h>
 #include <stdlib.h>
@@ -103,16 +105,96 @@ const string &ConfigurationPart::Get(const string &entry) const
 
 	map<string,string>::const_iterator it = entries.find(entry);
 	if(it==entries.end())
-		throw runtime_error("Unknown configuration entry: "+entry);
+		throw excpt::Config("Unknown configuration entry: " + entry, entry);
 	return it->second;
 }
 
-int ConfigurationPart::GetInt(const string &entry) const
+template<typename T>
+T ConfigurationPart::decode_unit_value(const string &value, map<string, T> units, bool signed_value) const
+{
+	size_t l;
+	T val;
+
+	try
+	{
+		if(is_same<T, float>::value)
+			val = stof(value, &l);
+		else if(is_same<T, double>::value)
+			val = stod(value, &l);
+		else if(is_same<T, int>::value)
+			val = stoi(value, &l);
+		else if(is_same<T, unsigned int>::value)
+			val = (unsigned int)stoi(value, &l);
+		else if(is_same<T, long>::value)
+			val = stol(value, &l);
+		else if(is_same<T, unsigned long>::value)
+			val = stoul(value, &l);
+		else if(is_same<T, long long>::value)
+			val = stoll(value, &l);
+		else if(is_same<T, unsigned long long>::value)
+			val = stoull(value, &l);
+		else
+			throw logic_error("decode_unit_value: Unable to decode data type");
+	}
+	catch(invalid_argument &e)
+	{
+		throw runtime_error("Invalid numerical value");
+	}
+	catch(out_of_range &e)
+	{
+		throw runtime_error("Value too big");
+	}
+
+	if(!signed_value && val<0)
+		throw runtime_error("Negative value is not allowed");
+
+	if(l==value.length())
+		return val; // Numerical value only (no units)
+
+	string unit = value.substr(l);
+	std::transform(unit.begin(), unit.end(), unit.begin(), ::tolower);
+	auto it_unit = units.find(unit);
+	if(it_unit==units.end())
+		throw runtime_error("Unknown unit « " + unit + " »");
+
+	return val * (it_unit->second);
+}
+
+int ConfigurationPart::GetInt(const string &entry, bool signed_int) const
 {
 	const string value = Get(entry);
-	if(value.substr(0,2)=="0x")
-		return (int)strtol(value.c_str(),0,16);
-	return (int)strtol(value.c_str(),0,10);
+
+	int val;
+	size_t l;
+	try
+	{
+		if(value.substr(0,2)=="0x")
+		{
+			val = stoi(value.substr(2), &l, 16);
+			if(l + 2 != value.length())
+				throw excpt::Config(entry, value, "Invalid hexadecimal value");
+		}
+		else
+		{
+			val = stoi(value, &l, 10);
+
+			if(l != value.length())
+				throw excpt::Config(entry, value, "Invalid decimal value");
+		}
+	}
+	catch(invalid_argument &e)
+	{
+		throw excpt::Config(entry, value, "Invalid numerical value");
+	}
+	catch(out_of_range &e)
+	{
+		throw excpt::Config(entry, value, "Value too big");
+	}
+
+	if(!signed_int && val<0)
+		throw excpt::Config(entry, value, "Negative value is not allowed");
+
+	return val;
 }
 
 unsigned int ConfigurationPart::GetUInt(const string &entry) const
@@ -120,74 +202,74 @@ unsigned int ConfigurationPart::GetUInt(const string &entry) const
 	return (unsigned int)GetInt(entry);
 }
 
-double ConfigurationPart::GetDouble(const string &entry) const
-{
-	return stod(Get(entry));
-}
-
-int ConfigurationPart::GetSize(const string &entry) const
+double ConfigurationPart::GetDouble(const string &entry, bool signed_double) const
 {
 	const string value = Get(entry);
-	int i = (int)strtol(value.c_str(),0,10);
-	if(value.substr(value.length()-1,1)=="K")
-		return i*1024;
-	else if(value.substr(value.length()-1,1)=="M")
-		return i*1024*1024;
-	else if(value.substr(value.length()-1,1)=="G")
-		return i*1024*1024*1024;
-	else
-		return i;
+
+	try
+	{
+		return decode_unit_value<double>(value, {}, signed_double);
+	}
+	catch(exception &e)
+	{
+		throw excpt::Config(entry, value, e.what());
+	}
 }
 
 unsigned long ConfigurationPart::GetTime(const string &entry) const
 {
 	const string value = Get(entry);
-	unsigned long i = (unsigned long)strtol(value.c_str(),0,10);
-	if(value.substr(value.length()-1,1)=="d")
-		return i*86400;
-	else if(value.substr(value.length()-1,1)=="h")
-		return i*3600;
-	else if(value.substr(value.length()-1,1)=="m")
-		return i*60;
-	else
-		return i;
+
+	try
+	{
+		return decode_unit_value<unsigned long>(value, {{"d", 86400},  {"h", 3600}, {"m", 60}, {"s", 1}});
+	}
+	catch(exception &e)
+	{
+		throw excpt::Config(entry, value, e.what());
+	}
 }
 
-int ConfigurationPart::GetPower(const string &entry) const
+int ConfigurationPart::GetPower(const string &entry, bool signed_int) const
 {
 	const string value = Get(entry);
 
-	size_t l;
-	int i = stoi(value, &l);
-	string unit = value.substr(l);
-
-	if(unit=="w" || unit=="W")
-		return i;
-	else if(unit=="kw" || unit=="kW")
-		return i*1000;
-	else
-		return i;
+	try
+	{
+		return decode_unit_value<int>(value, {{"w", 1},  {"kw", 1000}}, signed_int);
+	}
+	catch(exception &e)
+	{
+		throw excpt::Config(entry, value, e.what());
+	}
 }
 
-int ConfigurationPart::GetEnergy(const string &entry) const
+int ConfigurationPart::GetEnergy(const string &entry, bool signed_int) const
 {
 	const string value = Get(entry);
 
-	size_t l;
-	int i = stoi(value, &l);
-	string unit = value.substr(l);
-
-	if(unit=="wh" || unit=="Wh")
-		return i;
-	else if(unit=="kwh" || unit=="kWh")
-		return i*1000;
-	else
-		return i;
+	try
+	{
+		return decode_unit_value<int>(value, {{"wh", 1},  {"kwh", 1000}}, signed_int);
+	}
+	catch(exception &e)
+	{
+		throw excpt::Config(entry, value, e.what());
+	}
 }
 
 double ConfigurationPart::GetPercent(const string &entry) const
 {
-	return (double)stoi(Get(entry)) / 100;
+	const string value = Get(entry);
+
+	try
+	{
+		return decode_unit_value<double>(value, {{"%", 1}}) / 100;
+	}
+	catch(exception &e)
+	{
+		throw excpt::Config(entry, value, e.what());
+	}
 }
 
 bool ConfigurationPart::GetBool(const string &entry) const
@@ -198,97 +280,10 @@ bool ConfigurationPart::GetBool(const string &entry) const
 	return false;
 }
 
-unsigned int ConfigurationPart::GetUID(const string &entry) const
-{
-	try
-	{
-		return (unsigned int)std::stoi(Get(entry));
-	}
-	catch(const std::invalid_argument& excpt)
-	{
-		struct passwd *user_entry = getpwnam(Get(entry).c_str());
-		if(!user_entry)
-			throw runtime_error("Unable to find user");
-
-		return user_entry->pw_uid;
-	}
-	catch(const std::out_of_range & excpt)
-	{
-		throw runtime_error("Invalid UID");
-	}
-}
 
 bool ConfigurationPart::Exists(const std::string &name) const
 {
 	return entries.contains(name);
-}
-
-unsigned int ConfigurationPart::GetGID(const string &entry) const
-{
-	try
-	{
-		return (unsigned int)std::stoi(Get(entry));
-	}
-	catch(const std::invalid_argument& excpt)
-	{
-		struct group *group_entry = getgrnam(Get("core.gid").c_str());
-		if(!group_entry)
-			throw runtime_error("Unable to find group");
-
-		return group_entry->gr_gid;
-	}
-	catch(const std::out_of_range & excpt)
-	{
-		throw runtime_error("Invalid GID");
-	}
-}
-
-void ConfigurationPart::check_f_is_exec(const string &filename) const
-{
-	uid_t uid = geteuid();
-	gid_t gid = getegid();
-
-	// Special check for root
-	if(uid==0)
-		return;
-
-	struct stat ste;
-	if(stat(filename.c_str(),&ste)!=0)
-		throw runtime_error("File not found : "+filename);
-
-	if(!S_ISREG(ste.st_mode))
-		throw runtime_error(filename+" is not a regular file");
-
-	if(uid==ste.st_uid && (ste.st_mode & S_IXUSR))
-		return;
-	else if(gid==ste.st_gid && (ste.st_mode & S_IXGRP))
-		return;
-	else if(ste.st_mode & S_IXOTH)
-		return;
-
-	throw runtime_error("File is not executable : "+filename);
-}
-
-void ConfigurationPart::check_d_is_writeable(const string &path) const
-{
-	uid_t uid = geteuid();
-	gid_t gid = getegid();
-
-	struct stat ste;
-	if(stat(path.c_str(),&ste)!=0)
-		throw runtime_error("Directory not found : "+path);
-
-	if(!S_ISDIR(ste.st_mode))
-		throw runtime_error(path+" is not a directory");
-
-	if(uid==ste.st_uid && (ste.st_mode & S_IWUSR))
-		return;
-	else if(gid==ste.st_gid && (ste.st_mode & S_IWGRP))
-		return;
-	else if(ste.st_mode & S_IWOTH)
-		return;
-
-	throw runtime_error("Directory is not writeable : "+path);
 }
 
 void ConfigurationPart::check_bool_entry(const string &name) const
@@ -301,163 +296,37 @@ void ConfigurationPart::check_bool_entry(const string &name) const
 	if(value=="no" || value=="false" || value=="0")
 		return;
 
-	throw runtime_error(name+": invalid boolean value '"+value+"'");
+	throw excpt::Config(name, value, "Invalid boolean value");
 }
 
 void ConfigurationPart::check_int_entry(const string &name, bool signed_int) const
 {
-	const string value = Get(name);
-
-	try
-	{
-		size_t l;
-		int val = stoi(value,&l);
-		if(l!=value.length())
-			throw 1;
-
-		if(!signed_int && val<0)
-			throw 1;
-	}
-	catch(...)
-	{
-		throw runtime_error(name+": invalid integer value '"+value+"'");
-	}
+	GetInt(name, signed_int);
 }
 
-void ConfigurationPart::check_double_entry(const string &name, bool signed_int) const
+void ConfigurationPart::check_double_entry(const string &name, bool signed_double) const
 {
-	const string value = Get(name);
-
-	try
-	{
-		size_t l;
-		double val = stod(value,&l);
-		if(l!=value.length())
-			throw 1;
-
-		if(!signed_int && val<0)
-			throw 1;
-	}
-	catch(...)
-	{
-		throw runtime_error(name+": invalid double value '"+value+"'");
-	}
-}
-
-void ConfigurationPart::check_size_entry(const string &name) const
-{
-	const string value = Get(name);
-
-	try
-	{
-		size_t l;
-		stoi(value,&l);
-		if(l==value.length())
-			return;
-
-		string unit = value.substr(l);
-		if(unit!="K" && unit!="M" && unit!="G")
-			throw 1;
-	}
-	catch(...)
-	{
-		throw runtime_error(name+": invalid size value '"+value+"'");
-	}
+	GetDouble(name, signed_double);
 }
 
 void ConfigurationPart::check_time_entry(const string &name) const
 {
-	const string value = Get(name);
-
-	try
-	{
-		size_t l;
-		int val = stoi(value,&l);
-		if(l==value.length())
-		{
-			if(val<0)
-				throw 1;
-			return;
-		}
-
-		string unit = value.substr(l);
-		if(unit!="d" && unit!="h" && unit!="m" && unit!="s")
-			throw 1;
-	}
-	catch(...)
-	{
-		throw runtime_error(name+": invalid time value '"+value+"'");
-	}
+	GetTime(name);
 }
 
 void ConfigurationPart::check_power_entry(const string &name, bool signed_int) const
 {
-	const string value = Get(name);
-
-	try
-	{
-		size_t l;
-		int val = stoi(value,&l);
-		if(l==value.length())
-			return;
-
-		string unit = value.substr(l);
-		if(unit!="w" && unit!="kw" && unit!="W" && unit!="kW")
-			throw 1;
-
-		if(!signed_int && val<0)
-			throw 1;
-	}
-	catch(...)
-	{
-		throw runtime_error(name+": invalid power value '"+value+"'");
-	}
+	GetPower(name, signed_int);
 }
 
 void ConfigurationPart::check_energy_entry(const string &name, bool signed_int) const
 {
-	const string value = Get(name);
-
-	try
-	{
-		size_t l;
-		int val = stoi(value,&l);
-		if(l==value.length())
-			return;
-
-		string unit = value.substr(l);
-		if(unit!="wh" && unit!="kwh" && unit!="Wh" && unit!="kWh")
-			throw 1;
-
-		if(!signed_int && val<0)
-			throw 1;
-	}
-	catch(...)
-	{
-		throw runtime_error(name+": invalid energy value '"+value+"'");
-	}
+	GetEnergy(name, signed_int);
 }
 
 void ConfigurationPart::check_percent_entry(const string &name) const
 {
-	string val = Get(name);
-	if(val.substr(val.length() - 1, 1)=="%")
-		val = val.substr(0, val.length() - 1);
-
-	try
-	{
-		size_t l;
-		int ival = stoi(val, &l);
-		if(l!=val.length())
-			throw 1;
-
-		if(ival<0 || ival>100)
-			throw 1;
-	}
-	catch(...)
-	{
-		throw runtime_error(name+": invalid percentage value '"+val+"'");
-	}
+	GetPercent(name);
 }
 
 void ConfigurationPart::Backup(const string &name)

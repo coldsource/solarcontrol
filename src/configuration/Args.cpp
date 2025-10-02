@@ -18,11 +18,10 @@
  */
 
 #include <configuration/Args.hpp>
+#include <excpt/Config.hpp>
 
 #include <stdio.h>
 #include <unistd.h>
-
-#include <stdexcept>
 
 using namespace std;
 
@@ -72,14 +71,14 @@ Args::Args(const map<string, string> &config, int argc, char **argv)
 		string arg(argv[i]);
 
 		if(config.find(arg)==config.end())
-			throw invalid_argument("Unknown argument "+arg);
+			throw excpt::Config("Unknown argument "+arg, arg);
 
 		if(types[arg]=="flag")
 			vals[arg] = "yes";
 		else if(types[arg]=="string" || types[arg]=="integer")
 		{
 			if(i+1>=argc)
-				throw invalid_argument("Missing value for argument "+arg);
+				throw excpt::Config("Missing value for argument "+arg, arg);
 
 			string val(argv[i+1]);
 
@@ -91,7 +90,7 @@ Args::Args(const map<string, string> &config, int argc, char **argv)
 				}
 				catch(...)
 				{
-					throw invalid_argument("Invalid integer value for argument "+arg);
+					throw excpt::Config("Invalid integer value for argument "+arg, arg);
 				}
 			}
 
@@ -103,14 +102,14 @@ Args::Args(const map<string, string> &config, int argc, char **argv)
 	for(auto it = vals.begin(); it!=vals.end(); ++it)
 	{
 		if(required[it->first] && vals[it->first]=="")
-			throw invalid_argument("Missing required argument : "+it->first);
+			throw excpt::Config("Missing required argument : "+it->first, it->first);
 	}
 }
 
 Args::args_val Args::operator[](const string &name)
 {
 	if(vals.find(name)==vals.end())
-		throw invalid_argument("Unknown argument "+name);
+		throw excpt::Config("Unknown argument "+name, name);
 
 	return args_val(name, vals[name], types[name]);
 }
@@ -125,7 +124,7 @@ Args::args_val::args_val(const string &name, const string val, const string type
 Args::args_val::operator bool() const
 {
 	if(type!="flag")
-		throw invalid_argument("Argument "+name+" is not a flag");
+		throw excpt::Config("Argument "+name+" is not a flag", name);
 
 	return val=="yes";
 }
@@ -133,7 +132,7 @@ Args::args_val::operator bool() const
 Args::args_val::operator int() const
 {
 	if(type!="integer")
-		throw invalid_argument("Argument "+name+" is not an integer");
+		throw excpt::Config("Argument "+name+" is not an integer", name);
 
 	return val==""?0:stoi(val);
 }
@@ -141,7 +140,7 @@ Args::args_val::operator int() const
 Args::args_val::operator std::string() const
 {
 	if(type!="string")
-		throw invalid_argument("Argument "+name+" is not an string");
+		throw excpt::Config("Argument "+name+" is not an string", name);
 
 	return val;
 }

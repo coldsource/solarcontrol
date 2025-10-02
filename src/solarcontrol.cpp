@@ -72,8 +72,9 @@ int main(int argc, char **argv)
 	{
 		args = configuration::Args(args_config, argc, argv);
 	}
-	catch(exception &e)
+	catch(excpt::Config &e)
 	{
+		e.Log(LOG_ERR);
 		tools_print_usage();
 		return -2;
 	}

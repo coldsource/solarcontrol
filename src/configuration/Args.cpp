@@ -106,12 +106,15 @@ Args::Args(const map<string, string> &config, int argc, char **argv)
 	}
 }
 
-Args::args_val Args::operator[](const string &name)
+Args::args_val Args::operator[](const string &name) const
 {
-	if(vals.find(name)==vals.end())
+	auto val_it = vals.find(name);
+	if(val_it==vals.end())
 		throw excpt::Config("Unknown argument "+name, name);
 
-	return args_val(name, vals[name], types[name]);
+	auto types_it = types.find(name);
+
+	return args_val(name, val_it->second, types_it->second);
 }
 
 Args::args_val::args_val(const string &name, const string val, const string type)

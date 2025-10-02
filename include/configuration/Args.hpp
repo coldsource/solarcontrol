@@ -50,7 +50,7 @@ class Args
 		Args() {}
 		Args(const std::map<std::string, std::string> &config,int argc, char **argv);
 
-		args_val operator[](const std::string &name);
+		args_val operator[](const std::string &name) const;
 };
 
 }

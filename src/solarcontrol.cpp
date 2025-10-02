@@ -11,6 +11,8 @@
 #include <device/electrical/PV.hpp>
 #include <device/electrical/Battery.hpp>
 #include <utils/signal.hpp>
+#include <utils/args.hpp>
+#include <utils/config.hpp>
 #include <configuration/Args.hpp>
 #include <configuration/Configuration.hpp>
 #include <configuration/ConfigurationReader.hpp>
@@ -37,61 +39,9 @@ using namespace std;
 
 bool startup_finished = false;
 
-void signal_callback_handler(int signum)
-{
-	if(!startup_finished)
-		return; // Ignore signals while booting
-
-	if(signum==SIGINT || signum==SIGTERM)
-	{
-		::thread::SensorsManager::GetInstance()->Shutdown();
-		::thread::DevicesManager::GetInstance()->Shutdown();
-		::thread::Stats::GetInstance()->Shutdown();
-	}
-	else if(signum==SIGHUP)
-	{
-		device::Devices().Reload();
-	}
-}
-
-void tools_print_usage()
-{
-	fprintf(stderr,"Usage :\n");
-	fprintf(stderr,"  Launch Solar Control : solarcontrol --config <path to config file>\n");
-	fprintf(stderr,"  Show version         : solarcontrol --version\n");
-}
-
 int main(int argc, char **argv)
 {
-	const map<string, string> args_config = {
-		{"--config", "string"},
-		{"--version", "flag"}
-	};
-
-	configuration::Args args;
-	try
-	{
-		args = configuration::Args(args_config, argc, argv);
-	}
-	catch(excpt::Config &e)
-	{
-		e.Log(LOG_ERR);
-		tools_print_usage();
-		return -2;
-	}
-
-	if(args["--version"])
-	{
-		printf(VERSION "\n");
-		return 0;
-	}
-
-	string config_filename = args["--config"];
-	if(config_filename=="")
-	{
-		tools_print_usage();
-		return -3;
-	}
+	configuration::Args args = utils::check_args(argc, argv);
 
 	short exit_code = 0;
 
@@ -102,30 +52,9 @@ int main(int argc, char **argv)
 	try
 	{
 		// Position signal handlers
-		utils::set_sighandler(signal_callback_handler, {SIGINT, SIGTERM, SIGHUP});
+		utils::set_sighandler(utils::signal_callback_handler, {SIGINT, SIGTERM, SIGHUP});
 
-		// Read and check configuration from file
-		logs::Logger::Log(LOG_INFO, "Reading configuration file");
-		auto config = configuration::Configuration::GetInstance();
-
-		try
-		{
-			configuration::ConfigurationReader::Read(config_filename, config);
-			config->Check();
-
-			// Backup this version of configuration as master configuration. This is used as a default configuration setup
-			config->Backup("master");
-		}
-		catch(excpt::ConfigParser &e)
-		{
-			e.Log(LOG_ERR);
-			return -1; // Configuration error
-		}
-		catch(excpt::Config &e)
-		{
-			e.Log(LOG_ERR);
-			return -1; // Configuration error
-		}
+		auto config = utils::load_config(args["--config"]);
 
 		// Init database tables
 		auto dbconfig = database::DBConfig::GetInstance();
@@ -149,11 +78,13 @@ int main(int argc, char **argv)
 		// Create sensors manager before devices so they can register to it
 		::thread::SensorsManager sensors_manager;
 
+		logs::Logger::Log(LOG_INFO, "Loading devices");
 		device::Devices devices;
 
 		// Create global energy meter (grid, pv, hws, battery)
 		energy::GlobalMeter globalmeter;
 
+		logs::Logger::Log(LOG_INFO, "Starting Websocket server");
 		websocket::SolarControl ws;
 		ws.Start();
 
@@ -186,7 +117,7 @@ int main(int argc, char **argv)
 	}
 	catch(exception &e)
 	{
-		fprintf(stderr, "%s\n", e.what());
+		logs::Logger::Log(LOG_ERR, "Unexpected exception : " + string(e.what()));
 		exit_code = 1;
 	}
 

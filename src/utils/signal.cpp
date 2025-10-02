@@ -18,8 +18,14 @@
  */
 
 #include <utils/signal.hpp>
+#include <thread/SensorsManager.hpp>
+#include <thread/DevicesManager.hpp>
+#include <thread/Stats.hpp>
+#include <device/Devices.hpp>
 
 #include <signal.h>
+
+extern bool startup_finished;
 
 namespace utils {
 
@@ -40,6 +46,23 @@ void set_sighandler(void (*sigh) (int), const std::vector<int> &sigs)
 	for(size_t i=0;i<sigs.size();i++)
 		sigaction(sigs[i],&sa,0);
 
+}
+
+void signal_callback_handler(int signum)
+{
+	if(!startup_finished)
+		return; // Ignore signals while booting
+
+	if(signum==SIGINT || signum==SIGTERM)
+	{
+		::thread::SensorsManager::GetInstance()->Shutdown();
+		::thread::DevicesManager::GetInstance()->Shutdown();
+		::thread::Stats::GetInstance()->Shutdown();
+	}
+	else if(signum==SIGHUP)
+	{
+		device::Devices().Reload();
+	}
 }
 
 }

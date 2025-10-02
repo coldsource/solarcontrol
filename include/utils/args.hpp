@@ -17,16 +17,20 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __TOOLS_SIGNAL_HPP__
-#define __TOOLS_SIGNAL_HPP__
+#ifndef __TOOLS_ARGS_HPP__
+#define __TOOLS_ARGS_HPP__
 
-#include <vector>
+namespace configuration
+{
+	class Args;
+}
 
 namespace utils {
 
-void set_sighandler(void (*sigh) (int), const std::vector<int> &sigs);
-void signal_callback_handler(int signum);
+void print_usage();
+configuration::Args check_args(int argc, char **argv);
 
 }
 
 #endif
+

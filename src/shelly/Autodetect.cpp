@@ -19,6 +19,7 @@
 
 #include <shelly/Autodetect.hpp>
 #include <shelly/HTTP.hpp>
+#include <excpt/Shelly.hpp>
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -26,7 +27,6 @@
 #include <netdb.h>
 #include <ifaddrs.h>
 
-#include <stdexcept>
 #include <regex>
 
 using namespace std;
@@ -61,7 +61,7 @@ string Autodetect::resolve(const string &host)
 	hints.ai_flags = AI_CANONNAME;
 
 	if(getaddrinfo(host.c_str(), 0, &hints, &results)!=0)
-		throw runtime_error("Could not resolve host « " + host + " »");
+		throw excpt::Shelly("Could not resolve host « " + host + " »");
 
 	string ip;
 	for(auto result = results; result != NULL; result = result->ai_next)
@@ -80,7 +80,7 @@ string Autodetect::resolve(const string &host)
 	freeaddrinfo(results);
 
 	if(ip=="")
-		throw runtime_error("Could not resolve host « " + host + " » to an IPv4 address");
+		throw excpt::Shelly("Could not resolve host « " + host + " » to an IPv4 address");
 
 	return ip;
 }
@@ -90,7 +90,7 @@ string Autodetect::local_ip()
 	struct ifaddrs *results;
 
 	if(getifaddrs(&results)!=0)
-		throw runtime_error("Could not get local IP address");
+		throw excpt::Shelly("Could not get local IP address");
 
 	string ip;
 	for(auto result = results; result != NULL; result = result->ifa_next)
@@ -112,7 +112,7 @@ string Autodetect::local_ip()
 	freeifaddrs(results);
 
 	if(ip=="")
-		throw runtime_error("Failed to get local IP address");
+		throw excpt::Shelly("Failed to get local IP address");
 
 	return ip;
 }
@@ -124,7 +124,7 @@ string Autodetect::ip_to_network(const string &ip)
 
 	regex_search(ip, matches, regex_ip);
 	if(matches.size()!=2)
-		throw runtime_error("Not well formed IP « " + ip + " »");
+		throw excpt::Shelly("Not well formed IP « " + ip + " »");
 
 	return matches[0].str();
 }

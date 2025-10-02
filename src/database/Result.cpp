@@ -18,8 +18,7 @@
  */
 
 #include <database/Result.hpp>
-
-#include <stdexcept>
+#include <excpt/Database.hpp>
 
 using namespace std;
 
@@ -63,10 +62,10 @@ bool Result::FetchRow(void)
 bool Result::IsNull(unsigned int n) const
 {
 	if(res==0 || row==0)
-		throw out_of_range("Result is empty");
+		throw excpt::Database("Result is empty");
 
 	if(n>=cols)
-		throw out_of_range("Field number " + to_string(n) + " is out of range (only have + " + to_string(cols) + " columns)");
+		throw excpt::Database("Field number " + to_string(n) + " is out of range (only have + " + to_string(cols) + " columns)");
 
 	return (row[n]==0);
 }
@@ -74,10 +73,10 @@ bool Result::IsNull(unsigned int n) const
 string Result::GetField(unsigned int n) const
 {
 	if(res==0 || row==0)
-		throw out_of_range("Result is empty");
+		throw excpt::Database("Result is empty");
 
 	if(n>=cols)
-		throw out_of_range("Field number " + to_string(n) + " is out of range (only have + " + to_string(cols) + " columns)");
+		throw excpt::Database("Field number " + to_string(n) + " is out of range (only have + " + to_string(cols) + " columns)");
 
 	return string(row[n], row_field_length[n]);
 }
@@ -93,7 +92,7 @@ const ResultField Result::operator[](const std::string &name)
 {
 	auto col = col_name_idx.find(name);
 	if(col==col_name_idx.end())
-		throw out_of_range("Unknown column « " + name + " »");
+		throw excpt::Database("Unknown column « " + name + " »");
 
 	if(IsNull(col->second))
 		return ResultField();

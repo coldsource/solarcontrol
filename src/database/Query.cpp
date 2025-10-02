@@ -18,8 +18,8 @@
  */
 
 #include <database/Query.hpp>
+#include <excpt/Database.hpp>
 
-#include <stdexcept>
 #include <cmath>
 
 using namespace std;
@@ -74,7 +74,7 @@ Query & Query::operator<<(double f)
 Query::st_query_param Query::GetParam(size_t n) const
 {
 	if(n>=params.size())
-		throw out_of_range("Out of range query parameter");
+		throw excpt::Database("Out of range query parameter");
 
 	return params[n];
 }

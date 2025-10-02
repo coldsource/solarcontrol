@@ -26,6 +26,7 @@
 #include <thread/HistorySync.hpp>
 #include <logs/Logger.hpp>
 #include <excpt/Config.hpp>
+#include <excpt/ConfigParser.hpp>
 
 #include <nlohmann/json.hpp>
 
@@ -114,6 +115,11 @@ int main(int argc, char **argv)
 
 			// Backup this version of configuration as master configuration. This is used as a default configuration setup
 			config->Backup("master");
+		}
+		catch(excpt::ConfigParser &e)
+		{
+			e.Log(LOG_ERR);
+			return -1; // Configuration error
 		}
 		catch(excpt::Config &e)
 		{

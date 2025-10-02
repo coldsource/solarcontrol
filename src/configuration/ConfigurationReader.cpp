@@ -19,6 +19,8 @@
 
 #include <configuration/ConfigurationReader.hpp>
 #include <configuration/Configuration.hpp>
+#include <excpt/Config.hpp>
+#include <excpt/ConfigParser.hpp>
 
 #include <stdio.h>
 #include <ctype.h>
@@ -28,7 +30,6 @@
 
 #include <string>
 #include <map>
-#include <stdexcept>
 
 using namespace std;
 
@@ -49,7 +50,7 @@ void ConfigurationReader::Read(const string &filename, Configuration *config)
 	{
 		f=fopen(filename.c_str(),"r");
 		if(!f)
-			throw runtime_error("Unable to open configuration file");
+			throw excpt::ConfigParser("Unable to open configuration file");
 
 		while(fgets(line,CONFIGURATION_LINE_MAXLEN,f))
 		{
@@ -88,10 +89,10 @@ void ConfigurationReader::Read(const string &filename, Configuration *config)
 				i++;
 
 			if(entry==line+i)
-				throw runtime_error("Expected configuration entry on line "+to_string(lineno));
+				throw  excpt::ConfigParser("Expected configuration entry", lineno);
 
 			if(line[i]=='\0')
-				throw runtime_error("Missing value on line "+to_string(lineno));
+				throw  excpt::ConfigParser("Missing value", lineno);
 
 			entry_len=(size_t)((line+i)-entry);
 
@@ -101,14 +102,14 @@ void ConfigurationReader::Read(const string &filename, Configuration *config)
 
 			// =
 			if(line[i++]!='=')
-				throw runtime_error("Expecting '=' on line "+to_string(lineno));
+				throw  excpt::ConfigParser("Expecting '='", lineno);
 
 			// Skip spaces
 			while(line[i]==' ' || line[i]=='\t')
 				i++;
 
 			if(line[i]=='\0')
-				throw runtime_error("Missing value on line "+to_string(lineno));
+				throw  excpt::ConfigParser("Missing value", lineno);
 
 			// Check if value is quoted
 			quoted=0;
@@ -124,7 +125,7 @@ void ConfigurationReader::Read(const string &filename, Configuration *config)
 			}
 
 			if(line[i]=='\0')
-				throw runtime_error("Empty value on line "+to_string(lineno));
+				throw  excpt::ConfigParser("Empty value", lineno);
 
 			// Read value
 			value=line+i;
@@ -143,7 +144,7 @@ void ConfigurationReader::Read(const string &filename, Configuration *config)
 			value_len=(size_t)((line+i)-value);
 
 			if(quoted>0 && line[i]=='\0')
-				throw runtime_error("Missing ending quote on line "+to_string(lineno));
+				throw  excpt::ConfigParser("Missing ending quote", lineno);
 
 			if(quoted>0)
 				i++;
@@ -152,14 +153,14 @@ void ConfigurationReader::Read(const string &filename, Configuration *config)
 				i++;
 
 			if(line[i]!='\0' && line[i]!='#')
-				throw runtime_error("Garbage data after value on line "+to_string(lineno));
+				throw  excpt::ConfigParser("Garbage data after value", lineno);
 
 			entry[entry_len]='\0';
 			value[value_len]='\0';
 
 			// Set configuration entry
 			if(!config->Set(entry,value))
-				throw runtime_error("Unknown configuration entry : "+string(entry));
+				throw excpt::Config("Unknown configuration entry : "+string(entry), entry);
 		}
 	}
 	catch(runtime_error &e)

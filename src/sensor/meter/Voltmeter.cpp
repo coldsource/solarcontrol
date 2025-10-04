@@ -178,7 +178,7 @@ void Voltmeter::HandleMessage(const string &message, const std::string & /*topic
 			if(voltage >= max_voltage + charge_delta / 2)
 				charging = true;
 			else
-				charging = (avg->GetSlope() > 0);
+				charging = false;
 		}
 	}
 	catch(json::exception &e)

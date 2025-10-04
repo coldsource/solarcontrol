@@ -73,7 +73,7 @@ Devices::Devices()
 				logs::Logger::Log(LOG_ERR, "Error loading devices");
 				e.Log(LOG_ERR);
 				if(device_id<0)
-					throw; // System device, unable to continue
+					throw runtime_error("Builtin device failed to load, unable to start"); // System device, unable to continue
 			}
 		}
 

@@ -33,9 +33,10 @@ class Context
 		std::string name;
 		std::string log;
 		nlohmann::json j_ctx;
+		bool excpt_live_before;
 
 	public:
-		Context(const std::string &name, const std::string &log, nlohmann::json j_ctx = nlohmann::json::object()):name(name), log(log), j_ctx(j_ctx) {}
+		Context(const std::string &name, const std::string &log, nlohmann::json j_ctx = nlohmann::json::object());
 		virtual ~Context();
 };
 

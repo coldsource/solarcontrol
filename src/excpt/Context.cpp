@@ -25,9 +25,17 @@ namespace excpt {
 using namespace std;
 using nlohmann::json;
 
+Context::Context(const string &name, const string &log, json j_ctx):
+name(name),
+log(log),
+j_ctx(j_ctx),
+excpt_live_before(Exception::live_excpt)
+{}
+
 Context::~Context()
 {
-	if(Exception::live_excpt)
+	// Register context if 1. Live exception exists, 2. Context was created before exception
+	if(Exception::live_excpt && !excpt_live_before)
 	{
 		j_ctx["log"] = log;
 		Exception::live_excpt->j_excpt[name].push_back(j_ctx);

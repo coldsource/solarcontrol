@@ -208,10 +208,10 @@ void Battery::SensorChanged(const sensor::Sensor *sensor)
 
 		if(soc_state!=BACKUP)
 		{
-			if(soc>100)
-				soc_state = CHARGING;
-			else if(soc==100)
-				soc_state = FLOAT;
+			if(soc_state!=CHARGING && voltmeter->IsCharging())
+				soc_state = CHARGING; // Charge start
+			else if(soc_state==CHARGING && !voltmeter->IsCharging())
+				soc_state = FLOAT; // End of battery charge
 			else if(soc<old_soc)
 				soc_state = DISCHARGING;
 		}

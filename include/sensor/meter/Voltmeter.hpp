@@ -48,9 +48,14 @@ class Voltmeter: public Sensor, public mqtt::Subscriber, public configuration::C
 
 	std::string topic;
 
+	// State
 	std::atomic<std::shared_ptr<stat::MovingAverage<double>>> voltage_avg; // Average voltage in mV
 	std::atomic<datetime::Timestamp> last_voltage_update;
+	std::atomic_bool charging = false;
 
+	// Config
+	double charge_delta;
+	double max_voltage;
 	std::map<int, double> thresholds; // Voltate thresholds used for computing SOC
 
 	public:
@@ -62,6 +67,7 @@ class Voltmeter: public Sensor, public mqtt::Subscriber, public configuration::C
 
 		double GetVoltage() const;
 		double GetSOC() const;
+		bool IsCharging() const { return charging; }
 
 		void HandleMessage(const std::string &message, const std::string & /*topic*/) override;
 

@@ -39,8 +39,10 @@ class MovingAverage
 		double window_size;
 
 		T last_window_sum = 0;
+		T last_window_slope_sum = 0;
 		double last_windows_size = 0;
 		T current_window_sum = 0;
+		T current_window_slope_sum = 0;
 		double current_window_size = 0;
 
 	public:
@@ -54,13 +56,17 @@ class MovingAverage
 			if(current_window_size>=window_size)
 			{
 				last_window_sum = current_window_sum;
+				last_window_slope_sum = current_window_slope_sum;
 				last_windows_size = current_window_size;
 				current_window_sum = 0;
+				current_window_slope_sum = 0;
 				current_window_size = 0;
 			}
 
 			current_window_size += weighting;
 			current_window_sum += weighting==1?value:(value * weighting);
+			if(values.size()>0)
+				current_window_slope_sum += (value - values.back().value) / weighting;
 			values.push_back({value, weighting});
 
 			while(last_windows_size + current_window_size > window_size && values.size()>1)
@@ -68,6 +74,7 @@ class MovingAverage
 				auto last = values.front();
 				last_windows_size -= last.weighting;
 				last_window_sum -= last.weighting==1?last.value:(last.value * last.weighting);
+				last_window_slope_sum -= (values.front().value - last.value) / values.front().weighting;
 				values.pop_front();
 			}
 		}
@@ -78,6 +85,14 @@ class MovingAverage
 				throw std::runtime_error("Moving Average is empty");
 
 			return (last_window_sum + current_window_sum) / (double)(last_windows_size + current_window_size);
+		}
+
+		T GetSlope() const
+		{
+			if(last_windows_size + current_window_size==0)
+				throw std::runtime_error("Moving Average is empty");
+
+			return (last_window_slope_sum + current_window_slope_sum) / (double)(last_windows_size + current_window_size);
 		}
 
 		size_t Size() const { return values.size(); }

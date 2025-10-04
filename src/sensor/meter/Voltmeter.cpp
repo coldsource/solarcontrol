@@ -48,6 +48,9 @@ Voltmeter::Voltmeter(const configuration::Json &conf)
 		thresholds.insert(pair<int, double>(percent, tvoltage));
 	}
 
+	charge_delta = conf.GetFloat("charge_delta");
+	max_voltage = thresholds[100];
+
 	// Register as configuration observer and trigger ConfigurationChanged() for initial config loading
 	ObserveConfiguration("energy");
 }
@@ -82,6 +85,7 @@ void Voltmeter::CheckConfig(const configuration::Json &conf)
 	excpt::Context ctx("meter", "In voltmeter configuration");
 
 	conf.Check("mqtt_id", "string");
+	conf.Check("charge_delta", "float");
 	conf.Check("thresholds", "array");
 
 	if(conf.GetString("mqtt_id")=="")
@@ -118,6 +122,8 @@ double Voltmeter::GetSOC() const
 {
 	// GetVoltage() will lock, call before our lock
 	double voltage = GetVoltage();
+	if(IsCharging())
+		voltage -= charge_delta;
 
 	unique_lock<mutex> llock(lock);
 
@@ -134,12 +140,7 @@ double Voltmeter::GetSOC() const
 			return 0; // Under minimum voltage
 
 		if(threshold_percent_end==100 && voltage>=threshold_voltage_end)
-		{
-			if(voltage>=threshold_voltage_end + 0.4)
-				return 101; // Charging
-
 			return 100; // Full
-		}
 
 		if(threshold_voltage_end>voltage)
 			break;
@@ -173,6 +174,11 @@ void Voltmeter::HandleMessage(const string &message, const std::string & /*topic
 			double voltage = ev["voltage"];
 			avg->Add(voltage, (double)(now - last_voltage_update));
 			last_voltage_update = now;
+
+			if(voltage >= max_voltage + charge_delta / 2)
+				charging = true;
+			else
+				charging = (avg->GetSlope() > 0);
 		}
 	}
 	catch(json::exception &e)

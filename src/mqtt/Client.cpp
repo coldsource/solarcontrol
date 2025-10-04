@@ -46,8 +46,11 @@ Client::Client(const string &host, int port)
 
 Client::~Client()
 {
-	Shutdown();
-	WaitForShutdown();
+	if(loop_handle.get_id()!=std::thread::id()) // Is thread already started ?
+	{
+		Shutdown();
+		WaitForShutdown();
+	}
 
 	mosquitto_destroy(mosqh);
 

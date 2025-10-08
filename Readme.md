@@ -8,6 +8,8 @@ Is supports Hot Water System (HWS) through solar router, Heaters, Coolers, Contr
 
 It can be associated with hygrometer and thermometers to allow intelligent control of these devices
 
+Battery systems are also supported, including intelligent Grid backup when battery is empty.
+
 ## How it works
 
 Solar Control is free software (GPL v3) so you can use it as you want. It's designed to be installed on small devices such as Raspberry PI. It's design in C++ ensures very low resource consumption.
@@ -47,3 +49,22 @@ As images are always better than long descriptions, here are some screenshots of
 <p align="center">
   <img src="https://raw.githubusercontent.com/coldsource/solarcontrol/refs/heads/main/doc/screenshots/Settings.png" alt="Settings"/>
 </p>
+
+## How to install it
+
+If you intend to use it on a Debian based system, you can use [automatic installation script](https://github.com/coldsource/solarcontrol-sys). It will take care of everything for you, simply run **install.sh** script.
+
+Of course you can also compile it from source, for this you will need CMake and g++ compiler. Front-end requires npm to build.
+
+## List of supported Shelly Devices
+
+* Shelly Pro EM
+* Shelly Pro 3EM
+* Shelly Pro 3
+* Shelly Pro 4PM
+* Shelly 1PM Gen 3
+* Shelly 1PM Mini Gen 3
+* Shelly Plug S
+* Shelly Plus Uni
+* Shelly BLU H&T
+* Shelly H&T Gen 3

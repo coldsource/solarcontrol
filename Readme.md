@@ -28,12 +28,12 @@ The controller itself can run on any computer running Linux with at least 1GB of
 
 As images are always better than long descriptions, here are some screenshots of the interface :
 
-![Home Screen](https://raw.githubusercontent.com/coldsource/solarcontrol/refs/heads/main/doc/screenshorts/Home.png)
+![Home Screen](https://raw.githubusercontent.com/coldsource/solarcontrol/refs/heads/main/doc/screenshots/Home.png)
 
-![Montly statistics](https://raw.githubusercontent.com/coldsource/solarcontrol/refs/heads/main/doc/screenshorts/Stats.png)
+![Montly statistics](https://raw.githubusercontent.com/coldsource/solarcontrol/refs/heads/main/doc/screenshots/Stats.png)
 
-![Hot Water System](https://raw.githubusercontent.com/coldsource/solarcontrol/refs/heads/main/doc/screenshorts/HWS.png)
+![Hot Water System](https://raw.githubusercontent.com/coldsource/solarcontrol/refs/heads/main/doc/screenshots/HWS.png)
 
-![Device configuration](https://raw.githubusercontent.com/coldsource/solarcontrol/refs/heads/main/doc/screenshorts/DeviceConfig.png)
+![Device configuration](https://raw.githubusercontent.com/coldsource/solarcontrol/refs/heads/main/doc/screenshots/DeviceConfig.png)
 
-![Settings](https://raw.githubusercontent.com/coldsource/solarcontrol/refs/heads/main/doc/screenshorts/Settings.png)
+![Settings](https://raw.githubusercontent.com/coldsource/solarcontrol/refs/heads/main/doc/screenshots/Settings.png)

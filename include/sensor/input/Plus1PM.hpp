@@ -17,8 +17,8 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __INPUT_WEATHER_PLUS1PM_HPP__
-#define __INPUT_WEATHER_PLUS1PM_HPP__
+#ifndef __SENSOR_INPUT_PLUS1PM_HPP__
+#define __SENSOR_INPUT_PLUS1PM_HPP__
 
 #include <sensor/input/MQTT.hpp>
 

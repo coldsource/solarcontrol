@@ -61,6 +61,7 @@ class Battery: public OnOff
 		static std::string policy_to_string(en_battery_policy policy);
 		static en_battery_state string_to_state(const std::string &str);
 		static std::string state_to_string(en_battery_state state);
+		en_grid_state string_to_grid_state(const std::string &str);
 		static std::string grid_state_to_string(en_grid_state state);
 
 	public:

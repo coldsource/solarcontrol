@@ -42,7 +42,7 @@ class Arduino: public Voltmeter, public mqtt::Subscriber
 
 	// State
 	std::atomic_bool charging = false;
-	std::atomic<double> voltage = 0;
+	std::atomic<double> voltage = -1;
 
 	public:
 		Arduino(const configuration::Json &conf);

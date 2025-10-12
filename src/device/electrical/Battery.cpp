@@ -128,6 +128,15 @@ string Battery::state_to_string(en_battery_state state)
 	return "backup";
 }
 
+Battery::en_grid_state Battery::string_to_grid_state(const string &str)
+{
+	if(str=="online")
+		return ONLINE;
+	else if(str=="offline")
+		return OFFLINE;
+	return UNKNOWN;
+}
+
 string Battery::grid_state_to_string(en_grid_state state)
 {
 	if(state==ONLINE)
@@ -153,7 +162,6 @@ void Battery::reload(const configuration::Json &config)
 
 	add_sensor(sensor::voltmeter::Factory::GetFromConfig(config.GetObject("voltmeter")), "voltmeter");
 
-	grid_state = UNKNOWN;
 	if(config.Has("input"))
 		add_sensor(sensor::input::InputFactory::GetFromConfig(config.GetObject("input")), "grid_detection");
 
@@ -172,6 +180,7 @@ void Battery::state_restore(const  configuration::Json &last_state)
 	voltage = last_state.GetFloat("voltage", 0);
 	soc = last_state.GetFloat("soc", 0);
 	soc_state = string_to_state(last_state.GetString("soc_state", "float"));
+	grid_state = string_to_grid_state(last_state.GetString("grid_state", "unknown"));
 
 	OnOff::state_restore(last_state);
 }
@@ -183,6 +192,7 @@ configuration::Json Battery::state_backup()
 	backup.Set("voltage", voltage);
 	backup.Set("soc", soc);
 	backup.Set("soc_state", state_to_string(soc_state));
+	backup.Set("grid_state", grid_state_to_string(grid_state));
 
 	return backup;
 }

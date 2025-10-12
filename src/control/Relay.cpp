@@ -18,7 +18,6 @@
  */
 
 #include <control/Relay.hpp>
-#include <logs/Logger.hpp>
 #include <configuration/Json.hpp>
 #include <shelly/HTTP.hpp>
 #include <nlohmann/json.hpp>

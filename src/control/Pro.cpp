@@ -18,7 +18,6 @@
  */
 
 #include <control/Pro.hpp>
-#include <logs/Logger.hpp>
 #include <configuration/Json.hpp>
 
 using namespace std;

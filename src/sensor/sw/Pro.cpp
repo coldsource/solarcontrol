@@ -18,7 +18,6 @@
  */
 
 #include <sensor/sw/Pro.hpp>
-#include <logs/Logger.hpp>
 #include <configuration/Json.hpp>
 #include <nlohmann/json.hpp>
 

@@ -18,7 +18,6 @@
  */
 
 #include <sensor/input/MQTT.hpp>
-#include <logs/Logger.hpp>
 #include <mqtt/Client.hpp>
 #include <configuration/Json.hpp>
 #include <shelly/HTTP.hpp>

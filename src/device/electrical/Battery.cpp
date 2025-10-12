@@ -19,8 +19,11 @@
 
 #include <device/electrical/Battery.hpp>
 #include <device/Devices.hpp>
-#include <sensor/meter/Voltmeter.hpp>
+#include <sensor/voltmeter/Factory.hpp>
+#include <sensor/voltmeter/Voltmeter.hpp>
 #include <sensor/sw/Switch.hpp>
+#include <sensor/input/InputFactory.hpp>
+#include <sensor/input/Input.hpp>
 #include <control/OnOff.hpp>
 #include <configuration/Json.hpp>
 #include <configuration/ConfigurationPart.hpp>
@@ -29,7 +32,8 @@
 
 using namespace std;
 using nlohmann::json;
-using sensor::meter::Voltmeter;
+using sensor::voltmeter::Voltmeter;
+using sensor::input::Input;
 using datetime::Timestamp;
 
 namespace device
@@ -63,7 +67,7 @@ void Battery::CheckConfig(const configuration::Json &conf)
 	if(conf.Has("voltmeter"))
 	{
 		conf.Check("voltmeter", "object");
-		Voltmeter::CheckConfig(conf.GetObject("voltmeter"));
+		sensor::voltmeter::Factory::CheckConfig(conf.GetObject("voltmeter"));
 	}
 
 	conf.Check("policy", "string");
@@ -90,7 +94,7 @@ Battery::en_battery_policy Battery::string_to_policy(const string &str)
 	throw excpt::Config("Invalid battery policy « " + str + " »", "policy");
 }
 
-std::string Battery::policy_to_string(en_battery_policy policy)
+string Battery::policy_to_string(en_battery_policy policy)
 {
 	if(policy==GRID)
 		return "grid";
@@ -113,7 +117,7 @@ Battery::en_battery_state Battery::string_to_state(const string &str)
 	return FLOAT; // Default value, no exception here as it's internal state
 }
 
-std::string Battery::state_to_string(en_battery_state state)
+string Battery::state_to_string(en_battery_state state)
 {
 	if(state==DISCHARGING)
 		return "discharging";
@@ -122,6 +126,15 @@ std::string Battery::state_to_string(en_battery_state state)
 	else if(state==FLOAT)
 		return "float";
 	return "backup";
+}
+
+string Battery::grid_state_to_string(en_grid_state state)
+{
+	if(state==ONLINE)
+		return "online";
+	else if(state==OFFLINE)
+		return "offline";
+	return "unknown";
 }
 
 void Battery::reload(const configuration::Json &config)
@@ -138,7 +151,11 @@ void Battery::reload(const configuration::Json &config)
 
 	enabled = true;
 
-	add_sensor(make_unique<Voltmeter>(config.GetObject("voltmeter")), "voltmeter");
+	add_sensor(sensor::voltmeter::Factory::GetFromConfig(config.GetObject("voltmeter")), "voltmeter");
+
+	grid_state = UNKNOWN;
+	if(config.Has("input"))
+		add_sensor(sensor::input::InputFactory::GetFromConfig(config.GetObject("input")), "grid_detection");
 
 	auto backup = config.GetObject("backup");
 	battery_low = backup.GetUInt("battery_low");
@@ -179,6 +196,7 @@ json Battery::ToJson() const
 	j_device["voltage"] = voltage;
 	j_device["soc"] = soc;
 	j_device["soc_state"] = state_to_string(soc_state);
+	j_device["grid_state"] = grid_state_to_string(grid_state);
 	j_device["state"] = state?"grid":"battery";
 
 	return j_device;
@@ -216,6 +234,11 @@ void Battery::SensorChanged(const sensor::Sensor *sensor)
 				soc_state = DISCHARGING;
 		}
 	}
+	else if(sensor->GetName()=="grid_detection")
+	{
+		Input *grid = (Input *)sensor;
+		grid_state = grid->GetState()?ONLINE:OFFLINE;
+	}
 	else
 		OnOff::SensorChanged(sensor); // Forward other messages
 }
@@ -232,6 +255,12 @@ en_wanted_state Battery::GetWantedState() const
 
 	if(soc==-1)
 		return UNCHANGED; // SOC Not yet updated
+
+	if(manual && soc_state!=BACKUP)
+		return UNCHANGED;
+
+	if(grid_state==OFFLINE && soc_state!=BACKUP)
+		return OFF; // Grid backup mode
 
 	if(policy==GRID)
 		return ON; // Forced grid mode

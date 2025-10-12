@@ -27,7 +27,6 @@ aux_source_directory(src/api srcAPI)
 aux_source_directory(src/display srcDisplay)
 aux_source_directory(src/logs srcLogs)
 aux_source_directory(src/weather srcWeather)
-aux_source_directory(src/meter srcMeter)
 aux_source_directory(src/shelly srcShelly)
 aux_source_directory(src/stat srcStat)
 aux_source_directory(src/control srcControl)
@@ -36,6 +35,7 @@ aux_source_directory(src/sensor/weather srcSensorWeather)
 aux_source_directory(src/sensor/input srcSensorInput)
 aux_source_directory(src/sensor/sw srcSensorSW)
 aux_source_directory(src/sensor/meter srcSensorMeter)
+aux_source_directory(src/sensor/voltmeter srcSensorVoltmeter)
 aux_source_directory(src/excpt srcExcpt)
 
 add_executable(solarcontrol
@@ -56,7 +56,6 @@ add_executable(solarcontrol
 	${srcDisplay}
 	${srcLogs}
 	${srcWeather}
-	${srcMeter}
 	${srcShelly}
 	${srcStat}
 	${srcControl}
@@ -65,6 +64,7 @@ add_executable(solarcontrol
 	${srcSensorInput}
 	${srcSensorSW}
 	${srcSensorMeter}
+	${srcSensorVoltmeter}
 	${srcExcpt}
 	
 	src/solarcontrol.cpp

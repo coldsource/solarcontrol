@@ -17,39 +17,39 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __CONTROL_RELAY_HPP__
-#define __CONTROL_RELAY_HPP__
+#ifndef __SENSOR_INPUT_GRID_HPP__
+#define __SENSOR_INPUT_GRID_HPP__
 
-#include <control/OnOff.hpp>
+#include <sensor/input/Input.hpp>
+#include <mqtt/Subscriber.hpp>
 
 #include <string>
-#include <mutex>
 #include <atomic>
 
 namespace configuration {
 	class Json;
 }
 
-namespace control {
+namespace sensor::input {
 
-class Relay: public OnOff
+class Grid: public Input, public mqtt::Subscriber
 {
-	const std::string ip = "";
-	const int outlet = 0;
+	const std::string topic;
 
-	bool reverted = false;
-
-	std::mutex lock;
+	std::atomic_bool state = false;
 
 	public:
-		Relay(const std::string &ip, int outlet, bool reverted = false):ip(ip), outlet(outlet), reverted(reverted) {}
-		virtual ~Relay() {}
+		Grid(const std::string &mqtt_id);
+		virtual ~Grid();
 
-		static void CheckConfig(const configuration::Json & conf);
+		static void CheckConfig(const configuration::Json &conf);
 
-		void Switch(bool state) override;
+		virtual bool GetState() const override;
+
+		void HandleMessage(const std::string &message, const std::string & /*topic*/) override;
 };
 
 }
 
 #endif
+

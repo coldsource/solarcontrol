@@ -21,6 +21,7 @@
 #include <sensor/input/Input.hpp>
 #include <sensor/input/Plus1PM.hpp>
 #include <sensor/input/Pro.hpp>
+#include <sensor/input/Grid.hpp>
 #include <configuration/Json.hpp>
 #include <excpt/Context.hpp>
 #include <excpt/Config.hpp>
@@ -41,6 +42,8 @@ shared_ptr<Input> InputFactory::GetFromConfig(const configuration::Json &conf)
 		return make_shared<Plus1PM>(conf.GetString("mqtt_id", ""), conf.GetString("ip", ""));
 	if(type=="pro")
 		return make_shared<Pro>(conf.GetString("mqtt_id", ""), conf.GetInt("outlet"), conf.GetString("ip", ""));
+	if(type=="grid")
+		return make_shared<Grid>(conf.GetString("mqtt_id"));
 
 	return 0;
 }
@@ -57,6 +60,8 @@ void InputFactory::CheckConfig(const configuration::Json &conf)
 		return Plus1PM::CheckConfig(conf);
 	else if(type=="pro")
 		return Pro::CheckConfig(conf);
+	else if(type=="grid")
+		return Grid::CheckConfig(conf);
 
 	throw excpt::Config("Unknown input type « " + type + " »", type);
 }

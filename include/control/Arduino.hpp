@@ -17,8 +17,8 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __CONTROL_RELAY_HPP__
-#define __CONTROL_RELAY_HPP__
+#ifndef __CONTROL_ARDUINO_HPP__
+#define __CONTROL_ARDUINO_HPP__
 
 #include <control/OnOff.hpp>
 
@@ -32,18 +32,16 @@ namespace configuration {
 
 namespace control {
 
-class Relay: public OnOff
+class Arduino: public OnOff
 {
-	const std::string ip = "";
-	const int outlet = 0;
-
+	std::string topic;
 	bool reverted = false;
 
 	std::mutex lock;
 
 	public:
-		Relay(const std::string &ip, int outlet, bool reverted = false):ip(ip), outlet(outlet), reverted(reverted) {}
-		virtual ~Relay() {}
+		Arduino(const std::string &mqtt_id, bool reverted = false):topic(mqtt_id + "/ctrl"), reverted(reverted) {}
+		virtual ~Arduino() {}
 
 		static void CheckConfig(const configuration::Json & conf);
 
@@ -53,3 +51,4 @@ class Relay: public OnOff
 }
 
 #endif
+

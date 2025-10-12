@@ -59,6 +59,8 @@ class Client
 		void Subscribe(const std::string &topic, Subscriber *subscriber);
 		void Unsubscribe(const std::string &topic, Subscriber *subscriber);
 
+		void Publish(const std::string &topic, const std::string &message);
+
 		void Shutdown();
 		void WaitForShutdown();
 };

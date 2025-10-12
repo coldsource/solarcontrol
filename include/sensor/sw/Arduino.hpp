@@ -17,10 +17,11 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __CONTROL_RELAY_HPP__
-#define __CONTROL_RELAY_HPP__
+#ifndef __SENSOR_SW_ARDUINO_HPP__
+#define __SENSOR_SW_ARDUINO_HPP__
 
-#include <control/OnOff.hpp>
+#include <sensor/sw/Switch.hpp>
+#include <mqtt/Subscriber.hpp>
 
 #include <string>
 #include <mutex>
@@ -30,26 +31,34 @@ namespace configuration {
 	class Json;
 }
 
-namespace control {
+namespace sensor::sw {
 
-class Relay: public OnOff
+class Arduino: public Switch, public mqtt::Subscriber
 {
-	const std::string ip = "";
-	const int outlet = 0;
+	const std::string topic;
 
 	bool reverted = false;
+
+	std::atomic_bool state = false;
+	std::atomic_bool manual = false;
 
 	std::mutex lock;
 
 	public:
-		Relay(const std::string &ip, int outlet, bool reverted = false):ip(ip), outlet(outlet), reverted(reverted) {}
-		virtual ~Relay() {}
+		Arduino(const std::string &mqtt_id, bool reverted = false);
+		virtual ~Arduino();
 
 		static void CheckConfig(const configuration::Json & conf);
 
-		void Switch(bool state) override;
+		bool GetState() const override;
+		bool IsManual() const override { return manual; }
+
+		void HandleMessage(const std::string &message, const std::string & /*topic*/) override;
 };
 
 }
 
 #endif
+
+
+

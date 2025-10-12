@@ -21,6 +21,7 @@
 #include <control/Plug.hpp>
 #include <control/Pro.hpp>
 #include <control/Uni.hpp>
+#include <control/Arduino.hpp>
 #include <control/Dummy.hpp>
 #include <configuration/Json.hpp>
 #include <excpt/Context.hpp>
@@ -46,6 +47,8 @@ shared_ptr<OnOff> OnOffFactory::GetFromConfig(const configuration::Json &conf)
 		return make_shared<Pro>(conf.GetString("ip"), conf.GetInt("outlet"), reverted);
 	if(type=="uni")
 		return make_shared<Uni>(conf.GetString("ip"), conf.GetInt("outlet"), reverted);
+	if(type=="arduino")
+		return make_shared<Arduino>(conf.GetString("mqtt_id"), reverted);
 	if(type=="dummy")
 		return nullptr;
 
@@ -70,6 +73,8 @@ void OnOffFactory::CheckConfig(const configuration::Json &conf)
 		Pro::CheckConfig(conf);
 	else if(type=="uni")
 		Uni::CheckConfig(conf);
+	else if(type=="arduino")
+		Arduino::CheckConfig(conf);
 	else
 		throw excpt::Config("Unknown control type « " + type + " »", "type");
 }

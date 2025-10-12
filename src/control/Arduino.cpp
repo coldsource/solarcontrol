@@ -17,39 +17,37 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __CONTROL_RELAY_HPP__
-#define __CONTROL_RELAY_HPP__
+#include <control/Arduino.hpp>
+#include <configuration/Json.hpp>
+#include <mqtt/Client.hpp>
+#include <excpt/Config.hpp>
+#include <excpt/Context.hpp>
 
-#include <control/OnOff.hpp>
-
-#include <string>
-#include <mutex>
-#include <atomic>
-
-namespace configuration {
-	class Json;
-}
+using namespace std;
 
 namespace control {
 
-class Relay: public OnOff
+void Arduino::CheckConfig(const configuration::Json &conf)
 {
-	const std::string ip = "";
-	const int outlet = 0;
+	OnOff::CheckConfig(conf);
 
-	bool reverted = false;
+	conf.Check("mqtt_id", "string");
+	if(conf.GetString("mqtt_id")=="")
+		throw excpt::Config("Missing MQTT ID", "mqtt_id");
 
-	std::mutex lock;
+	conf.Check("reverted", "bool", false);
+}
 
-	public:
-		Relay(const std::string &ip, int outlet, bool reverted = false):ip(ip), outlet(outlet), reverted(reverted) {}
-		virtual ~Relay() {}
+void Arduino::Switch(bool new_state)
+{
+	excpt::Context ctx("control", "Setting switch state");
 
-		static void CheckConfig(const configuration::Json & conf);
+	if(reverted)
+		new_state = !new_state;
 
-		void Switch(bool state) override;
-};
+	mqtt::Client::GetInstance()->Publish(topic, new_state?"RELAY ON":"RELAY OFF");
+}
 
 }
 
-#endif
+

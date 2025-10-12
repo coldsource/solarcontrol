@@ -17,59 +17,40 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __SENSOR_METER_VOLTMETER_HPP__
-#define __SENSOR_METER_VOLTMETER_HPP__
+#ifndef __SENSOR_VOLTMETER_VOLTMETER_HPP__
+#define __SENSOR_VOLTMETER_VOLTMETER_HPP__
 
 #include <sensor/Sensor.hpp>
-#include <mqtt/Subscriber.hpp>
-#include <configuration/ConfigurationObserver.hpp>
-#include <datetime/Timestamp.hpp>
-#include <stat/MovingAverage.hpp>
 
 #include <string>
 #include <mutex>
 #include <map>
-#include <memory>
 
 namespace configuration {
 	class Json;
 }
 
-namespace sensor::meter {
+namespace sensor::voltmeter {
 
-/*
- * Meter for monitoring battery voltate throught Shelly Uni API
- * State Of Charge (SOC) is deduced from average voltage
- */
-
-class Voltmeter: public Sensor, public mqtt::Subscriber, public configuration::ConfigurationObserver
+class Voltmeter: public Sensor
 {
-	mutable std::mutex lock;
+	protected:
+		mutable std::mutex lock;
 
-	std::string topic;
-
-	// State
-	std::atomic<std::shared_ptr<stat::MovingAverage<double>>> voltage_avg; // Average voltage in mV
-	std::atomic<datetime::Timestamp> last_voltage_update;
-	std::atomic_bool charging = false;
-
-	// Config
-	double charge_delta;
-	double max_voltage;
-	std::map<int, double> thresholds; // Voltate thresholds used for computing SOC
+		// Config
+		double charge_delta;
+		double max_voltage;
+		std::map<int, double> thresholds; // Voltate thresholds used for computing SOC
 
 	public:
 		Voltmeter(const configuration::Json &conf);
-		virtual ~Voltmeter();
+		virtual ~Voltmeter() {}
 
 		static void CheckConfig(const configuration::Json &conf);
-		void ConfigurationChanged(const configuration::ConfigurationPart *config) override;
 
-		double GetVoltage() const;
+		virtual double GetVoltage() const = 0;
+		virtual bool IsCharging() const = 0;
 		double GetSOC() const;
-		bool IsCharging() const { return charging; }
-
-		void HandleMessage(const std::string &message, const std::string & /*topic*/) override;
 
 		virtual std::string GetCategory() const override { return "voltmeter"; }
 };

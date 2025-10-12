@@ -17,39 +17,28 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __CONTROL_RELAY_HPP__
-#define __CONTROL_RELAY_HPP__
+#ifndef __SENSOR_VOLTMETER_FACTORY_HPP__
+#define __SENSOR_VOLTMETER_FACTORY_HPP__
 
-#include <control/OnOff.hpp>
-
-#include <string>
-#include <mutex>
-#include <atomic>
+#include <memory>
 
 namespace configuration {
 	class Json;
 }
 
-namespace control {
+namespace sensor::voltmeter {
 
-class Relay: public OnOff
+class Voltmeter;
+
+class Factory
 {
-	const std::string ip = "";
-	const int outlet = 0;
-
-	bool reverted = false;
-
-	std::mutex lock;
-
 	public:
-		Relay(const std::string &ip, int outlet, bool reverted = false):ip(ip), outlet(outlet), reverted(reverted) {}
-		virtual ~Relay() {}
-
-		static void CheckConfig(const configuration::Json & conf);
-
-		void Switch(bool state) override;
+		static std::shared_ptr<Voltmeter> GetFromConfig(const configuration::Json &conf);
+		static void CheckConfig(const configuration::Json &conf);
 };
 
 }
 
 #endif
+
+

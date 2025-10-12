@@ -17,37 +17,43 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __CONTROL_RELAY_HPP__
-#define __CONTROL_RELAY_HPP__
+#ifndef __SENSOR_VOLTMETER_ARDUINO_HPP__
+#define __SENSOR_VOLTMETER_ARDUINO_HPP__
 
-#include <control/OnOff.hpp>
+#include <sensor/voltmeter/Voltmeter.hpp>
+#include <mqtt/Subscriber.hpp>
 
 #include <string>
-#include <mutex>
-#include <atomic>
 
 namespace configuration {
 	class Json;
 }
 
-namespace control {
+namespace sensor::voltmeter {
 
-class Relay: public OnOff
+/*
+ * Meter for monitoring battery voltate throught Shelly Uni API
+ * State Of Charge (SOC) is deduced from average voltage
+ */
+
+class Arduino: public Voltmeter, public mqtt::Subscriber
 {
-	const std::string ip = "";
-	const int outlet = 0;
+	std::string topic;
 
-	bool reverted = false;
-
-	std::mutex lock;
+	// State
+	std::atomic_bool charging = false;
+	std::atomic<double> voltage = 0;
 
 	public:
-		Relay(const std::string &ip, int outlet, bool reverted = false):ip(ip), outlet(outlet), reverted(reverted) {}
-		virtual ~Relay() {}
+		Arduino(const configuration::Json &conf);
+		virtual ~Arduino();
 
-		static void CheckConfig(const configuration::Json & conf);
+		static void CheckConfig(const configuration::Json &conf);
 
-		void Switch(bool state) override;
+		double GetVoltage() const override { return voltage; }
+		bool IsCharging() const override { return charging; }
+
+		void HandleMessage(const std::string &message, const std::string & /*topic*/) override;
 };
 
 }

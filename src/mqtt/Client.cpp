@@ -87,6 +87,13 @@ void Client::Unsubscribe(const string &topic, Subscriber *subscriber)
 	}
 }
 
+void Client::Publish(const string &topic, const string &message)
+{
+	unique_lock<mutex> llock(lock);
+
+	mosquitto_publish(mosqh, 0, topic.c_str(), (int)message.size(), message.c_str(), 0, false);
+}
+
 void Client::Shutdown()
 {
 	if(clean_shutdown)

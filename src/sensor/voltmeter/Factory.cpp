@@ -17,59 +17,48 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#include <sensor/sw/SwitchFactory.hpp>
-#include <sensor/sw/Plug.hpp>
-#include <sensor/sw/Pro.hpp>
-#include <sensor/sw/Uni.hpp>
-#include <sensor/sw/Arduino.hpp>
+#include <sensor/voltmeter/Factory.hpp>
+#include <sensor/voltmeter/Uni.hpp>
+#include <sensor/voltmeter/Arduino.hpp>
 #include <configuration/Json.hpp>
 #include <excpt/Context.hpp>
 #include <excpt/Config.hpp>
 
 #include <string>
-#include <stdexcept>
 
 using namespace std;
 
-namespace sensor::sw
+namespace sensor::voltmeter
 {
 
-shared_ptr<Switch> SwitchFactory::GetFromConfig(const configuration::Json &conf)
+shared_ptr<Voltmeter> Factory::GetFromConfig(const configuration::Json &conf)
 {
 	CheckConfig(conf);
 
 	string type = conf.GetString("type");
-	bool reverted = conf.GetBool("reverted", false);
 
-	if(type=="plug")
-		return make_shared<Plug>(conf.GetString("ip"), conf.GetString("mqtt_id"), reverted);
-	if(type=="pro")
-		return make_shared<Pro>(conf.GetString("ip"), conf.GetInt("outlet"), conf.GetString("mqtt_id"), reverted);
 	if(type=="uni")
-		return make_shared<Uni>(conf.GetString("ip"), conf.GetInt("outlet"), conf.GetString("mqtt_id"), reverted);
+		return make_shared<Uni>(conf);
 	if(type=="arduino")
-		return make_shared<Arduino>(conf.GetString("mqtt_id"), reverted);
+		return make_shared<Arduino>(conf);
 
 	return nullptr;
 }
 
-void SwitchFactory::CheckConfig(const configuration::Json &conf)
+void Factory::CheckConfig(const configuration::Json &conf)
 {
-	excpt::Context ctx("switch", "In switch configuration");
+	excpt::Context ctx("voltmeter", "In voltmeter configuration");
 
 	string type = conf.GetString("type");
 
-	if(type=="plug")
-		Plug::CheckConfig(conf);
-	else if(type=="pro")
-		Pro::CheckConfig(conf);
-	else if(type=="uni")
+	if(type=="uni")
 		Uni::CheckConfig(conf);
 	else if(type=="arduino")
 		Arduino::CheckConfig(conf);
 	else
-		throw excpt::Config("Unknown switch type « " + type + " »", "type");
+		throw excpt::Config("Unknown voltmeter type « " + type + " »", "type");
 }
 
 }
+
 

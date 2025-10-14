@@ -21,12 +21,11 @@
 #include <device/Devices.hpp>
 #include <configuration/Json.hpp>
 #include <configuration/ConfigurationPart.hpp>
-#include <sensor/meter/MeterFactory.hpp>
+#include <sensor/meter/Factory.hpp>
 #include <sensor/meter/Meter.hpp>
 #include <energy/GlobalMeter.hpp>
 
 using namespace std;
-using sensor::meter::MeterFactory;
 using datetime::Timestamp;
 using nlohmann::json;
 
@@ -72,7 +71,7 @@ void Electrical::CheckConfig(const configuration::Json &conf)
 	Device::CheckConfig(conf);
 
 	if(conf.Has("meter"))
-		MeterFactory::CheckConfig(conf.GetObject("meter"));
+		sensor::meter::Factory::CheckConfig(conf.GetObject("meter"));
 }
 
 void Electrical::reload(const configuration::Json &config)
@@ -80,7 +79,7 @@ void Electrical::reload(const configuration::Json &config)
 	Device::reload(config);
 
 	if(config.Has("meter"))
-		add_sensor(MeterFactory::GetFromConfig(config.GetObject("meter")), "meter"); // Device has a dedicated metering configuration
+		add_sensor(sensor::meter::Factory::GetFromConfig(config.GetObject("meter")), "meter"); // Device has a dedicated metering configuration
 }
 
 json Electrical::ToJson() const

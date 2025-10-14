@@ -17,8 +17,8 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __SENSOR_INPUT_INPUTFACTORY_HPP__
-#define __SENSOR_INPUT_INPUTFACTORY_HPP__
+#ifndef __SENSOR_INPUT_FACTORY_HPP__
+#define __SENSOR_INPUT_FACTORY_HPP__
 
 #include <memory>
 #include <string>
@@ -31,7 +31,7 @@ namespace sensor::input {
 
 class Input;
 
-class InputFactory
+class Factory
 {
 	public:
 		static std::shared_ptr<Input> GetFromConfig(const configuration::Json &conf);

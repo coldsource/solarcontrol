@@ -19,14 +19,13 @@
 
 #include <device/electrical/Grid.hpp>
 #include <device/Devices.hpp>
-#include <sensor/input/InputFactory.hpp>
+#include <sensor/input/Factory.hpp>
 #include <sensor/input/Input.hpp>
 #include <configuration/Json.hpp>
 #include <database/DB.hpp>
 
 using namespace std;
 using nlohmann::json;
-using sensor::input::InputFactory;
 
 namespace device
 {
@@ -46,7 +45,7 @@ void Grid::CheckConfig(const configuration::Json &conf)
 	if(conf.Has("input"))
 	{
 		conf.Check("input", "object"); // Input is mandatory for Grid
-		InputFactory::CheckConfig(conf.GetObject("input"));
+		sensor::input::Factory::CheckConfig(conf.GetObject("input"));
 	}
 }
 
@@ -55,7 +54,7 @@ void Grid::reload(const configuration::Json &config)
 	Passive::reload(config);
 
 	if(config.Has("input"))
-		add_sensor(InputFactory::GetFromConfig(config.GetObject("input")), "offpeak_ctrl");
+		add_sensor(sensor::input::Factory::GetFromConfig(config.GetObject("input")), "offpeak_ctrl");
 }
 
 void Grid::SensorChanged(const  sensor::Sensor *sensor)

@@ -22,7 +22,7 @@
 #include <sensor/voltmeter/Factory.hpp>
 #include <sensor/voltmeter/Voltmeter.hpp>
 #include <sensor/sw/Switch.hpp>
-#include <sensor/input/InputFactory.hpp>
+#include <sensor/input/Factory.hpp>
 #include <sensor/input/Input.hpp>
 #include <control/OnOff.hpp>
 #include <configuration/Json.hpp>
@@ -68,6 +68,12 @@ void Battery::CheckConfig(const configuration::Json &conf)
 	{
 		conf.Check("voltmeter", "object");
 		sensor::voltmeter::Factory::CheckConfig(conf.GetObject("voltmeter"));
+	}
+
+	if(conf.Has("input"))
+	{
+		conf.Check("input", "object"); // Input is mandatory for Grid
+		sensor::input::Factory::CheckConfig(conf.GetObject("input"));
 	}
 
 	conf.Check("policy", "string");
@@ -163,7 +169,7 @@ void Battery::reload(const configuration::Json &config)
 	add_sensor(sensor::voltmeter::Factory::GetFromConfig(config.GetObject("voltmeter")), "voltmeter");
 
 	if(config.Has("input"))
-		add_sensor(sensor::input::InputFactory::GetFromConfig(config.GetObject("input")), "grid_detection");
+		add_sensor(sensor::input::Factory::GetFromConfig(config.GetObject("input")), "grid_detection");
 
 	auto backup = config.GetObject("backup");
 	battery_low = backup.GetUInt("battery_low");

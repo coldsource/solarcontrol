@@ -17,7 +17,7 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#include <sensor/sw/SwitchFactory.hpp>
+#include <sensor/sw/Factory.hpp>
 #include <sensor/sw/Plug.hpp>
 #include <sensor/sw/Pro.hpp>
 #include <sensor/sw/Uni.hpp>
@@ -34,7 +34,7 @@ using namespace std;
 namespace sensor::sw
 {
 
-shared_ptr<Switch> SwitchFactory::GetFromConfig(const configuration::Json &conf)
+shared_ptr<Switch> Factory::GetFromConfig(const configuration::Json &conf)
 {
 	CheckConfig(conf);
 
@@ -53,7 +53,7 @@ shared_ptr<Switch> SwitchFactory::GetFromConfig(const configuration::Json &conf)
 	return nullptr;
 }
 
-void SwitchFactory::CheckConfig(const configuration::Json &conf)
+void Factory::CheckConfig(const configuration::Json &conf)
 {
 	excpt::Context ctx("switch", "In switch configuration");
 

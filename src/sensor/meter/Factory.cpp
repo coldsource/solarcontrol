@@ -17,7 +17,7 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#include <sensor/meter/MeterFactory.hpp>
+#include <sensor/meter/Factory.hpp>
 #include <sensor/meter/Plug.hpp>
 #include <sensor/meter/Pro3EM.hpp>
 #include <sensor/meter/ProEM.hpp>
@@ -29,7 +29,7 @@ using namespace std;
 
 namespace sensor::meter {
 
-shared_ptr<Meter> MeterFactory::GetFromConfig(const configuration::Json &conf)
+shared_ptr<Meter> Factory::GetFromConfig(const configuration::Json &conf)
 {
 	CheckConfig(conf);
 
@@ -54,7 +54,7 @@ shared_ptr<Meter> MeterFactory::GetFromConfig(const configuration::Json &conf)
 	return nullptr;
 }
 
-void MeterFactory::CheckConfig(const configuration::Json &conf)
+void Factory::CheckConfig(const configuration::Json &conf)
 {
 	excpt::Context ctx("meter", "In meter configuration");
 

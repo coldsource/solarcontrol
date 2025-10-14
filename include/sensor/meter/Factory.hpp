@@ -17,8 +17,8 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __SENSOR_METER_METERFACTORY_HPP__
-#define __SENSOR_METER_METERFACTORY_HPP__
+#ifndef __SENSOR_METER_FACTORY_HPP__
+#define __SENSOR_METER_FACTORY_HPP__
 
 #include <memory>
 
@@ -30,7 +30,7 @@ namespace sensor::meter {
 
 class Meter;
 
-class MeterFactory
+class Factory
 {
 	public:
 		static std::shared_ptr<Meter> GetFromConfig(const configuration::Json &conf);

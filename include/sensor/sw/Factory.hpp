@@ -17,8 +17,8 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __SENSOR_CONTROL_ONOFFFACTORY_HPP__
-#define __SENSOR_CONTROL_ONOFFFACTORY_HPP__
+#ifndef __SENSOR_SW_FACTORY_HPP__
+#define __SENSOR_SW_FACTORY_HPP__
 
 #include <memory>
 
@@ -30,7 +30,7 @@ namespace sensor::sw {
 
 class Switch;
 
-class SwitchFactory
+class Factory
 {
 	public:
 		static std::shared_ptr<Switch> GetFromConfig(const configuration::Json &conf);

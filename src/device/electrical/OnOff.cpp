@@ -20,9 +20,9 @@
 #include <device/electrical/OnOff.hpp>
 #include <control/OnOffFactory.hpp>
 #include <control/OnOff.hpp>
-#include <sensor/sw/SwitchFactory.hpp>
+#include <sensor/sw/Factory.hpp>
 #include <sensor/sw/Switch.hpp>
-#include <sensor/meter/MeterFactory.hpp>
+#include <sensor/meter/Factory.hpp>
 #include <sensor/meter/Meter.hpp>
 #include <configuration/Json.hpp>
 #include <logs/State.hpp>
@@ -31,8 +31,6 @@
 
 using namespace std;
 using datetime::Timestamp;
-using sensor::meter::MeterFactory;
-using sensor::sw::SwitchFactory;
 using control::OnOffFactory;
 using nlohmann::json;
 
@@ -46,7 +44,7 @@ void OnOff::CheckConfig(const configuration::Json &conf)
 	{
 		conf.Check("control", "object");
 
-		SwitchFactory::CheckConfig(conf.GetObject("control"));
+		sensor::sw::Factory::CheckConfig(conf.GetObject("control"));
 		OnOffFactory::CheckConfig(conf.GetObject("control"));
 	}
 
@@ -65,10 +63,10 @@ void OnOff::reload(const configuration::Json &config)
 	if(config.Has("control"))
 	{
 		ctrl = OnOffFactory::GetFromConfig(config.GetObject("control")); // Init control from config
-		add_sensor(SwitchFactory::GetFromConfig(config.GetObject("control")), "switch");
+		add_sensor(sensor::sw::Factory::GetFromConfig(config.GetObject("control")), "switch");
 
 		if(!config.Has("meter")) // Device has no dedicated meter, control will be used
-			add_sensor(MeterFactory::GetFromConfig(config.GetObject("control")), "meter"); // Fallback on control for metering also
+			add_sensor(sensor::meter::Factory::GetFromConfig(config.GetObject("control")), "meter"); // Fallback on control for metering also
 	}
 	else
 		ctrl = nullptr; // No control on this device

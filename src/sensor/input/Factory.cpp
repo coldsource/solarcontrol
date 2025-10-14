@@ -17,7 +17,7 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#include <sensor/input/InputFactory.hpp>
+#include <sensor/input/Factory.hpp>
 #include <sensor/input/Input.hpp>
 #include <sensor/input/Plus1PM.hpp>
 #include <sensor/input/Pro.hpp>
@@ -30,7 +30,7 @@ using namespace std;
 
 namespace sensor::input {
 
-shared_ptr<Input> InputFactory::GetFromConfig(const configuration::Json &conf)
+shared_ptr<Input> Factory::GetFromConfig(const configuration::Json &conf)
 {
 	CheckConfig(conf);
 
@@ -48,7 +48,7 @@ shared_ptr<Input> InputFactory::GetFromConfig(const configuration::Json &conf)
 	return 0;
 }
 
-void InputFactory::CheckConfig(const configuration::Json &conf)
+void Factory::CheckConfig(const configuration::Json &conf)
 {
 	excpt::Context ctx("input", "In input configuration");
 

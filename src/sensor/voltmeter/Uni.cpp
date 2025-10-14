@@ -20,7 +20,6 @@
 #include <sensor/voltmeter/Uni.hpp>
 #include <mqtt/Client.hpp>
 #include <configuration/Json.hpp>
-#include <configuration/ConfigurationPart.hpp>
 #include <nlohmann/json.hpp>
 #include <excpt/Context.hpp>
 #include <excpt/Config.hpp>
@@ -40,9 +39,6 @@ Uni::Uni(const configuration::Json &conf):Voltmeter(conf)
 	auto mqtt = mqtt::Client::GetInstance();
 	topic = mqtt_id + "/events/rpc";
 	mqtt->Subscribe(topic, this);
-
-	// Register as configuration observer and trigger ConfigurationChanged() for initial config loading
-	ObserveConfiguration("energy");
 }
 
 Uni::~Uni()
@@ -50,24 +46,6 @@ Uni::~Uni()
 	auto mqtt = mqtt::Client::GetInstance();
 	if(mqtt)
 		mqtt->Unsubscribe(topic, this);
-}
-
-void Uni::ConfigurationChanged(const configuration::ConfigurationPart *config)
-{
-	voltage_avg = make_unique<stat::MovingAverage<double>>(config->GetTime("energy.battery.smoothing"));
-	last_voltage_update = Timestamp(TS_MONOTONIC);
-}
-
-double Uni::GetVoltage() const
-{
-	unique_lock<mutex> llock(lock);
-
-	auto avg = voltage_avg.load();
-
-	if(avg->Size()==0)
-		return -1; // No measurement yet
-
-	return avg->Get();
 }
 
 void Uni::CheckConfig(const configuration::Json &conf)

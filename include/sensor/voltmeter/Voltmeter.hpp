@@ -21,6 +21,9 @@
 #define __SENSOR_VOLTMETER_VOLTMETER_HPP__
 
 #include <sensor/Sensor.hpp>
+#include <configuration/ConfigurationObserver.hpp>
+#include <datetime/Timestamp.hpp>
+#include <stat/MovingAverage.hpp>
 
 #include <string>
 #include <mutex>
@@ -32,7 +35,7 @@ namespace configuration {
 
 namespace sensor::voltmeter {
 
-class Voltmeter: public Sensor
+class Voltmeter: public Sensor, public configuration::ConfigurationObserver
 {
 	protected:
 		mutable std::mutex lock;
@@ -42,15 +45,20 @@ class Voltmeter: public Sensor
 		double max_voltage;
 		std::map<int, double> thresholds; // Voltate thresholds used for computing SOC
 
+		// State
+		std::atomic<std::shared_ptr<stat::MovingAverage<double>>> voltage_avg; // Average voltage in mV
+		std::atomic<datetime::Timestamp> last_voltage_update;
+
 	public:
 		Voltmeter(const configuration::Json &conf);
 		virtual ~Voltmeter() {}
 
 		static void CheckConfig(const configuration::Json &conf);
+		void ConfigurationChanged(const configuration::ConfigurationPart *config) override;
 
-		virtual double GetVoltage() const = 0;
-		virtual bool IsCharging() const = 0;
+		virtual double GetVoltage() const;
 		double GetSOC() const;
+		virtual bool IsCharging() const = 0;
 
 		virtual std::string GetCategory() const override { return "voltmeter"; }
 };

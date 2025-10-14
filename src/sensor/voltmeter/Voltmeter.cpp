@@ -19,10 +19,12 @@
 
 #include <sensor/voltmeter/Voltmeter.hpp>
 #include <configuration/Json.hpp>
+#include <configuration/ConfigurationPart.hpp>
 #include <excpt/Context.hpp>
 #include <excpt/Config.hpp>
 
 using namespace std;
+using datetime::Timestamp;
 
 namespace sensor::voltmeter {
 
@@ -39,6 +41,9 @@ Voltmeter::Voltmeter(const configuration::Json &conf)
 
 	charge_delta = conf.GetFloat("charge_delta");
 	max_voltage = thresholds[100];
+
+	// Register as configuration observer and trigger ConfigurationChanged() for initial config loading
+	ObserveConfiguration("energy");
 }
 
 void Voltmeter::CheckConfig(const configuration::Json &conf)
@@ -71,6 +76,24 @@ void Voltmeter::CheckConfig(const configuration::Json &conf)
 
 	if(last_percent!=100)
 		throw excpt::Config("Last percent must be 100", "thresholds");
+}
+
+void Voltmeter::ConfigurationChanged(const configuration::ConfigurationPart *config)
+{
+	voltage_avg = make_unique<stat::MovingAverage<double>>(config->GetTime("energy.battery.smoothing"));
+	last_voltage_update = Timestamp(TS_MONOTONIC);
+}
+
+double Voltmeter::GetVoltage() const
+{
+	unique_lock<mutex> llock(lock);
+
+	auto avg = voltage_avg.load();
+
+	if(avg->Size()==0)
+		return -1; // No measurement yet
+
+	return avg->Get();
 }
 
 double Voltmeter::GetSOC() const

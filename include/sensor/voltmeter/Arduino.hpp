@@ -42,7 +42,6 @@ class Arduino: public Voltmeter, public mqtt::Subscriber
 
 	// State
 	std::atomic_bool charging = false;
-	std::atomic<double> voltage = -1;
 
 	public:
 		Arduino(const configuration::Json &conf);
@@ -50,7 +49,6 @@ class Arduino: public Voltmeter, public mqtt::Subscriber
 
 		static void CheckConfig(const configuration::Json &conf);
 
-		double GetVoltage() const override { return voltage; }
 		bool IsCharging() const override { return charging; }
 
 		void HandleMessage(const std::string &message, const std::string & /*topic*/) override;

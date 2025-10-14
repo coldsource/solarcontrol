@@ -22,9 +22,6 @@
 
 #include <sensor/voltmeter/Voltmeter.hpp>
 #include <mqtt/Subscriber.hpp>
-#include <configuration/ConfigurationObserver.hpp>
-#include <datetime/Timestamp.hpp>
-#include <stat/MovingAverage.hpp>
 
 #include <string>
 
@@ -39,13 +36,11 @@ namespace sensor::voltmeter {
  * State Of Charge (SOC) is deduced from average voltage
  */
 
-class Uni: public Voltmeter, public mqtt::Subscriber, public configuration::ConfigurationObserver
+class Uni: public Voltmeter, public mqtt::Subscriber
 {
 	std::string topic;
 
 	// State
-	std::atomic<std::shared_ptr<stat::MovingAverage<double>>> voltage_avg; // Average voltage in mV
-	std::atomic<datetime::Timestamp> last_voltage_update;
 	std::atomic_bool charging = false;
 
 	public:
@@ -53,9 +48,7 @@ class Uni: public Voltmeter, public mqtt::Subscriber, public configuration::Conf
 		virtual ~Uni();
 
 		static void CheckConfig(const configuration::Json &conf);
-		void ConfigurationChanged(const configuration::ConfigurationPart *config) override;
 
-		double GetVoltage() const override;
 		bool IsCharging() const override { return charging; }
 
 		void HandleMessage(const std::string &message, const std::string & /*topic*/) override;

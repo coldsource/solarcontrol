@@ -36,16 +36,17 @@ HTTP::HTTP(const std::string &ip): http::HTTP(ip)
 json HTTP::Post(const json &j) const
 {
 	string output;
+	json output_j;
 	try
 	{
 		output = http::HTTP::Post("/rpc", j.dump());
+		output_j = json::parse(output);
 	}
 	catch(exception &e)
 	{
 		throw excpt::Shelly(e.what());
 	}
 
-	auto output_j = json::parse(output);
 	if(output_j.contains("error"))
 		throw excpt::Shelly("Error executing HTTP API Command on « " + ip + " » got error " + "« " + string(output_j["error"]["message"]) + " »");
 

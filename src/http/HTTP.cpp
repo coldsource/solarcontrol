@@ -63,7 +63,7 @@ string HTTP::Post(const string &url, const string &data) const
 		if(res != CURLE_OK)
 			throw runtime_error("Error executing HTTP API Command on « " + ip + " »");
 
-		int http_code;
+		long http_code;
 		curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_code);
 		if(http_code!=200)
 			throw runtime_error("Error executing HTTP API Command on « " + ip + " » got " + to_string(http_code) + " http response code");

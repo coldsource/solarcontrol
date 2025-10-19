@@ -45,6 +45,7 @@ ConfigurationSolarControl::ConfigurationSolarControl(void)
 	entries["display.lcd.linesize"] = "20";
 	entries["display.lcd.enable"] = "no";
 	entries["display.lcd.debug"] = "no";
+	entries["heatpump.sync"] = "1m";
 }
 
 ConfigurationSolarControl::~ConfigurationSolarControl(void)
@@ -60,6 +61,7 @@ void ConfigurationSolarControl::Check(void) const
 	check_int_entry("display.lcd.linesize");
 	check_bool_entry("display.lcd.enable");
 	check_bool_entry("display.lcd.debug");
+	check_time_entry("heatpump.sync");
 }
 
 }

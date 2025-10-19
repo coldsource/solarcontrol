@@ -85,10 +85,6 @@ void Sensor::notify_observer()
 
 		observer->SensorChanged(this);
 	}
-
-	// Signal changes to Websockets
-	websocket::SolarControl::GetInstance()->NotifyAll(websocket::SolarControl::en_protocols::DEVICE);
-	websocket::SolarControl::GetInstance()->NotifyAll(websocket::SolarControl::en_protocols::METER);
 }
 
 }

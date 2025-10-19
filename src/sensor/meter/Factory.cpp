@@ -48,6 +48,10 @@ shared_ptr<Meter> Factory::GetFromConfig(const configuration::Json &conf)
 		return make_shared<Pro3EM>(conf.GetString("mqtt_id"), conf.GetString("phase"));
 	if(type=="em")
 		return make_shared<ProEM>(conf.GetString("mqtt_id"), conf.GetString("phase"));
+	if(type=="arduino")
+		return nullptr; // Arduino has no energy measurement
+	if(type=="bsblan")
+		return nullptr; // BSBLan has no energy measurement
 	if(type=="dummy")
 		return nullptr;
 
@@ -70,6 +74,10 @@ void Factory::CheckConfig(const configuration::Json &conf)
 		return Pro3EM::CheckConfig(conf);
 	if(type=="em")
 		return ProEM::CheckConfig(conf);
+	if(type=="arduino")
+		return;
+	if(type=="bsblan")
+		return;
 	if(type=="dummy")
 		return;
 

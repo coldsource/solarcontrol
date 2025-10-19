@@ -188,6 +188,11 @@ void DevicesManager::main()
 
 			if(state_changed)
 				last_change_ts = now; // Apply new cooldown
+
+			// Handle specific action
+			for(auto device : Devices::Get<Device>())
+				device->SpecificActions();
+
 		}
 		catch(exception &e)
 		{

@@ -17,27 +17,47 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __SHELLY_HTTP_HPP__
-#define __SHELLY_HTTP_HPP__
+#ifndef __CONTROL_BSBLAN_HPP__
+#define __CONTROL_BSBLAN_HPP__
 
+#include <control/OnOff.hpp>
 #include <http/HTTP.hpp>
+
 #include <nlohmann/json.hpp>
 
 #include <string>
+#include <mutex>
 
-namespace shelly {
+namespace configuration {
+	class Json;
+}
 
-class HTTP: public http::HTTP
+namespace control {
+
+class BSBLan: public OnOff
 {
-	protected:
-		std::string ip;
+	http::HTTP http;
+
+	std::mutex lock;
+
+	void set(int param, int value) const;
+	void set(int param, double value) const;
+	void send(const nlohmann::json &params) const;
 
 	public:
-		HTTP(const std::string &ip);
+		BSBLan(const std::string &ip):http(ip) {}
+		virtual ~BSBLan() {}
 
-		nlohmann::json Post(const nlohmann::json &j) const;
+		static void CheckConfig(const configuration::Json & conf);
+
+		void Switch(bool state) override;
+		void SetAmbientTemperature(double temp) const;
+		void SetEcoSetPoint(double temp) const;
+		void SetComfortSetPoint(double temp) const;
 };
 
 }
 
 #endif
+
+

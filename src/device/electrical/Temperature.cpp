@@ -142,4 +142,15 @@ bool Temperature::Depends(int device_id) const
 	return device_id==ht_device_id;
 }
 
+json Temperature::ToJson() const
+{
+	unique_lock<recursive_mutex> llock(lock);
+
+	json j_device = TimeRange::ToJson();
+
+	j_device["temperature"] = Devices::GetByID<Weather>(ht_device_id)->GetTemperature();
+
+	return j_device;
+}
+
 }

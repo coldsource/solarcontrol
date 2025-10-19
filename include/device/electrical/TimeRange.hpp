@@ -65,6 +65,7 @@ class TimeRange: public OnOff
 		virtual bool WantRemainder(configuration::Json *data_ptr = 0) const;
 
 		virtual en_wanted_state GetWantedState() const override;
+		virtual configuration::Json GetCurrentTimerangeData() const;
 };
 
 }

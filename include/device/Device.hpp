@@ -97,6 +97,8 @@ class Device: public sensor::SensorObserver
 		{
 			return a->GetName() < b->GetName();
 		}
+
+		virtual void SpecificActions() {}
 };
 
 }

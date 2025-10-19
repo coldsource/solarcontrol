@@ -17,27 +17,29 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __SHELLY_HTTP_HPP__
-#define __SHELLY_HTTP_HPP__
+#ifndef __DATETIME_TIMER_HPP__
+#define __DATETIME_TIMER_HPP__
 
-#include <http/HTTP.hpp>
-#include <nlohmann/json.hpp>
+#include <datetime/Timestamp.hpp>
 
 #include <string>
 
-namespace shelly {
+namespace datetime {
 
-class HTTP: public http::HTTP
+class Timer
 {
 	protected:
-		std::string ip;
+		unsigned long delay;
+		Timestamp last_trigger;
 
 	public:
-		HTTP(const std::string &ip);
+		Timer(unsigned long delay):delay(delay) {}
 
-		nlohmann::json Post(const nlohmann::json &j) const;
+		bool Ready();
+		void Reset() { last_trigger = Timestamp(); }
 };
 
 }
 
 #endif
+

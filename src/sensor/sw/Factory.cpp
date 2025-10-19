@@ -49,6 +49,8 @@ shared_ptr<Switch> Factory::GetFromConfig(const configuration::Json &conf)
 		return make_shared<Uni>(conf.GetString("ip"), conf.GetInt("outlet"), conf.GetString("mqtt_id"), reverted);
 	if(type=="arduino")
 		return make_shared<Arduino>(conf.GetString("mqtt_id"), reverted);
+	if(type=="bsblan")
+		return nullptr;
 
 	return nullptr;
 }
@@ -67,6 +69,8 @@ void Factory::CheckConfig(const configuration::Json &conf)
 		Uni::CheckConfig(conf);
 	else if(type=="arduino")
 		Arduino::CheckConfig(conf);
+	else if(type=="bsblan")
+		return;
 	else
 		throw excpt::Config("Unknown switch type « " + type + " »", "type");
 }

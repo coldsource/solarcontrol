@@ -17,27 +17,19 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __SHELLY_HTTP_HPP__
-#define __SHELLY_HTTP_HPP__
+#include <datetime/Timer.hpp>
 
-#include <http/HTTP.hpp>
-#include <nlohmann/json.hpp>
+namespace datetime {
 
-#include <string>
-
-namespace shelly {
-
-class HTTP: public http::HTTP
+bool Timer::Ready()
 {
-	protected:
-		std::string ip;
+	Timestamp now(TS_MONOTONIC);
 
-	public:
-		HTTP(const std::string &ip);
+	if((unsigned long)(now - last_trigger) < 30)
+		return false;
 
-		nlohmann::json Post(const nlohmann::json &j) const;
-};
-
+	last_trigger = now;
+	return true;
 }
 
-#endif
+}

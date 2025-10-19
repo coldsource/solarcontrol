@@ -11,6 +11,7 @@ message("Building for ${CMAKE_BUILD_TYPE} type")
 project(solarcontrol)
 
 aux_source_directory(src/mqtt srcMQTT)
+aux_source_directory(src/http srcHTTP)
 aux_source_directory(src/energy srcEnergy)
 aux_source_directory(src/datetime srcDatetime)
 aux_source_directory(src/control srcControl)
@@ -40,6 +41,7 @@ aux_source_directory(src/excpt srcExcpt)
 
 add_executable(solarcontrol
 	${srcMQTT}
+	${srcHTTP}
 	${srcEnergy}
 	${srcDatetime}
 	${srcControl}

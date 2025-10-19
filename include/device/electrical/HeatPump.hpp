@@ -17,47 +17,49 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __DEVICE_TEMPERATURE_HPP__
-#define __DEVICE_TEMPERATURE_HPP__
+#ifndef __DEVICE_HEATPUMP_HPP__
+#define __DEVICE_HEATPUMP_HPP__
 
-#include <device/electrical/TimeRange.hpp>
+#include <device/electrical/Heater.hpp>
+#include <datetime/Timer.hpp>
 
-namespace configuration {
+namespace coniguration {
 	class Json;
 }
 
 namespace device {
 
-class Temperature: public TimeRange
+class HeatPump: public Temperature
 {
 	protected:
-		int ht_device_id;
+		// State
+		datetime::Timer update_interval;
 
-		double absence_temperature;
-		bool absence;
+		// Config
+		double temperature_offset;
+		double temperature_eco;
+		double temperature_comfort;
 
-		static void check_timeranges(const configuration::Json &conf, const std::string &name);
-
-		virtual en_wanted_state get_wanted_state(configuration::Json *data_ptr = 0) const override;
-		virtual bool temp_check_force(double current_temp, double timerange_temp) const = 0;
-		virtual bool temp_check_offload(double current_temp, double timerange_temp) const = 0;
 		virtual void reload(const configuration::Json &config) override;
 
-	public:
-		Temperature(int id);
-		virtual ~Temperature();
+		virtual bool temp_check_force(double current_temp, double timerange_temp) const override;
+		virtual bool temp_check_offload(double current_temp, double timerange_temp) const override;
 
-		void ConfigurationChanged(const configuration::ConfigurationPart * config) override;
+	public:
+		HeatPump(int id);
+		virtual ~HeatPump() {}
 
 		static void CheckConfig(const configuration::Json &conf);
 
-		bool Depends(int device_id) const override;
+		std::string GetType() const override { return "heatpump"; }
 
-		virtual nlohmann::json ToJson() const override;
+		virtual void SpecificActions() override;
 };
 
 }
 
 #endif
+
+
 
 

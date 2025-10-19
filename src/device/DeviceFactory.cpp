@@ -20,6 +20,7 @@
 #include <device/DeviceFactory.hpp>
 #include <device/electrical/TimeRange.hpp>
 #include <device/electrical/Heater.hpp>
+#include <device/electrical/HeatPump.hpp>
 #include <device/electrical/Cooler.hpp>
 #include <device/electrical/CMV.hpp>
 #include <device/electrical/HWS.hpp>
@@ -47,6 +48,8 @@ shared_ptr<Device> DeviceFactory::Get(int id, const string &name, const string &
 		dev = make_shared<TimeRange>(id);
 	else if(type=="heater")
 		dev = make_shared<Heater>(id);
+	else if(type=="heatpump")
+		dev = make_shared<HeatPump>(id);
 	else if(type=="cooler")
 		dev = make_shared<Cooler>(id);
 	else if(type=="cmv")
@@ -83,6 +86,8 @@ void DeviceFactory::CheckConfig(const string &type, const configuration::Json &c
 		return TimeRange::CheckConfig(config);
 	else if(type=="heater")
 		return Heater::CheckConfig(config);
+	else if(type=="heatpump")
+		return HeatPump::CheckConfig(config);
 	else if(type=="cooler")
 		return Cooler::CheckConfig(config);
 	else if(type=="cmv")

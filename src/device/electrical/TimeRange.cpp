@@ -136,4 +136,20 @@ en_wanted_state TimeRange::GetWantedState() const
 	return get_wanted_state();
 }
 
+configuration::Json TimeRange::GetCurrentTimerangeData() const
+{
+	configuration::Json data;
+
+	if(manual)
+		return data; // No timerange active since we are in manual mode
+
+	if(IsForced(&data))
+		return data;
+	if(WantRemainder(&data))
+		return data;
+	if(WantOffload(&data))
+		return data;
+	return data;
+}
+
 }

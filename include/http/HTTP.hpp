@@ -17,27 +17,26 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __SHELLY_HTTP_HPP__
-#define __SHELLY_HTTP_HPP__
-
-#include <http/HTTP.hpp>
-#include <nlohmann/json.hpp>
+#ifndef __HTTP_HTTP_HPP__
+#define __HTTP_HTTP_HPP__
 
 #include <string>
 
-namespace shelly {
+namespace http {
 
-class HTTP: public http::HTTP
+class HTTP
 {
 	protected:
 		std::string ip;
 
 	public:
 		HTTP(const std::string &ip);
+		~HTTP() {}
 
-		nlohmann::json Post(const nlohmann::json &j) const;
+		std::string Post(const std::string &url, const std::string &data) const;
 };
 
 }
 
 #endif
+

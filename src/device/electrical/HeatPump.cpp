@@ -95,7 +95,10 @@ void HeatPump::SpecificActions()
 	double ambient = ht->GetTemperature();
 	bsblan->SetAmbientTemperature(ambient);
 
-	bsblan->SetEcoSetPoint(temperature_eco);
+	double eco_temp = temperature_eco;
+	if(absence)
+		eco_temp = absence_temperature; // If absent lower temperature of eco mode to avoid switch on
+	bsblan->SetEcoSetPoint(eco_temp);
 
 	// Compute setpoint
 	double setpoint = temperature_comfort;

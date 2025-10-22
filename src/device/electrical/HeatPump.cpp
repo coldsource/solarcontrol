@@ -73,6 +73,8 @@ bool HeatPump::temp_check_offload(double current_temp, double timerange_temp) co
 
 void HeatPump::SpecificActions()
 {
+	unique_lock<recursive_mutex> llock(lock);
+
 	auto bsblan = std::dynamic_pointer_cast<control::BSBLan>(ctrl);
 	if(bsblan==nullptr)
 		return; // Only special BSB Lan controller can handle these actions

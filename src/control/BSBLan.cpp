@@ -20,6 +20,7 @@
 #include <control/BSBLan.hpp>
 #include <configuration/Json.hpp>
 #include <excpt/Config.hpp>
+#include <excpt/BSBLan.hpp>
 #include <excpt/Context.hpp>
 
 #include <nlohmann/json.hpp>
@@ -62,6 +63,12 @@ void BSBLan::send(const nlohmann::json &params) const
 	excpt::Context ctx("control", "Communicating with heat pump");
 
 	string output = http.Post("/JS", params.dump());
+	json j_output = json::parse(output);
+	for(auto j_item : j_output)
+	{
+		if(!j_item.contains("status") || j_item["status"]!=1)
+			throw excpt::BSBLan("Communication failed with BSB Lan");
+	}
 }
 
 void BSBLan::Switch(bool new_state)

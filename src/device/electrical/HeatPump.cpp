@@ -94,26 +94,32 @@ void HeatPump::SpecificActions()
 		return;
 	}
 
-	double ambient = ht->GetTemperature();
-	bsblan->SetAmbientTemperature(ambient);
+	try
+	{
+		double ambient = ht->GetTemperature();
+		bsblan->SetAmbientTemperature(ambient);
 
-	double eco_temp = temperature_eco;
-	if(absence)
-		eco_temp = absence_temperature; // If absent lower temperature of eco mode to avoid switch on
-	bsblan->SetEcoSetPoint(eco_temp);
+		double eco_temp = temperature_eco;
+		if(absence)
+			eco_temp = absence_temperature; // If absent lower temperature of eco mode to avoid switch on
+		bsblan->SetEcoSetPoint(eco_temp);
 
-	// Compute setpoint
-	double setpoint = temperature_comfort;
-	auto tr_data = GetCurrentTimerangeData();
-	if(tr_data.Has("temperature"))
-		setpoint = tr_data.GetFloat("temperature");
+		// Compute setpoint
+		double setpoint = temperature_comfort;
+		auto tr_data = GetCurrentTimerangeData();
+		if(tr_data.Has("temperature"))
+			setpoint = tr_data.GetFloat("temperature");
 
-	// Build offset based setpointsetpoint
-	double t = ambient + temperature_offset;
-	if(t>setpoint)
-		t = setpoint;
-	bsblan->SetComfortSetPoint(t);
-
+		// Build offset based setpointsetpoint
+		double t = ambient + temperature_offset;
+		if(t>setpoint)
+			t = setpoint;
+		bsblan->SetComfortSetPoint(t);
+	}
+	catch(exception &e)
+	{
+		logs::Logger::Log(LOG_ERR, e.what());
+	}
 }
 
 }

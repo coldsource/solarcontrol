@@ -63,7 +63,6 @@ void Uni::CheckConfig(const configuration::Json &conf)
 void Uni::HandleMessage(const string &message, const std::string & /*topic*/)
 {
 	Timestamp now(TS_MONOTONIC);
-	auto avg = voltage_avg.load();
 
 	try
 	{
@@ -79,10 +78,10 @@ void Uni::HandleMessage(const string &message, const std::string & /*topic*/)
 		if(ev.contains("voltage"))
 		{
 			double voltage = ev["voltage"];
-			avg->Add(voltage, (double)(now - last_voltage_update));
+			voltage_avg->Add(voltage, (double)(now - last_voltage_update));
 			last_voltage_update = now;
 
-			if(avg->Get() >= max_voltage + charge_delta / 2)
+			if(voltage_avg->Get() >= max_voltage + charge_delta / 2)
 				charging = true;
 			else
 				charging = false;
@@ -93,11 +92,9 @@ void Uni::HandleMessage(const string &message, const std::string & /*topic*/)
 		return;
 	}
 
-	if(avg->Size()>0) // Ensure we have at least one value
-	{
-		// Notify observer unlocked
+	// Notify observer unlocked
+	if(!prevent_notify())
 		notify_observer();
-	}
 }
 
 }

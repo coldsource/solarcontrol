@@ -41,13 +41,17 @@ class Voltmeter: public Sensor, public configuration::ConfigurationObserver
 		mutable std::mutex lock;
 
 		// Config
+		unsigned long smoothing;
 		double charge_delta;
 		double max_voltage;
 		std::map<int, double> thresholds; // Voltate thresholds used for computing SOC
 
 		// State
-		std::atomic<std::shared_ptr<stat::MovingAverage<double>>> voltage_avg; // Average voltage in mV
-		std::atomic<datetime::Timestamp> last_voltage_update;
+		std::shared_ptr<stat::MovingAverage<double>> voltage_avg; // Average voltage in mV
+		datetime::Timestamp last_voltage_update;
+		datetime::Timestamp last_reload;
+
+		bool prevent_notify() const;
 
 	public:
 		Voltmeter(const configuration::Json &conf);

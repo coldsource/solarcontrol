@@ -64,7 +64,6 @@ void Arduino::CheckConfig(const configuration::Json &conf)
 void Arduino::HandleMessage(const string &message, const std::string & /*topic*/)
 {
 	Timestamp now(TS_MONOTONIC);
-	auto avg = voltage_avg.load();
 
 	try
 	{
@@ -76,7 +75,7 @@ void Arduino::HandleMessage(const string &message, const std::string & /*topic*/
 			return;
 
 		double voltage = j["voltage"];
-		avg->Add(voltage, (double)(now - last_voltage_update));
+		voltage_avg->Add(voltage, (double)(now - last_voltage_update));
 		last_voltage_update = now;
 
 		if(voltage >= max_voltage + charge_delta / 2)
@@ -89,7 +88,9 @@ void Arduino::HandleMessage(const string &message, const std::string & /*topic*/
 		return;
 	}
 
-	notify_observer();
+	// Notify unlocked
+	if(!prevent_notify())
+		notify_observer();
 }
 
 }

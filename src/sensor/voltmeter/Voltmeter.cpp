@@ -28,7 +28,7 @@ using datetime::Timestamp;
 
 namespace sensor::voltmeter {
 
-Voltmeter::Voltmeter(const configuration::Json &conf)
+Voltmeter::Voltmeter(const configuration::Json &conf):last_reload(TS_MONOTONIC)
 {
 	CheckConfig(conf);
 
@@ -80,20 +80,28 @@ void Voltmeter::CheckConfig(const configuration::Json &conf)
 
 void Voltmeter::ConfigurationChanged(const configuration::ConfigurationPart *config)
 {
-	voltage_avg = make_unique<stat::MovingAverage<double>>(config->GetTime("energy.battery.smoothing"));
+	unique_lock<mutex> llock(lock);
+
+	smoothing = config->GetTime("energy.battery.smoothing");
+	voltage_avg = make_unique<stat::MovingAverage<double>>(smoothing);
 	last_voltage_update = Timestamp(TS_MONOTONIC);
+}
+
+bool Voltmeter::prevent_notify() const
+{
+	datetime::Timestamp now(TS_MONOTONIC);
+
+	return ((unsigned long)(now - last_reload) < smoothing / 2);
 }
 
 double Voltmeter::GetVoltage() const
 {
 	unique_lock<mutex> llock(lock);
 
-	auto avg = voltage_avg.load();
-
-	if(avg->Size()==0)
+	if(voltage_avg->Size()==0)
 		return -1; // No measurement yet
 
-	return avg->Get();
+	return voltage_avg->Get();
 }
 
 double Voltmeter::GetSOC() const

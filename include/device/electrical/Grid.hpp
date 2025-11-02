@@ -22,6 +22,7 @@
 
 #include <device/electrical/Passive.hpp>
 #include <sensor/SensorObserver.hpp>
+#include <nlohmann/json.hpp>
 
 #include <memory>
 
@@ -33,10 +34,18 @@ namespace device {
 
 class Grid: public Passive
 {
-	bool offpeak = false;
+	public:
+		enum en_grid_state {UNKNOWN, ONLINE, OFFLINE};
 
 	protected:
 		virtual void reload(const configuration::Json &config) override;
+
+		en_grid_state string_to_grid_state(const std::string &str);
+		static std::string grid_state_to_string(en_grid_state state);
+
+		// State
+		bool offpeak = false;
+		en_grid_state grid_state = UNKNOWN;
 
 	public:
 		Grid(int id);
@@ -48,9 +57,12 @@ class Grid: public Passive
 
 		const std::map<datetime::Date, energy::Amount> &GetExcessHistory() const { return consumption.GetExcessHistory(); }
 
-		bool GetOffPeak() const { return offpeak; }
+		bool GetOffPeak() const;
+		en_grid_state GetState() const;
 
 		virtual void SensorChanged(const sensor::Sensor *sensor) override;
+
+		virtual nlohmann::json ToJson() const override;
 
 		static void CreateInDB();
 };

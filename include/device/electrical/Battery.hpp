@@ -36,7 +36,6 @@ class Battery: public OnOff
 	public:
 		enum en_battery_policy {GRID, BATTERY, OFFLOAD};
 		enum en_battery_state {DISCHARGING, CHARGING, FLOAT, BACKUP};
-		enum en_grid_state {UNKNOWN, ONLINE, OFFLINE};
 
 	private:
 		// Config
@@ -50,7 +49,6 @@ class Battery: public OnOff
 		double voltage = -1, soc = -1;
 		datetime::Timestamp last_grid_switch;
 		en_battery_state soc_state = FLOAT;
-		en_grid_state grid_state = UNKNOWN;
 
 	protected:
 		virtual void reload(const configuration::Json &config) override;
@@ -61,8 +59,6 @@ class Battery: public OnOff
 		static std::string policy_to_string(en_battery_policy policy);
 		static en_battery_state string_to_state(const std::string &str);
 		static std::string state_to_string(en_battery_state state);
-		en_grid_state string_to_grid_state(const std::string &str);
-		static std::string grid_state_to_string(en_grid_state state);
 
 	public:
 		Battery(int id);

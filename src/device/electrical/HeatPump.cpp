@@ -24,6 +24,7 @@
 #include <configuration/Json.hpp>
 #include <configuration/Configuration.hpp>
 #include <configuration/ConfigurationPart.hpp>
+#include <excpt/BSBLan.hpp>
 #include <logs/Logger.hpp>
 
 using datetime::Timestamp;
@@ -115,6 +116,10 @@ void HeatPump::SpecificActions()
 		if(t>setpoint)
 			t = setpoint;
 		bsblan->SetComfortSetPoint(t);
+	}
+	catch(excpt::BSBLan &e)
+	{
+		e.Log(LOG_ERR);
 	}
 	catch(exception &e)
 	{

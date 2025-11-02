@@ -67,7 +67,7 @@ void BSBLan::send(const nlohmann::json &params) const
 	for(auto j_item : j_output)
 	{
 		if(!j_item.contains("status") || j_item["status"]!=1)
-			throw excpt::BSBLan("Communication failed with BSB Lan");
+			throw excpt::BSBLan("Communication failed with BSB Lan, received « " + output + " »");
 	}
 }
 

@@ -112,13 +112,23 @@ void Configuration::Backup(const std::string &name)
 
 void Configuration::RegisterObserver(const string &type, ConfigurationObserver *observer)
 {
-	unique_lock<recursive_mutex> llock(lock);
+	ConfigurationPart *config;
 
-	if(!configs.contains(type))
-		throw runtime_error("Unknown configuration type : « " + type + " »");
+	{
+		unique_lock<recursive_mutex> llock(lock);
 
-	observer->ConfigurationChanged(configs[type].get());
-	observers[type].insert(observer);
+		if(!configs.contains(type))
+			throw runtime_error("Unknown configuration type : « " + type + " »");
+
+		// Get configuration part
+		config = configs[type].get();
+
+		// Register observer
+		observers[type].insert(observer);
+	}
+
+	// Notify observer unlocked
+	observer->ConfigurationChanged(config);
 }
 
 void Configuration::UnregisterObserver(const string &type, ConfigurationObserver *observer)

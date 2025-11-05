@@ -60,15 +60,11 @@ GlobalMeter::~GlobalMeter()
 
 void GlobalMeter::ConfigurationChanged(const configuration::ConfigurationPart *config)
 {
-	{
-		unique_lock<recursive_mutex> llock(lock);
+	if(config->GetType()=="energy")
+		hws_min_energy = config->GetEnergy("energy.hws.min");
 
-		if(config->GetType()=="energy")
-			hws_min_energy = config->GetEnergy("energy.hws.min");
-
-		if(config->GetType()=="control")
-			priority = config->Get("control.priority");
-	}
+	if(config->GetType()=="control")
+		hws_priority = (config->Get("control.priority")=="hws")?true:false;
 
 	if(websocket::SolarControl::GetInstance())
 		websocket::SolarControl::GetInstance()->NotifyAll(websocket::SolarControl::en_protocols::METER);
@@ -76,64 +72,49 @@ void GlobalMeter::ConfigurationChanged(const configuration::ConfigurationPart *c
 
 bool GlobalMeter::HasBattery() const
 {
-	unique_lock<recursive_mutex> llock(lock);
 	return battery->IsEnabled();
 }
 
 double GlobalMeter::GetBatteryVoltage() const
 {
-	unique_lock<recursive_mutex> llock(lock);
 	return battery->GetVoltage();
 }
 
 double GlobalMeter::GetBatterySOC() const
 {
-	unique_lock<recursive_mutex> llock(lock);
 	return battery->GetSOC();
 }
 
 double GlobalMeter::GetGridPower() const
 {
-	unique_lock<recursive_mutex> llock(lock);
-
 	return grid->GetPower();
 }
 
 double GlobalMeter::GetPVPower() const
 {
-	unique_lock<recursive_mutex> llock(lock);
-
 	double power = pv->GetPower();
 	return power>=0?power:0;
 }
 
 double GlobalMeter::GetBatteryPower() const
 {
-	unique_lock<recursive_mutex> llock(lock);
-
 	double power = battery->GetPower();
 	return power>=0?power:0;
 }
 
 double GlobalMeter::GetHWSPower() const
 {
-	unique_lock<recursive_mutex> llock(lock);
-
 	double power = hws->GetPower();
 	return power>=0?power:0;
 }
 
 double GlobalMeter::GetPower() const
 {
-	unique_lock<recursive_mutex> llock(lock);
-
 	return GetGridPower() + GetPVPower() + GetBatteryPower();
 }
 
 double GlobalMeter::GetNetAvailablePower(bool allow_neg) const
 {
-	unique_lock<recursive_mutex> llock(lock);
-
 	if(HWSIsFull())
 		return GetGrossAvailablePower(allow_neg);
 	return GetExcessPower(allow_neg);
@@ -141,8 +122,6 @@ double GlobalMeter::GetNetAvailablePower(bool allow_neg) const
 
 double GlobalMeter::GetGrossAvailablePower(bool allow_neg) const
 {
-	unique_lock<recursive_mutex> llock(lock);
-
 	bool hws_state = hws->GetState();
 
 	double hws_offload = hws_state?0:GetHWSPower(); // No hws offload when in forced mode
@@ -155,8 +134,6 @@ double GlobalMeter::GetGrossAvailablePower(bool allow_neg) const
 
 double GlobalMeter::GetExcessPower(bool allow_neg) const
 {
-	unique_lock<recursive_mutex> llock(lock);
-
 	double grid_power = GetGridPower();
 	if(!allow_neg && grid_power>0)
 		return 0;
@@ -165,8 +142,6 @@ double GlobalMeter::GetExcessPower(bool allow_neg) const
 
 double GlobalMeter::GetPVPowerRatio() const
 {
-	unique_lock<recursive_mutex> llock(lock);
-
 	double grid_power = GetGridPower();
 	if(grid_power<=0)
 		return 1;
@@ -180,58 +155,42 @@ double GlobalMeter::GetPVPowerRatio() const
 
 double GlobalMeter::GetGridEnergy() const
 {
-	unique_lock<recursive_mutex> llock(lock);
-
 	return grid->GetEnergyConsumption();
 }
 
 double GlobalMeter::GetExportedEnergy() const
 {
-	unique_lock<recursive_mutex> llock(lock);
-
 	return grid->GetEnergyExcess();
 }
 
 double GlobalMeter::GetPVEnergy() const
 {
-	unique_lock<recursive_mutex> llock(lock);
-
 	return pv->GetEnergyConsumption();
 }
 
 double GlobalMeter::GetBatteryEnergy() const
 {
-	unique_lock<recursive_mutex> llock(lock);
-
 	return battery->GetEnergyConsumption();
 }
 
 double GlobalMeter::GetHWSEnergy() const
 {
-	unique_lock<recursive_mutex> llock(lock);
-
 	return hws->GetEnergyConsumption();
 }
 
 double GlobalMeter::GetHWSOffloadEnergy() const
 {
-	unique_lock<recursive_mutex> llock(lock);
-
 	return hws->GetEnergyOffload();
 }
 
 bool GlobalMeter::GetOffPeak() const
 {
-	unique_lock<recursive_mutex> llock(lock);
-
 	return grid->GetOffPeak();
 }
 
 bool GlobalMeter::HWSIsFull() const
 {
-	unique_lock<recursive_mutex> llock(lock);
-
-	if(priority=="offload")
+	if(!hws_priority)
 		return true; // Offload priority, consider HWS is always full
 
 	return hws->GetEnergyConsumption()>hws_min_energy;

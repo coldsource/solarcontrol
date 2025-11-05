@@ -23,9 +23,9 @@
 #include <configuration/ConfigurationObserver.hpp>
 #include <nlohmann/json.hpp>
 
-#include <mutex>
 #include <string>
 #include <memory>
+#include <atomic>
 
 namespace device {
 	class Device;
@@ -44,12 +44,10 @@ class GlobalMeter: public configuration::ConfigurationObserver
 	std::shared_ptr<device::HWS> hws;
 	std::shared_ptr<device::Battery> battery;
 
-	double hws_min_energy = 0;
-
-	std::string priority;
+	std::atomic<double> hws_min_energy = 0;
+	std::atomic_bool hws_priority;
 
 	static GlobalMeter *instance;
-	mutable std::recursive_mutex lock;
 
 protected:
 	public:

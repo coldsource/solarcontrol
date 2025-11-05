@@ -39,16 +39,16 @@ class Battery: public OnOff
 
 	private:
 		// Config
-		bool enabled;
+		std::atomic_bool enabled;
 		unsigned int battery_low, battery_high;
 		unsigned long min_grid_time;
 		unsigned long battery_cooldown;
 		en_battery_policy policy;
 
 		// State
-		double voltage = -1, soc = -1;
+		std::atomic<double> voltage = -1, soc = -1;
 		datetime::Timestamp last_grid_switch;
-		en_battery_state soc_state = FLOAT;
+		std::atomic<en_battery_state> soc_state = FLOAT;
 
 	protected:
 		virtual void reload(const configuration::Json &config) override;

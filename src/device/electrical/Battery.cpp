@@ -174,12 +174,10 @@ configuration::Json Battery::state_backup()
 
 json Battery::ToJson() const
 {
-	unique_lock<recursive_mutex> llock(lock);
-
 	json j_device = OnOff::ToJson();
 
-	j_device["voltage"] = voltage;
-	j_device["soc"] = soc;
+	j_device["voltage"] = (double)voltage;
+	j_device["soc"] = (double)soc;
 	j_device["soc_state"] = state_to_string(soc_state);
 	j_device["state"] = state?"grid":"battery";
 

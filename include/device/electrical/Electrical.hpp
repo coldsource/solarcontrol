@@ -62,14 +62,14 @@ class Electrical: public Device, public configuration::ConfigurationObserver
 		static void CheckConfig(const configuration::Json &conf);
 
 		double GetPower() const;
-		bool IsMetered() const { return has_sensor("meter"); }
+		bool IsMetered() const;
 
-		energy::Amount GetEnergyConsumption() { return consumption.GetEnergyConsumption(); }
-		energy::Amount GetEnergyOffload() { return offload.GetEnergyConsumption(); }
-		energy::Amount GetEnergyExcess() { return consumption.GetEnergyExcess(); }
+		energy::Amount GetEnergyConsumption() const;
+		energy::Amount GetEnergyOffload() const;
+		energy::Amount GetEnergyExcess() const;
 
-		const std::map<datetime::Date, energy::Amount> &GetConsumptionHistory() const { return consumption.GetConsumptionHistory(); }
-		const std::map<datetime::Date, energy::Amount> &GetOffloadHistory() const { return offload.GetConsumptionHistory(); }
+		const std::map<datetime::Date, energy::Amount> &GetConsumptionHistory() const;
+		const std::map<datetime::Date, energy::Amount> &GetOffloadHistory() const;
 
 		virtual nlohmann::json ToJson() const override;
 

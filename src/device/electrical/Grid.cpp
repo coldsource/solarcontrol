@@ -84,24 +84,8 @@ string Grid::grid_state_to_string(en_grid_state state)
 	return "unknown";
 }
 
-bool Grid::GetOffPeak() const
-{
-	unique_lock<recursive_mutex> llock(lock);
-
-	return offpeak;
-}
-
-Grid::en_grid_state Grid::GetState() const
-{
-	unique_lock<recursive_mutex> llock(lock);
-
-	return grid_state;
-}
-
 void Grid::SensorChanged(const  sensor::Sensor *sensor)
 {
-	unique_lock<recursive_mutex> llock(lock);
-
 	if(sensor->GetName()=="offpeak_ctrl")
 		offpeak = ((sensor::input::Input *)sensor)->GetState();
 	else if(sensor->GetName()=="grid_detection")
@@ -112,8 +96,6 @@ void Grid::SensorChanged(const  sensor::Sensor *sensor)
 
 json Grid::ToJson() const
 {
-	unique_lock<recursive_mutex> llock(lock);
-
 	json j_device = Passive::ToJson();
 	j_device["grid_state"] = grid_state_to_string(grid_state);
 	return j_device;

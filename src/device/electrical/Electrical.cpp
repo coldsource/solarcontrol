@@ -84,8 +84,6 @@ void Electrical::reload(const configuration::Json &config)
 
 json Electrical::ToJson() const
 {
-	unique_lock<recursive_mutex> llock(lock);
-
 	json j_device = Device::ToJson();
 	j_device["power"] = GetPower();
 	return j_device;
@@ -131,6 +129,46 @@ void Electrical::SensorChanged(const sensor::Sensor *sensor)
 		consumption.AddEnergy(device_consumption, device_excess);
 		offload.AddEnergy(device_consumption * pv_ratio);
 	}
+}
+
+bool Electrical::IsMetered() const
+{
+	unique_lock<recursive_mutex> llock(lock);
+
+	return has_sensor("meter");
+}
+
+energy::Amount Electrical::GetEnergyConsumption() const
+{
+	unique_lock<recursive_mutex> llock(lock);
+
+	return consumption.GetEnergyConsumption();
+}
+energy::Amount Electrical::GetEnergyOffload() const
+{
+	unique_lock<recursive_mutex> llock(lock);
+
+	return offload.GetEnergyConsumption();
+}
+energy::Amount Electrical::GetEnergyExcess() const
+{
+	unique_lock<recursive_mutex> llock(lock);
+
+	return consumption.GetEnergyExcess();
+}
+
+const std::map<datetime::Date, energy::Amount> &Electrical::GetConsumptionHistory() const
+{
+	unique_lock<recursive_mutex> llock(lock);
+
+	return consumption.GetConsumptionHistory();
+}
+
+const std::map<datetime::Date, energy::Amount> &Electrical::GetOffloadHistory() const
+{
+	unique_lock<recursive_mutex> llock(lock);
+
+	return offload.GetConsumptionHistory();
 }
 
 }

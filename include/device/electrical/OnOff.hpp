@@ -41,8 +41,8 @@ class OnOff: public Electrical
 {
 	protected:
 		// State
-		bool manual = false;
-		bool state = false;
+		std::atomic_bool manual = false;
+		std::atomic_bool state = false;
 
 		std::shared_ptr<control::OnOff> ctrl = nullptr;
 

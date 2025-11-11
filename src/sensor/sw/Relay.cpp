@@ -89,11 +89,7 @@ bool Relay::GetState() const
 
 bool Relay::ForceUpdate()
 {
-	{
-		unique_lock<mutex> llock(lock);
-
-		state = get_output();
-	}
+	state = get_output();
 
 	// Notify observer unlocked
 	notify_observer();

@@ -35,16 +35,15 @@ namespace sensor::sw {
 
 class Relay: public Switch, public mqtt::Subscriber
 {
+	// Config
 	const std::string ip;
 	const int outlet = 0;
 	const std::string topic;
+	const bool reverted = false;
 
-	bool reverted = false;
-
+	// State
 	std::atomic_bool state = false;
 	std::atomic_bool manual = false;
-
-	std::mutex lock;
 
 	protected:
 		bool get_output() const;

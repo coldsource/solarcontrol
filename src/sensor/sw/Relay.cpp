@@ -91,7 +91,6 @@ bool Relay::ForceUpdate()
 {
 	state = get_output();
 
-	// Notify observer unlocked
 	notify_observer();
 
 	return true;

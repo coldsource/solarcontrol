@@ -82,13 +82,6 @@ Server::~Server()
 {
 }
 
-void Server::CallbackOnWritable(struct lws *wsi)
-{
-	lws_callback_on_writable(wsi);
-	if(this_thread::get_id()!=ws_worker.get_id())
-		lws_cancel_service(context); // Cancel service when calling from external thread to force command handling
-}
-
 int Server::callback_http(struct lws *wsi, enum lws_callback_reasons reason, void *user, void *in, size_t len )
 {
 	uint8_t buf[LWS_PRE + 2048], *start = &buf[LWS_PRE], *p = start, *end = &buf[sizeof(buf) - 1];
@@ -142,6 +135,9 @@ int Server::callback_ws(struct lws *wsi, enum lws_callback_reasons reason, void 
 
 			case LWS_CALLBACK_ESTABLISHED:
 			{
+				// Store client
+				ws->clients[protocol->id].insert(wsi);
+
 				// Init context data
 				context->cmd_buffer = new string();
 				context->derived_session_data = ws->lws_callback_established(wsi, protocol->id);
@@ -151,6 +147,14 @@ int Server::callback_ws(struct lws *wsi, enum lws_callback_reasons reason, void 
 			case LWS_CALLBACK_CLOSED:
 			{
 				ws->lws_callback_closed(wsi, protocol->id, context->derived_session_data);
+
+				// Remove client
+				ws->clients[protocol->id].erase(wsi);
+
+				{
+					unique_lock<mutex> llock(ws->lock);
+					ws->notified_clients.erase(wsi);
+				}
 
 				// Clean context data
 				delete context->cmd_buffer;
@@ -206,6 +210,32 @@ int Server::callback_ws(struct lws *wsi, enum lws_callback_reasons reason, void 
 	return 0;
 }
 
+void Server::notify_all(unsigned int protocol)
+{
+	{
+		// This is not thread safe and must be done locked
+		unique_lock<mutex> llock(lock);
+
+		notified_protocols.insert(protocol);
+	}
+
+	if(this_thread::get_id()!=ws_worker.get_id())
+		cancel_service(); // Thread safe according to LWS : Cancel main event loop to handle event
+}
+
+void Server::callback_on_writable(struct lws *wsi)
+{
+	{
+		// This is not thread safe and must be done locked
+		unique_lock<mutex> llock(lock);
+
+		notified_clients.insert(wsi);
+	}
+
+	if(this_thread::get_id()!=ws_worker.get_id())
+		cancel_service(); // Thread safe according to LWS : Cancel main event loop to handle event
+}
+
 void Server::Shutdown(void)
 {
 	is_cancelling = true;
@@ -226,6 +256,32 @@ void Server::event_loop(Server *ws)
 
 		if(ws->is_cancelling)
 			break;
+
+		// Check if we have protocol notifications requested
+		set<unsigned int> protocols;
+		set<struct lws *> clients;
+
+		{
+			// Atomically fetch the set of protocols and clients notified
+			unique_lock<mutex> llock(ws->lock);
+
+			protocols = ws->notified_protocols;
+			ws->notified_protocols.clear();
+
+			clients = ws->notified_clients;
+			ws->notified_clients.clear();
+		}
+
+		// Handle local protocols list unlocked
+		for(unsigned int protocol : protocols)
+		{
+			for(auto client : ws->clients[protocol])
+				lws_callback_on_writable(client);
+		}
+
+		// Handle local clients list unlocked
+		for(auto client : clients)
+			lws_callback_on_writable(client);
 	}
 
 	ws->stop_thread();

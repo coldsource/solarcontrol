@@ -34,9 +34,6 @@ namespace websocket
 class SolarControl: public Server
 {
 	static SolarControl *instance;
-	std::recursive_mutex lock;
-
-	std::map<unsigned int, std::set<struct lws *>> clients;
 
 	struct st_api_context
 	{
@@ -44,6 +41,7 @@ class SolarControl: public Server
 		std::string response = "";
 		bool worker_alive = false;
 		std::thread worker;
+		std::mutex worker_lock;
 		bool is_orphaned = false;
 	};
 
@@ -76,8 +74,8 @@ class SolarControl: public Server
 		void start_thread(void) override;
 		void stop_thread(void) override;
 
-		void *lws_callback_established(struct lws *wsi, unsigned int protocol) override;
-		void lws_callback_closed(struct lws *wsi, unsigned int protocol, void *user_data) override;
+		void *lws_callback_established(struct lws * /* wsi */, unsigned int protocol) override;
+		void lws_callback_closed(struct lws * /* wsi */, unsigned int protocol, void *user_data) override;
 		void lws_callback_receive(struct lws *wsi, unsigned int protocol, const std::string &message, void *user_data) override;
 		std::string lws_callback_server_writeable(struct lws * /* wsi */, unsigned int protocol, void *user_data) override;
 };

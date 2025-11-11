@@ -50,12 +50,7 @@ SolarControl::~SolarControl()
 
 void SolarControl::NotifyAll(unsigned int protocol)
 {
-	unique_lock<recursive_mutex> llock(lock);
-
-	for(auto client : clients[protocol])
-		CallbackOnWritable(client);
-
-	cancel_service();
+	notify_all(protocol);
 }
 
 map<string, unsigned int> SolarControl::get_protocols()
@@ -106,9 +101,12 @@ void SolarControl::worker(struct lws *wsi, st_api_context *api_ctx)
 
 	database::DB::StopThread();
 
-	unique_lock<recursive_mutex> llock(instance->lock);
 	if(instance->IsCancelling())
 		return; // Shutdown in progress, we are waited and must be joined
+
+	unique_lock<mutex> llock(api_ctx->worker_lock);
+
+	api_ctx->worker_alive = false;
 
 	if(api_ctx->is_orphaned)
 	{
@@ -118,31 +116,26 @@ void SolarControl::worker(struct lws *wsi, st_api_context *api_ctx)
 		return;
 	}
 
-	instance->CallbackOnWritable(wsi);
+	instance->callback_on_writable(wsi);
 }
 
-void *SolarControl::lws_callback_established(struct lws *wsi, unsigned int protocol)
+void *SolarControl::lws_callback_established(struct lws * /* wsi */, unsigned int protocol)
 {
-	unique_lock<recursive_mutex> llock(lock);
-
-	clients[protocol].insert(wsi);
+	if(protocol==API)
+		return new st_api_context();
 
 	if(protocol==DEVICE || protocol==METER || protocol==CONFIG || protocol==STATS)
 		NotifyAll(protocol);
 
-	if(protocol==API)
-		return new st_api_context();
-
 	return 0;
 }
 
-void SolarControl::lws_callback_closed(struct lws *wsi, unsigned int protocol, void *user_data)
+void SolarControl::lws_callback_closed(struct lws * /* wsi */, unsigned int protocol, void *user_data)
 {
-	unique_lock<recursive_mutex> llock(lock);
-
 	if(protocol==API)
 	{
 		st_api_context *api_ctx = (st_api_context *)user_data;
+		unique_lock<mutex> llock(api_ctx->worker_lock);
 
 		if(api_ctx->worker_alive)
 		{
@@ -158,21 +151,25 @@ void SolarControl::lws_callback_closed(struct lws *wsi, unsigned int protocol, v
 				api_ctx->is_orphaned = true; // Interrupted while worker is still alive, require future deletition
 		}
 		else
+		{
+			if(api_ctx->worker.joinable())
+				api_ctx->worker.join();
 			delete api_ctx;
+		}
 	}
-
-	clients[protocol].erase(wsi);
 }
 
 void SolarControl::lws_callback_receive(struct lws *wsi, unsigned int protocol, const std::string &message, void *user_data)
 {
 	if(protocol==API)
 	{
-		unique_lock<recursive_mutex> llock(lock);
 		st_api_context *api_ctx = (st_api_context *)user_data;
 
-		if(api_ctx->worker_alive)
-			return; // Worker still alive, next command must be sent after
+		{
+			unique_lock<mutex> llock(api_ctx->worker_lock);
+			if(api_ctx->worker_alive)
+				return; // Worker still alive, next command must be sent after
+		}
 
 		api_ctx->message = message;
 		api_ctx->worker_alive = true;
@@ -185,8 +182,10 @@ std::string SolarControl::lws_callback_server_writeable(struct lws * /* wsi */, 
 	if(protocol==API)
 	{
 		st_api_context *api_ctx = (st_api_context *)user_data;
-		if(!api_ctx->worker_alive)
+
+		if(!api_ctx->worker.joinable())
 			return ""; // Spurious call
+
 		api_ctx->worker.join();
 		api_ctx->worker_alive = false;
 		return api_ctx->response;

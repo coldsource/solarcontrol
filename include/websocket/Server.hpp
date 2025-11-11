@@ -23,7 +23,9 @@
 #include <string>
 #include <thread>
 #include <map>
+#include <set>
 #include <vector>
+#include <mutex>
 
 #include <libwebsockets.h>
 
@@ -32,15 +34,19 @@ namespace websocket
 
 class Server
 {
-	bool is_cancelling = false;
+	std::atomic_bool is_cancelling = false;
 
 	std::map<std::string, unsigned int> user_def_protocols;
 	std::vector<lws_protocols> protocols;
+	std::map<unsigned int, std::set<struct lws *>> clients;
+	std::set<unsigned int> notified_protocols;
+	std::set<struct lws *> notified_clients;
 
 	struct lws_context_creation_info info;
 	struct lws_context *context;
 
 	std::thread ws_worker;
+	std::mutex lock;
 
 	public:
 		struct per_session_data
@@ -56,8 +62,6 @@ class Server
 		void Start();
 		void Shutdown();
 		bool IsCancelling() const { return is_cancelling; }
-
-		void CallbackOnWritable(struct lws *wsi);
 
 	public:
 		static int callback_http( struct lws *wsi, enum lws_callback_reasons reason, void *user, void *in, size_t len );
@@ -78,6 +82,9 @@ class Server
 		virtual void lws_callback_closed(struct lws * /* wsi */, unsigned int /* protocol */, void * /*user_data*/) {}
 		virtual void lws_callback_receive(struct lws * /* wsi */, unsigned int /* protocol */, const std::string & /* message */, void * /* user_data */) {}
 		virtual std::string lws_callback_server_writeable(struct lws * /* wsi */, unsigned int /* protocol */, void * /* user_data */) { return ""; }
+
+		void notify_all(unsigned int protocol);
+		void callback_on_writable(struct lws *wsi);
 };
 
 }

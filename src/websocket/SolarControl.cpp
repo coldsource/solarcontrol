@@ -143,8 +143,6 @@ void SolarControl::lws_callback_closed(struct lws * /* wsi */, unsigned int prot
 			{
 				llock.unlock();
 				api_ctx->worker.join(); // Shutting down, wait thread
-				llock.lock();
-
 				delete api_ctx;
 			}
 			else
@@ -152,6 +150,7 @@ void SolarControl::lws_callback_closed(struct lws * /* wsi */, unsigned int prot
 		}
 		else
 		{
+			llock.unlock();
 			if(api_ctx->worker.joinable())
 				api_ctx->worker.join();
 			delete api_ctx;

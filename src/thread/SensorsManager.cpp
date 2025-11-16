@@ -101,7 +101,7 @@ void SensorsManager::main()
 				}
 			}
 
-			// Call updated unlocked
+			// Call update unlocked
 			for(auto sensor : local_sensors)
 			{
 				try

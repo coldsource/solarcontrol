@@ -51,7 +51,7 @@ Arduino::~Arduino()
 
 void Arduino::CheckConfig(const configuration::Json &conf)
 {
-	excpt::Context ctx("meter", "In voltmeter configuration");
+	excpt::Context ctx("voltmeter", "In voltmeter configuration");
 
 	Voltmeter::CheckConfig(conf);
 

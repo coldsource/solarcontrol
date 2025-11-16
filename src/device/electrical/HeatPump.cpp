@@ -41,7 +41,8 @@ update_interval(configuration::Configuration::FromType("solarcontrol")->GetTime(
 
 void HeatPump::CheckConfig(const configuration::Json &conf)
 {
-	conf.Check("temperature_offset", "float");
+	conf.Check("temperature_offset_slow", "float");
+	conf.Check("temperature_offset_fast", "float");
 	conf.Check("temperature_eco", "float");
 	conf.Check("temperature_comfort", "float");
 
@@ -52,7 +53,8 @@ void HeatPump::reload(const configuration::Json &config)
 {
 	Temperature::reload(config);
 
-	temperature_offset = config.GetFloat("temperature_offset");
+	temperature_offset_slow = config.GetFloat("temperature_offset_slow");
+	temperature_offset_fast = config.GetFloat("temperature_offset_fast");
 	temperature_eco = config.GetFloat("temperature_eco");
 	temperature_comfort = config.GetFloat("temperature_comfort");
 
@@ -105,11 +107,20 @@ void HeatPump::SpecificActions()
 			eco_temp = absence_temperature; // If absent lower temperature of eco mode to avoid switch on
 		bsblan->SetEcoSetPoint(eco_temp);
 
+		// Handle special timerange data
+		auto tr_data = GetCurrentTimerangeData();
+
+		// Mode
+		bool fast_mode = false;
+		if(tr_data.Has("speed"))
+			fast_mode = (tr_data.GetString("speed")=="fast");
+
 		// Compute setpoint
 		double setpoint = temperature_comfort;
-		auto tr_data = GetCurrentTimerangeData();
 		if(tr_data.Has("temperature"))
 			setpoint = tr_data.GetFloat("temperature");
+
+		double temperature_offset = fast_mode ? temperature_offset_fast : temperature_offset_slow;
 
 		// Build offset based setpointsetpoint
 		double t = ambient + temperature_offset;

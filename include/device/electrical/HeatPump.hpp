@@ -36,7 +36,8 @@ class HeatPump: public Temperature
 		datetime::Timer update_interval;
 
 		// Config
-		double temperature_offset;
+		double temperature_offset_slow;
+		double temperature_offset_fast;
 		double temperature_eco;
 		double temperature_comfort;
 

@@ -21,6 +21,7 @@
 #include <sensor/meter/Plug.hpp>
 #include <sensor/meter/Pro3EM.hpp>
 #include <sensor/meter/ProEM.hpp>
+#include <sensor/meter/Arduino.hpp>
 #include <configuration/Json.hpp>
 #include <excpt/Context.hpp>
 #include <excpt/Config.hpp>
@@ -49,7 +50,7 @@ shared_ptr<Meter> Factory::GetFromConfig(const configuration::Json &conf)
 	if(type=="em")
 		return make_shared<ProEM>(conf.GetString("mqtt_id"), conf.GetString("phase"));
 	if(type=="arduino")
-		return nullptr; // Arduino has no energy measurement
+		return make_shared<Arduino>(conf.GetString("mqtt_id"));
 	if(type=="bsblan")
 		return nullptr; // BSBLan has no energy measurement
 	if(type=="dummy")

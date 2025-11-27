@@ -24,7 +24,12 @@
 
 namespace stat {
 
-template<typename DataType>
+template <typename T>
+concept SumDiv = requires (T val1, T val2, unsigned int n) {
+  (val1 + val2) / n;
+};
+
+template<SumDiv DataType>
 class MinMaxAvg
 {
 	protected:

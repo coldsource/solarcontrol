@@ -22,7 +22,13 @@
 
 namespace stat {
 
-template<typename DataType>
+template <typename T>
+concept LessGreaterThan = requires (T val1, T val2) {
+  val1 < val2;
+  val1 > val2;
+};
+
+template<LessGreaterThan DataType>
 class MinMax
 {
 	protected:

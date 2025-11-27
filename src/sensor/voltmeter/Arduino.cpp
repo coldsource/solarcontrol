@@ -78,7 +78,7 @@ void Arduino::HandleMessage(const string &message, const std::string & /*topic*/
 		voltage_avg->Add(voltage, (double)(now - last_voltage_update));
 		last_voltage_update = now;
 
-		if(voltage >= max_voltage + charge_delta / 2)
+		if(voltage_avg->Get() >= max_voltage + charge_delta / 2)
 			charging = true;
 		else
 			charging = false;

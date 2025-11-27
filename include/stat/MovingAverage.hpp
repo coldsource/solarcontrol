@@ -25,7 +25,12 @@
 
 namespace stat {
 
-template<typename T>
+template <typename T>
+concept MultByDouble = requires (T val, double weight) {
+  val * weight;
+};
+
+template<MultByDouble T>
 class MovingAverage
 {
 	protected:
@@ -53,6 +58,12 @@ class MovingAverage
 			if(weighting==0)
 				weighting = 1; // Can't zero weight one point
 
+			current_window_size += weighting;
+			current_window_sum += value * weighting;
+			if(values.size()>0)
+				current_window_slope_sum += (value - values.back().value) / weighting;
+			values.push_back({value, weighting});
+
 			if(current_window_size>=window_size)
 			{
 				last_window_sum = current_window_sum;
@@ -63,17 +74,11 @@ class MovingAverage
 				current_window_size = 0;
 			}
 
-			current_window_size += weighting;
-			current_window_sum += weighting==1?value:(value * weighting);
-			if(values.size()>0)
-				current_window_slope_sum += (value - values.back().value) / weighting;
-			values.push_back({value, weighting});
-
 			while(last_windows_size + current_window_size > window_size && values.size()>1)
 			{
 				auto last = values.front();
 				last_windows_size -= last.weighting;
-				last_window_sum -= last.weighting==1?last.value:(last.value * last.weighting);
+				last_window_sum -= last.value * last.weighting;
 				last_window_slope_sum -= (values.front().value - last.value) / values.front().weighting;
 				values.pop_front();
 			}
@@ -84,7 +89,7 @@ class MovingAverage
 			if(last_windows_size + current_window_size==0)
 				throw std::runtime_error("Moving Average is empty");
 
-			return (last_window_sum + current_window_sum) / (double)(last_windows_size + current_window_size);
+			return (last_window_sum + current_window_sum) / (last_windows_size + current_window_size);
 		}
 
 		T GetSlope() const

@@ -29,6 +29,7 @@
 #include <logs/Logger.hpp>
 #include <excpt/Config.hpp>
 #include <excpt/ConfigParser.hpp>
+#include <upgrade/Upgrades.hpp>
 
 #include <nlohmann/json.hpp>
 
@@ -61,6 +62,20 @@ int main(int argc, char **argv)
 		dbconfig->InitTables();
 
 		configuration::ConfigurationReaderDB::Read(config);
+
+		if(args["--upgrade"])
+		{
+			// Run any necessary version upgrades
+			upgrade::Upgrades upgrades;
+			bool did_upgrade = upgrades.run();
+
+			if(did_upgrade)
+				logs::Logger::Log(LOG_INFO, "Upgrades sucessfully applied");
+			else
+				logs::Logger::Log(LOG_INFO, "No upgrades to apply");
+
+			return 0;
+		}
 
 		// Create history sync thread before devices
 		::thread::HistorySync histo_sync;

@@ -38,6 +38,7 @@ aux_source_directory(src/sensor/sw srcSensorSW)
 aux_source_directory(src/sensor/meter srcSensorMeter)
 aux_source_directory(src/sensor/voltmeter srcSensorVoltmeter)
 aux_source_directory(src/excpt srcExcpt)
+aux_source_directory(src/upgrade srcUpgrade)
 
 add_executable(solarcontrol
 	${srcMQTT}
@@ -68,6 +69,7 @@ add_executable(solarcontrol
 	${srcSensorMeter}
 	${srcSensorVoltmeter}
 	${srcExcpt}
+	${srcUpgrade}
 	
 	src/solarcontrol.cpp
 	)

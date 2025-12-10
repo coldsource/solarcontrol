@@ -33,13 +33,15 @@ void print_usage()
 	fprintf(stderr,"Usage :\n");
 	fprintf(stderr,"  Launch Solar Control : solarcontrol --config <path to config file>\n");
 	fprintf(stderr,"  Show version         : solarcontrol --version\n");
+	fprintf(stderr,"  Perform upgrade      : solarcontrol --config <path to config file> --upgrade\n");
 }
 
 configuration::Args check_args(int argc, char **argv)
 {
 	const map<string, string> args_config = {
 		{"--config", "string"},
-		{"--version", "flag"}
+		{"--version", "flag"},
+		{"--upgrade", "flag"}
 	};
 
 	try

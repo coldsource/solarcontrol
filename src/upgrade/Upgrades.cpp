@@ -18,7 +18,7 @@
  */
 
 #include <upgrade/Upgrades.hpp>
-#include <upgrade/Upgrade_1_12.hpp>
+#include <upgrade/Upgrade_1_11.hpp>
 
 #include <set>
 #include <memory>
@@ -30,7 +30,7 @@ namespace upgrade {
 bool Upgrades::run()
 {
 	set<shared_ptr<Upgrade>, decltype(Upgrade::CompareTo) *> upgrades;
-	upgrades.insert(make_shared<Upgrade_1_12>());
+	upgrades.insert(make_shared<Upgrade_1_11>());
 
 	int performed_upgrades = 0;
 	for(auto upgrade : upgrades)

@@ -24,13 +24,13 @@
 
 namespace upgrade {
 
-class Upgrade_1_12: public Upgrade
+class Upgrade_1_11: public Upgrade
 {
 	public:
-		Upgrade_1_12() {}
-		virtual ~Upgrade_1_12() {}
+		Upgrade_1_11() {}
+		virtual ~Upgrade_1_11() {}
 
-		virtual std::string target_version() override { return "1.12"; }
+		virtual std::string target_version() override { return "1.11"; }
 		virtual bool is_needed() override;
 		virtual void run() override;
 };

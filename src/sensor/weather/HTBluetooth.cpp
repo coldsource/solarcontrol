@@ -63,7 +63,8 @@ void HTBluetooth::HandleMessage(const string &message, const std::string & /*top
 				return;
 
 			humidity = (double)strtol(payload.substr(12, 2).c_str(), 0, 16);
-			temperature = (double)((strtol(payload.substr(18, 2).c_str(), 0, 16) << 8) + strtol(payload.substr(16, 2).c_str(), 0, 16)) / 10;
+			short utemp = (short)((strtol(payload.substr(18, 2).c_str(), 0, 16) << 8) + strtol(payload.substr(16, 2).c_str(), 0, 16)); // Temperature is a 16 bits signed integer
+			temperature = (double)utemp / 10.0; // Convert to double
 
 			notify_observer();
 		}

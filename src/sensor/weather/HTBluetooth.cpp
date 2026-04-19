@@ -73,11 +73,11 @@ void HTBluetooth::HandleMessage(const string &message, const std::string & /*top
 			else if(j.contains("181a")) // Custom sensor
 			{
 				string payload = j["181a"];
-				if(payload.size()!=12)
+				if(payload.size()!=8)
 					return;
 
-				long ihumidity = (strtol(payload.substr(8, 2).c_str(), 0, 16)<<8) | strtol(payload.substr(10, 2).c_str(), 0, 16);
-				humidity = (double)(ihumidity - 500) / 1000 * 100;
+				long ihumidity = (strtol(payload.substr(4, 2).c_str(), 0, 16)<<8) | strtol(payload.substr(6, 2).c_str(), 0, 16);
+				humidity = (double)ihumidity / 10;
 				temperature = 0;
 
 				notify_observer();

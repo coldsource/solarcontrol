@@ -58,15 +58,30 @@ void HTBluetooth::HandleMessage(const string &message, const std::string & /*top
 		try
 		{
 			json j = json::parse(message);
-			string payload = j["fcd2"];
-			if(payload.size()!=20)
-				return;
+			if(j.contains("fcd2")) // Shelly sensor
+			{
+				string payload = j["fcd2"];
+				if(payload.size()!=20)
+					return;
 
-			humidity = (double)strtol(payload.substr(12, 2).c_str(), 0, 16);
-			short utemp = (short)((strtol(payload.substr(18, 2).c_str(), 0, 16) << 8) + strtol(payload.substr(16, 2).c_str(), 0, 16)); // Temperature is a 16 bits signed integer
-			temperature = (double)utemp / 10.0; // Convert to double
+				humidity = (double)strtol(payload.substr(12, 2).c_str(), 0, 16);
+				short utemp = (short)((strtol(payload.substr(18, 2).c_str(), 0, 16) << 8) + strtol(payload.substr(16, 2).c_str(), 0, 16)); // Temperature is a 16 bits signed integer
+				temperature = (double)utemp / 10.0; // Convert to double
 
-			notify_observer();
+				notify_observer();
+			}
+			else if(j.contains("181a")) // Custom sensor
+			{
+				string payload = j["181a"];
+				if(payload.size()!=12)
+					return;
+
+				long ihumidity = (strtol(payload.substr(8, 2).c_str(), 0, 16)<<8) | strtol(payload.substr(10, 2).c_str(), 0, 16);
+				humidity = (double)(ihumidity - 500) / 1000 * 100;
+				temperature = 0;
+
+				notify_observer();
+			}
 		}
 		catch(json::exception &e)
 		{

@@ -38,6 +38,13 @@ string Upgrade::get_version() const
 	return res["storage_value"];
 }
 
+bool Upgrade::is_needed() const
+{
+	string v;
+
+	return (VersionCompare(get_version(), target_version())==-1);
+}
+
 int Upgrade::VersionCompare(const std::string &v1, const std::string &v2)
 {
 	const static regex version_regex("^([0-9]+)\\.([0-9]+)$");

@@ -28,7 +28,7 @@ using nlohmann::json;
 
 namespace upgrade {
 
-bool Upgrade_1_11::is_needed()
+bool Upgrade_1_11::is_needed() const
 {
 	string v;
 
@@ -47,7 +47,6 @@ void Upgrade_1_11::run()
 {
 	database::DB db;
 	db.Query("ALTER TABLE t_device MODIFY `device_type`VARCHAR(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL"_sql);
-	db.Query("REPLACE INTO t_storage(storage_name, storage_value) VALUES(%s, %s)"_sql<<"version"<<"1.11");
 
 	// mqtt_id is now mandatory for control section
 	auto res = db.Query("SELECT device_id, device_config FROM t_device"_sql);

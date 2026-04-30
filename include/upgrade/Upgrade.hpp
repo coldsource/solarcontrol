@@ -40,8 +40,8 @@ class Upgrade
 			return (VersionCompare(a->target_version(), b->target_version()) < 0);
 		}
 
-		virtual std::string target_version() = 0;
-		virtual bool is_needed() = 0;
+		virtual std::string target_version() const = 0;
+		virtual bool is_needed() const;
 		virtual void run() = 0;
 };
 

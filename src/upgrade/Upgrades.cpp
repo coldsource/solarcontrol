@@ -19,6 +19,8 @@
 
 #include <upgrade/Upgrades.hpp>
 #include <upgrade/Upgrade_1_11.hpp>
+#include <upgrade/Upgrade_1_12.hpp>
+#include <database/DB.hpp>
 
 #include <set>
 #include <memory>
@@ -29,16 +31,20 @@ namespace upgrade {
 
 bool Upgrades::run()
 {
-	set<shared_ptr<Upgrade>, decltype(Upgrade::CompareTo) *> upgrades;
+	set<shared_ptr<Upgrade>, decltype(Upgrade::CompareTo) *> upgrades(Upgrade::CompareTo);
 	upgrades.insert(make_shared<Upgrade_1_11>());
+	upgrades.insert(make_shared<Upgrade_1_12>());
 
 	int performed_upgrades = 0;
+	database::DB db;
 	for(auto upgrade : upgrades)
 	{
 		if(!upgrade->is_needed())
 			continue;
 
 		upgrade->run();
+		db.Query("REPLACE INTO t_storage(storage_name, storage_value) VALUES(%s, %s)"_sql<<"version"<<upgrade->target_version());
+
 		performed_upgrades++;
 	}
 

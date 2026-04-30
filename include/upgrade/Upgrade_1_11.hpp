@@ -17,8 +17,8 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __UPGRADE_UPDRADE_1_12_HPP__
-#define __UPGRADE_UPDRADE_1_12_HPP__
+#ifndef __UPGRADE_UPDRADE_1_11_HPP__
+#define __UPGRADE_UPDRADE_1_11_HPP__
 
 #include <upgrade/Upgrade.hpp>
 
@@ -30,8 +30,8 @@ class Upgrade_1_11: public Upgrade
 		Upgrade_1_11() {}
 		virtual ~Upgrade_1_11() {}
 
-		virtual std::string target_version() override { return "1.11"; }
-		virtual bool is_needed() override;
+		virtual std::string target_version() const override { return "1.11"; }
+		virtual bool is_needed() const override;
 		virtual void run() override;
 };
 

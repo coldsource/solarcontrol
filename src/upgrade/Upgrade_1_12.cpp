@@ -17,29 +17,19 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __DEVICE_DEVICEFACTORY_HPP__
-#define __DEVICE_DEVICEFACTORY_HPP__
+#include <upgrade/Upgrade_1_12.hpp>
+#include <database/DB.hpp>
 
-#include <string>
-#include <memory>
+using namespace std;
 
-namespace configuration {
-	class Json;
-}
+namespace upgrade {
 
-namespace device {
-
-class Device;
-
-class DeviceFactory
+void Upgrade_1_12::run()
 {
-	public:
-		static std::shared_ptr<Device> Get(int id, const std::string &name, const std::string &type, const configuration::Json &config, bool device_enabled);
-		static void CheckConfig(const std::string &type, const configuration::Json &config);
-};
-
+	database::DB db;
+	db.Query("ALTER TABLE t_device ADD device_enabled INT NOT NULL DEFAULT 1 AFTER device_config"_sql);
 }
 
-#endif
+}
 
 

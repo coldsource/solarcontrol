@@ -170,6 +170,9 @@ void DevicesManager::main()
 				if(device->IsOffline())
 					continue; // Ignore offline devices (may be offline or misconfigured)
 
+				if(!device->IsEnabled())
+					continue; // Ignore disabled devices
+
 				en_wanted_state new_state = device->GetWantedState();
 				if(new_state==ON || new_state==OFF)
 					forced_devices.insert({device, new_state==ON?true:false});
@@ -191,7 +194,10 @@ void DevicesManager::main()
 
 			// Handle specific action
 			for(auto device : Devices::Get<Device>())
-				device->SpecificActions();
+			{
+				if(device->IsEnabled()) // Ignore disabled devices
+					device->SpecificActions();
+			}
 
 		}
 		catch(exception &e)

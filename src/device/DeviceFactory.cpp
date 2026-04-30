@@ -40,7 +40,7 @@ using namespace std;
 namespace device
 {
 
-shared_ptr<Device> DeviceFactory::Get(int id, const string &name, const string &type, const configuration::Json &config)
+shared_ptr<Device> DeviceFactory::Get(int id, const string &name, const string &type, const configuration::Json &config, bool device_enabled)
 {
 	shared_ptr<Device> dev;
 
@@ -75,7 +75,7 @@ shared_ptr<Device> DeviceFactory::Get(int id, const string &name, const string &
 	else
 		throw excpt::Config("Invalid device type « " + type + " »", "type");
 
-	dev->Reload(name, config);
+	dev->Reload(name, config, device_enabled);
 
 	return dev;
 }

@@ -69,6 +69,16 @@ json DeviceElectrical::HandleMessage(const string &cmd, const configuration::Jso
 
 		return json();
 	}
+	else if(cmd=="setenabled")
+	{
+		int device_id =j_params.GetInt("device_id");
+		bool enabled = j_params.GetBool("enabled");
+
+		set_enabled(device_id, enabled);
+		devices.Reload(device_id);
+
+		return json();
+	}
 	else if(cmd=="create")
 	{
 		string device_name = j_params.GetString("device_name");

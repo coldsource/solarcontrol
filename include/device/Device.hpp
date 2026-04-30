@@ -54,6 +54,7 @@ class Device: public sensor::SensorObserver
 
 	bool offline = false;
 	bool deleted = false;
+	bool enabled = true;
 
 	protected:
 		mutable std::recursive_mutex lock;
@@ -73,7 +74,7 @@ class Device: public sensor::SensorObserver
 		virtual ~Device();
 
 		static void CheckConfig(const configuration::Json & /* conf */) {}
-		virtual void Reload(const std::string &name, const configuration::Json &config) final;
+		virtual void Reload(const std::string &name, const configuration::Json &config, bool device_enabled) final;
 		void Delete();
 
 		virtual void StateRestore(const configuration::Json &last_state) final;
@@ -90,6 +91,8 @@ class Device: public sensor::SensorObserver
 		void SetOffline() override;
 		void SetOnline() override;
 		bool IsOffline() const;
+
+		bool IsEnabled() const;
 
 		virtual bool Depends(int /* device_id */) const { return false; }
 

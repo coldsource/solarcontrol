@@ -62,7 +62,7 @@ class Devices
 		Devices();
 		~Devices();
 
-		std::shared_ptr<Device> Load(int id, const std::string &name, const std::string &type, const configuration::Json &config);
+		std::shared_ptr<Device> Load(int id, const std::string &name, const std::string &type, const configuration::Json &config, bool device_enabled);
 		void Reload(int id = 0);
 		void Unload();
 		void Delete(int id);

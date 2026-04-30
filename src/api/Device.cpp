@@ -49,7 +49,7 @@ int Device::insert_device(const std::string &type, const std::string &name, cons
 	int id = (int)db.InsertID(); // Hope we don't have more then 2^32 devices ;)
 
 	Devices devices;
-	devices.Load(id, name, type, config);
+	devices.Load(id, name, type, config, true);
 
 	return id;
 }
@@ -83,6 +83,12 @@ void Device::update_prio(int id, int new_prio)
 		"UPDATE t_device SET device_config=%s WHERE device_id=%i"_sql
 		<<j_config.dump()<<onoff->GetID()
 	);
+}
+
+void Device::set_enabled(int id, bool enabled)
+{
+	DB db;
+	db.Query("UPDATE t_device SET device_enabled=%i WHERE device_id=%i"_sql<<(enabled?1:0)<<id);
 }
 
 }

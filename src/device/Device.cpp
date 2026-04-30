@@ -44,7 +44,7 @@ Device::~Device()
 	}
 }
 
-void Device::Reload(const string &name, const configuration::Json &config)
+void Device::Reload(const string &name, const configuration::Json &config, bool device_enabled)
 {
 	unique_lock<recursive_mutex> llock(lock);
 
@@ -52,6 +52,7 @@ void Device::Reload(const string &name, const configuration::Json &config)
 
 	this->name = name;
 	this->config = config;
+	this->enabled = device_enabled;
 
 	// Reinit sensors before reload
 	sensors.clear();
@@ -97,6 +98,7 @@ json Device::ToJson() const
 	j_device["device_name"] = GetName();
 	j_device["device_config"] = (json)GetConfig();
 	j_device["offline"] = offline;
+	j_device["enabled"] = enabled;
 
 	return j_device;
 }
@@ -125,11 +127,19 @@ void Device::SetOnline()
 
 	offline = false;
 }
+
 bool Device::IsOffline() const
 {
 	unique_lock<recursive_mutex> llock(lock);
 
 	return offline;
+}
+
+bool Device::IsEnabled() const
+{
+	unique_lock<recursive_mutex> llock(lock);
+
+	return enabled;
 }
 
 }

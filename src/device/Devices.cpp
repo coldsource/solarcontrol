@@ -46,7 +46,7 @@ Devices::Devices()
 		database::DB db;
 
 		database::Query q(" \
-			SELECT DEV.device_id, DEV.device_name, DEV.device_type, DEV.device_config, STATE.device_state \
+			SELECT DEV.device_id, DEV.device_name, DEV.device_type, DEV.device_config, DEV.device_enabled, STATE.device_state \
 			FROM t_device DEV \
 			LEFT JOIN t_device_state STATE ON DEV.device_id=STATE.device_id \
 			");
@@ -55,6 +55,7 @@ Devices::Devices()
 		{
 			int device_id = res["device_id"];
 			string device_name = res["device_name"];
+			int device_enabled = res["device_enabled"];
 
 			try
 			{
@@ -64,7 +65,7 @@ Devices::Devices()
 					config = configuration::Json((string)res["device_config"]);
 				}
 
-				auto device = Load(device_id, res["device_name"], res["device_type"], config);
+				auto device = Load(device_id, res["device_name"], res["device_type"], config, device_enabled);
 				if(!res["device_state"].IsNull())
 					device->StateRestore(configuration::Json((string)res["device_state"]));
 			}
@@ -86,9 +87,9 @@ Devices::~Devices()
 {
 }
 
-std::shared_ptr<Device> Devices::Load(int id, const string &name, const string &type, const configuration::Json &config)
+std::shared_ptr<Device> Devices::Load(int id, const string &name, const string &type, const configuration::Json &config, bool device_enabled)
 {
-	auto device = DeviceFactory::Get(id, name, type, config);
+	auto device = DeviceFactory::Get(id, name, type, config, device_enabled);
 
 	devices.insert(pair<int, shared_ptr<Device>>(device->GetID(), device));
 
@@ -111,7 +112,7 @@ void Devices::Reload(int id)
 		string WHERE = "";
 		if(id!=0)
 			WHERE = " WHERE device_id = " + to_string(id);
-		database::Query q("SELECT device_id, device_name, device_type, device_config FROM t_device" + WHERE);
+		database::Query q("SELECT device_id, device_name, device_type, device_config, device_enabled FROM t_device" + WHERE);
 
 		auto res = db.Query(q);
 		while(res.FetchRow())
@@ -119,9 +120,10 @@ void Devices::Reload(int id)
 			configuration::Json config((string)res["device_config"]);
 			int device_id = res["device_id"];
 			string name = res["device_name"];
+			int device_enabled = res["device_enabled"];
 
 			auto device = get_by_id(device_id);
-			device->Reload(name, config);
+			device->Reload(name, config, device_enabled);
 		}
 
 		// On startup, Websocket server is not yet started

@@ -17,29 +17,23 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __DEVICE_DEVICEFACTORY_HPP__
-#define __DEVICE_DEVICEFACTORY_HPP__
+#ifndef __UPGRADE_UPDRADE_1_12_HPP__
+#define __UPGRADE_UPDRADE_1_12_HPP__
 
-#include <string>
-#include <memory>
+#include <upgrade/Upgrade.hpp>
 
-namespace configuration {
-	class Json;
-}
+namespace upgrade {
 
-namespace device {
-
-class Device;
-
-class DeviceFactory
+class Upgrade_1_12: public Upgrade
 {
 	public:
-		static std::shared_ptr<Device> Get(int id, const std::string &name, const std::string &type, const configuration::Json &config, bool device_enabled);
-		static void CheckConfig(const std::string &type, const configuration::Json &config);
+		Upgrade_1_12() {}
+		virtual ~Upgrade_1_12() {}
+
+		virtual std::string target_version() const override { return "1.12"; }
+		virtual void run() override;
 };
 
 }
 
 #endif
-
-

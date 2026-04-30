@@ -34,6 +34,7 @@ class Device
 		int insert_device(const std::string &type, const std::string &name, const configuration::Json &config);
 		void update_device(int id, const std::string &name, const configuration::Json &config);
 		void update_prio(int id, int new_prio);
+		void set_enabled(int id, bool enabled);
 };
 
 }

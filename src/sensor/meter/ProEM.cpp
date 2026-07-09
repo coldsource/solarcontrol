@@ -18,6 +18,7 @@
  */
 
 #include <sensor/meter/ProEM.hpp>
+#include <mqtt/Client.hpp>
 #include <configuration/Json.hpp>
 #include <nlohmann/json.hpp>
 #include <excpt/Config.hpp>
@@ -27,9 +28,23 @@ using nlohmann::json;
 
 namespace sensor::meter {
 
-ProEM::ProEM(const string &mqtt_id, const string &phase): Pro3EM(mqtt_id, phase)
+ProEM::ProEM(const string &mqtt_id, const string &phase)
 {
 	phasei = phase[0] - 'a';
+
+	if(phasei==25) // z is 'All'
+		phasei = -1;
+
+	auto mqtt = mqtt::Client::GetInstance();
+	topic = mqtt_id + "/events/rpc";
+	mqtt->Subscribe(topic, this);
+}
+
+ProEM::~ProEM()
+{
+	auto mqtt = mqtt::Client::GetInstance();
+	if(mqtt)
+		mqtt->Unsubscribe(topic, this);
 }
 
 void ProEM::CheckConfig(const configuration::Json &conf)
@@ -37,8 +52,8 @@ void ProEM::CheckConfig(const configuration::Json &conf)
 	Meter::CheckConfig(conf);
 
 	string phase = conf.GetString("phase");
-	if(phase!="a" && phase!="b")
-		throw excpt::Config("Phase must be a or b", "phase");
+	if(phase!="a" && phase!="b" && phase!="z")
+		throw excpt::Config("Phase must be a, b or z", "phase");
 }
 
 void ProEM::HandleMessage(const string &message, const std::string & /*topic*/)
@@ -49,30 +64,42 @@ void ProEM::HandleMessage(const string &message, const std::string & /*topic*/)
 
 		json j = json::parse(message);
 
-		if(j.contains("params") && j["params"].contains("em1:" + to_string(phasei)))
+		double total_power = 0;
+		for(int i = 0; i < 2; i++)
 		{
-			auto ev = j["params"]["em1:" + to_string(phasei)];
+			// Power
+			if((phasei==-1 || i==phasei) && j.contains("params") && j["params"].contains("em1:" + to_string(i)))
+			{
+				auto ev = j["params"]["em1:" + to_string(i)];
 
-			power = ev["act_power"];
+				power_phases[i] = ev["act_power"];
+			}
+
+			total_power += power_phases[i];
+
+			// Energy
+			if((phasei==-1 || i==phasei) && j.contains("params") && j["params"].contains("em1data:" + to_string(i)))
+			{
+				auto ev = j["params"]["em1data:" + to_string(phasei)];
+
+				double total_consumption = ev["total_act_energy"];
+				double total_excess = ev["total_act_ret_energy"];
+
+				double consumption_delta = last_energy_consumption_phases[i]==0?0:(total_consumption - last_energy_consumption_phases[i]);
+				last_energy_consumption_phases[i] = total_consumption;
+				if(consumption_delta>0)
+					energy_consumption += consumption_delta;
+
+				double excess_delta = last_energy_excess_phases[i]==0?0:(total_excess - last_energy_excess_phases[i]);
+				last_energy_excess_phases[i] = total_excess;
+				if(excess_delta>0)
+					energy_excess += excess_delta;
+
+				printf("delta = %f %f\n", consumption_delta, excess_delta);
+			}
 		}
 
-		if(j.contains("params") && j["params"].contains("em1data:" + to_string(phasei)))
-		{
-			auto ev = j["params"]["em1data:" + to_string(phasei)];
-
-			double total_consumption = ev["total_act_energy"];
-			double total_excess = ev["total_act_ret_energy"];
-
-			double consumption_delta = last_energy_consumption==0?0:(total_consumption - last_energy_consumption);
-			last_energy_consumption = total_consumption;
-			if(consumption_delta>0)
-				energy_consumption += consumption_delta;
-
-			double excess_delta = last_energy_excess==0?0:(total_excess - last_energy_excess);
-			last_energy_excess = total_excess;
-			if(excess_delta>0)
-				energy_excess += excess_delta;
-		}
+		power = total_power;
 	}
 	catch(json::exception &e)
 	{

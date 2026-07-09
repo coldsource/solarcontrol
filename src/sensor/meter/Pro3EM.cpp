@@ -47,8 +47,8 @@ void Pro3EM::CheckConfig(const configuration::Json &conf)
 	Meter::CheckConfig(conf);
 
 	string phase = conf.GetString("phase");
-	if(phase!="a" && phase!="b" && phase!="c")
-		throw excpt::Config("Phase must be a, b or c", "phase");
+	if(phase!="a" && phase!="b" && phase!="c" && phase!="z")
+		throw excpt::Config("Phase must be a, b, c or z", "phase");
 }
 
 void Pro3EM::HandleMessage(const string &message, const std::string & /*topic*/)
@@ -63,15 +63,29 @@ void Pro3EM::HandleMessage(const string &message, const std::string & /*topic*/)
 		{
 			auto ev = j["params"]["em:0"];
 
-			power = ev[phase + "_act_power"];
+			if(phase=="z")
+				power = (double)ev["a_act_power"] + (double)ev["b_act_power"] + (double)ev["c_act_power"];
+			else
+				power = ev[phase + "_act_power"];
 		}
 
 		if(j.contains("params") && j["params"].contains("emdata:0"))
 		{
 			auto ev = j["params"]["emdata:0"];
 
-			double total_consumption = ev[phase + "_total_act_energy"];
-			double total_excess = ev[phase + "_total_act_ret_energy"];
+			double total_consumption;
+			double total_excess;
+
+			if(phase=="z")
+			{
+				total_consumption = (double)ev["a_total_act_energy"] + (double)ev["b_total_act_energy"] + (double)ev["c_total_act_energy"];
+				total_excess = (double)ev["a_total_act_ret_energy"] + (double)ev["b_total_act_ret_energy"] + (double)ev["c_total_act_ret_energy"];
+			}
+			else
+			{
+				total_consumption = ev[phase + "_total_act_energy"];
+				total_excess = ev[phase + "_total_act_ret_energy"];
+			}
 
 			double consumption_delta = last_energy_consumption==0?0:(total_consumption - last_energy_consumption);
 			last_energy_consumption = total_consumption;

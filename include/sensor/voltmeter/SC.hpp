@@ -17,10 +17,10 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __SENSOR_VOLTMETER_ARDUINO_HPP__
-#define __SENSOR_VOLTMETER_ARDUINO_HPP__
+#ifndef __SENSOR_VOLTMETER_SC_HPP__
+#define __SENSOR_VOLTMETER_SC_HPP__
 
-#include <sensor/voltmeter/VoltmeterSimple.hpp>
+#include <sensor/voltmeter/Voltmeter.hpp>
 #include <mqtt/Subscriber.hpp>
 
 #include <string>
@@ -36,24 +36,32 @@ namespace sensor::voltmeter {
  * State Of Charge (SOC) is deduced from average voltage
  */
 
-class Arduino: public VoltmeterSimple, public mqtt::Subscriber
+class SC: public Voltmeter, public mqtt::Subscriber
 {
-	std::string topic;
+	enum charge_state_t { UNKNOWN, CHARGING, DISCHARGING, NONE, FLOAT };
+
+	std::string topic_ina;
+	std::string topic_soc;
 
 	// State
-	std::atomic_bool charging = false;
+	charge_state_t charge_state = UNKNOWN;
+	double soc = 0;
+	double v = 0;
 
 	public:
-		Arduino(const configuration::Json &conf);
-		virtual ~Arduino();
+		SC(const configuration::Json &conf);
+		virtual ~SC();
 
 		static void CheckConfig(const configuration::Json &conf);
 
-		bool IsCharging() const override { return charging; }
+		virtual double GetVoltage() const override { return v; }
+		virtual double GetSOC() const override { return soc; };
+		bool IsCharging() const override { return charge_state==CHARGING; }
 
-		void HandleMessage(const std::string &message, const std::string & /*topic*/) override;
+		void HandleMessage(const std::string &message, const std::string &topic) override;
 };
 
 }
 
 #endif
+

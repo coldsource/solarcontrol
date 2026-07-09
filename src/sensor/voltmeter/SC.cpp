@@ -17,10 +17,9 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#include <sensor/voltmeter/Arduino.hpp>
+#include <sensor/voltmeter/SC.hpp>
 #include <mqtt/Client.hpp>
 #include <configuration/Json.hpp>
-#include <configuration/ConfigurationPart.hpp>
 #include <nlohmann/json.hpp>
 #include <excpt/Context.hpp>
 #include <excpt/Config.hpp>
@@ -31,29 +30,36 @@ using nlohmann::json;
 
 namespace sensor::voltmeter {
 
-Arduino::Arduino(const configuration::Json &conf):VoltmeterSimple(conf)
+SC::SC(const configuration::Json &conf)
 {
 	CheckConfig(conf);
 
 	string mqtt_id = conf.GetString("mqtt_id");
 
 	auto mqtt = mqtt::Client::GetInstance();
-	topic = mqtt_id;
-	mqtt->Subscribe(topic, this);
+
+	topic_ina = mqtt_id + "/ina236";
+	mqtt->Subscribe(topic_ina, this);
+
+	topic_soc = mqtt_id + "/soc";
+	mqtt->Subscribe(topic_soc, this);
 }
 
-Arduino::~Arduino()
+SC::~SC()
 {
 	auto mqtt = mqtt::Client::GetInstance();
 	if(mqtt)
-		mqtt->Unsubscribe(topic, this);
+	{
+		mqtt->Unsubscribe(topic_ina, this);
+		mqtt->Unsubscribe(topic_soc, this);
+	}
 }
 
-void Arduino::CheckConfig(const configuration::Json &conf)
+void SC::CheckConfig(const configuration::Json &conf)
 {
 	excpt::Context ctx("voltmeter", "In voltmeter configuration");
 
-	VoltmeterSimple::CheckConfig(conf);
+	Voltmeter::CheckConfig(conf);
 
 	conf.Check("mqtt_id", "string");
 
@@ -61,7 +67,7 @@ void Arduino::CheckConfig(const configuration::Json &conf)
 		throw excpt::Config("Missing MQTT ID", "mqtt_id");
 }
 
-void Arduino::HandleMessage(const string &message, const std::string & /*topic*/)
+void SC::HandleMessage(const string &message, const std::string &topic)
 {
 	Timestamp now(TS_MONOTONIC);
 
@@ -71,26 +77,27 @@ void Arduino::HandleMessage(const string &message, const std::string & /*topic*/
 
 		json j = json::parse(message);
 
-		if(!j.contains("voltage"))
+		if(!j.contains("event") || !j.contains("data"))
 			return;
 
-		double voltage = j["voltage"];
-		voltage_avg->Add(voltage, (double)(now - last_voltage_update));
-		last_voltage_update = now;
+		auto ev = j["data"];
 
-		if(voltage_avg->Get() >= max_voltage + charge_delta / 2)
-			charging = true;
-		else
-			charging = false;
+		if(topic==topic_ina)
+			v = ev["v"];
+		else if(topic==topic_soc)
+		{
+			soc = ev["soc"];
+			charge_state = ev["state"];
+		}
 	}
 	catch(json::exception &e)
 	{
 		return;
 	}
 
-	// Notify unlocked
-	if(!prevent_notify())
-		notify_observer();
+	// Notify observer unlocked
+	notify_observer();
 }
 
 }
+

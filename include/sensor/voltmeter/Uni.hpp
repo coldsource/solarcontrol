@@ -20,7 +20,7 @@
 #ifndef __SENSOR_VOLTMETER_UNI_HPP__
 #define __SENSOR_VOLTMETER_UNI_HPP__
 
-#include <sensor/voltmeter/Voltmeter.hpp>
+#include <sensor/voltmeter/VoltmeterSimple.hpp>
 #include <mqtt/Subscriber.hpp>
 
 #include <string>
@@ -36,7 +36,7 @@ namespace sensor::voltmeter {
  * State Of Charge (SOC) is deduced from average voltage
  */
 
-class Uni: public Voltmeter, public mqtt::Subscriber
+class Uni: public VoltmeterSimple, public mqtt::Subscriber
 {
 	std::string topic;
 

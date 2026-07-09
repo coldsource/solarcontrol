@@ -30,7 +30,7 @@ using nlohmann::json;
 
 namespace sensor::voltmeter {
 
-Uni::Uni(const configuration::Json &conf):Voltmeter(conf)
+Uni::Uni(const configuration::Json &conf):VoltmeterSimple(conf)
 {
 	CheckConfig(conf);
 
@@ -52,7 +52,7 @@ void Uni::CheckConfig(const configuration::Json &conf)
 {
 	excpt::Context ctx("voltmeter", "In voltmeter configuration");
 
-	Voltmeter::CheckConfig(conf);
+	VoltmeterSimple::CheckConfig(conf);
 
 	conf.Check("mqtt_id", "string");
 

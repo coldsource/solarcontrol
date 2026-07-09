@@ -20,6 +20,7 @@
 #include <sensor/voltmeter/Factory.hpp>
 #include <sensor/voltmeter/Uni.hpp>
 #include <sensor/voltmeter/Arduino.hpp>
+#include <sensor/voltmeter/SC.hpp>
 #include <configuration/Json.hpp>
 #include <excpt/Context.hpp>
 #include <excpt/Config.hpp>
@@ -41,6 +42,8 @@ shared_ptr<Voltmeter> Factory::GetFromConfig(const configuration::Json &conf)
 		return make_shared<Uni>(conf);
 	if(type=="arduino")
 		return make_shared<Arduino>(conf);
+	if(type=="sc")
+		return make_shared<SC>(conf);
 
 	return nullptr;
 }
@@ -55,6 +58,8 @@ void Factory::CheckConfig(const configuration::Json &conf)
 		Uni::CheckConfig(conf);
 	else if(type=="arduino")
 		Arduino::CheckConfig(conf);
+	else if(type=="sc")
+		SC::CheckConfig(conf);
 	else
 		throw excpt::Config("Unknown voltmeter type « " + type + " »", "type");
 }

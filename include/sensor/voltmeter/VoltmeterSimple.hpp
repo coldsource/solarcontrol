@@ -17,10 +17,10 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __SENSOR_VOLTMETER_VOLTMETER_HPP__
-#define __SENSOR_VOLTMETER_VOLTMETER_HPP__
+#ifndef __SENSOR_VOLTMETER_VOLTMETERSIMPLE_HPP__
+#define __SENSOR_VOLTMETER_VOLTMETERSIMPLE_HPP__
 
-#include <sensor/Sensor.hpp>
+#include <sensor/voltmeter/Voltmeter.hpp>
 #include <configuration/ConfigurationObserver.hpp>
 #include <datetime/Timestamp.hpp>
 #include <stat/MovingAverage.hpp>
@@ -35,26 +35,39 @@ namespace configuration {
 
 namespace sensor::voltmeter {
 
-class Voltmeter: public Sensor
+class VoltmeterSimple: public Voltmeter, public configuration::ConfigurationObserver
 {
 	protected:
 		mutable std::mutex lock;
 
+		// Config
+		unsigned long smoothing;
+		double charge_delta;
+		double max_voltage;
+		std::map<int, double> thresholds; // Voltate thresholds used for computing SOC
+
+		// State
+		std::shared_ptr<stat::MovingAverage<double>> voltage_avg; // Average voltage in mV
+		datetime::Timestamp last_voltage_update;
+		datetime::Timestamp last_reload;
+
+		bool prevent_notify() const;
+
 	public:
-		virtual ~Voltmeter() {}
+		VoltmeterSimple(const configuration::Json &conf);
+		virtual ~VoltmeterSimple() {}
 
-		static void CheckConfig(const configuration::Json & /*conf*/) {}
+		static void CheckConfig(const configuration::Json &conf);
+		void ConfigurationChanged(const configuration::ConfigurationPart *config) override;
 
-		virtual double GetVoltage() const = 0;
-		virtual double GetSOC() const = 0;
-		virtual bool IsCharging() const = 0;
-
-		virtual std::string GetCategory() const override { return "voltmeter"; }
+		virtual double GetVoltage() const override;
+		virtual double GetSOC() const override;
 };
 
 }
 
 #endif
+
 
 
 

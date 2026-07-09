@@ -80,7 +80,7 @@ void ProEM::HandleMessage(const string &message, const std::string & /*topic*/)
 			// Energy
 			if((phasei==-1 || i==phasei) && j.contains("params") && j["params"].contains("em1data:" + to_string(i)))
 			{
-				auto ev = j["params"]["em1data:" + to_string(phasei)];
+				auto ev = j["params"]["em1data:" + to_string(i)];
 
 				double total_consumption = ev["total_act_energy"];
 				double total_excess = ev["total_act_ret_energy"];
@@ -94,8 +94,6 @@ void ProEM::HandleMessage(const string &message, const std::string & /*topic*/)
 				last_energy_excess_phases[i] = total_excess;
 				if(excess_delta>0)
 					energy_excess += excess_delta;
-
-				printf("delta = %f %f\n", consumption_delta, excess_delta);
 			}
 		}
 

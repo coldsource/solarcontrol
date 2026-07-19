@@ -22,6 +22,7 @@
 #include <sensor/sw/Pro.hpp>
 #include <sensor/sw/Uni.hpp>
 #include <sensor/sw/Arduino.hpp>
+#include <sensor/sw/SC.hpp>
 #include <configuration/Json.hpp>
 #include <excpt/Context.hpp>
 #include <excpt/Config.hpp>
@@ -49,6 +50,8 @@ shared_ptr<Switch> Factory::GetFromConfig(const configuration::Json &conf)
 		return make_shared<Uni>(conf.GetString("ip"), conf.GetInt("outlet"), conf.GetString("mqtt_id"), reverted);
 	if(type=="arduino")
 		return make_shared<Arduino>(conf.GetString("mqtt_id"), reverted);
+	if(type=="sc")
+		return make_shared<SC>(conf.GetString("mqtt_id"), reverted);
 	if(type=="bsblan")
 		return nullptr;
 
@@ -69,6 +72,8 @@ void Factory::CheckConfig(const configuration::Json &conf)
 		Uni::CheckConfig(conf);
 	else if(type=="arduino")
 		Arduino::CheckConfig(conf);
+	else if(type=="sc")
+		SC::CheckConfig(conf);
 	else if(type=="bsblan")
 		return;
 	else

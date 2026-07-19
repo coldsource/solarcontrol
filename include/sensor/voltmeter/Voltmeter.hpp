@@ -37,6 +37,9 @@ namespace sensor::voltmeter {
 
 class Voltmeter: public Sensor
 {
+	public:
+		enum charge_state_t { UNKNOWN, CHARGING, DISCHARGING, NONE, FLOAT };
+
 	protected:
 		mutable std::mutex lock;
 
@@ -47,6 +50,7 @@ class Voltmeter: public Sensor
 
 		virtual double GetVoltage() const = 0;
 		virtual double GetSOC() const = 0;
+		virtual charge_state_t GetState() const;
 		virtual bool IsCharging() const = 0;
 
 		virtual std::string GetCategory() const override { return "voltmeter"; }

@@ -38,8 +38,6 @@ namespace sensor::voltmeter {
 
 class SC: public Voltmeter, public mqtt::Subscriber
 {
-	enum charge_state_t { UNKNOWN, CHARGING, DISCHARGING, NONE, FLOAT };
-
 	std::string topic_ina;
 	std::string topic_soc;
 
@@ -56,6 +54,7 @@ class SC: public Voltmeter, public mqtt::Subscriber
 
 		virtual double GetVoltage() const override { return v; }
 		virtual double GetSOC() const override { return soc; };
+		virtual charge_state_t GetState() const override { return charge_state; }
 		bool IsCharging() const override { return charge_state==CHARGING; }
 
 		void HandleMessage(const std::string &message, const std::string &topic) override;

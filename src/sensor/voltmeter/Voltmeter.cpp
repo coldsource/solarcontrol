@@ -25,6 +25,11 @@ using namespace std;
 
 namespace sensor::voltmeter {
 
+Voltmeter::charge_state_t Voltmeter::GetState() const
+{
+	throw runtime_error("GetState() unsupported by this Voltmeter");
+}
+
 }
 
 

@@ -217,10 +217,7 @@ bool OnOff::IsOnBattery() const
 
 	// Device is controlled, check controller state to determine if it's on battery or grid
 	shared_ptr<Controller> controller = Devices::GetByID<Controller>(battery_controller_id);
-	if(controller->GetState())
-		return false; // On grid
-
-	return true; // On battery
+	return controller->IsOnBattery();
 }
 
 void OnOff::SensorChanged(const sensor::Sensor *sensor)

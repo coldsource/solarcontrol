@@ -33,6 +33,8 @@ class Controller: public TimeRange
 		virtual ~Controller() {}
 
 		std::string GetType() const override { return "controller"; }
+
+		virtual bool IsOnBattery() const override { return !GetState(); }
 };
 
 }

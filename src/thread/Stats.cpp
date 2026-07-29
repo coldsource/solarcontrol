@@ -75,7 +75,7 @@ double Stats::get_controlled_power() const
 
 	for(auto device : onoff)
 	{
-		if(device->GetState())
+		if(device->GetState() && !device->IsOnBattery())
 			controlled_active_power += device->GetExpectedConsumption();
 	}
 

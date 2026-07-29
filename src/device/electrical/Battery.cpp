@@ -251,9 +251,6 @@ void Battery::SensorChanged(const sensor::Sensor *sensor)
 		double old_soc = soc;
 		soc = voltmeter->GetSOC();
 
-		if(soc < 0)
-			return; // SOC not yet ready
-
 		// Update soc_state
 		if(soc<battery_low)
 			soc_state = BACKUP; // Always switch to backup mode if battery is too low

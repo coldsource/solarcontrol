@@ -95,6 +95,10 @@ void SC::HandleMessage(const string &message, const std::string &topic)
 		return;
 	}
 
+	// Prevent notify before all states have been read (ina + soc)
+	if(soc==-1 || v==-1)
+		return;
+
 	// Notify observer unlocked
 	notify_observer();
 }

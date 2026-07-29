@@ -52,6 +52,8 @@ class Json
 		double GetFloat(const std::string &name, double default_value) const;
 		bool GetBool(const std::string &name) const;
 		bool GetBool(const std::string &name, bool default_value) const;
+		int GetPower(const std::string &name) const;
+		int GetPower(const std::string &name, int default_value) const;
 		const Json GetArray(const std::string &name) const;
 		const Json GetArray(const std::string &name, const nlohmann::json &default_value) const;
 		const Json GetObject(const std::string &name) const;

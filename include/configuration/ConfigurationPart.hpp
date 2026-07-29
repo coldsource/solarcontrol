@@ -67,9 +67,6 @@ class ConfigurationPart
 		const std::map<std::string,std::string> GetBackup(const std::string &name);
 
 	protected:
-		template<typename T>
-		T decode_unit_value(const std::string &value, std::map<std::string, T> units, bool signed_value = false) const;
-
 		void check_bool_entry(const std::string &name) const;
 		void check_int_entry(const std::string &name, bool signed_int = false) const;
 		void check_double_entry(const std::string &name, bool signed_double = false) const;

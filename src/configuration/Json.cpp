@@ -18,6 +18,7 @@
  */
 
 #include <configuration/Json.hpp>
+#include <configuration/Units.hpp>
 #include <excpt/Config.hpp>
 
 using namespace std;
@@ -143,6 +144,29 @@ bool Json::GetBool(const std::string &name, bool default_value) const
 		return default_value;
 
 	return GetBool(name);
+}
+
+int Json::GetPower(const std::string &name, int default_value) const
+{
+	if(!json.contains(name))
+		return default_value;
+
+	return GetPower(name);
+}
+
+int Json::GetPower(const std::string &name) const
+{
+	check_entry(name, "string");
+	const string value = GetString(name);
+
+	try
+	{
+		return (int)decode_unit_value<double>(value, {{"w", 1},  {"kw", 1000}}, false);
+	}
+	catch(exception &e)
+	{
+		throw excpt::Config("Parameter « " + name + " » is invalid : " + string(e.what()), name);
+	}
 }
 
 const Json Json::GetArray(const string &name) const

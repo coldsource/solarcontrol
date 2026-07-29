@@ -19,6 +19,7 @@
 
 #include <configuration/ConfigurationPart.hpp>
 #include <configuration/Configuration.hpp>
+#include <configuration/Units.hpp>
 #include <websocket/SolarControl.hpp>
 #include <excpt/Config.hpp>
 
@@ -107,57 +108,6 @@ const string &ConfigurationPart::Get(const string &entry) const
 	if(it==entries.end())
 		throw excpt::Config("Unknown configuration entry: " + entry, entry);
 	return it->second;
-}
-
-template<typename T>
-T ConfigurationPart::decode_unit_value(const string &value, map<string, T> units, bool signed_value) const
-{
-	size_t l;
-	T val;
-
-	try
-	{
-		if(is_same<T, float>::value)
-			val = stof(value, &l);
-		else if(is_same<T, double>::value)
-			val = stod(value, &l);
-		else if(is_same<T, int>::value)
-			val = stoi(value, &l);
-		else if(is_same<T, unsigned int>::value)
-			val = (unsigned int)stoi(value, &l);
-		else if(is_same<T, long>::value)
-			val = stol(value, &l);
-		else if(is_same<T, unsigned long>::value)
-			val = stoul(value, &l);
-		else if(is_same<T, long long>::value)
-			val = stoll(value, &l);
-		else if(is_same<T, unsigned long long>::value)
-			val = stoull(value, &l);
-		else
-			throw logic_error("decode_unit_value: Unable to decode data type");
-	}
-	catch(invalid_argument &e)
-	{
-		throw runtime_error("Invalid numerical value");
-	}
-	catch(out_of_range &e)
-	{
-		throw runtime_error("Value too big");
-	}
-
-	if(!signed_value && val<0)
-		throw runtime_error("Negative value is not allowed");
-
-	if(l==value.length())
-		return val; // Numerical value only (no units)
-
-	string unit = value.substr(l);
-	std::transform(unit.begin(), unit.end(), unit.begin(), ::tolower);
-	auto it_unit = units.find(unit);
-	if(it_unit==units.end())
-		throw runtime_error("Unknown unit « " + unit + " »");
-
-	return val * (it_unit->second);
 }
 
 int ConfigurationPart::GetInt(const string &entry, bool signed_int) const

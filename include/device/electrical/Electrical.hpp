@@ -61,7 +61,7 @@ class Electrical: public Device, public configuration::ConfigurationObserver
 
 		static void CheckConfig(const configuration::Json &conf);
 
-		double GetPower() const;
+		virtual double GetPower() const;
 		bool IsMetered() const;
 
 		energy::Amount GetEnergyConsumption() const;

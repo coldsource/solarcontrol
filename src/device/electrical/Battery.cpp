@@ -251,6 +251,9 @@ void Battery::SensorChanged(const sensor::Sensor *sensor)
 		double old_soc = soc;
 		soc = voltmeter->GetSOC();
 
+		if(soc < 0)
+			return; // SOC not yet ready
+
 		// Update soc_state
 		if(soc<battery_low)
 			soc_state = BACKUP; // Always switch to backup mode if battery is too low
@@ -349,6 +352,20 @@ double Battery::GetExpectedConsumption() const
 		return power; // Battery has metered consumption only when on battery
 
 	return expected_consumption; // Take estimated consumption
+}
+
+double Battery::GetPower() const
+{
+	double power = OnOff::GetPower();
+	if(power==-1)
+		return -1; // We are unmetered
+
+	// We might see power on our metering device coming from the grid when battery is disabled
+	// Force power to 0 if we are disabled or on grid to avoid double counting
+	if(!IsOn())
+		return 0;
+
+	return power;
 }
 
 bool Battery::IsOffloadAllowed() const

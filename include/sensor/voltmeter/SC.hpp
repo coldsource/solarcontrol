@@ -43,8 +43,8 @@ class SC: public Voltmeter, public mqtt::Subscriber
 
 	// State
 	charge_state_t charge_state = UNKNOWN;
-	double soc = 0;
-	double v = 0;
+	double soc = -1;
+	double v = -1;
 
 	public:
 		SC(const configuration::Json &conf);

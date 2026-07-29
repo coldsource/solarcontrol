@@ -72,8 +72,9 @@ class Battery: public OnOff
 
 		void ConfigurationChanged(const configuration::ConfigurationPart * config) override;
 
-		bool IsEnabled() { return enabled; }
-		bool IsOn() { return (IsEnabled() && !GetState()); }
+		bool IsEnabled() const { return enabled; }
+		bool IsOn() const { return (IsEnabled() && !GetState()); }
+		virtual double GetPower() const override;
 
 		std::string GetType() const override { return "battery"; }
 		virtual unsigned long GetMinOn() override { return battery_cooldown; }

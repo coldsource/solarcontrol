@@ -52,6 +52,10 @@ class OnOff: public Electrical
 		int prio;
 		double expected_consumption = 0;
 
+		// Battery configuration
+		bool battery_enabled = false;
+		int battery_controller_id = 0;
+
 		datetime::TimespanHistory on_history;
 
 		void clock(bool new_state);
@@ -77,6 +81,7 @@ class OnOff: public Electrical
 		virtual void SetManualState(bool new_state);
 		virtual void SetAutoState();
 		virtual bool IsManual() const { return manual; }
+		virtual bool IsOnBattery() const;
 
 		virtual double GetExpectedConsumption() const;
 

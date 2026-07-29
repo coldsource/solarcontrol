@@ -18,11 +18,13 @@
  */
 
 #include <thread/DevicesManager.hpp>
-#include <thread/Stats.hpp>
 #include <datetime/Timestamp.hpp>
 #include <device/Devices.hpp>
 #include <device/electrical/OnOff.hpp>
 #include <energy/GlobalMeter.hpp>
+#include <energy/AlgoForced.hpp>
+#include <energy/AlgoOffload.hpp>
+#include <energy/AlgoOffloadBattery.hpp>
 #include <websocket/SolarControl.hpp>
 #include <logs/Logger.hpp>
 #include <configuration/ConfigurationPart.hpp>
@@ -43,7 +45,6 @@ DevicesManager::DevicesManager()
 	ObserveConfiguration("control");
 
 	global_meter = energy::GlobalMeter::GetInstance();
-	stats = Stats::GetInstance();
 
 	instance = this;
 }
@@ -56,87 +57,7 @@ void DevicesManager::ConfigurationChanged(const configuration::ConfigurationPart
 {
 	unique_lock<mutex> llock(lock);
 
-	hysteresis_export = config->GetPower("control.hysteresis.export");
-	hysteresis_import = config->GetPower("control.hysteresis.import");
-	hysteresis_precision = config->GetPercent("control.hysteresis.precision");
 	cooldown = config->GetTime("control.cooldown");
-}
-
-bool DevicesManager::hysteresis(const shared_ptr<OnOff> device) const
-{
-	double consumption = device->GetExpectedConsumption();
-	double active_power = forced_power + offloaded_power;
-
-	if(device->GetState())
-	{
-		double available_power = stats->GetControllablePowerAvg() - active_power;
-		return consumption - available_power < hysteresis_import; // We are already on, so stay on as long as we have power to offload
-	}
-
-	// We are off, turn on only if we have enough power to offload
-	// Look into the past to see the percentage of the time the device could have been on without importing
-	// We check for a longer period if the device can't be quickly switched off
-	// Compare this to the required precision
-	return stats->GetDevicePrediction(device, active_power) >= hysteresis_precision;
-}
-
-bool DevicesManager::offload(const vector<shared_ptr<device::OnOff>> &devices)
-{
-	bool state_changed = false;
-	offloaded_power = 0;
-
-	// Offload based of priorities
-	for(auto device : devices)
-	{
-		bool new_state = hysteresis(device);
-		if(new_state)
-			offloaded_power += device->GetExpectedConsumption();
-
-		try
-		{
-			if(new_state!=device->GetState())
-			{
-				device->SetState(new_state);
-				state_changed = true;
-			}
-		}
-		catch(excpt::Shelly &e)
-		{
-			// Continue even if some devices have errors, they may simply be offline
-			e.Log(LOG_WARNING);
-		}
-	}
-
-	return state_changed;
-}
-
-bool DevicesManager::force(const map<shared_ptr<device::OnOff>, bool> &devices)
-{
-	bool state_changed = false;
-	forced_power = 0;
-
-	// Change all forced devices (no cool down between forced actions)
-	for(auto [device, new_state] : devices)
-	{
-		try
-		{
-			if(device->GetState()!=new_state)
-			{
-				device->SetState(new_state);
-				state_changed = true;
-			}
-		}
-		catch(excpt::Shelly &e)
-		{
-			// Continue even if some devices have errors, they may simply be offline
-			e.Log(LOG_WARNING);
-		}
-
-		if(device->GetState())
-			forced_power += device->GetExpectedConsumption();
-	}
-
-	return state_changed;
 }
 
 void DevicesManager::main()
@@ -162,6 +83,7 @@ void DevicesManager::main()
 
 			map<shared_ptr<OnOff>, bool> forced_devices;
 			vector<shared_ptr<OnOff>> offload_devices;
+			vector<shared_ptr<OnOff>> offload_devices_battery;
 
 			for(auto it = onoff.begin(); it!=onoff.end(); ++it)
 			{
@@ -179,15 +101,31 @@ void DevicesManager::main()
 				else if(new_state==UNCHANGED)
 					forced_devices.insert({device, device->GetState()});
 				else if(new_state==OFFLOAD)
-					offload_devices.push_back(device);
+				{
+					if(device->IsOnBattery())
+						offload_devices_battery.push_back(device);
+					else
+						offload_devices.push_back(device);
+				}
 			}
 
 			// Change all forced devices (no cool down between forced actions)
-			state_changed |= force(forced_devices);
+			energy::AlgoForced algo_forced(forced_devices);
+			algo_forced.Run();
+			forced_power = algo_forced.GetEnabledPower();
+			state_changed |= algo_forced.HasStateChanged();
 
 			// Apply cooldown time for offload devices
 			if((unsigned int)(now-last_change_ts)>=cooldown && !state_changed)
-				state_changed |= offload(offload_devices);
+			{
+				energy::AlgoOffload algo_offload(offload_devices, forced_power);
+				algo_offload.Run();
+				state_changed |= algo_offload.HasStateChanged();
+
+				energy::AlgoOffloadBattery algo_offload_battery(offload_devices_battery);
+				algo_offload_battery.Run();
+				state_changed |= algo_offload_battery.HasStateChanged();
+			}
 
 			if(state_changed)
 				last_change_ts = now; // Apply new cooldown

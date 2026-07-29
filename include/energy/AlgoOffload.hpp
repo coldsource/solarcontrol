@@ -17,59 +17,57 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __THREAD_DEVICESMANAGER_HPP__
-#define __THREAD_DEVICESMANAGER_HPP__
+#ifndef __ENERGY_ALGOOFFLOAD_HPP__
+#define __ENERGY_ALGOOFFLOAD_HPP__
 
-#include <thread/WaiterThread.hpp>
+#include <energy/DeviceOnOffAlgo.hpp>
 #include <configuration/ConfigurationObserver.hpp>
 
-#include <vector>
-#include <map>
-#include <mutex>
 #include <memory>
+#include <vector>
 
-namespace energy {
-	class GlobalMeter;
-}
-
-namespace device {
+namespace device{
 	class OnOff;
 }
 
-
 namespace thread {
+	class Stats;
+}
 
-class Stats;
+namespace energy {
 
-class DevicesManager: public WaiterThread, public configuration::ConfigurationObserver
+class AlgoOffload: public DeviceOnOffAlgo, public configuration::ConfigurationObserver
 {
-	static DevicesManager *instance;
-
-	std::mutex lock;
-
 	protected:
-		energy::GlobalMeter *global_meter = 0;
-
 		// Config
-		unsigned long cooldown;
+		int hysteresis_export = 0;
+		int hysteresis_import = 0;
+		double hysteresis_precision = 0;
 
 		// State
-		double forced_power = 0;
+		const std::vector<std::shared_ptr<device::OnOff>> devices;
+		double forced_power;
+		double offloaded_power;
+		bool state_changed;
 
-		void main(void) override;
+		thread::Stats *stats = 0;
+
+		bool hysteresis(const std::shared_ptr<device::OnOff> device) const;
 
 	public:
-		DevicesManager();
-		virtual ~DevicesManager();
-
-		static DevicesManager *GetInstance() { return instance; }
-
-		void Start() { start(); }
+		AlgoOffload(const std::vector<std::shared_ptr<device::OnOff>> &devices, double forced_power);
 
 		void ConfigurationChanged(const configuration::ConfigurationPart *config) override;
+
+		virtual void Run() override;
+		virtual double GetEnabledPower() const override { return offloaded_power; };
+		virtual bool HasStateChanged() const override { return state_changed; }
 };
 
 }
 
 #endif
+
+
+
 

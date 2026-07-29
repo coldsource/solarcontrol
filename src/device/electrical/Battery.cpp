@@ -78,6 +78,38 @@ void Battery::CheckConfig(const configuration::Json &conf)
 	backup.Check("battery_low", "uint");
 	backup.Check("battery_high", "uint");
 	backup.Check("min_grid_time", "uint");
+
+	unsigned int battery_low = backup.GetUInt("battery_low");
+	unsigned int battery_high = backup.GetUInt("battery_high");
+
+	if(battery_low > 100)
+		throw excpt::Config("Backup low threshold must be between 0 and 100", "battery_low");
+
+	if(battery_high > 100)
+		throw excpt::Config("Backup high threshold must be between 0 and 100", "battery_high");
+
+	if(battery_low >= battery_high)
+		throw excpt::Config("Backup low threshold be less than high threshold", "battery_low");
+
+	if(conf.Has("offload"))
+	{
+		auto offload = conf.GetObject("offload");
+		int offload_max = offload.GetPower("max");
+		unsigned int offload_soc_low = offload.GetUInt("soc_low");
+		unsigned int offload_soc_high = offload.GetUInt("soc_high");
+
+		if(offload_max < 0)
+			throw excpt::Config("Offload max must be greater than 0", "offload_max");
+
+		if(offload_soc_low > 100)
+			throw excpt::Config("Offload low threshold must be between 0 and 100", "offload_soc_low");
+
+		if(offload_soc_high > 100)
+			throw excpt::Config("Offload high threshold must be between 0 and 100", "offload_soc_high");
+
+		if(offload_soc_low >= offload_soc_high)
+			throw excpt::Config("Offload low threshold must be less than high threshold", "offload_soc_low");
+	}
 }
 
 Battery::en_battery_policy Battery::string_to_policy(const string &str)
@@ -126,6 +158,20 @@ string Battery::state_to_string(en_battery_state state)
 	return "backup";
 }
 
+Battery::en_offload_state Battery::string_to_offload_state(const string &str)
+{
+	if(str=="allowed")
+		return ALLOWED;
+	return FORBIDDEN;
+}
+
+string Battery::offload_state_to_string(en_offload_state state)
+{
+	if(state==ALLOWED)
+		return "allowed";
+	return "forbidden";
+}
+
 void Battery::reload(const configuration::Json &config)
 {
 	OnOff::reload(config);
@@ -147,6 +193,14 @@ void Battery::reload(const configuration::Json &config)
 	battery_high = backup.GetUInt("battery_high");
 	min_grid_time = backup.GetUInt("min_grid_time");
 
+	if(config.Has("offload"))
+	{
+		auto offload = config.GetObject("offload");
+		offload_max = offload.GetPower("max");
+		offload_soc_low = offload.GetUInt("soc_low");
+		offload_soc_high = offload.GetUInt("soc_high");
+	}
+
 	// Control « reverted » may have changed, force state update
 	if(state_restored && ctrl!=nullptr)
 		ctrl->Switch(state);
@@ -157,6 +211,7 @@ void Battery::state_restore(const  configuration::Json &last_state)
 	voltage = last_state.GetFloat("voltage", 0);
 	soc = last_state.GetFloat("soc", 0);
 	soc_state = string_to_state(last_state.GetString("soc_state", "float"));
+	offload_state = string_to_offload_state(last_state.GetString("offload_state", "forbidden"));
 
 	OnOff::state_restore(last_state);
 }
@@ -168,6 +223,7 @@ configuration::Json Battery::state_backup()
 	backup.Set("voltage", voltage);
 	backup.Set("soc", soc);
 	backup.Set("soc_state", state_to_string(soc_state));
+	backup.Set("offload_state", offload_state_to_string(offload_state));
 
 	return backup;
 }
@@ -230,6 +286,16 @@ void Battery::SensorChanged(const sensor::Sensor *sensor)
 					soc_state = DISCHARGING;
 			}
 		}
+
+		// Handle offload hysteresis
+		if(offload_max>0)
+		{
+			if(soc >= offload_soc_high)
+				offload_state = ALLOWED;
+
+			if(soc < offload_soc_low)
+				offload_state = FORBIDDEN;
+		}
 	}
 	else
 		OnOff::SensorChanged(sensor); // Forward other messages
@@ -283,6 +349,19 @@ double Battery::GetExpectedConsumption() const
 		return power; // Battery has metered consumption only when on battery
 
 	return expected_consumption; // Take estimated consumption
+}
+
+bool Battery::IsOffloadAllowed() const
+{
+	unique_lock<recursive_mutex> llock(lock);
+
+	return (offload_max>0 && offload_state==ALLOWED);
+}
+int Battery::GetOffloadMax() const
+{
+	unique_lock<recursive_mutex> llock(lock);
+
+	return offload_max;
 }
 
 void Battery::CreateInDB()

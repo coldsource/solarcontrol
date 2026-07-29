@@ -17,59 +17,47 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __THREAD_DEVICESMANAGER_HPP__
-#define __THREAD_DEVICESMANAGER_HPP__
+#ifndef __ENERGY_ALGOOFFLOADBATTERY_HPP__
+#define __ENERGY_ALGOOFFLOADBATTERY_HPP__
 
-#include <thread/WaiterThread.hpp>
-#include <configuration/ConfigurationObserver.hpp>
+#include <energy/DeviceOnOffAlgo.hpp>
 
-#include <vector>
-#include <map>
-#include <mutex>
 #include <memory>
+#include <vector>
 
-namespace energy {
-	class GlobalMeter;
-}
-
-namespace device {
+namespace device{
 	class OnOff;
 }
 
-
 namespace thread {
+	class Stats;
+}
 
-class Stats;
+namespace energy {
 
-class DevicesManager: public WaiterThread, public configuration::ConfigurationObserver
+class AlgoOffloadBattery: public DeviceOnOffAlgo
 {
-	static DevicesManager *instance;
-
-	std::mutex lock;
-
 	protected:
-		energy::GlobalMeter *global_meter = 0;
-
-		// Config
-		unsigned long cooldown;
-
 		// State
-		double forced_power = 0;
+		const std::vector<std::shared_ptr<device::OnOff>> devices;
+		double offloaded_power;
+		bool state_changed;
 
-		void main(void) override;
+		thread::Stats *stats = 0;
 
 	public:
-		DevicesManager();
-		virtual ~DevicesManager();
+		AlgoOffloadBattery(const std::vector<std::shared_ptr<device::OnOff>> &devices):devices(devices) {}
 
-		static DevicesManager *GetInstance() { return instance; }
-
-		void Start() { start(); }
-
-		void ConfigurationChanged(const configuration::ConfigurationPart *config) override;
+		virtual void Run() override;
+		virtual double GetEnabledPower() const override { return offloaded_power; };
+		virtual bool HasStateChanged() const override { return state_changed; }
 };
 
 }
 
 #endif
+
+
+
+
 

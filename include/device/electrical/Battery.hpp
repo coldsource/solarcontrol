@@ -36,6 +36,7 @@ class Battery: public OnOff
 	public:
 		enum en_battery_policy {GRID, BATTERY, OFFLOAD};
 		enum en_battery_state {DISCHARGING, CHARGING, FLOAT, BACKUP};
+		enum en_offload_state {ALLOWED, FORBIDDEN};
 
 	private:
 		// Config
@@ -44,11 +45,14 @@ class Battery: public OnOff
 		unsigned long min_grid_time;
 		unsigned long battery_cooldown;
 		en_battery_policy policy;
+		int offload_max = 0;
+		unsigned int offload_soc_low = 0, offload_soc_high = 0;
 
 		// State
 		std::atomic<double> voltage = -1, soc = -1;
 		datetime::Timestamp last_grid_switch;
 		std::atomic<en_battery_state> soc_state = FLOAT;
+		std::atomic<en_offload_state> offload_state = FORBIDDEN;
 
 	protected:
 		virtual void reload(const configuration::Json &config) override;
@@ -59,6 +63,8 @@ class Battery: public OnOff
 		static std::string policy_to_string(en_battery_policy policy);
 		static en_battery_state string_to_state(const std::string &str);
 		static std::string state_to_string(en_battery_state state);
+		static en_offload_state string_to_offload_state(const std::string &str);
+		static std::string offload_state_to_string(en_offload_state state);
 
 	public:
 		Battery(int id);
@@ -67,6 +73,7 @@ class Battery: public OnOff
 		void ConfigurationChanged(const configuration::ConfigurationPart * config) override;
 
 		bool IsEnabled() { return enabled; }
+		bool IsOn() { return (IsEnabled() && !GetState()); }
 
 		std::string GetType() const override { return "battery"; }
 		virtual unsigned long GetMinOn() override { return battery_cooldown; }
@@ -76,6 +83,8 @@ class Battery: public OnOff
 		static void CheckConfig(const configuration::Json &conf);
 
 		virtual en_wanted_state GetWantedState() const override;
+		bool IsOffloadAllowed() const;
+		int GetOffloadMax() const;
 
 		double GetVoltage() const { return voltage; }
 		double GetSOC() const { return soc; }

@@ -24,14 +24,20 @@
 #include <sensor/sw/Switch.hpp>
 #include <sensor/meter/Factory.hpp>
 #include <sensor/meter/Meter.hpp>
+#include <device/electrical/Controller.hpp>
+#include <device/electrical/Battery.hpp>
+#include <device/Devices.hpp>
 #include <configuration/Json.hpp>
 #include <logs/State.hpp>
 #include <nlohmann/json.hpp>
 #include <excpt/Context.hpp>
+#include <excpt/Config.hpp>
 
 using namespace std;
 using datetime::Timestamp;
 using control::OnOffFactory;
+using device::Controller;
+using device::Battery;
 using nlohmann::json;
 
 namespace device {
@@ -50,6 +56,26 @@ void OnOff::CheckConfig(const configuration::Json &conf)
 
 	conf.Check("prio", "int"); // Prio is mandatory for all onoff devices
 	conf.Check("expected_consumption", "int", false);
+
+	if(conf.Has("battery"))
+	{
+		auto battery = conf.GetObject("battery");
+		battery.Check("enabled", "bool");
+		battery.Check("controller_id", "int");
+
+		int controller_id = battery.GetInt("controller_id");
+		if(controller_id!=0)
+		{
+			try
+			{
+				Devices::GetByID<Controller>(controller_id); // Check device exists
+			}
+			catch(exception &e)
+			{
+				throw excpt::Config("Invalid controller device", "controller_id");
+			}
+		}
+	}
 }
 
 void OnOff::reload(const configuration::Json &config)
@@ -70,6 +96,13 @@ void OnOff::reload(const configuration::Json &config)
 	}
 	else
 		ctrl = nullptr; // No control on this device
+
+	if(config.Has("battery"))
+	{
+		auto battery = config.GetObject("battery");
+		battery_enabled = battery.GetBool("enabled");
+		battery_controller_id = battery.GetInt("controller_id");
+	}
 }
 
 void OnOff::state_restore(const  configuration::Json &last_state)
@@ -167,6 +200,27 @@ double OnOff::GetExpectedConsumption() const
 		return power; // If device is on and is metered, we take the real consumption
 
 	return expected_consumption; // Take estimated consumption
+}
+
+bool OnOff::IsOnBattery() const
+{
+	if(!battery_enabled)
+		return false; // Device is never on battery
+
+	auto battery = Devices::GetByID<Battery>(DEVICE_ID_BATTERY);
+	if(!battery->IsOn())
+		return false; // Device may be on battery, but anyway battery is disabled or in GRID mode
+
+	// Device is not controlled, so always on battery
+	if(battery_controller_id==0)
+		return true;
+
+	// Device is controlled, check controller state to determine if it's on battery or grid
+	shared_ptr<Controller> controller = Devices::GetByID<Controller>(battery_controller_id);
+	if(controller->GetState())
+		return false; // On grid
+
+	return true; // On battery
 }
 
 void OnOff::SensorChanged(const sensor::Sensor *sensor)

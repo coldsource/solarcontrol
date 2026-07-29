@@ -17,59 +17,38 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __THREAD_DEVICESMANAGER_HPP__
-#define __THREAD_DEVICESMANAGER_HPP__
+#ifndef __ENERGY_ALGOFORCED_HPP__
+#define __ENERGY_ALGOFORCED_HPP__
 
-#include <thread/WaiterThread.hpp>
-#include <configuration/ConfigurationObserver.hpp>
+#include <energy/DeviceOnOffAlgo.hpp>
 
-#include <vector>
-#include <map>
-#include <mutex>
 #include <memory>
+#include <map>
 
-namespace energy {
-	class GlobalMeter;
-}
-
-namespace device {
+namespace device{
 	class OnOff;
 }
 
+namespace energy {
 
-namespace thread {
-
-class Stats;
-
-class DevicesManager: public WaiterThread, public configuration::ConfigurationObserver
+class AlgoForced: public DeviceOnOffAlgo
 {
-	static DevicesManager *instance;
-
-	std::mutex lock;
-
 	protected:
-		energy::GlobalMeter *global_meter = 0;
-
-		// Config
-		unsigned long cooldown;
-
-		// State
-		double forced_power = 0;
-
-		void main(void) override;
+		const std::map<std::shared_ptr<device::OnOff>, bool> devices;
+		double forced_power;
+		bool state_changed;
 
 	public:
-		DevicesManager();
-		virtual ~DevicesManager();
+		AlgoForced(const std::map<std::shared_ptr<device::OnOff>, bool> &devices):devices(devices) {}
 
-		static DevicesManager *GetInstance() { return instance; }
-
-		void Start() { start(); }
-
-		void ConfigurationChanged(const configuration::ConfigurationPart *config) override;
+		virtual void Run() override;
+		virtual double GetEnabledPower() const override { return forced_power; };
+		virtual bool HasStateChanged() const override { return state_changed; }
 };
 
 }
 
 #endif
+
+
 

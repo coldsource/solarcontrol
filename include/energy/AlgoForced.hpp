@@ -35,7 +35,7 @@ class AlgoForced: public DeviceOnOffAlgo
 {
 	protected:
 		const std::map<std::shared_ptr<device::OnOff>, bool> devices;
-		double forced_power;
+		double forced_power, forced_power_grid, forced_power_battery;
 		bool state_changed;
 
 	public:
@@ -43,6 +43,8 @@ class AlgoForced: public DeviceOnOffAlgo
 
 		virtual void Run() override;
 		virtual double GetEnabledPower() const override { return forced_power; };
+		double GetEnabledPowerGrid() const { return forced_power_grid; }
+		double GetEnabledPowerBattery() const { return forced_power_battery; }
 		virtual bool HasStateChanged() const override { return state_changed; }
 };
 

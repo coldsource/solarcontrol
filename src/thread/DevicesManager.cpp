@@ -112,7 +112,7 @@ void DevicesManager::main()
 			// Change all forced devices (no cool down between forced actions)
 			energy::AlgoForced algo_forced(forced_devices);
 			algo_forced.Run();
-			forced_power = algo_forced.GetEnabledPower();
+			forced_power = algo_forced.GetEnabledPowerGrid();
 			state_changed |= algo_forced.HasStateChanged();
 
 			// Apply cooldown time for offload devices

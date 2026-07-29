@@ -30,6 +30,8 @@ void AlgoForced::Run()
 {
 	state_changed = false;
 	forced_power = 0;
+	forced_power_grid = 0;
+	forced_power_battery = 0;
 
 	// Change all forced devices (no cool down between forced actions)
 	for(auto [device, new_state] : devices)
@@ -49,7 +51,15 @@ void AlgoForced::Run()
 		}
 
 		if(device->GetState())
-			forced_power += device->GetExpectedConsumption();
+		{
+			double power = device->GetExpectedConsumption();
+			forced_power += power;
+
+		   if(device->IsOnBattery())
+			   forced_power_battery += power;
+			else
+				forced_power_grid += power;
+		}
 	}
 }
 

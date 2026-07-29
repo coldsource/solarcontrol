@@ -30,7 +30,7 @@ using nlohmann::json;
 namespace sensor::input {
 
 Grid::Grid(const string &mqtt_id):
-topic(mqtt_id)
+topic(mqtt_id + "/grid")
 {
 	state = true;
 
@@ -66,9 +66,9 @@ void Grid::HandleMessage(const string &message, const std::string & /*topic*/)
 		try
 		{
 			json j = json::parse(message);
-			if(j.contains("grid"))
+			if(j.contains("event") && j["event"]=="grid")
 			{
-				state = (j["grid"]=="online");
+				state =(bool)(j["data"]["status"]);
 				notify_observer();
 			}
 		}

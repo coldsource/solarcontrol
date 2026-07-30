@@ -245,6 +245,7 @@ nlohmann::json OnOff::ToJson() const
 
 	j_device["state"] = GetState();
 	j_device["manual"] = IsManual();
+	j_device["on_battery"] = IsOnBattery();
 
 	return j_device;
 }

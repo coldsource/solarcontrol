@@ -22,12 +22,15 @@
 
 #include <string>
 #include <map>
+#include <mutex>
 
 namespace stat {
 
 class HistorySync
 {
 	protected:
+		mutable std::mutex lock;
+
 		virtual void purge() = 0;
 		virtual void save() = 0;
 
@@ -36,6 +39,8 @@ class HistorySync
 
 		virtual void Sync(void)
 		{
+			std::unique_lock<std::mutex> llock(lock);
+
 			purge();
 			save();
 		}
@@ -75,12 +80,16 @@ class History: public HistorySync
 
 		void Set(DataType val)
 		{
+			std::unique_lock<std::mutex> llock(lock);
+
 			Period now;
 			history[now] = val;
 		}
 
 		void Add(DataType val)
 		{
+			std::unique_lock<std::mutex> llock(lock);
+
 			Period now;
 			if(!history.contains(now))
 				history.insert(std::pair<Period, DataType>(now, val));
@@ -92,6 +101,8 @@ class History: public HistorySync
 
 		DataType GetTotalForLast(int nperiods) const
 		{
+			std::unique_lock<std::mutex> llock(lock);
+
 			Period start_date = Period() - nperiods;
 			DataType sum = 0;
 
@@ -108,6 +119,8 @@ class History: public HistorySync
 
 		DataType GetTotalForCurrent() const
 		{
+			std::unique_lock<std::mutex> llock(lock);
+
 			Period now;
 
 			auto it = history.find(now);

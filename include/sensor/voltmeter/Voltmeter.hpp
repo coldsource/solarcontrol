@@ -49,6 +49,7 @@ class Voltmeter: public Sensor
 		static void CheckConfig(const configuration::Json & /*conf*/) {}
 
 		virtual double GetVoltage() const = 0;
+		virtual double GetCurrent() const { return 0; }
 		virtual double GetSOC() const = 0;
 		virtual charge_state_t GetState() const;
 		virtual bool IsCharging() const = 0;

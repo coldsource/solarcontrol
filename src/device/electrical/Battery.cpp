@@ -233,9 +233,13 @@ json Battery::ToJson() const
 	json j_device = OnOff::ToJson();
 
 	j_device["voltage"] = (double)voltage;
+	j_device["current"] = (double)current;
 	j_device["soc"] = (double)soc;
 	j_device["soc_state"] = state_to_string(soc_state);
 	j_device["state"] = state?"grid":"battery";
+	j_device["offload_state"] = offload_state_to_string(offload_state);
+	j_device["output_voltage"] = GetVoltage();
+	j_device["output_frequency"] = GetFrequency();
 
 	return j_device;
 }
@@ -248,6 +252,7 @@ void Battery::SensorChanged(const sensor::Sensor *sensor)
 	{
 		Voltmeter *voltmeter = (Voltmeter *)sensor;
 		voltage = voltmeter->GetVoltage();
+		current = voltmeter->GetCurrent();
 		double old_soc = soc;
 		soc = voltmeter->GetSOC();
 

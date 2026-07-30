@@ -40,7 +40,6 @@ class Battery: public OnOff
 
 	private:
 		// Config
-		std::atomic_bool enabled;
 		unsigned int battery_low, battery_high;
 		unsigned long min_grid_time;
 		unsigned long battery_cooldown;
@@ -49,7 +48,7 @@ class Battery: public OnOff
 		unsigned int offload_soc_low = 0, offload_soc_high = 0;
 
 		// State
-		std::atomic<double> voltage = -1, soc = -1;
+		std::atomic<double> voltage = -1, current = 0, soc = -1;
 		datetime::Timestamp last_grid_switch;
 		std::atomic<en_battery_state> soc_state = FLOAT;
 		std::atomic<en_offload_state> offload_state = FORBIDDEN;
@@ -72,7 +71,6 @@ class Battery: public OnOff
 
 		void ConfigurationChanged(const configuration::ConfigurationPart * config) override;
 
-		bool IsEnabled() const { return enabled; }
 		bool IsOn() const { return (IsEnabled() && !GetState()); }
 		virtual double GetPower() const override;
 
@@ -87,7 +85,7 @@ class Battery: public OnOff
 		bool IsOffloadAllowed() const;
 		int GetOffloadMax() const;
 
-		double GetVoltage() const { return voltage; }
+		double GetDCVoltage() const { return voltage; }
 		double GetSOC() const { return soc; }
 		virtual nlohmann::json ToJson() const override;
 

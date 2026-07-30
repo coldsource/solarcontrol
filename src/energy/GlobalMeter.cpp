@@ -77,7 +77,7 @@ bool GlobalMeter::HasBattery() const
 
 double GlobalMeter::GetBatteryVoltage() const
 {
-	return battery->GetVoltage();
+	return battery->GetDCVoltage();
 }
 
 double GlobalMeter::GetBatterySOC() const

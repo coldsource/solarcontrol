@@ -97,8 +97,8 @@ json Device::ToJson() const
 	j_device["device_category"] = GetCategory();
 	j_device["device_name"] = GetName();
 	j_device["device_config"] = (json)GetConfig();
-	j_device["offline"] = offline;
-	j_device["enabled"] = enabled;
+	j_device["offline"] = (bool)offline;
+	j_device["enabled"] = (bool)enabled;
 
 	return j_device;
 }
@@ -112,34 +112,6 @@ void Device::add_sensor(shared_ptr<sensor::Sensor> sensor, const string &name)
 bool Device::has_sensor(const std::string &category) const
 {
 	return sensors.has(category);
-}
-
-void Device::SetOffline()
-{
-	unique_lock<recursive_mutex> llock(lock);
-
-	offline = true;
-}
-
-void Device::SetOnline()
-{
-	unique_lock<recursive_mutex> llock(lock);
-
-	offline = false;
-}
-
-bool Device::IsOffline() const
-{
-	unique_lock<recursive_mutex> llock(lock);
-
-	return offline;
-}
-
-bool Device::IsEnabled() const
-{
-	unique_lock<recursive_mutex> llock(lock);
-
-	return enabled;
 }
 
 }

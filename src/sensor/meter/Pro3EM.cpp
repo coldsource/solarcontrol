@@ -64,9 +64,17 @@ void Pro3EM::HandleMessage(const string &message, const std::string & /*topic*/)
 			auto ev = j["params"]["em:0"];
 
 			if(phase=="z")
+			{
 				power = (double)ev["a_act_power"] + (double)ev["b_act_power"] + (double)ev["c_act_power"];
+				voltage = (double)ev["a_act_voltage"];
+				freq = (double)ev["a_freq"];
+			}
 			else
+			{
 				power = ev[phase + "_act_power"];
+				voltage = ev[phase + "_act_voltage"];
+				freq = ev[phase + "_freq"];
+			}
 		}
 
 		if(j.contains("params") && j["params"].contains("emdata:0"))

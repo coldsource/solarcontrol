@@ -39,6 +39,8 @@ class Electrical: public Device, public configuration::ConfigurationObserver
 	protected:
 		// State
 		std::atomic<double> power = 0;
+		std::atomic<double> voltage = 0;
+		std::atomic<double> freq = 0;
 
 		// Global config
 		bool debug = false;
@@ -62,6 +64,8 @@ class Electrical: public Device, public configuration::ConfigurationObserver
 		static void CheckConfig(const configuration::Json &conf);
 
 		virtual double GetPower() const;
+		virtual double GetVoltage() const;
+		virtual double GetFrequency() const;
 		bool IsMetered() const;
 
 		energy::Amount GetEnergyConsumption() const;

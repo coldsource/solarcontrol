@@ -36,6 +36,8 @@ class Meter: public Sensor
 {
 	protected:
 		std::atomic<double> power = -1;
+		std::atomic<double> voltage = -1;
+		std::atomic<double> freq = -1;
 		std::atomic<double> energy_consumption = 0;
 		std::atomic<double> energy_excess = 0;
 
@@ -47,6 +49,8 @@ class Meter: public Sensor
 		static void CheckConfig(const configuration::Json &conf);
 
 		double GetPower() const;
+		double GetVoltage() const;
+		double GetFrequency() const;
 		double GetConsumption();
 		double GetExcess();
 

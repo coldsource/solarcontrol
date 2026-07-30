@@ -38,6 +38,16 @@ double Meter::GetPower() const
 	return power;
 }
 
+double Meter::GetVoltage() const
+{
+	return voltage;
+}
+
+double Meter::GetFrequency() const
+{
+	return freq;
+}
+
 double Meter::GetConsumption()
 {
 	unique_lock<mutex> llock(lock);

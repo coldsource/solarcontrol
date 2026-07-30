@@ -97,6 +97,22 @@ double Electrical::GetPower() const
 	return power;
 }
 
+double Electrical::GetVoltage() const
+{
+	if(!IsMetered())
+		return -1; // No power on unmetered devices
+
+	return voltage;
+}
+
+double Electrical::GetFrequency() const
+{
+	if(!IsMetered())
+		return -1; // No power on unmetered devices
+
+	return freq;
+}
+
 void Electrical::SensorChanged(const sensor::Sensor *sensor)
 {
 	unique_lock<recursive_mutex> llock(lock);
@@ -119,7 +135,11 @@ void Electrical::SensorChanged(const sensor::Sensor *sensor)
 				power = debug_battery;
 		}
 		else
+		{
 			power = meter->GetPower(); // Use real power
+			voltage = meter->GetVoltage();
+			freq = meter->GetFrequency();
+		}
 
 		// Log energy
 		double device_consumption = meter->GetConsumption();

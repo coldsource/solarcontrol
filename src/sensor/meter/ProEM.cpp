@@ -67,12 +67,14 @@ void ProEM::HandleMessage(const string &message, const std::string & /*topic*/)
 		double total_power = 0;
 		for(int i = 0; i < 2; i++)
 		{
-			// Power
+			// Power, voltage and frequency
 			if((phasei==-1 || i==phasei) && j.contains("params") && j["params"].contains("em1:" + to_string(i)))
 			{
 				auto ev = j["params"]["em1:" + to_string(i)];
 
 				power_phases[i] = ev["act_power"];
+				voltage = ev["voltage"];
+				freq = ev["freq"];
 			}
 
 			total_power += power_phases[i];

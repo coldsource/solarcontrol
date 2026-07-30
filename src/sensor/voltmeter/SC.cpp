@@ -83,7 +83,10 @@ void SC::HandleMessage(const string &message, const std::string &topic)
 		auto ev = j["data"];
 
 		if(topic==topic_ina)
+		{
 			v = ev["v"];
+			i = ev["i"];
+		}
 		else if(topic==topic_soc)
 		{
 			soc = ev["soc"];

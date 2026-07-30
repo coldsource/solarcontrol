@@ -45,6 +45,7 @@ class SC: public Voltmeter, public mqtt::Subscriber
 	charge_state_t charge_state = UNKNOWN;
 	double soc = -1;
 	double v = -1;
+	double i = 0;
 
 	public:
 		SC(const configuration::Json &conf);
@@ -53,6 +54,7 @@ class SC: public Voltmeter, public mqtt::Subscriber
 		static void CheckConfig(const configuration::Json &conf);
 
 		virtual double GetVoltage() const override { return v; }
+		virtual double GetCurrent() const override { return i; }
 		virtual double GetSOC() const override { return soc; };
 		virtual charge_state_t GetState() const override { return charge_state; }
 		bool IsCharging() const override { return charge_state==CHARGING; }

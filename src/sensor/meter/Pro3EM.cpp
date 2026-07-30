@@ -66,13 +66,13 @@ void Pro3EM::HandleMessage(const string &message, const std::string & /*topic*/)
 			if(phase=="z")
 			{
 				power = (double)ev["a_act_power"] + (double)ev["b_act_power"] + (double)ev["c_act_power"];
-				voltage = (double)ev["a_act_voltage"];
+				voltage = (double)ev["a_voltage"];
 				freq = (double)ev["a_freq"];
 			}
 			else
 			{
 				power = ev[phase + "_act_power"];
-				voltage = ev[phase + "_act_voltage"];
+				voltage = ev[phase + "_voltage"];
 				freq = ev[phase + "_freq"];
 			}
 		}

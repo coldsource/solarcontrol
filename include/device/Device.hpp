@@ -29,6 +29,7 @@
 #include <mutex>
 #include <set>
 #include <memory>
+#include <atomic>
 
 namespace sensor {
 	class Sensor;
@@ -52,12 +53,13 @@ class Device: public sensor::SensorObserver
 
 	sensor::Sensors sensors;
 
-	bool offline = false;
 	bool deleted = false;
-	bool enabled = true;
 
 	protected:
 		mutable std::recursive_mutex lock;
+
+		std::atomic_bool offline = false;
+		std::atomic_bool enabled = true;
 
 		bool state_restored = false;
 
@@ -88,11 +90,11 @@ class Device: public sensor::SensorObserver
 		std::string GetName() const override;
 		const configuration::Json GetConfig() const;
 
-		void SetOffline() override;
-		void SetOnline() override;
-		bool IsOffline() const;
+		void SetOffline() override { offline = true; }
+		void SetOnline() override { offline = false; }
+		bool IsOffline() const { return offline; }
 
-		bool IsEnabled() const;
+		bool IsEnabled() const { return enabled; }
 
 		virtual bool Depends(int /* device_id */) const { return false; }
 

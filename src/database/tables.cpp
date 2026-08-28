@@ -40,6 +40,7 @@ map<string,string> solarcontrol_tables = {
   `device_type`VARCHAR(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL, \
   `device_name` varchar(64) NOT NULL, \
   `device_config` mediumtext NOT NULL, \
+  `device_enabled` int(11) NOT NULL DEFAULT 1, \
   PRIMARY KEY (`device_id`) \
 ) ENGINE=InnoDB AUTO_INCREMENT=64 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci \
 "},

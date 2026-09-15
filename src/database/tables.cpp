@@ -21,12 +21,13 @@
 
 #include <string>
 #include <map>
+#include <vector>
 
 using namespace std;
 
 namespace database {
 
-map<string,string> solarcontrol_tables = {
+static map<string,string> solarcontrol_tables = {
 {"t_config",
 "CREATE TABLE `t_config` ( \
   `config_name` varchar(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL, \
@@ -112,6 +113,12 @@ map<string,string> solarcontrol_tables = {
 "}
 };
 
-static auto init = DBConfig::GetInstance()->RegisterTables(solarcontrol_tables);
+static map<string,vector<string>> solarcontrol_data = {
+{"t_storage",
+	{"INSERT INTO t_storage VALUES('version', '" VERSION "')"}
+}
+};
+
+static auto init = DBConfig::GetInstance()->RegisterTables(solarcontrol_tables, solarcontrol_data);
 
 }

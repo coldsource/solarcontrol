@@ -37,11 +37,15 @@ DBConfig *DBConfig::GetInstance()
 	return instance.get();
 }
 
-bool DBConfig::RegisterTables(map<string, string> &tables_def)
+bool DBConfig::RegisterTables(map<string, string> &tables_def, map<string, vector<string>> &tables_data_def)
 {
 	// Merge new tables in existing scheme
 	for(auto it = tables_def.begin(); it!=tables_def.end(); ++it)
 		tables[it->first] = it->second;
+
+	// Merge new tables data in existing scheme
+	for(auto it = tables_data_def.begin(); it!=tables_data_def.end(); ++it)
+		tables_data[it->first] = it->second;
 
 	return true;
 }
@@ -63,6 +67,15 @@ void DBConfig::InitTables()
 			logs::Logger::Log(LOG_NOTICE, "Table " + it_table->first + " does not exists, creating it...");
 
 			db.Query(it_table->second);
+
+			// Insert data in newly created table
+			if(tables_data.contains(it_table->first))
+			{
+				logs::Logger::Log(LOG_NOTICE, "Populating table " + it_table->first);
+
+				for(auto statement : tables_data[it_table->first])
+					db.Query(statement);
+			}
 		}
 	}
 }

@@ -22,6 +22,7 @@
 
 #include <string>
 #include <map>
+#include <vector>
 #include <memory>
 
 namespace database {
@@ -29,13 +30,14 @@ namespace database {
 class DBConfig
 {
 	std::map<std::string, std::string> tables;
+	std::map<std::string, std::vector<std::string>> tables_data;
 
 	static std::unique_ptr<DBConfig> instance;
 	
 	public:
 		static DBConfig *GetInstance();
 		
-		bool RegisterTables(std::map<std::string, std::string> &tables_def);
+		bool RegisterTables(std::map<std::string, std::string> &tables_def, std::map<std::string, std::vector<std::string>> &tables_data_def);
 		void InitTables();
 };
 

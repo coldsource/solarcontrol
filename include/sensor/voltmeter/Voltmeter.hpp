@@ -28,6 +28,7 @@
 #include <string>
 #include <mutex>
 #include <map>
+#include <limits>
 
 namespace configuration {
 	class Json;
@@ -53,6 +54,7 @@ class Voltmeter: public Sensor
 		virtual double GetSOC() const = 0;
 		virtual charge_state_t GetState() const;
 		virtual bool IsCharging() const = 0;
+		virtual double GetTemperature() const { return std::numeric_limits<double>::quiet_NaN(); }
 
 		virtual std::string GetCategory() const override { return "voltmeter"; }
 };

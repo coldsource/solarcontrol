@@ -24,6 +24,7 @@
 #include <datetime/Timestamp.hpp>
 
 #include <memory>
+#include <limits>
 
 namespace configuration {
 	class Json;
@@ -48,7 +49,7 @@ class Battery: public OnOff
 		unsigned int offload_soc_low = 0, offload_soc_high = 0;
 
 		// State
-		std::atomic<double> voltage = -1, current = 0, soc = -1;
+		std::atomic<double> voltage = -1, current = 0, soc = -1, temperature = std::numeric_limits<double>::quiet_NaN();
 		datetime::Timestamp last_grid_switch;
 		std::atomic<en_battery_state> soc_state = FLOAT;
 		std::atomic<en_offload_state> offload_state = FORBIDDEN;

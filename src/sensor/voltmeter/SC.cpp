@@ -43,6 +43,9 @@ SC::SC(const configuration::Json &conf)
 
 	topic_soc = mqtt_id + "/soc";
 	mqtt->Subscribe(topic_soc, this);
+
+	topic_temperature = mqtt_id + "/ds18b20";
+	mqtt->Subscribe(topic_temperature, this);
 }
 
 SC::~SC()
@@ -52,6 +55,7 @@ SC::~SC()
 	{
 		mqtt->Unsubscribe(topic_ina, this);
 		mqtt->Unsubscribe(topic_soc, this);
+		mqtt->Unsubscribe(topic_temperature, this);
 	}
 }
 
@@ -91,6 +95,14 @@ void SC::HandleMessage(const string &message, const std::string &topic)
 		{
 			soc = ev["soc"];
 			charge_state = ev["state"];
+		}
+		else if(topic==topic_temperature)
+		{
+			bool detected = ev["detected"];
+			if(!detected)
+				temperature = std::numeric_limits<double>::quiet_NaN();
+			else
+				temperature = ev["temperature"];
 		}
 	}
 	catch(json::exception &e)

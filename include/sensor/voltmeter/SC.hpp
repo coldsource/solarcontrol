@@ -24,6 +24,7 @@
 #include <mqtt/Subscriber.hpp>
 
 #include <string>
+#include <limits>
 
 namespace configuration {
 	class Json;
@@ -40,12 +41,14 @@ class SC: public Voltmeter, public mqtt::Subscriber
 {
 	std::string topic_ina;
 	std::string topic_soc;
+	std::string topic_temperature;
 
 	// State
 	charge_state_t charge_state = UNKNOWN;
 	double soc = -1;
 	double v = -1;
 	double i = 0;
+	double temperature = std::numeric_limits<double>::quiet_NaN();
 
 	public:
 		SC(const configuration::Json &conf);
@@ -58,6 +61,7 @@ class SC: public Voltmeter, public mqtt::Subscriber
 		virtual double GetSOC() const override { return soc; };
 		virtual charge_state_t GetState() const override { return charge_state; }
 		bool IsCharging() const override { return charge_state==CHARGING; }
+		virtual double GetTemperature() const override { return temperature; }
 
 		void HandleMessage(const std::string &message, const std::string &topic) override;
 };

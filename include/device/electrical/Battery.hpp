@@ -49,7 +49,8 @@ class Battery: public OnOff
 		unsigned int offload_soc_low = 0, offload_soc_high = 0;
 
 		// State
-		std::atomic<double> voltage = -1, current = 0, soc = -1, temperature = std::numeric_limits<double>::quiet_NaN();
+		std::atomic<double> voltage = -1, current = 0, soc = -1;
+		std::atomic<double> temperature = std::numeric_limits<double>::quiet_NaN(), estimated_time = std::numeric_limits<double>::quiet_NaN(); // SC Extensions
 		datetime::Timestamp last_grid_switch;
 		std::atomic<en_battery_state> soc_state = FLOAT;
 		std::atomic<en_offload_state> offload_state = FORBIDDEN;

@@ -49,6 +49,7 @@ class SC: public Voltmeter, public mqtt::Subscriber
 	double v = -1;
 	double i = 0;
 	double temperature = std::numeric_limits<double>::quiet_NaN();
+	double estimated_time = std::numeric_limits<double>::quiet_NaN();
 
 	public:
 		SC(const configuration::Json &conf);
@@ -62,6 +63,7 @@ class SC: public Voltmeter, public mqtt::Subscriber
 		virtual charge_state_t GetState() const override { return charge_state; }
 		bool IsCharging() const override { return charge_state==CHARGING; }
 		virtual double GetTemperature() const override { return temperature; }
+		virtual double GetEstimatedTime() const override { return estimated_time; }
 
 		void HandleMessage(const std::string &message, const std::string &topic) override;
 };

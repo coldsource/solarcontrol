@@ -95,6 +95,7 @@ void SC::HandleMessage(const string &message, const std::string &topic)
 		{
 			soc = ev["soc"];
 			charge_state = ev["state"];
+			estimated_time = ev["estimated_time"];
 		}
 		else if(topic==topic_temperature)
 		{

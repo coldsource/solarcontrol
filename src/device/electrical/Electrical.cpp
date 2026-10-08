@@ -59,10 +59,10 @@ void Electrical::ConfigurationChanged(const configuration::ConfigurationPart *co
 	{
 		// Debug mode
 		debug = config->GetBool("energy.debug.enabled");
-		debug_grid = config->GetPower("energy.debug.grid");
-		debug_pv = config->GetPower("energy.debug.pv");
-		debug_hws = config->GetPower("energy.debug.hws");
-		debug_battery= config->GetPower("energy.debug.battery");
+		debug_grid = config->GetPower("energy.debug.grid", true);
+		debug_pv = config->GetPower("energy.debug.pv", true);
+		debug_hws = config->GetPower("energy.debug.hws", true);
+		debug_battery= config->GetPower("energy.debug.battery", true);
 	}
 }
 

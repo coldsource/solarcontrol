@@ -42,6 +42,7 @@ Battery::Battery(int id):OnOff(id, "production", "") // Override default counter
 	last_grid_switch = Timestamp(TS_MONOTONIC);
 
 	ObserveConfiguration("control");
+	ObserveConfiguration("energy");
 }
 
 Battery::~Battery()
@@ -52,10 +53,16 @@ void Battery::ConfigurationChanged(const configuration::ConfigurationPart * conf
 {
 	unique_lock<recursive_mutex> llock(lock);
 
+	OnOff::ConfigurationChanged(config);
+
 	if(config->GetType()=="control")
 		battery_cooldown = config->GetTime("control.battery.cooldown");
 
-	OnOff::ConfigurationChanged(config);
+	if(config->GetType()=="energy" && debug)
+	{
+		debug_battery_soc = config->GetPower("energy.debug.battery.soc", true);
+		soc = debug_battery_soc;
+	}
 }
 
 void Battery::CheckConfig(const configuration::Json &conf)
@@ -256,7 +263,11 @@ void Battery::SensorChanged(const sensor::Sensor *sensor)
 		voltage = voltmeter->GetVoltage();
 		current = voltmeter->GetCurrent();
 		double old_soc = soc;
-		soc = voltmeter->GetSOC();
+
+		if(debug)
+			soc = debug_battery_soc;
+		else
+			soc = voltmeter->GetSOC();
 
 		temperature = voltmeter->GetTemperature();
 		estimated_time = voltmeter->GetEstimatedTime();

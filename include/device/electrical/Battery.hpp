@@ -47,6 +47,7 @@ class Battery: public OnOff
 		en_battery_policy policy;
 		int offload_max = 0;
 		unsigned int offload_soc_low = 0, offload_soc_high = 0;
+		int debug_battery_soc = 0;
 
 		// State
 		std::atomic<double> voltage = -1, current = 0, soc = -1;

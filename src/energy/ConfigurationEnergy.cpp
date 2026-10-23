@@ -36,7 +36,8 @@ ConfigurationEnergy::ConfigurationEnergy(void)
 	entries["energy.debug.enabled"] = "no";
 	entries["energy.debug.grid"] = "0";
 	entries["energy.debug.pv"] = "0";
-	entries["energy.debug.battery"] = "0";
+	entries["energy.debug.battery.power"] = "0";
+	entries["energy.debug.battery.soc"] = "95";
 	entries["energy.debug.hws"] = "0";
 	entries["energy.battery.smoothing"] = "5m";
 }
@@ -51,7 +52,8 @@ void ConfigurationEnergy::Check(void) const
 	check_bool_entry("energy.debug.enabled");
 	check_power_entry("energy.debug.grid", true);
 	check_power_entry("energy.debug.pv", true);
-	check_power_entry("energy.debug.battery", true);
+	check_power_entry("energy.debug.battery.power");
+	check_int_entry("energy.debug.battery.soc");
 	check_power_entry("energy.debug.hws", true);
 	check_time_entry("energy.battery.smoothing");
 }

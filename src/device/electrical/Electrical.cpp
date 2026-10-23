@@ -62,7 +62,8 @@ void Electrical::ConfigurationChanged(const configuration::ConfigurationPart *co
 		debug_grid = config->GetPower("energy.debug.grid", true);
 		debug_pv = config->GetPower("energy.debug.pv", true);
 		debug_hws = config->GetPower("energy.debug.hws", true);
-		debug_battery= config->GetPower("energy.debug.battery", true);
+		debug_battery= config->GetPower("energy.debug.battery.power", true);
+		energy_debug(); // Init power from debug values NOW
 	}
 }
 
@@ -80,6 +81,18 @@ void Electrical::reload(const configuration::Json &config)
 
 	if(config.Has("meter"))
 		add_sensor(sensor::meter::Factory::GetFromConfig(config.GetObject("meter")), "meter"); // Device has a dedicated metering configuration
+}
+
+void Electrical::energy_debug()
+{
+	if(GetID()==DEVICE_ID_GRID)
+		power = debug_grid;
+	else if(GetID()==DEVICE_ID_PV)
+		power = debug_pv;
+	else if(GetID()==DEVICE_ID_HWS)
+		power = debug_hws;
+	else if(GetID()==DEVICE_ID_BATTERY)
+		power = debug_battery;
 }
 
 json Electrical::ToJson() const
@@ -123,17 +136,7 @@ void Electrical::SensorChanged(const sensor::Sensor *sensor)
 		sensor::meter::Meter *meter = (sensor::meter::Meter *)sensor;
 
 		if(debug && GetID() < 0)
-		{
-			// Debug mode is on, use debug power instead of real one
-			if(GetID()==DEVICE_ID_GRID)
-				power = debug_grid;
-			else if(GetID()==DEVICE_ID_PV)
-				power = debug_pv;
-			else if(GetID()==DEVICE_ID_HWS)
-				power = debug_hws;
-			else if(GetID()==DEVICE_ID_BATTERY)
-				power = debug_battery;
-		}
+			energy_debug(); // Debug mode is on, use debug power instead of real one
 		else
 		{
 			power = meter->GetPower(); // Use real power

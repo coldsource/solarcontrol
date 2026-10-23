@@ -53,6 +53,7 @@ class Electrical: public Device, public configuration::ConfigurationObserver
 		energy::Counter offload;
 
 		virtual void reload(const configuration::Json &config) override;
+		void energy_debug();
 
 	public:
 		Electrical(int id);

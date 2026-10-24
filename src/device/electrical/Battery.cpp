@@ -349,11 +349,16 @@ void Battery::SensorChanged(const sensor::Sensor *sensor)
 		// Handle charge hysteresis
 		if(charge.enabled)
 		{
-			if(soc >= charge.soc_high)
-				charge_required = false;
+			if(!charge.timeranges.IsActive())
+				charge_required = (soc < charge.soc_low); // Out of charging timerage, no hysteresis
+			else
+			{
+				if(soc >= charge.soc_high)
+					charge_required = false;
 
-			if(soc < charge.soc_low)
-				charge_required = true;
+				if(soc < charge.soc_low)
+					charge_required = true;
+			}
 		}
 	}
 	else

@@ -63,6 +63,9 @@ class Json
 		void Set(const std::string &name, int value) { json[name] = value; }
 		void Set(const std::string &name, double value) { json[name] = value; }
 
+		void CheckPercentage(const std::string &display_name, const std::string &name);
+		void CheckPower(const std::string &display_name, const std::string &name);
+
 		const std::string ToString() const { return json.dump(); }
 		operator nlohmann::json() const { return json; }
 		operator int() const { return (int)json; }

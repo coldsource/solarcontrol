@@ -165,7 +165,7 @@ int Json::GetPower(const std::string &name) const
 	}
 	catch(exception &e)
 	{
-		throw excpt::Config("Parameter « " + name + " » is invalid : " + string(e.what()), name);
+		throw excpt::Config(string(e.what()), name);
 	}
 }
 
@@ -187,6 +187,38 @@ const Json Json::GetObject(const string &name) const
 {
 	check_entry(name, "object");
 	return Json(json[name]);
+}
+
+void Json::CheckPercentage(const string &display_name, const string &name)
+{
+	if(!json.contains(name) || json[name].is_null())
+		throw excpt::Config(display_name + " is mandatory", name);
+
+	int val = GetInt(name);
+	if(val < 0)
+		throw excpt::Config(display_name + "  must be at least 0%", name);
+
+	if(val > 100)
+		throw excpt::Config(display_name + " must not exceed 100%", name);
+}
+
+void Json::CheckPower(const string &display_name, const string &name)
+{
+	if(!json.contains(name) || json[name].is_null())
+		throw excpt::Config(display_name + " is mandatory", name);
+
+	int val;
+	try
+	{
+		 val = GetPower(name);
+	}
+	catch(excpt::Config &e)
+	{
+		throw excpt::Config(display_name + " is invalid : " + string(e.what()), name);
+	}
+
+	if(val <= 0)
+		throw excpt::Config(display_name + " must be at least 1W", name);
 }
 
 Json::Iterator& Json::Iterator::operator++()

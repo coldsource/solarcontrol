@@ -22,6 +22,7 @@
 
 #include <device/electrical/OnOff.hpp>
 #include <datetime/Timestamp.hpp>
+#include <datetime/TimeRanges.hpp>
 
 #include <memory>
 #include <limits>
@@ -45,8 +46,26 @@ class Battery: public OnOff
 		unsigned long min_grid_time;
 		unsigned long battery_cooldown;
 		en_battery_policy policy;
-		int offload_max = 0;
-		unsigned int offload_soc_low = 0, offload_soc_high = 0;
+
+		// Offload
+		struct st_offload
+		{
+			bool enabled = false;
+			int max = 0;
+			unsigned int soc_low = 0;
+			unsigned int soc_high = 0;
+		} offload;
+
+		// Charge
+		struct st_charge
+		{
+			bool enabled = false;
+			unsigned int soc_low = 0;
+			unsigned int soc_high = 0;
+			datetime::TimeRanges timeranges;
+		} charge;
+
+		// Power debug
 		int debug_battery_soc = 0;
 
 		// State
@@ -55,6 +74,7 @@ class Battery: public OnOff
 		datetime::Timestamp last_grid_switch;
 		std::atomic<en_battery_state> soc_state = FLOAT;
 		std::atomic<en_offload_state> offload_state = FORBIDDEN;
+		std::atomic_bool charge_required = false;
 
 	protected:
 		virtual void reload(const configuration::Json &config) override;

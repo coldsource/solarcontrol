@@ -96,26 +96,28 @@ void Battery::CheckConfig(const configuration::Json &conf)
 		throw excpt::Config("Backup high threshold must be between 0 and 100", "battery_high");
 
 	if(battery_low >= battery_high)
-		throw excpt::Config("Backup low threshold be less than high threshold", "battery_low");
+		throw excpt::Config("Backup low threshold must be less than high threshold", "battery_low");
 
 	if(conf.Has("offload"))
 	{
 		auto offload = conf.GetObject("offload");
-		int offload_max = offload.GetPower("max");
-		unsigned int offload_soc_low = offload.GetUInt("soc_low");
-		unsigned int offload_soc_high = offload.GetUInt("soc_high");
 
-		if(offload_max < 0)
-			throw excpt::Config("Offload max must be greater than 0", "offload_max");
+		offload.CheckPower("Offload max power", "max");
 
-		if(offload_soc_low > 100)
-			throw excpt::Config("Offload low threshold must be between 0 and 100", "offload_soc_low");
-
-		if(offload_soc_high > 100)
-			throw excpt::Config("Offload high threshold must be between 0 and 100", "offload_soc_high");
-
-		if(offload_soc_low >= offload_soc_high)
+		offload.CheckPercentage("Offload low threshold", "soc_low");
+		offload.CheckPercentage("Offload high threshold", "soc_high");
+		if(offload.GetUInt("soc_low") >= offload.GetUInt("soc_high"))
 			throw excpt::Config("Offload low threshold must be less than high threshold", "offload_soc_low");
+	}
+
+	if(conf.Has("charge"))
+	{
+		auto charge = conf.GetObject("charge");
+
+		charge.CheckPercentage("Charge low threshold", "soc_low");
+		charge.CheckPercentage("Charge high threshold", "soc_high");
+		if(charge.GetUInt("soc_low") >= charge.GetUInt("soc_high"))
+			throw excpt::Config("Charge low threshold must be less than high threshold", "soc_low");
 	}
 }
 
@@ -123,9 +125,9 @@ Battery::en_battery_policy Battery::string_to_policy(const string &str)
 {
 	if(str=="grid")
 		return GRID;
-	else if(str=="battery")
+	if(str=="battery")
 		return BATTERY;
-	else if(str=="offload")
+	if(str=="offload")
 		return OFFLOAD;
 
 	throw excpt::Config("Invalid battery policy « " + str + " »", "policy");
@@ -135,7 +137,7 @@ string Battery::policy_to_string(en_battery_policy policy)
 {
 	if(policy==GRID)
 		return "grid";
-	else if(policy==BATTERY)
+	if(policy==BATTERY)
 		return "battery";
 	return "offload";
 }
@@ -144,11 +146,11 @@ Battery::en_battery_state Battery::string_to_state(const string &str)
 {
 	if(str=="discharging")
 		return DISCHARGING;
-	else if(str=="charging")
+	if(str=="charging")
 		return CHARGING;
-	else if(str=="float")
+	if(str=="float")
 		return FLOAT;
-	else if(str=="backup")
+	if(str=="backup")
 		return BACKUP;
 
 	return FLOAT; // Default value, no exception here as it's internal state
@@ -202,11 +204,34 @@ void Battery::reload(const configuration::Json &config)
 
 	if(config.Has("offload"))
 	{
-		auto offload = config.GetObject("offload");
-		offload_max = offload.GetPower("max");
-		offload_soc_low = offload.GetUInt("soc_low");
-		offload_soc_high = offload.GetUInt("soc_high");
+		if(!offload.enabled)
+			offload_state = FORBIDDEN;
+
+		auto joffload = config.GetObject("offload");
+		offload.enabled = true;
+		offload.max = joffload.GetPower("max");
+		offload.soc_low = joffload.GetUInt("soc_low");
+		offload.soc_high = joffload.GetUInt("soc_high");
 	}
+	else
+		offload.enabled = false;
+
+	if(config.Has("charge"))
+	{
+		if(!charge.enabled)
+			charge_required = false; // Option has been enabled, reset state
+
+		charge.enabled = true;
+
+		auto jcharge = config.GetObject("charge");
+		charge.soc_low = jcharge.GetUInt("soc_low");
+		charge.soc_high = jcharge.GetUInt("soc_high");
+		charge.timeranges.clear();
+		for(auto it : jcharge.GetArray("timeranges", json::array()))
+			charge.timeranges.push_back(datetime::TimeRange(it));
+	}
+	else
+		charge.enabled = false;
 
 	// Control « reverted » may have changed, force state update
 	if(state_restored && ctrl!=nullptr)
@@ -216,9 +241,10 @@ void Battery::reload(const configuration::Json &config)
 void Battery::state_restore(const  configuration::Json &last_state)
 {
 	voltage = last_state.GetFloat("voltage", 0);
-	soc = last_state.GetFloat("soc", 0);
+	soc = last_state.GetFloat("soc", -1);
 	soc_state = string_to_state(last_state.GetString("soc_state", "float"));
 	offload_state = string_to_offload_state(last_state.GetString("offload_state", "forbidden"));
+	charge_required = last_state.GetBool("charge_required", false);
 
 	OnOff::state_restore(last_state);
 }
@@ -231,6 +257,7 @@ configuration::Json Battery::state_backup()
 	backup.Set("soc", soc);
 	backup.Set("soc_state", state_to_string(soc_state));
 	backup.Set("offload_state", offload_state_to_string(offload_state));
+	backup.Set("charge_required", charge_required);
 
 	return backup;
 }
@@ -247,6 +274,7 @@ json Battery::ToJson() const
 	j_device["estimated_time"] = (double)estimated_time;
 	j_device["state"] = state?"grid":"battery";
 	j_device["offload_state"] = offload_state_to_string(offload_state);
+	j_device["charge_required"] = (bool)charge_required;
 	j_device["output_voltage"] = GetVoltage();
 	j_device["output_frequency"] = GetFrequency();
 
@@ -309,13 +337,23 @@ void Battery::SensorChanged(const sensor::Sensor *sensor)
 		}
 
 		// Handle offload hysteresis
-		if(offload_max>0)
+		if(offload.enabled)
 		{
-			if(soc >= offload_soc_high)
+			if(soc >= offload.soc_high)
 				offload_state = ALLOWED;
 
-			if(soc < offload_soc_low)
+			if(soc < offload.soc_low)
 				offload_state = FORBIDDEN;
+		}
+
+		// Handle charge hysteresis
+		if(charge.enabled)
+		{
+			if(soc >= charge.soc_high)
+				charge_required = false;
+
+			if(soc < charge.soc_low)
+				charge_required = true;
 		}
 	}
 	else
@@ -353,7 +391,16 @@ en_wanted_state Battery::GetWantedState() const
 		return ON; // Backup mode is on (not enough power), request forced grid power
 
 	if(policy==BATTERY)
-		return OFF; // Battery policy, always used battery (as this stage we know we have enough power)
+	{
+		if(charge.enabled)
+		{
+			// Charge is enabled, check if it is required and if it's time to
+			if(charge_required && charge.timeranges.IsActive())
+				return ON;
+		}
+
+		return OFF; // Battery policy, always used battery (at this stage we know we have enough power)
+	}
 
 	Timestamp now(TS_MONOTONIC);
 	if(policy==OFFLOAD && (unsigned long)(now-last_on)>battery_cooldown)
@@ -390,13 +437,13 @@ bool Battery::IsOffloadAllowed() const
 {
 	unique_lock<recursive_mutex> llock(lock);
 
-	return (offload_max>0 && offload_state==ALLOWED);
+	return (offload.enabled && offload_state==ALLOWED);
 }
 int Battery::GetOffloadMax() const
 {
 	unique_lock<recursive_mutex> llock(lock);
 
-	return offload_max;
+	return offload.max;
 }
 
 void Battery::CreateInDB()

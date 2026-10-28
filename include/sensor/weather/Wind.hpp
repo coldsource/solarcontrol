@@ -39,7 +39,7 @@ class Wind: public Weather, public mqtt::Subscriber
 	std::atomic<double> wind = std::numeric_limits<double>::quiet_NaN();
 
 	public:
-		Wind(const std::string &mqtt_id);
+		Wind(const std::string &name, SensorObserver *observer, const std::string &mqtt_id);
 		virtual ~Wind();
 
 		static void CheckConfig(const configuration::Json &conf);

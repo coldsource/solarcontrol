@@ -52,7 +52,7 @@ class SC: public Voltmeter, public mqtt::Subscriber
 	double estimated_time = std::numeric_limits<double>::quiet_NaN();
 
 	public:
-		SC(const configuration::Json &conf);
+		SC(const std::string &name, SensorObserver *observer, const configuration::Json &conf);
 		virtual ~SC();
 
 		static void CheckConfig(const configuration::Json &conf);

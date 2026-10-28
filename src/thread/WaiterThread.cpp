@@ -74,6 +74,9 @@ void WaiterThread::thread_main(WaiterThread *ptr)
 
 void WaiterThread::Signal()
 {
+	if(thread_handle.get_id()==std::thread::id())
+		return; // Thread not yet started, nothing to do
+
 	wait_lock.lock();
 	is_signaled = true;
 	shutdown_requested.notify_one();

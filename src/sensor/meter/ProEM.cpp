@@ -28,7 +28,7 @@ using nlohmann::json;
 
 namespace sensor::meter {
 
-ProEM::ProEM(const string &mqtt_id, const string &phase)
+ProEM::ProEM(const string &name, SensorObserver *observer, const string &mqtt_id, const string &phase):Meter(name, observer)
 {
 	phasei = phase[0] - 'a';
 

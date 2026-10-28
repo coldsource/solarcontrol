@@ -29,7 +29,7 @@ using nlohmann::json;
 namespace sensor::weather
 {
 
-HTBluetooth::HTBluetooth(const string &ble_addr)
+HTBluetooth::HTBluetooth(const string &name, SensorObserver *observer, const string &ble_addr):HT(name, observer)
 {
 	auto mqtt = mqtt::Client::GetInstance();
 	topic = "sc-ble-gateway/" + ble_addr;

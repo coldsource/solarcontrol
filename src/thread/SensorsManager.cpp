@@ -20,6 +20,8 @@
 #include <thread/SensorsManager.hpp>
 #include <datetime/Timestamp.hpp>
 #include <configuration/ConfigurationPart.hpp>
+#include <device/Devices.hpp>
+#include <device/Device.hpp>
 #include <logs/Logger.hpp>
 #include <excpt/Shelly.hpp>
 
@@ -44,23 +46,6 @@ SensorsManager::~SensorsManager()
 {
 }
 
-void SensorsManager::Register(shared_ptr<sensor::Sensor> sensor)
-{
-	unique_lock<mutex> llock(lock);
-
-	new_sensors.insert(sensor);
-	sensors.insert(sensor);
-
-	Signal(); // Signal thread for immediate update
-}
-
-void SensorsManager::Unregister(shared_ptr<sensor::Sensor> sensor)
-{
-	unique_lock<mutex> llock(lock);
-
-	sensors.erase(sensor);
-}
-
 void SensorsManager::ConfigurationChanged(const configuration::ConfigurationPart *config)
 {
 	unique_lock<mutex> llock(lock);
@@ -71,55 +56,24 @@ void SensorsManager::ConfigurationChanged(const configuration::ConfigurationPart
 
 void SensorsManager::main()
 {
-	Timestamp last_state_update(TS_MONOTONIC);
-
 	while(true)
 	{
-		if(!wait(1, [this]() { return new_sensors.size()==0; } )) // Wait 1 second unless we have new devices to update
-			return;
-
 		try
 		{
-			std::set<std::shared_ptr<sensor::Sensor>> local_sensors;
+			auto devices = device::Devices::Get<device::Device>();
 
+			for(auto device : devices)
 			{
-				// Lock to copy all shared pointers
-				unique_lock<mutex> llock(lock);
-
-
-				if(new_sensors.size()>0)
-				{
-					local_sensors.insert(new_sensors.begin(), new_sensors.end());
-					new_sensors.clear();
-				}
-
-				Timestamp now(TS_MONOTONIC);
-				if(now-last_state_update>(long)state_update_interval)
-				{
-					local_sensors.insert(sensors.begin(), sensors.end());
-					last_state_update = now;
-				}
-			}
-
-			// Call update unlocked
-			for(auto sensor : local_sensors)
-			{
-				try
-				{
-					if(sensor->ForceUpdate())
-						sensor->EnableObserver();
-				}
-				catch(excpt::Shelly &e)
-				{
-					sensor->DisableObserver();
-					e.Log(LOG_WARNING);
-				}
+				device->SensorsForceUpdate();
 			}
 		}
 		catch(exception &e)
 		{
 			logs::Logger::Log(LOG_ERR, "Error in sensors manager : « " + string(e.what()) + " »");
 		}
+
+		if(!wait(state_update_interval))
+			return;
 	}
 }
 

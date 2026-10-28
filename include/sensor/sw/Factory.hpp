@@ -20,6 +20,8 @@
 #ifndef __SENSOR_SW_FACTORY_HPP__
 #define __SENSOR_SW_FACTORY_HPP__
 
+#include <sensor/Factory.hpp>
+
 #include <memory>
 
 namespace configuration {
@@ -28,12 +30,15 @@ namespace configuration {
 
 namespace sensor::sw {
 
-class Switch;
-
-class Factory
+class Factory: public sensor::Factory
 {
+	protected:
+		virtual std::shared_ptr<sensor::Sensor> get_from_config(const std::string &name, SensorObserver *observer, const configuration::Json &conf) override;
+
 	public:
-		static std::shared_ptr<Switch> GetFromConfig(const configuration::Json &conf);
+		using sensor::Factory::Factory;
+		virtual ~Factory() {}
+
 		static void CheckConfig(const configuration::Json &conf);
 };
 

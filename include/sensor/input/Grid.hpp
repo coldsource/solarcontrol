@@ -39,7 +39,7 @@ class Grid: public Input, public mqtt::Subscriber
 	std::atomic_bool state = false;
 
 	public:
-		Grid(const std::string &mqtt_id);
+		Grid(const std::string &name, SensorObserver *observer, const std::string &mqtt_id);
 		virtual ~Grid();
 
 		static void CheckConfig(const configuration::Json &conf);

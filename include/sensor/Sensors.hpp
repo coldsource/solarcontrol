@@ -20,9 +20,16 @@
 #ifndef __SENSOR_SENSORS_HPP__
 #define __SENSOR_SENSORS_HPP__
 
+#include <sensor/Sensor.hpp>
+#include <configuration/Json.hpp>
+
 #include <string>
 #include <set>
 #include <memory>
+
+namespace configuration {
+	class Json;
+}
 
 namespace sensor {
 
@@ -33,10 +40,15 @@ class Sensors
 {
 	std::set<std::shared_ptr<Sensor>> sensors;
 
+	SensorObserver *observer;
+
 	public:
+		Sensors(SensorObserver *observer):observer(observer) {}
 		virtual ~Sensors();
 
-		void insert(const std::string &name, SensorObserver *observer, std::shared_ptr<Sensor> sensor);
+		std::set<std::shared_ptr<Sensor>> Get() { return sensors; }
+
+		void insert(std::shared_ptr<Sensor> sensor_ptr);
 		void clear();
 		bool has(const std::string &category) const;
 };

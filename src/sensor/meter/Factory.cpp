@@ -30,7 +30,7 @@ using namespace std;
 
 namespace sensor::meter {
 
-shared_ptr<Meter> Factory::GetFromConfig(const configuration::Json &conf)
+shared_ptr<sensor::Sensor> Factory::get_from_config(const string &name, SensorObserver *observer, const configuration::Json &conf)
 {
 	CheckConfig(conf);
 
@@ -40,17 +40,17 @@ shared_ptr<Meter> Factory::GetFromConfig(const configuration::Json &conf)
 		return nullptr; // No MQTT ID set, metering is disabled
 
 	if(type=="plug")
-		return make_shared<Plug>(conf.GetString("mqtt_id"));
+		return make_shared<Plug>(name, observer, conf.GetString("mqtt_id"));
 	if(type=="pro")
 		return nullptr; // Shelly Pro has no energy measurement
 	if(type=="uni")
 		return nullptr; // Shelly uni has no energy measurement
 	if(type=="3em")
-		return make_shared<Pro3EM>(conf.GetString("mqtt_id"), conf.GetString("phase"));
+		return make_shared<Pro3EM>(name, observer, conf.GetString("mqtt_id"), conf.GetString("phase"));
 	if(type=="em")
-		return make_shared<ProEM>(conf.GetString("mqtt_id"), conf.GetString("phase"));
+		return make_shared<ProEM>(name, observer, conf.GetString("mqtt_id"), conf.GetString("phase"));
 	if(type=="arduino")
-		return make_shared<Arduino>(conf.GetString("mqtt_id"));
+		return make_shared<Arduino>(name, observer, conf.GetString("mqtt_id"));
 	if(type=="bsblan")
 		return nullptr; // BSBLan has no energy measurement
 	if(type=="dummy")

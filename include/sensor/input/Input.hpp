@@ -30,9 +30,10 @@ namespace configuration {
 
 namespace sensor::input {
 
-class Input: public Sensor
+class Input: public sensor::Sensor
 {
 	public:
+		using Sensor::Sensor;
 		virtual ~Input() {}
 
 		static void CheckConfig(const configuration::Json & /* conf */) {}

@@ -32,9 +32,6 @@ class SensorObserver
 		virtual ~SensorObserver() {}
 
 		virtual void SensorChanged(const Sensor *sensor) = 0;
-		virtual void SetOffline() = 0;
-		virtual void SetOnline() = 0;
-		virtual std::string GetName() const = 0;
 };
 
 }

@@ -24,6 +24,7 @@
 #include <database/DB.hpp>
 #include <logs/Logger.hpp>
 #include <websocket/SolarControl.hpp>
+#include <thread/DevicesManager.hpp>
 #include <excpt/Exception.hpp>
 #include <excpt/Context.hpp>
 
@@ -79,6 +80,7 @@ Devices::Devices()
 		}
 
 		instance = this;
+
 		return;
 	}
 }

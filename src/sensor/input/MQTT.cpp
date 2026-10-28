@@ -23,14 +23,14 @@
 #include <shelly/HTTP.hpp>
 #include <nlohmann/json.hpp>
 #include <excpt/Config.hpp>
-#include <excpt/Context.hpp>
 
 using namespace std;
 using nlohmann::json;
 
 namespace sensor::input {
 
-MQTT::MQTT(const string &mqtt_id, int input, const string &ip):
+MQTT::MQTT(const string &name, SensorObserver *observer, const string &mqtt_id, int input, const string &ip):
+Input(name, observer),
 input(input),
 topic(mqtt_id + "/events/rpc"),
 ip(ip)
@@ -61,8 +61,6 @@ void MQTT::CheckConfig(const configuration::Json &conf)
 
 bool MQTT::get_input() const
 {
-	excpt::Context ctx("relay", "Getting input state for device « " + GetObserverName() + " »");
-
 	if(ip=="")
 		return false;
 

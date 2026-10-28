@@ -44,6 +44,7 @@ class Meter: public Sensor
 		std::mutex lock;
 
 	public:
+		using Sensor::Sensor;
 		virtual ~Meter() {}
 
 		static void CheckConfig(const configuration::Json &conf);

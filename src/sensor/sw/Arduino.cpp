@@ -29,7 +29,8 @@ using nlohmann::json;
 
 namespace sensor::sw {
 
-Arduino::Arduino(const string &mqtt_id, bool reverted):
+Arduino::Arduino(const std::string &name, SensorObserver *observer, const string &mqtt_id, bool reverted):
+Switch(name, observer),
 topic(mqtt_id),
 reverted(reverted)
 {

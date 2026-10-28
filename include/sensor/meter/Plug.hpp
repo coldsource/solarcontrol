@@ -32,7 +32,7 @@ class Plug: public Meter, public mqtt::Subscriber
 	std::string topic;
 
 	public:
-		Plug(const std::string &mqtt_id);
+		Plug(const std::string &name, SensorObserver *observer, const std::string &mqtt_id);
 		virtual ~Plug();
 
 		void HandleMessage(const std::string &message, const std::string & /*topic*/) override;

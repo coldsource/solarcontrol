@@ -43,7 +43,7 @@ class Arduino: public Meter, public mqtt::Subscriber
 		datetime::Timestamp last_update;
 
 	public:
-		Arduino(const std::string &mqtt_id);
+		Arduino(const std::string &name, SensorObserver *observer, const std::string &mqtt_id);
 		virtual ~Arduino();
 
 		static void CheckConfig(const configuration::Json &conf);

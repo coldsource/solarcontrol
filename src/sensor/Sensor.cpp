@@ -26,65 +26,9 @@ using namespace std;
 
 namespace sensor {
 
-void Sensor::SetObserver(SensorObserver * observer)
-{
-	unique_lock<mutex> llock(observer_lock);
-
-	this->observer = observer;
-
-	// Register sensor for management
-	::thread::SensorsManager::GetInstance()->Register(shared_from_this());
-}
-
-void Sensor::SetObserver()
-{
-	unique_lock<mutex> llock(observer_lock);
-
-	this->observer = 0;
-
-	// We have no more observers, unregister for future removal
-	::thread::SensorsManager::GetInstance()->Unregister(shared_from_this());
-}
-
-void Sensor::DisableObserver()
-{
-	unique_lock<mutex> llock(observer_lock);
-
-	if(observer)
-		observer->SetOffline();
-
-	websocket::SolarControl::GetInstance()->NotifyAll(websocket::SolarControl::en_protocols::DEVICE);
-}
-void Sensor::EnableObserver()
-{
-	unique_lock<mutex> llock(observer_lock);
-
-	if(observer)
-		observer->SetOnline();
-
-	websocket::SolarControl::GetInstance()->NotifyAll(websocket::SolarControl::en_protocols::DEVICE);
-}
-
-string Sensor::GetObserverName() const
-{
-	unique_lock<mutex> llock(observer_lock);
-
-	if(observer)
-		return observer->GetName();
-
-	return "";
-}
-
 void Sensor::notify_observer()
 {
-	{
-		unique_lock<mutex> llock(observer_lock);
-
-		if(observer==0)
-			return; // No observer
-
-		observer->SensorChanged(this);
-	}
+	observer->SensorChanged(this);
 }
 
 }

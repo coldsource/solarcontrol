@@ -32,7 +32,7 @@ class HTWifi: public HT, public mqtt::Subscriber
 	std::string topic;
 
 	public:
-		HTWifi(const std::string &mqtt_id);
+		HTWifi(const std::string &name, SensorObserver *observer, const std::string &mqtt_id);
 		virtual ~HTWifi();
 
 		static void CheckConfig(const configuration::Json &conf);

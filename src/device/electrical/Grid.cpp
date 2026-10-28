@@ -60,10 +60,10 @@ void Grid::reload(const configuration::Json &config)
 	Passive::reload(config);
 
 	if(config.Has("input"))
-		add_sensor(sensor::input::Factory::GetFromConfig(config.GetObject("input")), "offpeak_ctrl");
+		add_sensor<sensor::input::Factory>("offpeak_ctrl", config.GetObject("input"));
 
 	if(config.Has("input_grid"))
-		add_sensor(sensor::input::Factory::GetFromConfig(config.GetObject("input_grid")), "grid_detection");
+		add_sensor<sensor::input::Factory>("grid_detection", config.GetObject("input_grid"));
 }
 
 Grid::en_grid_state Grid::string_to_grid_state(const string &str)

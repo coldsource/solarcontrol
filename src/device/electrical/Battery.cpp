@@ -195,7 +195,7 @@ void Battery::reload(const configuration::Json &config)
 
 	enabled = true;
 
-	add_sensor(sensor::voltmeter::Factory::GetFromConfig(config.GetObject("voltmeter")), "voltmeter");
+	add_sensor<sensor::voltmeter::Factory>("voltmeter", config.GetObject("voltmeter"));
 
 	auto backup = config.GetObject("backup");
 	battery_low = backup.GetUInt("battery_low");

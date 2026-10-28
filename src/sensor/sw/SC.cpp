@@ -29,7 +29,8 @@ using nlohmann::json;
 
 namespace sensor::sw {
 
-SC::SC(const string &mqtt_id, bool reverted):
+SC::SC(const string &name, SensorObserver *observer, const string &mqtt_id, bool reverted):
+Switch(name, observer),
 topic(mqtt_id + "/source"),
 reverted(reverted)
 {

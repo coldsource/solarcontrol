@@ -29,7 +29,9 @@ using nlohmann::json;
 namespace sensor::weather
 {
 
-Wind::Wind(const string &mqtt_id):topic(mqtt_id + "/events/rpc")
+Wind::Wind(const string &name, SensorObserver *observer, const string &mqtt_id):
+Weather(name, observer),
+topic(mqtt_id + "/events/rpc")
 {
 	auto mqtt = mqtt::Client::GetInstance();
 	mqtt->Subscribe(topic, this);

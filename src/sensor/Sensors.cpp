@@ -29,20 +29,14 @@ Sensors::~Sensors()
 	clear();
 }
 
-void Sensors::insert(const std::string &name, SensorObserver *observer, std::shared_ptr<Sensor> sensor)
+void Sensors::insert(std::shared_ptr<Sensor> sensor_ptr)
 {
-	sensor->SetName(name);
-	sensor->SetObserver(observer);
-
-	sensors.insert(sensor);
+	sensors.insert(sensor_ptr);
 }
 
 void Sensors::clear()
 {
-	for(auto sensor : sensors)
-		sensor->SetObserver();
 	sensors.clear();
-
 }
 
 bool Sensors::has(const std::string &category) const

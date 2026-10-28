@@ -49,7 +49,7 @@ class Relay: public Switch, public mqtt::Subscriber
 		bool get_output() const;
 
 	public:
-		Relay(const std::string &ip, int outlet, const std::string &mqtt_id, bool reverted = false);
+		Relay(const std::string &name, SensorObserver *observer, const std::string &ip, int outlet, const std::string &mqtt_id, bool reverted = false);
 		virtual ~Relay();
 
 		static void CheckConfig(const configuration::Json & conf);

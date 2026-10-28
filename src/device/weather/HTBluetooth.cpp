@@ -20,6 +20,7 @@
 
 #include <device/weather/HTBluetooth.hpp>
 #include <sensor/weather/HTBluetooth.hpp>
+#include <sensor/weather/FactoryHT.hpp>
 #include <configuration/Json.hpp>
 
 using namespace std;
@@ -46,8 +47,7 @@ void HTBluetooth::reload(const configuration::Json &config)
 {
 	HT::reload(config);
 
-	ble_addr = config.GetString("ble_addr");
-	add_sensor(make_shared<sensor::weather::HTBluetooth>(ble_addr), "ht");
+	add_sensor<sensor::weather::FactoryHT>("ht", config);
 }
 
 void HTBluetooth::SensorChanged(const sensor::Sensor *sensor)

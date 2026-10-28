@@ -29,7 +29,7 @@ using nlohmann::json;
 namespace sensor::weather
 {
 
-HTWifi::HTWifi(const string &mqtt_id)
+HTWifi::HTWifi(const string &name, SensorObserver *observer, const string &mqtt_id):HT(name, observer)
 {
 	auto mqtt = mqtt::Client::GetInstance();
 	topic = mqtt_id + "/events/rpc";

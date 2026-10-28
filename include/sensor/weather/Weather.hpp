@@ -27,6 +27,7 @@ namespace sensor::weather {
 class Weather: public Sensor
 {
 	public:
+		using Sensor::Sensor;
 		virtual std::string GetCategory() const override { return "weather"; }
 };
 

@@ -54,7 +54,7 @@ class VoltmeterSimple: public Voltmeter, public configuration::ConfigurationObse
 		bool prevent_notify() const;
 
 	public:
-		VoltmeterSimple(const configuration::Json &conf);
+		VoltmeterSimple(const std::string &name, SensorObserver *observer, const configuration::Json &conf);
 		virtual ~VoltmeterSimple() {}
 
 		static void CheckConfig(const configuration::Json &conf);

@@ -89,10 +89,10 @@ void OnOff::reload(const configuration::Json &config)
 	if(config.Has("control"))
 	{
 		ctrl = OnOffFactory::GetFromConfig(config.GetObject("control")); // Init control from config
-		add_sensor(sensor::sw::Factory::GetFromConfig(config.GetObject("control")), "switch");
+		add_sensor<sensor::sw::Factory>("switch", config.GetObject("control"));
 
 		if(!config.Has("meter")) // Device has no dedicated meter, control will be used
-			add_sensor(sensor::meter::Factory::GetFromConfig(config.GetObject("control")), "meter"); // Fallback on control for metering also
+			add_sensor<sensor::meter::Factory>("meter", config.GetObject("control")); // Fallback on control for metering also
 	}
 	else
 		ctrl = nullptr; // No control on this device

@@ -33,6 +33,7 @@ namespace sensor::sw {
 class Switch: public Sensor
 {
 	public:
+		using Sensor::Sensor;
 		virtual ~Switch() {}
 
 		static void CheckConfig(const configuration::Json & /* conf */) {}

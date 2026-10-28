@@ -30,7 +30,7 @@ using nlohmann::json;
 
 namespace sensor::voltmeter {
 
-Uni::Uni(const configuration::Json &conf):VoltmeterSimple(conf)
+Uni::Uni(const string &name, SensorObserver *observer, const configuration::Json &conf):VoltmeterSimple(name, observer, conf)
 {
 	CheckConfig(conf);
 

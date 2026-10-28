@@ -33,7 +33,7 @@ namespace sensor::input {
 class Pro: public MQTT
 {
 	public:
-		Pro(const std::string &mqtt_id, int input, const std::string &ip = ""): MQTT(mqtt_id, input, ip) {}
+		Pro(const std::string &name, SensorObserver *observer, const std::string &mqtt_id, int input, const std::string &ip = ""): MQTT(name, observer, mqtt_id, input, ip) {}
 		virtual ~Pro() {}
 
 		static void CheckConfig(const configuration::Json &conf);

@@ -28,7 +28,7 @@ using nlohmann::json;
 
 namespace sensor::meter {
 
-Pro3EM::Pro3EM(const string &mqtt_id, const string &phase):phase(phase)
+Pro3EM::Pro3EM(const string &name, SensorObserver *observer, const string &mqtt_id, const string &phase):Meter(name, observer), phase(phase)
 {
 	auto mqtt = mqtt::Client::GetInstance();
 	topic = mqtt_id + "/events/rpc";

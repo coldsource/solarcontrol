@@ -30,7 +30,7 @@ using namespace std;
 
 namespace sensor::input {
 
-shared_ptr<Input> Factory::GetFromConfig(const configuration::Json &conf)
+shared_ptr<sensor::Sensor> Factory::get_from_config(const string &name, SensorObserver *observer, const configuration::Json &conf)
 {
 	CheckConfig(conf);
 
@@ -39,11 +39,11 @@ shared_ptr<Input> Factory::GetFromConfig(const configuration::Json &conf)
 	if(type=="dummy")
 		return nullptr;
 	if(type=="plus1pm")
-		return make_shared<Plus1PM>(conf.GetString("mqtt_id", ""), conf.GetString("ip", ""));
+		return make_shared<Plus1PM>(name, observer, conf.GetString("mqtt_id", ""), conf.GetString("ip", ""));
 	if(type=="pro")
-		return make_shared<Pro>(conf.GetString("mqtt_id", ""), conf.GetInt("outlet"), conf.GetString("ip", ""));
+		return make_shared<Pro>(name, observer, conf.GetString("mqtt_id", ""), conf.GetInt("outlet"), conf.GetString("ip", ""));
 	if(type=="grid")
-		return make_shared<Grid>(conf.GetString("mqtt_id"));
+		return make_shared<Grid>(name, observer, conf.GetString("mqtt_id"));
 
 	return 0;
 }

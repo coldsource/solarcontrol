@@ -80,7 +80,7 @@ void Electrical::reload(const configuration::Json &config)
 	Device::reload(config);
 
 	if(config.Has("meter"))
-		add_sensor(sensor::meter::Factory::GetFromConfig(config.GetObject("meter")), "meter"); // Device has a dedicated metering configuration
+		add_sensor<sensor::meter::Factory>("meter", config.GetObject("meter")); // Device has a dedicated metering configuration
 }
 
 void Electrical::energy_debug()

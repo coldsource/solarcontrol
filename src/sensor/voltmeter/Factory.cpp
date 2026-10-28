@@ -32,18 +32,18 @@ using namespace std;
 namespace sensor::voltmeter
 {
 
-shared_ptr<Voltmeter> Factory::GetFromConfig(const configuration::Json &conf)
+shared_ptr<sensor::Sensor> Factory::get_from_config(const std::string &name, SensorObserver *observer, const configuration::Json &conf)
 {
 	CheckConfig(conf);
 
 	string type = conf.GetString("type");
 
 	if(type=="uni")
-		return make_shared<Uni>(conf);
+		return make_shared<Uni>(name, observer, conf);
 	if(type=="arduino")
-		return make_shared<Arduino>(conf);
+		return make_shared<Arduino>(name, observer, conf);
 	if(type=="sc")
-		return make_shared<SC>(conf);
+		return make_shared<SC>(name, observer, conf);
 
 	return nullptr;
 }

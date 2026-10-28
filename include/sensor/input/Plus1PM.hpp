@@ -33,7 +33,7 @@ namespace sensor::input {
 class Plus1PM: public MQTT
 {
 	public:
-		Plus1PM(const std::string &mqtt_id, const std::string &ip = ""): MQTT(mqtt_id, 0, ip) {}
+		Plus1PM(const std::string &name, SensorObserver *observer, const std::string &mqtt_id, const std::string &ip = ""): MQTT(name, observer, mqtt_id, 0, ip) {}
 		virtual ~Plus1PM() {}
 };
 

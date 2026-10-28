@@ -44,7 +44,7 @@ class MQTT: public Input, public mqtt::Subscriber
 		bool get_input() const;
 
 	public:
-		MQTT(const std::string &mqtt_id, int input, const std::string &ip = "");
+		MQTT(const std::string &name, SensorObserver *observer, const std::string &mqtt_id, int input, const std::string &ip = "");
 		virtual ~MQTT();
 
 		static void CheckConfig(const configuration::Json &conf);

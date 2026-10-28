@@ -29,7 +29,8 @@ using nlohmann::json;
 
 namespace sensor::input {
 
-Grid::Grid(const string &mqtt_id):
+Grid::Grid(const string &name, SensorObserver *observer, const string &mqtt_id):
+Input(name, observer),
 topic(mqtt_id + "/grid")
 {
 	state = true;

@@ -90,11 +90,11 @@ int main(int argc, char **argv)
 		device::PV::CreateInDB();
 		device::Battery::CreateInDB();
 
-		// Create sensors manager before devices so they can register to it
-		::thread::SensorsManager sensors_manager;
-
 		logs::Logger::Log(LOG_INFO, "Loading devices");
 		device::Devices devices;
+
+		// Create sensors manager, this will update all sensors on startup
+		::thread::SensorsManager sensors_manager;
 
 		// Create global energy meter (grid, pv, hws, battery)
 		energy::GlobalMeter globalmeter;

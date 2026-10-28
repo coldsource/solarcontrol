@@ -20,6 +20,7 @@
 
 #include <device/weather/Wind.hpp>
 #include <sensor/weather/Wind.hpp>
+#include <sensor/weather/FactoryWind.hpp>
 #include <configuration/Json.hpp>
 #include <stat/MinMaxAvg.hpp>
 
@@ -65,7 +66,7 @@ void Wind::reload(const configuration::Json &config)
 {
 	Weather::reload(config);
 
-	add_sensor(make_shared<sensor::weather::Wind>(config.GetString("mqtt_id")), "ht");
+	add_sensor<sensor::weather::FactoryWind>("ht", config);
 }
 
 void Wind::SensorChanged(const sensor::Sensor *sensor)

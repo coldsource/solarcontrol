@@ -35,7 +35,7 @@ using namespace std;
 namespace sensor::sw
 {
 
-shared_ptr<Switch> Factory::GetFromConfig(const configuration::Json &conf)
+shared_ptr<sensor::Sensor> Factory::get_from_config(const string &name, SensorObserver *observer, const configuration::Json &conf)
 {
 	CheckConfig(conf);
 
@@ -43,15 +43,15 @@ shared_ptr<Switch> Factory::GetFromConfig(const configuration::Json &conf)
 	bool reverted = conf.GetBool("reverted", false);
 
 	if(type=="plug")
-		return make_shared<Plug>(conf.GetString("ip"), conf.GetString("mqtt_id"), reverted);
+		return make_shared<Plug>(name, observer, conf.GetString("ip"), conf.GetString("mqtt_id"), reverted);
 	if(type=="pro")
-		return make_shared<Pro>(conf.GetString("ip"), conf.GetInt("outlet"), conf.GetString("mqtt_id"), reverted);
+		return make_shared<Pro>(name, observer, conf.GetString("ip"), conf.GetInt("outlet"), conf.GetString("mqtt_id"), reverted);
 	if(type=="uni")
-		return make_shared<Uni>(conf.GetString("ip"), conf.GetInt("outlet"), conf.GetString("mqtt_id"), reverted);
+		return make_shared<Uni>(name, observer, conf.GetString("ip"), conf.GetInt("outlet"), conf.GetString("mqtt_id"), reverted);
 	if(type=="arduino")
-		return make_shared<Arduino>(conf.GetString("mqtt_id"), reverted);
+		return make_shared<Arduino>(name, observer, conf.GetString("mqtt_id"), reverted);
 	if(type=="sc")
-		return make_shared<SC>(conf.GetString("mqtt_id"), reverted);
+		return make_shared<SC>(name, observer, conf.GetString("mqtt_id"), reverted);
 	if(type=="bsblan")
 		return nullptr;
 

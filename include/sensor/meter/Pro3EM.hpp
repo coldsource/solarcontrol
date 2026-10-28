@@ -41,7 +41,7 @@ class Pro3EM: public Meter, public mqtt::Subscriber
 		double last_energy_excess = 0;
 
 	public:
-		Pro3EM(const std::string &mqtt_id, const std::string &phase);
+		Pro3EM(const std::string &name, SensorObserver *observer, const std::string &mqtt_id, const std::string &phase);
 		virtual ~Pro3EM();
 
 		static void CheckConfig(const configuration::Json &conf);

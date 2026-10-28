@@ -45,6 +45,7 @@ class Voltmeter: public Sensor
 		mutable std::mutex lock;
 
 	public:
+		using Sensor::Sensor;
 		virtual ~Voltmeter() {}
 
 		static void CheckConfig(const configuration::Json & /*conf*/) {}

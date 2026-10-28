@@ -28,7 +28,7 @@ using nlohmann::json;
 
 namespace sensor::meter {
 
-Arduino::Arduino(const string &mqtt_id):last_update(TS_MONOTONIC)
+Arduino::Arduino(const string &name, SensorObserver *observer, const string &mqtt_id):Meter(name, observer), last_update(TS_MONOTONIC)
 {
 	auto mqtt = mqtt::Client::GetInstance();
 	topic = mqtt_id;

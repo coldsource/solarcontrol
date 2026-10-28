@@ -44,7 +44,7 @@ class Arduino: public VoltmeterSimple, public mqtt::Subscriber
 	std::atomic_bool charging = false;
 
 	public:
-		Arduino(const configuration::Json &conf);
+		Arduino(const std::string &name, SensorObserver *observer, const configuration::Json &conf);
 		virtual ~Arduino();
 
 		static void CheckConfig(const configuration::Json &conf);

@@ -22,38 +22,27 @@
 
 #include <string>
 #include <atomic>
-#include <mutex>
 #include <memory>
 
 namespace sensor {
 
 class SensorObserver;
+class Factory;
 
 class Sensor: public std::enable_shared_from_this<Sensor>
 {
 	std::string name = "";
 
-	mutable std::mutex lock;
-
-	mutable std::mutex observer_lock;
 	SensorObserver *observer = 0;
 
 	protected:
 		void notify_observer();
 
 	public:
-		Sensor():name() {}
+		Sensor(const std::string &name, SensorObserver *observer):name(name), observer(observer)  {}
 		virtual ~Sensor() {}
 
-		void SetObserver(SensorObserver *observer);
-		void SetObserver();
-		std::string GetObserverName() const;
-
-		void DisableObserver();
-		void EnableObserver();
-
 		std::string GetName() const { return name; }
-		void SetName(const std::string &name) { this->name = name; }
 
 		virtual bool ForceUpdate() { return false; }
 

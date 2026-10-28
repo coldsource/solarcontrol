@@ -29,7 +29,7 @@ namespace sensor::sw {
 class Uni: public Pro
 {
 	public:
-		Uni(const std::string &ip, int outlet, const std::string &mqtt_id, bool reverted = false): Pro(ip, outlet, mqtt_id, reverted) {}
+		Uni(const std::string &name, SensorObserver *observer, const std::string &ip, int outlet, const std::string &mqtt_id, bool reverted = false): Pro(name, observer, ip, outlet, mqtt_id, reverted) {}
 };
 
 }

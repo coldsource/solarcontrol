@@ -38,6 +38,7 @@ class HT: public Weather
 		std::atomic<double> humidity = std::numeric_limits<double>::quiet_NaN();
 
 	public:
+		using Weather::Weather;
 		virtual ~HT() {}
 
 		static void CheckConfig(const configuration::Json & /* conf */) {}

@@ -21,6 +21,8 @@
 #include <database/DB.hpp>
 #include <sensor/Sensor.hpp>
 #include <excpt/Context.hpp>
+#include <excpt/Shelly.hpp>
+#include <logs/Logger.hpp>
 
 using namespace std;
 using database::DB;
@@ -32,7 +34,7 @@ Device::~Device()
 {
 	if(deleted)
 	{
-		// We are marked for destruction, we muse remove ourselved from database
+		// We are marked for destruction, we muse remove ourself from database
 		DB db;
 
 		db.Query("DELETE FROM t_device WHERE device_id=%i"_sql<<id);
@@ -103,10 +105,37 @@ json Device::ToJson() const
 	return j_device;
 }
 
-void Device::add_sensor(shared_ptr<sensor::Sensor> sensor, const string &name)
+void Device::SensorsForceUpdate()
 {
-	if(sensor!=nullptr)
-		sensors.insert(name, this, sensor);
+	std::set<std::shared_ptr<sensor::Sensor>> snapshot;
+
+	{
+		// Snapshot sensors locked
+		unique_lock<recursive_mutex> llock(lock);
+		snapshot = sensors.Get();
+	}
+
+	try
+	{
+		// Check all sensors unlocked to avoid locking the device for too long
+		excpt::Context ctx("device", "Getting input state for device « " + name + " »");
+
+		for(auto sensor : snapshot)
+		{
+			if(sensor->ForceUpdate())
+				offline = false;
+		}
+	}
+	catch(excpt::Shelly &e)
+	{
+		offline = true;
+		e.Log(LOG_WARNING);
+	}
+	catch(...)
+	{
+		offline = true;
+		logs::Logger::Log(LOG_WARNING, "Unknown error on sensor for device « " + name + " »");
+	}
 }
 
 bool Device::has_sensor(const std::string &category) const

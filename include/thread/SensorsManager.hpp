@@ -22,7 +22,6 @@
 
 #include <thread/WaiterThread.hpp>
 #include <configuration/ConfigurationObserver.hpp>
-#include <sensor/Sensor.hpp>
 
 #include <mutex>
 #include <memory>
@@ -33,9 +32,6 @@ namespace thread {
 class SensorsManager: public WaiterThread, public configuration::ConfigurationObserver
 {
 	static SensorsManager *instance;
-
-	std::set<std::shared_ptr<sensor::Sensor>> sensors;
-	std::set<std::shared_ptr<sensor::Sensor>> new_sensors;
 
 	unsigned long state_update_interval;
 
@@ -51,9 +47,6 @@ class SensorsManager: public WaiterThread, public configuration::ConfigurationOb
 		static SensorsManager *GetInstance() { return instance; }
 
 		void Start() { start(); }
-
-		void Register(std::shared_ptr<sensor::Sensor> sensor);
-		void Unregister(std::shared_ptr<sensor::Sensor> sensor);
 
 		void ConfigurationChanged(const configuration::ConfigurationPart *config) override;
 };

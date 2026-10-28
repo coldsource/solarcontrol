@@ -30,7 +30,8 @@ using nlohmann::json;
 
 namespace sensor::sw {
 
-Relay::Relay(const std::string &ip, int outlet, const string &mqtt_id, bool reverted):
+Relay::Relay(const string &name, SensorObserver *observer, const string &ip, int outlet, const string &mqtt_id, bool reverted):
+Switch(name, observer),
 ip(ip),
 outlet(outlet),
 topic(mqtt_id + "/events/rpc"),
@@ -66,8 +67,6 @@ void Relay::CheckConfig(const configuration::Json &conf)
 
 bool Relay::get_output() const
 {
-	excpt::Context ctx("relay", "Getting switch state for device « " + GetObserverName() + " »");
-
 	shelly::HTTP api(ip);
 
 	json j;

@@ -27,7 +27,7 @@ using nlohmann::json;
 
 namespace sensor::meter {
 
-Plug::Plug(const string &mqtt_id)
+Plug::Plug(const string &name, SensorObserver *observer, const string &mqtt_id):Meter(name, observer)
 {
 	auto mqtt = mqtt::Client::GetInstance();
 	topic = mqtt_id + "/events/rpc";

@@ -20,6 +20,7 @@
 
 #include <device/weather/HTWifi.hpp>
 #include <sensor/weather/HTWifi.hpp>
+#include <sensor/weather/FactoryHT.hpp>
 #include <configuration/Json.hpp>
 
 using namespace std;
@@ -46,7 +47,7 @@ void HTWifi::reload(const configuration::Json &config)
 {
 	HT::reload(config);
 
-	add_sensor(make_shared<sensor::weather::HTWifi>(config.GetString("mqtt_id")), "ht");
+	add_sensor<sensor::weather::FactoryHT>("ht", config);
 }
 
 void HTWifi::SensorChanged(const sensor::Sensor *sensor)

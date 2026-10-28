@@ -44,7 +44,7 @@ class Uni: public VoltmeterSimple, public mqtt::Subscriber
 	std::atomic_bool charging = false;
 
 	public:
-		Uni(const configuration::Json &conf);
+		Uni(const std::string &name, SensorObserver *observer, const configuration::Json &conf);
 		virtual ~Uni();
 
 		static void CheckConfig(const configuration::Json &conf);

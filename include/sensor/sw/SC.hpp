@@ -45,7 +45,7 @@ class SC: public Switch, public mqtt::Subscriber
 	std::mutex lock;
 
 	public:
-		SC(const std::string &mqtt_id, bool reverted = false);
+		SC(const std::string &name, SensorObserver *observer, const std::string &mqtt_id, bool reverted = false);
 		virtual ~SC();
 
 		static void CheckConfig(const configuration::Json & conf);

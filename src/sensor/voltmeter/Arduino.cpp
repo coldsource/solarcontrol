@@ -31,7 +31,7 @@ using nlohmann::json;
 
 namespace sensor::voltmeter {
 
-Arduino::Arduino(const configuration::Json &conf):VoltmeterSimple(conf)
+Arduino::Arduino(const string &name, SensorObserver *observer, const configuration::Json &conf):VoltmeterSimple(name, observer, conf)
 {
 	CheckConfig(conf);
 

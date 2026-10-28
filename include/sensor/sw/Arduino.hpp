@@ -45,7 +45,7 @@ class Arduino: public Switch, public mqtt::Subscriber
 	std::mutex lock;
 
 	public:
-		Arduino(const std::string &mqtt_id, bool reverted = false);
+		Arduino(const std::string &name, SensorObserver *observer, const std::string &mqtt_id, bool reverted = false);
 		virtual ~Arduino();
 
 		static void CheckConfig(const configuration::Json & conf);

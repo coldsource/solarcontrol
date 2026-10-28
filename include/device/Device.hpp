@@ -63,7 +63,17 @@ class Device: public sensor::SensorObserver
 
 		bool state_restored = false;
 
-		void add_sensor(std::shared_ptr<sensor::Sensor> sensor, const std::string &name);
+		// concept DeriveDeBase = std::derived_from<T, Base>;
+		// template<DeriveDeBase T, typename... Args>
+		template<typename T_FACTORY>
+		void add_sensor(const std::string &name, const configuration::Json &conf)
+		{
+			T_FACTORY factory(this);
+			auto sensor_ptr = factory.GetFromConfig(name, conf);
+			if(sensor_ptr!=nullptr)
+				sensors.insert(sensor_ptr);
+		}
+
 		bool has_sensor(const std::string &category) const;
 
 		virtual void reload(const configuration::Json & /* config */) {}
@@ -71,7 +81,7 @@ class Device: public sensor::SensorObserver
 		virtual configuration::Json state_backup() { return configuration::Json(); }
 
 	public:
-		Device(int id):id(id) {}
+		Device(int id):id(id),sensors(this) {}
 		Device(const Device&) = delete;
 		virtual ~Device();
 
@@ -87,11 +97,10 @@ class Device: public sensor::SensorObserver
 		virtual nlohmann::json ToJson() const;
 
 		int GetID() const { return id; }
-		std::string GetName() const override;
+		std::string GetName() const;
 		const configuration::Json GetConfig() const;
 
-		void SetOffline() override { offline = true; }
-		void SetOnline() override { offline = false; }
+		void SensorsForceUpdate();
 		bool IsOffline() const { return offline; }
 
 		bool IsEnabled() const { return enabled; }

@@ -41,6 +41,8 @@ Counter::Counter(int device_id, const string &consumption_history_type, const st
 
 void Counter::AddEnergy(double consumption, double excess)
 {
+	lock_guard<mutex> llock(lock);
+
 	int yday = datetime::DateTime().GetYearDay();
 	if(last_yday!=yday)
 	{
@@ -67,6 +69,8 @@ void Counter::AddEnergy(double consumption, double excess)
 
 Amount Counter::GetEnergyConsumption() const
 {
+	lock_guard<mutex> llock(lock);
+
 	if(last_yday!=datetime::DateTime().GetYearDay())
 		return 0;
 
@@ -75,6 +79,8 @@ Amount Counter::GetEnergyConsumption() const
 
 Amount Counter::GetEnergyExcess() const
 {
+	lock_guard<mutex> llock(lock);
+
 	if(last_yday!=datetime::DateTime().GetYearDay())
 		return 0;
 
@@ -83,19 +89,19 @@ Amount Counter::GetEnergyExcess() const
 
 double Counter::GetTotalConsumptionForLast(int ndays) const
 {
-	return consumption_history->GetTotalForLast(ndays);
+	return consumption_history->GetTotalForLast(ndays); // Already thread safe
 }
 double Counter::GetTotalExcessForLast(int ndays) const
 {
 	return excess_history->GetTotalForLast(ndays);
 }
 
-const std::map<datetime::Date, Amount> &Counter::GetConsumptionHistory() const
+const std::map<datetime::Date, Amount> Counter::GetConsumptionHistory() const
 {
 	return consumption_history->Get();
 }
 
-const std::map<datetime::Date, Amount> &Counter::GetExcessHistory() const
+const std::map<datetime::Date, Amount> Counter::GetExcessHistory() const
 {
 	return excess_history->Get();
 }

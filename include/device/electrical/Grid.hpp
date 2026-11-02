@@ -55,7 +55,7 @@ class Grid: public Passive
 
 		std::string GetType() const override { return "grid"; }
 
-		const std::map<datetime::Date, energy::Amount> &GetExcessHistory() const { return consumption.GetExcessHistory(); }
+		const std::map<datetime::Date, energy::Amount> GetExcessHistory() const { return consumption.GetExcessHistory(); }
 
 		bool GetOffPeak() const { return offpeak; }
 		en_grid_state GetState() const { return grid_state; }

@@ -39,7 +39,7 @@ class HistorySync
 
 		virtual void Sync(void)
 		{
-			std::unique_lock<std::mutex> llock(lock);
+			std::lock_guard<std::mutex> llock(lock);
 
 			purge();
 			save();
@@ -80,7 +80,7 @@ class History: public HistorySync
 
 		void Set(DataType val)
 		{
-			std::unique_lock<std::mutex> llock(lock);
+			std::lock_guard<std::mutex> llock(lock);
 
 			Period now;
 			history[now] = val;
@@ -88,7 +88,7 @@ class History: public HistorySync
 
 		void Add(DataType val)
 		{
-			std::unique_lock<std::mutex> llock(lock);
+			std::lock_guard<std::mutex> llock(lock);
 
 			Period now;
 			if(!history.contains(now))
@@ -101,7 +101,7 @@ class History: public HistorySync
 
 		DataType GetTotalForLast(int nperiods) const
 		{
-			std::unique_lock<std::mutex> llock(lock);
+			std::lock_guard<std::mutex> llock(lock);
 
 			Period start_date = Period() - nperiods;
 			DataType sum = 0;
@@ -119,7 +119,7 @@ class History: public HistorySync
 
 		DataType GetTotalForCurrent() const
 		{
-			std::unique_lock<std::mutex> llock(lock);
+			std::lock_guard<std::mutex> llock(lock);
 
 			Period now;
 
@@ -130,7 +130,11 @@ class History: public HistorySync
 			return it->second;
 		}
 
-		const std::map<Period, DataType> &Get() const { return history; }
+		const std::map<Period, DataType> Get() const
+		{
+			std::lock_guard<std::mutex> llock(lock);
+			return history;
+		}
 };
 
 }

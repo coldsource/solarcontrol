@@ -27,11 +27,14 @@
 
 #include <map>
 #include <memory>
+#include <mutex>
 
 namespace energy {
 
 class Counter
 {
+	mutable std::mutex lock;
+
 	int last_yday;
 
 	Amount energy_consumption;
@@ -55,8 +58,8 @@ class Counter
 		double GetTotalConsumptionForLast(int ndays) const;
 		double GetTotalExcessForLast(int ndays) const;
 
-		const std::map<datetime::Date, Amount> &GetConsumptionHistory() const;
-		const std::map<datetime::Date, Amount> &GetExcessHistory() const;
+		const std::map<datetime::Date, Amount> GetConsumptionHistory() const;
+		const std::map<datetime::Date, Amount> GetExcessHistory() const;
 };
 
 }

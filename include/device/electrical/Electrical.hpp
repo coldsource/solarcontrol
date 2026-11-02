@@ -76,8 +76,8 @@ class Electrical: public Device, public configuration::ConfigurationObserver
 		energy::Amount GetEnergyOffload() const;
 		energy::Amount GetEnergyExcess() const;
 
-		const std::map<datetime::Date, energy::Amount> &GetConsumptionHistory() const;
-		const std::map<datetime::Date, energy::Amount> &GetOffloadHistory() const;
+		const std::map<datetime::Date, energy::Amount> GetConsumptionHistory() const;
+		const std::map<datetime::Date, energy::Amount> GetOffloadHistory() const;
 
 		virtual nlohmann::json ToJson() const override;
 

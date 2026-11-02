@@ -156,35 +156,25 @@ void Electrical::sensor_changed(const sensor::Sensor *sensor)
 
 energy::Amount Electrical::GetEnergyConsumption() const
 {
-	unique_lock<recursive_mutex> llock(lock);
-
-	return consumption.GetEnergyConsumption();
+	return consumption.GetEnergyConsumption();  // Already thread safe
 }
 energy::Amount Electrical::GetEnergyOffload() const
 {
-	unique_lock<recursive_mutex> llock(lock);
-
-	return offload.GetEnergyConsumption();
+	return offload.GetEnergyConsumption(); // Already thread safe
 }
 energy::Amount Electrical::GetEnergyExcess() const
 {
-	unique_lock<recursive_mutex> llock(lock);
-
-	return consumption.GetEnergyExcess();
+	return consumption.GetEnergyExcess(); // Already thread safe
 }
 
-const std::map<datetime::Date, energy::Amount> &Electrical::GetConsumptionHistory() const
+const std::map<datetime::Date, energy::Amount> Electrical::GetConsumptionHistory() const
 {
-	unique_lock<recursive_mutex> llock(lock);
-
-	return consumption.GetConsumptionHistory();
+	return consumption.GetConsumptionHistory(); // Already thread safe
 }
 
-const std::map<datetime::Date, energy::Amount> &Electrical::GetOffloadHistory() const
+const std::map<datetime::Date, energy::Amount> Electrical::GetOffloadHistory() const
 {
-	unique_lock<recursive_mutex> llock(lock);
-
-	return offload.GetConsumptionHistory();
+	return offload.GetConsumptionHistory(); // Already thread safe
 }
 
 }

@@ -161,7 +161,7 @@ void Devices::Unload()
 
 void Devices::Delete(int id)
 {
-	unique_lock<mutex> llock(mutex_w);
+	lock_guard<mutex> llock(mutex_w);
 
 	auto it = devices.find(id);
 	if(it==devices.end())
@@ -182,7 +182,7 @@ void Devices::Delete(int id)
 
 string Devices::IDToName(int id) const
 {
-	unique_lock<mutex> llock(mutex_w);
+	lock_guard<mutex> llock(mutex_w);
 
 	// Special devices
 	if(id==DEVICE_ID_GRID)
@@ -212,7 +212,7 @@ shared_ptr<Device> Devices::get_by_id(int id)
 
 shared_ptr<Device> Devices::IsInUse(int device_id) const
 {
-	unique_lock<mutex> llock(mutex_w);
+	lock_guard<mutex> llock(mutex_w);
 
 	for(auto device : devices)
 	{

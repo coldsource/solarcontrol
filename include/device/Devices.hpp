@@ -72,7 +72,7 @@ class Devices
 		template<typename T>
 		static std::shared_ptr<T> GetByID(int id)
 		{
-			std::unique_lock<std::mutex> llock(mutex_w);
+			std::lock_guard<std::mutex> llock(mutex_w);
 
 			auto res = std::dynamic_pointer_cast<T>(get_by_id(id));
 			if(res==nullptr)
@@ -83,6 +83,8 @@ class Devices
 		template<typename T>
 		static const std::multiset<std::shared_ptr<T>, decltype(T::CompareTo) *> Get()
 		{
+			std::lock_guard<std::mutex> llock(mutex_w);
+
 			std::multiset<std::shared_ptr<T>, decltype(T::CompareTo) *> res(T::CompareTo);
 			for(auto device : devices)
 			{

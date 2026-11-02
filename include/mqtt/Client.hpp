@@ -27,37 +27,46 @@
 #include <set>
 #include <thread>
 #include <mutex>
+#include <memory>
 
 namespace mqtt {
 
 class Subscriber;
+class MessageQueue;
 
 class Client
 {
-	struct mosquitto *mosqh;
+	protected:
+		struct mosquitto *mosqh;
 
-	std::thread loop_handle;
-	std::mutex lock;
+		std::thread loop_handle;
+		std::thread dispatcher_handle;
+		std::mutex lock;
 
-	std::map<std::string, std::set<Subscriber *>> subscribers;
+		std::map<std::string, std::set<std::shared_ptr<Subscriber>>> subscribers;
+		std::unique_ptr<MessageQueue> msg_queue;
 
-	static void message_callback(struct mosquitto * /* mosq */, void *obj, const struct mosquitto_message *message);
-	static void connect_callback(struct mosquitto * mosqh, void *obj, int /* rc */);
-	static void loop(Client *mqtt);
+		static void message_callback(struct mosquitto * /* mosq */, void *obj, const struct mosquitto_message *message);
+		static void connect_callback(struct mosquitto * mosqh, void *obj, int /* rc */);
+		static void loop(Client *mqtt);
+		static void dispatcher(Client *mqtt);
+		void dispatch();
 
-	static Client *instance;
-	bool clean_shutdown = false;
+		static Client *instance;
+		bool clean_shutdown = false;
 
 	public:
 		Client(const std::string &host, int port);
+		Client(const Client&) = delete;
+		Client& operator=(const Client&) = delete;
 		~Client();
 
 		static Client *GetInstance() { return instance; }
 
 		void Start();
 
-		void Subscribe(const std::string &topic, Subscriber *subscriber);
-		void Unsubscribe(const std::string &topic, Subscriber *subscriber);
+		void Subscribe(const std::string &topic, const std::shared_ptr<Subscriber> &subscriber);
+		void Unsubscribe(const std::string &topic, const std::shared_ptr<Subscriber> &subscriber);
 
 		void Publish(const std::string &topic, const std::string &message);
 

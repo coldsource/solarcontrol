@@ -36,7 +36,7 @@ class Sensor;
 class Factory: public sensor::Factory
 {
 	protected:
-		virtual std::shared_ptr<sensor::Sensor> get_from_config(const std::string &name, SensorObserver *observer, const configuration::Json &conf) override;
+		virtual std::shared_ptr<sensor::Sensor> get_from_config(const std::string &name, const configuration::Json &conf) override;
 
 	public:
 		using sensor::Factory::Factory;

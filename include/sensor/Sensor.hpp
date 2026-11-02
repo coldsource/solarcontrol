@@ -20,31 +20,39 @@
 #ifndef __SENSOR_SENSOR_HPP__
 #define __SENSOR_SENSOR_HPP__
 
+#include <sensor/MQTTSubscriber.hpp>
+
 #include <string>
 #include <atomic>
+#include <vector>
 #include <memory>
 
 namespace sensor {
 
-class SensorObserver;
 class Factory;
 
-class Sensor: public std::enable_shared_from_this<Sensor>
+class Sensor
 {
-	std::string name = "";
+	friend class Factory;
 
-	SensorObserver *observer = 0;
+	inline static std::atomic<unsigned int> id_sequence{1};
 
 	protected:
-		void notify_observer();
+		unsigned int id;
+		std::string name = "";
+
+		std::vector<std::string> mqtt_topics;
+		std::vector<std::shared_ptr<MQTTSubscriber>> mqtt_subscribers;
 
 	public:
-		Sensor(const std::string &name, SensorObserver *observer):name(name), observer(observer)  {}
-		virtual ~Sensor() {}
+		Sensor(const std::string &name):id(id_sequence.fetch_add(1, std::memory_order_relaxed)), name(name) {}
+		virtual ~Sensor();
 
+		unsigned int GetID() { return id; }
 		std::string GetName() const { return name; }
 
 		virtual bool ForceUpdate() { return false; }
+		virtual bool HandleMQTTMessage(const std::string & /*message*/, const std::string & /*topic*/) { return false; };
 
 		virtual std::string GetCategory() const = 0;
 };

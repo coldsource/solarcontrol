@@ -52,9 +52,7 @@ Configuration::~Configuration(void)
 Configuration *Configuration::GetInstance()
 {
 	if(instance==nullptr)
-	{
 		instance = make_unique<Configuration>();
-	}
 
 	return instance.get();
 }
@@ -71,6 +69,8 @@ ConfigurationPart *Configuration::FromType(const std::string &type)
 // Add a new part to the global configuration
 bool Configuration::RegisterConfig(shared_ptr<ConfigurationPart> config)
 {
+	lock_guard<recursive_mutex> llock(lock);
+
 	string type = config->GetType();
 
 	if(configs.contains(type))
@@ -115,7 +115,7 @@ void Configuration::RegisterObserver(const string &type, ConfigurationObserver *
 	ConfigurationPart *config;
 
 	{
-		unique_lock<recursive_mutex> llock(lock);
+		lock_guard<recursive_mutex> llock(lock);
 
 		if(!configs.contains(type))
 			throw runtime_error("Unknown configuration type : « " + type + " »");
@@ -133,7 +133,7 @@ void Configuration::RegisterObserver(const string &type, ConfigurationObserver *
 
 void Configuration::UnregisterObserver(const string &type, ConfigurationObserver *observer)
 {
-	unique_lock<recursive_mutex> llock(lock);
+	lock_guard<recursive_mutex> llock(lock);
 
 	if(!configs.contains(type))
 		throw runtime_error("Unknown configuration type : « " + type + " »");

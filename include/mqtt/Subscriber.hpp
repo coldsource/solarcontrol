@@ -20,16 +20,18 @@
 #ifndef __MQTT_SUBSCRIBER_HPP__
 #define __MQTT_SUBSCRIBER_HPP__
 
-#include <string>
+#include <memory>
 
 namespace mqtt {
+
+class Dispatcher;
 
 class Subscriber
 {
 	public:
-		virtual ~Subscriber() {}
+		virtual ~Subscriber() = default;
 
-		virtual void HandleMessage(const std::string &message, const std::string &topic) = 0;
+		virtual std::shared_ptr<Dispatcher> Get() const = 0;
 };
 
 }

@@ -69,10 +69,8 @@ void Wind::reload(const configuration::Json &config)
 	add_sensor<sensor::weather::FactoryWind>("ht", config);
 }
 
-void Wind::SensorChanged(const sensor::Sensor *sensor)
+void Wind::sensor_changed(const sensor::Sensor *sensor)
 {
-	unique_lock<recursive_mutex> llock(lock);
-
 	wind = ((sensor::weather::Wind *)sensor)->GetWind();
 
 	history.Add(stat::MinMaxAvg(wind));

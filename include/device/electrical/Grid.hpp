@@ -21,7 +21,6 @@
 #define __DEVICE_GRID_HPP__
 
 #include <device/electrical/Passive.hpp>
-#include <sensor/SensorObserver.hpp>
 #include <nlohmann/json.hpp>
 
 #include <memory>
@@ -39,6 +38,7 @@ class Grid: public Passive
 
 	protected:
 		virtual void reload(const configuration::Json &config) override;
+		virtual void sensor_changed(const sensor::Sensor *sensor) override;
 
 		static en_grid_state string_to_grid_state(const std::string &str);
 		static std::string grid_state_to_string(en_grid_state state);
@@ -59,8 +59,6 @@ class Grid: public Passive
 
 		bool GetOffPeak() const { return offpeak; }
 		en_grid_state GetState() const { return grid_state; }
-
-		virtual void SensorChanged(const sensor::Sensor *sensor) override;
 
 		virtual nlohmann::json ToJson() const override;
 

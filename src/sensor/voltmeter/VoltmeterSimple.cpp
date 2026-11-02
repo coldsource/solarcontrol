@@ -28,8 +28,8 @@ using datetime::Timestamp;
 
 namespace sensor::voltmeter {
 
-VoltmeterSimple::VoltmeterSimple(const string &name, SensorObserver *observer, const configuration::Json &conf):
-Voltmeter(name, observer),
+VoltmeterSimple::VoltmeterSimple(const string &name, const configuration::Json &conf):
+Voltmeter(name),
 last_reload(TS_MONOTONIC)
 {
 	CheckConfig(conf);

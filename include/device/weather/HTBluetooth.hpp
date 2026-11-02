@@ -36,6 +36,7 @@ class HTBluetooth: public HT
 
 	protected:
 		virtual void reload(const configuration::Json &config) override;
+		virtual void sensor_changed(const sensor::Sensor *sensor) override;
 
 	public:
 		HTBluetooth(int id);
@@ -45,8 +46,6 @@ class HTBluetooth: public HT
 
 		std::string GetType() const override { return "htmini"; }
 		std::string GetBLEAddr() const { return ble_addr; }
-
-		virtual void SensorChanged(const sensor::Sensor *sensor) override;
 };
 
 }

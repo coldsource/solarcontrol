@@ -21,7 +21,6 @@
 #define __SENSOR_WEATHER_WIND_HPP__
 
 #include <sensor/weather/Weather.hpp>
-#include <mqtt/Subscriber.hpp>
 
 #include <atomic>
 #include <limits>
@@ -32,14 +31,12 @@ namespace configuration {
 
 namespace sensor::weather {
 
-class Wind: public Weather, public mqtt::Subscriber
+class Wind: public Weather
 {
-	const std::string topic;
-
 	std::atomic<double> wind = std::numeric_limits<double>::quiet_NaN();
 
 	public:
-		Wind(const std::string &name, SensorObserver *observer, const std::string &mqtt_id);
+		Wind(const std::string &name, const std::string &mqtt_id);
 		virtual ~Wind();
 
 		static void CheckConfig(const configuration::Json &conf);
@@ -47,7 +44,7 @@ class Wind: public Weather, public mqtt::Subscriber
 		double GetWind() const;
 		void SetWind(double w);
 
-		void HandleMessage(const std::string &message, const std::string & /*topic*/) override;
+		virtual bool HandleMQTTMessage(const std::string &message, const std::string & /*topic*/) override;
 };
 
 }

@@ -29,15 +29,15 @@ namespace shelly {
 
 AutodetectBLE::AutodetectBLE()
 {
-	auto mqtt = mqtt::Client::GetInstance();
-	mqtt->Subscribe("#", this);
+	/*auto mqtt = mqtt::Client::GetInstance();
+	mqtt->Subscribe("#", this);*/
 }
 
 AutodetectBLE::~AutodetectBLE()
 {
-	auto mqtt = mqtt::Client::GetInstance();
+	/*auto mqtt = mqtt::Client::GetInstance();
 	if(mqtt)
-		mqtt->Unsubscribe("#", this);
+		mqtt->Unsubscribe("#", this);*/
 }
 
 

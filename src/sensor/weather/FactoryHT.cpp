@@ -29,14 +29,14 @@ using namespace std;
 namespace sensor::weather
 {
 
-shared_ptr<sensor::Sensor> FactoryHT::get_from_config(const std::string &name, SensorObserver *observer, const configuration::Json &conf)
+shared_ptr<sensor::Sensor> FactoryHT::get_from_config(const std::string &name, const configuration::Json &conf)
 {
 	CheckConfig(conf);
 
 	if(conf.Has("mqtt_id"))
-		return make_shared<HTWifi>(name, observer, conf.GetString("mqtt_id"));
+		return make_shared<HTWifi>(name, conf.GetString("mqtt_id"));
 	if(conf.Has("ble_addr"))
-		return make_shared<HTBluetooth>(name, observer, conf.GetString("ble_addr"));
+		return make_shared<HTBluetooth>(name, conf.GetString("ble_addr"));
 
 	return nullptr;
 }

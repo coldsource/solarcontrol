@@ -18,7 +18,6 @@
  */
 
 #include <sensor/weather/HTWifi.hpp>
-#include <mqtt/Client.hpp>
 #include <configuration/Json.hpp>
 #include <nlohmann/json.hpp>
 #include <excpt/Config.hpp>
@@ -29,18 +28,13 @@ using nlohmann::json;
 namespace sensor::weather
 {
 
-HTWifi::HTWifi(const string &name, SensorObserver *observer, const string &mqtt_id):HT(name, observer)
+HTWifi::HTWifi(const string &name, const string &mqtt_id):HT(name)
 {
-	auto mqtt = mqtt::Client::GetInstance();
-	topic = mqtt_id + "/events/rpc";
-	mqtt->Subscribe(topic, this);
+	mqtt_topics = {mqtt_id + "/events/rpc"};
 }
 
 HTWifi::~HTWifi()
 {
-	auto mqtt = mqtt::Client::GetInstance();
-	if(mqtt)
-		mqtt->Unsubscribe(topic, this);
 }
 
 void HTWifi::CheckConfig(const configuration::Json &conf)
@@ -52,22 +46,20 @@ void HTWifi::CheckConfig(const configuration::Json &conf)
 		throw excpt::Config("MQTT ID is mandatory", "mqtt_id");
 }
 
-void HTWifi::HandleMessage(const string &message, const std::string & /*topic*/)
+bool HTWifi::HandleMQTTMessage(const string &message, const std::string & /*topic*/)
 {
+	try
 	{
-		try
-		{
-			json j = json::parse(message);
-			humidity = j["params"]["humidity:0"]["rh"];
-			temperature = j["params"]["temperature:0"]["tC"];
-
-			notify_observer();
-		}
-		catch(json::exception &e)
-		{
-			return;
-		}
+		json j = json::parse(message);
+		humidity = j["params"]["humidity:0"]["rh"];
+		temperature = j["params"]["temperature:0"]["tC"];
 	}
+	catch(json::exception &e)
+	{
+		return false;
+	}
+
+	return true;
 }
 
 }

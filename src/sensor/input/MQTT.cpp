@@ -18,7 +18,6 @@
  */
 
 #include <sensor/input/MQTT.hpp>
-#include <mqtt/Client.hpp>
 #include <configuration/Json.hpp>
 #include <shelly/HTTP.hpp>
 #include <nlohmann/json.hpp>
@@ -29,23 +28,18 @@ using nlohmann::json;
 
 namespace sensor::input {
 
-MQTT::MQTT(const string &name, SensorObserver *observer, const string &mqtt_id, int input, const string &ip):
-Input(name, observer),
+MQTT::MQTT(const string &name, const string &mqtt_id, int input, const string &ip):
+Input(name),
 input(input),
-topic(mqtt_id + "/events/rpc"),
 ip(ip)
 {
 	state = false;
 
-	auto mqtt = mqtt::Client::GetInstance();
-	mqtt->Subscribe(topic, this);
+	mqtt_topics = {mqtt_id + "/events/rpc"};
 }
 
 MQTT::~MQTT()
 {
-	auto mqtt = mqtt::Client::GetInstance();
-	if(mqtt)
-		mqtt->Unsubscribe(topic, this);
 }
 
 void MQTT::CheckConfig(const configuration::Json &conf)
@@ -78,7 +72,6 @@ bool MQTT::get_input() const
 bool MQTT::ForceUpdate()
 {
 	state = get_input();
-	notify_observer();
 	return true;
 }
 
@@ -87,20 +80,19 @@ bool MQTT::GetState() const
 	return state;
 }
 
-void MQTT::HandleMessage(const string &message, const std::string & /*topic*/)
+bool MQTT::HandleMQTTMessage(const string &message, const std::string & /*topic*/)
 {
+	try
 	{
-		try
-		{
-			json j = json::parse(message);
-			state = j["params"]["input:" + to_string(input)]["state"];
-			notify_observer();
-		}
-		catch(json::exception &e)
-		{
-			return;
-		}
+		json j = json::parse(message);
+		state = j["params"]["input:" + to_string(input)]["state"];
 	}
+	catch(json::exception &e)
+	{
+		return false;
+	}
+
+	return true;
 }
 
 }

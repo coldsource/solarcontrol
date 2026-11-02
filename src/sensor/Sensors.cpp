@@ -19,6 +19,7 @@
 
 #include <sensor/Sensors.hpp>
 #include <sensor/Sensor.hpp>
+#include <sensor/MQTTSubscriber.hpp>
 
 using namespace std;
 
@@ -29,9 +30,9 @@ Sensors::~Sensors()
 	clear();
 }
 
-void Sensors::insert(std::shared_ptr<Sensor> sensor_ptr)
+void Sensors::insert(shared_ptr<Sensor> sensor_ptr)
 {
-	sensors.insert(sensor_ptr);
+	sensors[sensor_ptr->GetID()] = sensor_ptr;
 }
 
 void Sensors::clear()
@@ -41,13 +42,26 @@ void Sensors::clear()
 
 bool Sensors::has(const std::string &category) const
 {
-	for(auto sensor : sensors)
+	for(const auto &sensor : sensors)
 	{
-		if(sensor->GetCategory()==category)
+		if(sensor.second->GetCategory()==category)
 			return true;
 	}
 
 	return false;
+}
+
+pair<shared_ptr<Sensor>, bool> Sensors::dispatch_mqtt_message(const mqtt::st_message &mqtt_msg)
+{
+	auto subscriber = std::dynamic_pointer_cast<MQTTSubscriber>(mqtt_msg.subscriber);
+
+	auto it = sensors.find(subscriber->GetSensorID());
+	if(it==sensors.end())
+		return {nullptr, false}; // Sensor not found, message is probably outdated
+
+	auto sensor = it->second;
+	bool has_changed = sensor->HandleMQTTMessage(mqtt_msg.message, mqtt_msg.topic);
+	return {sensor, has_changed};
 }
 
 }

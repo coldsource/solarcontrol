@@ -21,7 +21,6 @@
 #define __SENSOR_SW_ARDUINO_HPP__
 
 #include <sensor/sw/Switch.hpp>
-#include <mqtt/Subscriber.hpp>
 
 #include <string>
 #include <mutex>
@@ -33,10 +32,8 @@ namespace configuration {
 
 namespace sensor::sw {
 
-class Arduino: public Switch, public mqtt::Subscriber
+class Arduino: public Switch
 {
-	const std::string topic;
-
 	bool reverted = false;
 
 	std::atomic_bool state = false;
@@ -45,7 +42,7 @@ class Arduino: public Switch, public mqtt::Subscriber
 	std::mutex lock;
 
 	public:
-		Arduino(const std::string &name, SensorObserver *observer, const std::string &mqtt_id, bool reverted = false);
+		Arduino(const std::string &name, const std::string &mqtt_id, bool reverted = false);
 		virtual ~Arduino();
 
 		static void CheckConfig(const configuration::Json & conf);
@@ -53,7 +50,7 @@ class Arduino: public Switch, public mqtt::Subscriber
 		bool GetState() const override;
 		bool IsManual() const override { return manual; }
 
-		void HandleMessage(const std::string &message, const std::string & /*topic*/) override;
+		virtual bool HandleMQTTMessage(const std::string &message, const std::string & /*topic*/) override;
 };
 
 }

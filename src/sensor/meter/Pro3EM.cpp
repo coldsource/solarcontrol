@@ -18,7 +18,6 @@
  */
 
 #include <sensor/meter/Pro3EM.hpp>
-#include <mqtt/Client.hpp>
 #include <configuration/Json.hpp>
 #include <nlohmann/json.hpp>
 #include <excpt/Config.hpp>
@@ -28,18 +27,13 @@ using nlohmann::json;
 
 namespace sensor::meter {
 
-Pro3EM::Pro3EM(const string &name, SensorObserver *observer, const string &mqtt_id, const string &phase):Meter(name, observer), phase(phase)
+Pro3EM::Pro3EM(const string &name, const string &mqtt_id, const string &phase):Meter(name), phase(phase)
 {
-	auto mqtt = mqtt::Client::GetInstance();
-	topic = mqtt_id + "/events/rpc";
-	mqtt->Subscribe(topic, this);
+	mqtt_topics = {mqtt_id + "/events/rpc"};
 }
 
 Pro3EM::~Pro3EM()
 {
-	auto mqtt = mqtt::Client::GetInstance();
-	if(mqtt)
-		mqtt->Unsubscribe(topic, this);
 }
 
 void Pro3EM::CheckConfig(const configuration::Json &conf)
@@ -51,7 +45,7 @@ void Pro3EM::CheckConfig(const configuration::Json &conf)
 		throw excpt::Config("Phase must be a, b, c or z", "phase");
 }
 
-void Pro3EM::HandleMessage(const string &message, const std::string & /*topic*/)
+bool Pro3EM::HandleMQTTMessage(const string &message, const std::string & /*topic*/)
 {
 	try
 	{
@@ -75,6 +69,8 @@ void Pro3EM::HandleMessage(const string &message, const std::string & /*topic*/)
 				voltage = ev[phase + "_voltage"];
 				freq = ev[phase + "_freq"];
 			}
+
+			return true;
 		}
 
 		if(j.contains("params") && j["params"].contains("emdata:0"))
@@ -104,15 +100,16 @@ void Pro3EM::HandleMessage(const string &message, const std::string & /*topic*/)
 			last_energy_excess = total_excess;
 			if(excess_delta>0)
 				energy_excess += excess_delta;
+
+			return true;
 		}
 	}
 	catch(json::exception &e)
 	{
-		return;
+		return false;
 	}
 
-	// Call observer unlocked
-	notify_observer();
+	return false;
 }
 
 }

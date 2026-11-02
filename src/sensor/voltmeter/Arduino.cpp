@@ -18,7 +18,6 @@
  */
 
 #include <sensor/voltmeter/Arduino.hpp>
-#include <mqtt/Client.hpp>
 #include <configuration/Json.hpp>
 #include <configuration/ConfigurationPart.hpp>
 #include <nlohmann/json.hpp>
@@ -31,22 +30,17 @@ using nlohmann::json;
 
 namespace sensor::voltmeter {
 
-Arduino::Arduino(const string &name, SensorObserver *observer, const configuration::Json &conf):VoltmeterSimple(name, observer, conf)
+Arduino::Arduino(const string &name, const configuration::Json &conf):VoltmeterSimple(name, conf)
 {
 	CheckConfig(conf);
 
 	string mqtt_id = conf.GetString("mqtt_id");
 
-	auto mqtt = mqtt::Client::GetInstance();
-	topic = mqtt_id;
-	mqtt->Subscribe(topic, this);
+	mqtt_topics = {mqtt_id};
 }
 
 Arduino::~Arduino()
 {
-	auto mqtt = mqtt::Client::GetInstance();
-	if(mqtt)
-		mqtt->Unsubscribe(topic, this);
 }
 
 void Arduino::CheckConfig(const configuration::Json &conf)
@@ -61,7 +55,7 @@ void Arduino::CheckConfig(const configuration::Json &conf)
 		throw excpt::Config("Missing MQTT ID", "mqtt_id");
 }
 
-void Arduino::HandleMessage(const string &message, const std::string & /*topic*/)
+bool Arduino::HandleMQTTMessage(const string &message, const std::string & /*topic*/)
 {
 	Timestamp now(TS_MONOTONIC);
 
@@ -72,7 +66,7 @@ void Arduino::HandleMessage(const string &message, const std::string & /*topic*/
 		json j = json::parse(message);
 
 		if(!j.contains("voltage"))
-			return;
+			return false;
 
 		double voltage = j["voltage"];
 		voltage_avg->Add(voltage, (double)(now - last_voltage_update));
@@ -85,12 +79,13 @@ void Arduino::HandleMessage(const string &message, const std::string & /*topic*/
 	}
 	catch(json::exception &e)
 	{
-		return;
+		return false;
 	}
 
-	// Notify unlocked
 	if(!prevent_notify())
-		notify_observer();
+		return true;
+
+	return false;
 }
 
 }

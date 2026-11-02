@@ -53,7 +53,7 @@ Electrical::~Electrical()
 
 void Electrical::ConfigurationChanged(const configuration::ConfigurationPart *config)
 {
-	unique_lock<recursive_mutex> llock(lock);
+	lock_guard<recursive_mutex> llock(lock);
 
 	if(config->GetType()=="energy")
 	{
@@ -81,6 +81,8 @@ void Electrical::reload(const configuration::Json &config)
 
 	if(config.Has("meter"))
 		add_sensor<sensor::meter::Factory>("meter", config.GetObject("meter")); // Device has a dedicated metering configuration
+
+	is_metered = has_sensor("meter");
 }
 
 void Electrical::energy_debug()
@@ -126,10 +128,8 @@ double Electrical::GetFrequency() const
 	return freq;
 }
 
-void Electrical::SensorChanged(const sensor::Sensor *sensor)
+void Electrical::sensor_changed(const sensor::Sensor *sensor)
 {
-	unique_lock<recursive_mutex> llock(lock);
-
 	const string name = sensor->GetName();
 	if(name=="meter")
 	{
@@ -152,13 +152,6 @@ void Electrical::SensorChanged(const sensor::Sensor *sensor)
 		consumption.AddEnergy(device_consumption, device_excess);
 		offload.AddEnergy(device_consumption * pv_ratio);
 	}
-}
-
-bool Electrical::IsMetered() const
-{
-	unique_lock<recursive_mutex> llock(lock);
-
-	return has_sensor("meter");
 }
 
 energy::Amount Electrical::GetEnergyConsumption() const

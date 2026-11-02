@@ -28,12 +28,12 @@ using namespace std;
 namespace sensor::weather
 {
 
-shared_ptr<sensor::Sensor> FactoryWind::get_from_config(const std::string &name, SensorObserver *observer, const configuration::Json &conf)
+shared_ptr<sensor::Sensor> FactoryWind::get_from_config(const std::string &name, const configuration::Json &conf)
 {
 	CheckConfig(conf);
 
 	if(conf.Has("mqtt_id"))
-		return make_shared<Wind>(name, observer, conf.GetString("mqtt_id"));
+		return make_shared<Wind>(name, conf.GetString("mqtt_id"));
 
 	return nullptr;
 }

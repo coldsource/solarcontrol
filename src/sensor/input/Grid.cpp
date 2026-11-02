@@ -18,7 +18,6 @@
  */
 
 #include <sensor/input/Grid.hpp>
-#include <mqtt/Client.hpp>
 #include <configuration/Json.hpp>
 #include <nlohmann/json.hpp>
 #include <excpt/Config.hpp>
@@ -29,21 +28,16 @@ using nlohmann::json;
 
 namespace sensor::input {
 
-Grid::Grid(const string &name, SensorObserver *observer, const string &mqtt_id):
-Input(name, observer),
-topic(mqtt_id + "/grid")
+Grid::Grid(const string &name, const string &mqtt_id):
+Input(name)
 {
 	state = true;
 
-	auto mqtt = mqtt::Client::GetInstance();
-	mqtt->Subscribe(topic, this);
+	mqtt_topics = {mqtt_id + "/grid"};
 }
 
 Grid::~Grid()
 {
-	auto mqtt = mqtt::Client::GetInstance();
-	if(mqtt)
-		mqtt->Unsubscribe(topic, this);
 }
 
 void Grid::CheckConfig(const configuration::Json &conf)
@@ -61,23 +55,22 @@ bool Grid::GetState() const
 	return state;
 }
 
-void Grid::HandleMessage(const string &message, const std::string & /*topic*/)
+bool Grid::HandleMQTTMessage(const string &message, const std::string & /*topic*/)
 {
+	try
 	{
-		try
+		json j = json::parse(message);
+		if(j.contains("event") && j["event"]=="grid")
 		{
-			json j = json::parse(message);
-			if(j.contains("event") && j["event"]=="grid")
-			{
-				state =(bool)(j["data"]["status"]);
-				notify_observer();
-			}
-		}
-		catch(json::exception &e)
-		{
-			return;
+			state =(bool)(j["data"]["status"]);
 		}
 	}
+	catch(json::exception &e)
+	{
+		return false;
+	}
+
+	return true;
 }
 
 }

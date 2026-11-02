@@ -18,17 +18,22 @@
  */
 
 #include <sensor/Sensor.hpp>
-#include <sensor/SensorObserver.hpp>
-#include <thread/SensorsManager.hpp>
+#include <device/Device.hpp>
+#include <mqtt/Client.hpp>
 #include <websocket/SolarControl.hpp>
 
 using namespace std;
 
 namespace sensor {
 
-void Sensor::notify_observer()
+Sensor::~Sensor()
 {
-	observer->SensorChanged(this);
+	auto mqtt = mqtt::Client::GetInstance();
+	if(!mqtt)
+		return;
+
+	for(const auto &subscriber : mqtt_subscribers)
+		mqtt->Unsubscribe(subscriber->GetTopic(), subscriber);
 }
 
 }

@@ -21,36 +21,40 @@
 #define __SENSOR_SENSORS_HPP__
 
 #include <sensor/Sensor.hpp>
-#include <configuration/Json.hpp>
+#include <mqtt/Message.hpp>
 
 #include <string>
-#include <set>
+#include <map>
 #include <memory>
 
-namespace configuration {
-	class Json;
+namespace device {
+	class Device;
 }
 
 namespace sensor {
 
 class Sensor;
-class SensorObserver;
 
 class Sensors
 {
-	std::set<std::shared_ptr<Sensor>> sensors;
+	friend class device::Device;
 
-	SensorObserver *observer;
+	std::map<unsigned int, std::shared_ptr<Sensor>> sensors;
+
+	device::Device *observer;
 
 	public:
-		Sensors(SensorObserver *observer):observer(observer) {}
+		Sensors(device::Device *observer):observer(observer) {}
 		virtual ~Sensors();
 
-		std::set<std::shared_ptr<Sensor>> Get() { return sensors; }
+	protected:
+		auto get() { return sensors; }
 
 		void insert(std::shared_ptr<Sensor> sensor_ptr);
 		void clear();
 		bool has(const std::string &category) const;
+
+		std::pair<std::shared_ptr<Sensor>, bool> dispatch_mqtt_message(const mqtt::st_message &mqtt_msg);
 };
 
 }

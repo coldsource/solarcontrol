@@ -20,7 +20,7 @@
 #ifndef __SHELLY_AUTODETECTBLE_HPP__
 #define __SHELLY_AUTODETECTBLE_HPP__
 
-#include <mqtt/Subscriber.hpp>
+//#include <mqtt/Subscriber.hpp>
 #include <nlohmann/json.hpp>
 
 #include <string>
@@ -29,7 +29,7 @@
 
 namespace shelly {
 
-class AutodetectBLE: public mqtt::Subscriber
+class AutodetectBLE/*: public mqtt::Subscriber*/
 {
 	std::mutex wait_lock;
 	std::condition_variable ble_detected;
@@ -40,7 +40,7 @@ class AutodetectBLE: public mqtt::Subscriber
 		AutodetectBLE();
 		~AutodetectBLE();
 
-		void HandleMessage(const std::string & /*message*/, const std::string &topic) override;
+		void HandleMessage(const std::string & /*message*/, const std::string &topic) /*override*/;
 
 		nlohmann::json GetDevice();
 };

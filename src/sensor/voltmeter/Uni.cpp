@@ -18,7 +18,6 @@
  */
 
 #include <sensor/voltmeter/Uni.hpp>
-#include <mqtt/Client.hpp>
 #include <configuration/Json.hpp>
 #include <nlohmann/json.hpp>
 #include <excpt/Context.hpp>
@@ -30,22 +29,17 @@ using nlohmann::json;
 
 namespace sensor::voltmeter {
 
-Uni::Uni(const string &name, SensorObserver *observer, const configuration::Json &conf):VoltmeterSimple(name, observer, conf)
+Uni::Uni(const string &name, const configuration::Json &conf):VoltmeterSimple(name, conf)
 {
 	CheckConfig(conf);
 
 	string mqtt_id = conf.GetString("mqtt_id");
 
-	auto mqtt = mqtt::Client::GetInstance();
-	topic = mqtt_id + "/events/rpc";
-	mqtt->Subscribe(topic, this);
+	mqtt_topics = {mqtt_id + "/events/rpc"};
 }
 
 Uni::~Uni()
 {
-	auto mqtt = mqtt::Client::GetInstance();
-	if(mqtt)
-		mqtt->Unsubscribe(topic, this);
 }
 
 void Uni::CheckConfig(const configuration::Json &conf)
@@ -60,7 +54,7 @@ void Uni::CheckConfig(const configuration::Json &conf)
 		throw excpt::Config("Missing MQTT ID", "mqtt_id");
 }
 
-void Uni::HandleMessage(const string &message, const std::string & /*topic*/)
+bool Uni::HandleMQTTMessage(const string &message, const std::string & /*topic*/)
 {
 	Timestamp now(TS_MONOTONIC);
 
@@ -71,7 +65,7 @@ void Uni::HandleMessage(const string &message, const std::string & /*topic*/)
 		json j = json::parse(message);
 
 		if(!j.contains("params") || !j["params"].contains("voltmeter:100"))
-			return;
+			return false;
 
 		auto ev = j["params"]["voltmeter:100"];
 
@@ -89,12 +83,14 @@ void Uni::HandleMessage(const string &message, const std::string & /*topic*/)
 	}
 	catch(json::exception &e)
 	{
-		return;
+		return false;
 	}
 
 	// Notify observer unlocked
 	if(!prevent_notify())
-		notify_observer();
+		return true;
+
+	return false;
 }
 
 }

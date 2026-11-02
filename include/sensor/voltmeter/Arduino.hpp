@@ -21,7 +21,6 @@
 #define __SENSOR_VOLTMETER_ARDUINO_HPP__
 
 #include <sensor/voltmeter/VoltmeterSimple.hpp>
-#include <mqtt/Subscriber.hpp>
 
 #include <string>
 
@@ -36,22 +35,20 @@ namespace sensor::voltmeter {
  * State Of Charge (SOC) is deduced from average voltage
  */
 
-class Arduino: public VoltmeterSimple, public mqtt::Subscriber
+class Arduino: public VoltmeterSimple
 {
-	std::string topic;
-
 	// State
 	std::atomic_bool charging = false;
 
 	public:
-		Arduino(const std::string &name, SensorObserver *observer, const configuration::Json &conf);
+		Arduino(const std::string &name, const configuration::Json &conf);
 		virtual ~Arduino();
 
 		static void CheckConfig(const configuration::Json &conf);
 
 		bool IsCharging() const override { return charging; }
 
-		void HandleMessage(const std::string &message, const std::string & /*topic*/) override;
+		virtual bool HandleMQTTMessage(const std::string &message, const std::string & /*topic*/) override;
 };
 
 }

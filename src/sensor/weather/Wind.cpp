@@ -18,7 +18,6 @@
  */
 
 #include <sensor/weather/Wind.hpp>
-#include <mqtt/Client.hpp>
 #include <configuration/Json.hpp>
 #include <nlohmann/json.hpp>
 #include <excpt/Config.hpp>
@@ -29,19 +28,14 @@ using nlohmann::json;
 namespace sensor::weather
 {
 
-Wind::Wind(const string &name, SensorObserver *observer, const string &mqtt_id):
-Weather(name, observer),
-topic(mqtt_id + "/events/rpc")
+Wind::Wind(const string &name, const string &mqtt_id):
+Weather(name)
 {
-	auto mqtt = mqtt::Client::GetInstance();
-	mqtt->Subscribe(topic, this);
+	mqtt_topics = {mqtt_id + "/events/rpc"};
 }
 
 Wind::~Wind()
 {
-	auto mqtt = mqtt::Client::GetInstance();
-	if(mqtt)
-		mqtt->Unsubscribe(topic, this);
 }
 
 void Wind::CheckConfig(const configuration::Json &conf)
@@ -61,21 +55,19 @@ void Wind::SetWind(double w)
 	wind = w;
 }
 
-void Wind::HandleMessage(const string &message, const std::string & /*topic*/)
+bool Wind::HandleMQTTMessage(const string &message, const std::string & /*topic*/)
 {
+	try
 	{
-		try
-		{
-			json j = json::parse(message);
-			wind = j["params"]["input:2"]["xfreq"];
-
-			notify_observer();
-		}
-		catch(json::exception &e)
-		{
-			return;
-		}
+		json j = json::parse(message);
+		wind = j["params"]["input:2"]["xfreq"];
 	}
+	catch(json::exception &e)
+	{
+		return false;
+	}
+
+	return true;
 }
 
 }

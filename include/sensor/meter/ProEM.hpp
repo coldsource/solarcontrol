@@ -21,7 +21,6 @@
 #define __SENSOR_METER_EM_HPP__
 
 #include <sensor/meter/Meter.hpp>
-#include <mqtt/Subscriber.hpp>
 
 namespace configuration {
 	class Json;
@@ -29,11 +28,9 @@ namespace configuration {
 
 namespace sensor::meter {
 
-class ProEM: public Meter, public mqtt::Subscriber
+class ProEM: public Meter
 {
 	protected:
-		std::string topic;
-
 		int phasei;
 		double power_phases[2] = {0, 0};
 
@@ -41,12 +38,12 @@ class ProEM: public Meter, public mqtt::Subscriber
 		double last_energy_excess_phases[2] = {0, 0};
 
 	public:
-		ProEM(const std::string &name, SensorObserver *observer, const std::string &mqtt_id, const std::string &phase);
+		ProEM(const std::string &name, const std::string &mqtt_id, const std::string &phase);
 		virtual ~ProEM();
 
 		static void CheckConfig(const configuration::Json &conf);
 
-		void HandleMessage(const std::string &message, const std::string & /*topic*/) override;
+		virtual bool HandleMQTTMessage(const std::string &message, const std::string & /*topic*/) override;
 };
 
 }

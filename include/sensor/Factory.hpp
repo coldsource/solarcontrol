@@ -20,6 +20,11 @@
 #ifndef __SENSOR_FACTORY_HPP__
 #define __SENSOR_FACTORY_HPP__
 
+#include <sensor/Sensor.hpp>
+#include <sensor/MQTTSubscriber.hpp>
+#include <device/Device.hpp>
+#include <mqtt/Client.hpp>
+
 #include <string>
 #include <memory>
 
@@ -27,27 +32,42 @@ namespace configuration {
 	class Json;
 }
 
+namespace device {
+	class Device;
+}
+
 namespace sensor {
 
-class SensorObserver;
 class Sensor;
 
 class Factory
 {
-	std::string name = "";
-
-	SensorObserver *observer = 0;
+	device::Device *observer = 0;
 
 	protected:
-		virtual std::shared_ptr<Sensor> get_from_config(const std::string &name, SensorObserver *observer, const configuration::Json &conf) = 0;
+		virtual std::shared_ptr<Sensor> get_from_config(const std::string &name, const configuration::Json &conf) = 0;
 
 	public:
-		Factory(SensorObserver *observer):observer(observer) {}
+		Factory(device::Device *observer):observer(observer) {}
 		virtual ~Factory() {}
 
 		virtual std::shared_ptr<Sensor> GetFromConfig(const std::string &name, const configuration::Json &conf) final
 		{
-			return get_from_config(name, observer, conf);
+			auto sensor = get_from_config(name, conf);
+			if(!sensor)
+				return nullptr; // No sensor received from config
+
+			// Subscribe wanted MQTT topics
+			auto mqtt = mqtt::Client::GetInstance();
+
+			for(const auto &mqtt_topic : sensor->mqtt_topics)
+			{
+				auto subscriber = make_shared<MQTTSubscriber>(mqtt_topic, observer->GetID(), sensor->GetID());
+				sensor->mqtt_subscribers.push_back(subscriber);
+				mqtt->Subscribe(mqtt_topic, subscriber);
+			}
+
+			return sensor;
 		}
 };
 

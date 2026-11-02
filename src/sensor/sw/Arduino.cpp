@@ -18,7 +18,6 @@
  */
 
 #include <sensor/sw/Arduino.hpp>
-#include <mqtt/Client.hpp>
 #include <configuration/Json.hpp>
 #include <nlohmann/json.hpp>
 #include <excpt/Config.hpp>
@@ -29,22 +28,17 @@ using nlohmann::json;
 
 namespace sensor::sw {
 
-Arduino::Arduino(const std::string &name, SensorObserver *observer, const string &mqtt_id, bool reverted):
-Switch(name, observer),
-topic(mqtt_id),
+Arduino::Arduino(const std::string &name, const string &mqtt_id, bool reverted):
+Switch(name),
 reverted(reverted)
 {
 	state = false;
 
-	auto mqtt = mqtt::Client::GetInstance();
-	mqtt->Subscribe(topic, this);
+	mqtt_topics = {mqtt_id};
 }
 
 Arduino::~Arduino()
 {
-	auto mqtt = mqtt::Client::GetInstance();
-	if(mqtt)
-		mqtt->Unsubscribe(topic, this);
 }
 
 void Arduino::CheckConfig(const configuration::Json &conf)
@@ -66,13 +60,13 @@ bool Arduino::GetState() const
 	return !state;
 }
 
-void Arduino::HandleMessage(const string &message, const std::string & /*topic*/)
+bool Arduino::HandleMQTTMessage(const string &message, const std::string & /*topic*/)
 {
 	try
 	{
 		json j = json::parse(message);
 		if(!j.contains("relay"))
-			return;
+			return false;
 
 		state = j["relay"];
 
@@ -81,9 +75,12 @@ void Arduino::HandleMessage(const string &message, const std::string & /*topic*/
 		else
 			manual = false;
 
-		notify_observer();
+		return true;
 	}
-	catch(json::exception &e) {}
+	catch(json::exception &e)
+	{
+		return false;
+	}
 }
 
 }

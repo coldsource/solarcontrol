@@ -21,7 +21,6 @@
 #define __SENSOR_INPUT_MQTT_HPP__
 
 #include <sensor/input/Input.hpp>
-#include <mqtt/Subscriber.hpp>
 
 #include <string>
 #include <atomic>
@@ -32,10 +31,9 @@ namespace configuration {
 
 namespace sensor::input {
 
-class MQTT: public Input, public mqtt::Subscriber
+class MQTT: public Input
 {
 	const int input = 0;
-	const std::string topic;
 	const std::string ip;
 
 	std::atomic_bool state = false;
@@ -44,7 +42,7 @@ class MQTT: public Input, public mqtt::Subscriber
 		bool get_input() const;
 
 	public:
-		MQTT(const std::string &name, SensorObserver *observer, const std::string &mqtt_id, int input, const std::string &ip = "");
+		MQTT(const std::string &name, const std::string &mqtt_id, int input, const std::string &ip = "");
 		virtual ~MQTT();
 
 		static void CheckConfig(const configuration::Json &conf);
@@ -52,7 +50,7 @@ class MQTT: public Input, public mqtt::Subscriber
 		virtual bool GetState() const override;
 		virtual bool ForceUpdate() override;
 
-		void HandleMessage(const std::string &message, const std::string & /*topic*/) override;
+		virtual bool HandleMQTTMessage(const std::string &message, const std::string & /*topic*/) override;
 };
 
 }

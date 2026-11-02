@@ -26,6 +26,7 @@
 
 #include <string>
 #include <memory>
+#include <atomic>
 
 namespace device {
 
@@ -49,7 +50,7 @@ class OnOff: public Electrical
 		datetime::Timestamp last_on;
 		datetime::Timestamp last_off;
 
-		int prio;
+		std::atomic_int prio;
 		double expected_consumption = 0;
 
 		// Battery configuration
@@ -61,6 +62,7 @@ class OnOff: public Electrical
 		void clock(bool new_state);
 		virtual void reload(const configuration::Json &config) override;
 		virtual void state_restore(const  configuration::Json &last_state) override;
+		virtual void sensor_changed(const sensor::Sensor *sensor) override;
 		virtual configuration::Json state_backup() override;
 
 	public:
@@ -85,7 +87,6 @@ class OnOff: public Electrical
 
 		virtual double GetExpectedConsumption() const;
 
-		virtual void SensorChanged(const sensor::Sensor *sensor) override;
 
 		virtual nlohmann::json ToJson() const override;
 

@@ -21,8 +21,8 @@
 #define __DEVICE_DEVICE_HPP__
 
 #include <sensor/Sensors.hpp>
-#include <sensor/SensorObserver.hpp>
 #include <configuration/Json.hpp>
+#include <mqtt/Dispatcher.hpp>
 #include <nlohmann/json.hpp>
 
 #include <string>
@@ -45,7 +45,7 @@ enum en_category
 	WEATHER
 };
 
-class Device: public sensor::SensorObserver
+class Device: public mqtt::Dispatcher
 {
 	int id;
 	configuration::Json config;
@@ -53,15 +53,13 @@ class Device: public sensor::SensorObserver
 
 	sensor::Sensors sensors;
 
-	bool deleted = false;
+	std::atomic_bool deleted = false;
 
 	protected:
 		mutable std::recursive_mutex lock;
 
 		std::atomic_bool offline = false;
 		std::atomic_bool enabled = true;
-
-		bool state_restored = false;
 
 		// concept DeriveDeBase = std::derived_from<T, Base>;
 		// template<DeriveDeBase T, typename... Args>
@@ -77,6 +75,7 @@ class Device: public sensor::SensorObserver
 		bool has_sensor(const std::string &category) const;
 
 		virtual void reload(const configuration::Json & /* config */) {}
+		virtual void sensor_changed(const sensor::Sensor *sensor) = 0;
 		virtual void state_restore(const configuration::Json & /* last_state */ ) {}
 		virtual configuration::Json state_backup() { return configuration::Json(); }
 
@@ -100,6 +99,7 @@ class Device: public sensor::SensorObserver
 		std::string GetName() const;
 		const configuration::Json GetConfig() const;
 
+		virtual void DispatchMQTTMessage(const mqtt::st_message &mqtt_message) override;
 		void SensorsForceUpdate();
 		bool IsOffline() const { return offline; }
 

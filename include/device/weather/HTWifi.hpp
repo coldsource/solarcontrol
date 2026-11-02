@@ -34,6 +34,7 @@ class HTWifi: public HT
 {
 	protected:
 		virtual void reload(const configuration::Json &config) override;
+		virtual void sensor_changed(const sensor::Sensor *sensor) override;
 
 	public:
 		HTWifi(int id);
@@ -42,8 +43,6 @@ class HTWifi: public HT
 		static void CheckConfig(const configuration::Json &conf);
 
 		std::string GetType() const override { return "ht"; }
-
-		virtual void SensorChanged(const sensor::Sensor *sensor) override;
 };
 
 }

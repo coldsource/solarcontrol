@@ -18,10 +18,16 @@
  */
 
 #include <mqtt/Client.hpp>
+#include <mqtt/MessageQueue.hpp>
 #include <mqtt/Subscriber.hpp>
+#include <mqtt/Dispatcher.hpp>
 #include <configuration/Configuration.hpp>
 #include <configuration/ConfigurationPart.hpp>
+#include <device/Devices.hpp>
+#include <device/Device.hpp>
 #include <logs/Logger.hpp>
+
+#include <stdexcept>
 
 using namespace std;
 
@@ -29,7 +35,8 @@ namespace mqtt {
 
 Client * Client::instance = 0;
 
-Client::Client(const string &host, int port)
+Client::Client(const string &host, int port):
+msg_queue(make_unique<MessageQueue>())
 {
 	string id = configuration::Configuration::FromType("solarcontrol")->Get("mqtt.id");
 	mosqh = mosquitto_new(id.c_str(), true, this);
@@ -60,19 +67,23 @@ Client::~Client()
 void Client::Start()
 {
 	loop_handle = thread(loop, this);
+	dispatcher_handle = thread(dispatcher, this);
 }
 
-void Client::Subscribe(const string &topic, Subscriber *subscriber)
+void Client::Subscribe(const string &topic, const shared_ptr<Subscriber> &subscriber)
 {
-	unique_lock<mutex> llock(lock);
+	lock_guard<mutex> llock(lock);
 
-	mosquitto_subscribe(mosqh, 0, topic.c_str(), 0);
-	subscribers[topic].insert(subscriber);
+	auto& topic_subscribers = subscribers[topic];
+	if(topic_subscribers.empty())
+		mosquitto_subscribe(mosqh, 0, topic.c_str(), 0);
+
+	topic_subscribers.insert(subscriber);
 }
 
-void Client::Unsubscribe(const string &topic, Subscriber *subscriber)
+void Client::Unsubscribe(const string &topic, const shared_ptr<Subscriber> &subscriber)
 {
-	unique_lock<mutex> llock(lock);
+	lock_guard<mutex> llock(lock);
 
 	auto it = subscribers.find(topic);
 	if(it==subscribers.end())
@@ -89,7 +100,7 @@ void Client::Unsubscribe(const string &topic, Subscriber *subscriber)
 
 void Client::Publish(const string &topic, const string &message)
 {
-	unique_lock<mutex> llock(lock);
+	lock_guard<mutex> llock(lock);
 
 	mosquitto_publish(mosqh, 0, topic.c_str(), (int)message.size(), message.c_str(), 0, false);
 }
@@ -100,6 +111,7 @@ void Client::Shutdown()
 		return;
 
 	mosquitto_disconnect(mosqh);
+	msg_queue->Push({nullptr, "", ""}); // Special message to indicate shutdown
 }
 
 void Client::WaitForShutdown()
@@ -108,12 +120,15 @@ void Client::WaitForShutdown()
 		return;
 
 	loop_handle.join();
+	dispatcher_handle.join();
 	clean_shutdown = true;
 }
 
 void Client::connect_callback(struct mosquitto * mosqh, void *obj, int /* rc */)
 {
 	Client *mqtt = (Client *)obj;
+
+	lock_guard<mutex> llock(mqtt->lock);
 
 	logs::Logger::Log(LOG_NOTICE, "Connected to MQTT server");
 
@@ -126,32 +141,49 @@ void Client::message_callback(struct mosquitto * /* mosq */, void *obj, const st
 {
 	Client *mqtt = (Client *)obj;
 	string topic(message->topic);
+	string payload((const char *)message->payload, (size_t)message->payloadlen);
 
-	unique_lock<mutex> llock(mqtt->lock);
-
+	// Find concerned subscribers while locked
+	set<shared_ptr<Subscriber>> subscribers;
 	{
+		lock_guard<mutex> llock(mqtt->lock);
+
 		auto it = mqtt->subscribers.find(topic);
 		if(it!=mqtt->subscribers.end())
-		{
-			for(auto subscriber : it->second)
-				subscriber->HandleMessage((const char *)message->payload, topic);
-		}
+			subscribers.insert(it->second.begin(), it->second.end());
+
+		auto itw = mqtt->subscribers.find("#");
+		if(itw!=mqtt->subscribers.end())
+			subscribers.insert(itw->second.begin(), itw->second.end());
 	}
 
-	{
-		// Special case for wildcard subscribers
-		auto it = mqtt->subscribers.find("#");
-		if(it!=mqtt->subscribers.end())
-		{
-			for(auto subscriber : it->second)
-				subscriber->HandleMessage((const char *)message->payload, topic);
-		}
-	}
+	// Send messages to extracted subscribers
+	for(const auto& subscriber : subscribers)
+		mqtt->msg_queue->Push({subscriber, topic, payload});
 }
 
 void Client::loop(Client *mqtt)
 {
 	mosquitto_loop_forever(mqtt->mosqh, 1000, 1);
+}
+
+void Client::dispatcher(Client *mqtt)
+{
+	mqtt->dispatch();
+}
+
+void Client::dispatch()
+{
+	while(true)
+	{
+		auto mqtt_msg = msg_queue->Pop();
+		if(mqtt_msg.subscriber==nullptr)
+			return; // Shutdown requested
+
+		auto dispatcher = mqtt_msg.subscriber->Get();
+		if(dispatcher!=nullptr)
+			dispatcher->DispatchMQTTMessage(mqtt_msg);
+	}
 }
 
 }

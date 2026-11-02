@@ -18,7 +18,6 @@
  */
 
 #include <sensor/meter/Plug.hpp>
-#include <mqtt/Client.hpp>
 #include <configuration/Json.hpp>
 #include <nlohmann/json.hpp>
 
@@ -27,21 +26,16 @@ using nlohmann::json;
 
 namespace sensor::meter {
 
-Plug::Plug(const string &name, SensorObserver *observer, const string &mqtt_id):Meter(name, observer)
+Plug::Plug(const string &name, const string &mqtt_id):Meter(name)
 {
-	auto mqtt = mqtt::Client::GetInstance();
-	topic = mqtt_id + "/events/rpc";
-	mqtt->Subscribe(topic, this);
+	mqtt_topics = {mqtt_id + "/events/rpc"};
 }
 
 Plug::~Plug()
 {
-	auto mqtt = mqtt::Client::GetInstance();
-	if(mqtt)
-		mqtt->Unsubscribe(topic, this);
 }
 
-void Plug::HandleMessage(const string &message, const std::string & /*topic*/)
+bool Plug::HandleMQTTMessage(const string &message, const std::string & /*topic*/)
 {
 	try
 	{
@@ -50,7 +44,7 @@ void Plug::HandleMessage(const string &message, const std::string & /*topic*/)
 		json j = json::parse(message);
 
 		if(!j.contains("params") || !j["params"].contains("switch:0"))
-			return;
+			return false;
 
 		auto ev = j["params"]["switch:0"];
 
@@ -62,11 +56,10 @@ void Plug::HandleMessage(const string &message, const std::string & /*topic*/)
 	}
 	catch(json::exception &e)
 	{
-		return;
+		return false;
 	}
 
-	// Call observer unlocked
-	notify_observer();
+	return true;
 }
 
 }

@@ -17,24 +17,36 @@
  * Author: Thibault Kummer <bob@coldsource.net>
  */
 
-#ifndef __SENSOR_SENSOROBSERVER_HPP__
-#define __SENSOR_SENSOROBSERVER_HPP__
+#include <mqtt/MessageQueue.hpp>
 
-#include <string>
+using namespace std;
 
-namespace sensor {
+namespace mqtt {
 
-class Sensor;
-
-class SensorObserver
+void MessageQueue::Push(const st_message &message)
 {
-	public:
-		virtual ~SensorObserver() {}
+	{
+		lock_guard<mutex> lock(m_mutex);
+		messages.push(message);
+	}
 
-		virtual void SensorChanged(const Sensor *sensor) = 0;
-};
-
+	m_condition.notify_one();
 }
 
-#endif
+st_message MessageQueue::Pop()
+{
+	std::unique_lock<std::mutex> lock(m_mutex);
+
+	m_condition.wait(lock, [this]()
+	{
+		return !messages.empty();
+	});
+
+	st_message message = std::move(messages.front());
+	messages.pop();
+
+	return message;
+}
+
+}
 

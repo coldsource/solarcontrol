@@ -21,7 +21,6 @@
 #define __SENSOR_METER_ARDUINO_HPP__
 
 #include <sensor/meter/Meter.hpp>
-#include <mqtt/Subscriber.hpp>
 #include <datetime/Timestamp.hpp>
 
 #include <string>
@@ -32,23 +31,20 @@ namespace configuration {
 
 namespace sensor::meter {
 
-class Arduino: public Meter, public mqtt::Subscriber
+class Arduino: public Meter
 {
 	protected:
-		// Config
-		std::string topic;
-
 		// State
 		std::atomic<double> voltage = -1;
 		datetime::Timestamp last_update;
 
 	public:
-		Arduino(const std::string &name, SensorObserver *observer, const std::string &mqtt_id);
+		Arduino(const std::string &name, const std::string &mqtt_id);
 		virtual ~Arduino();
 
 		static void CheckConfig(const configuration::Json &conf);
 
-		void HandleMessage(const std::string &message, const std::string & /*topic*/) override;
+		virtual bool HandleMQTTMessage(const std::string &message, const std::string & /*topic*/) override;
 };
 
 }

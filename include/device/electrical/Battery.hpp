@@ -79,6 +79,7 @@ class Battery: public OnOff
 	protected:
 		virtual void reload(const configuration::Json &config) override;
 		virtual void state_restore(const  configuration::Json &last_state) override;
+		virtual void sensor_changed(const sensor::Sensor *sensor) override;
 		virtual configuration::Json state_backup() override;
 
 		static en_battery_policy string_to_policy(const std::string &str);
@@ -111,8 +112,6 @@ class Battery: public OnOff
 		double GetDCVoltage() const { return voltage; }
 		double GetSOC() const { return soc; }
 		virtual nlohmann::json ToJson() const override;
-
-		virtual void SensorChanged(const sensor::Sensor *sensor) override;
 
 		virtual double GetExpectedConsumption() const override;
 

@@ -21,7 +21,6 @@
 #define __SENSOR_INPUT_GRID_HPP__
 
 #include <sensor/input/Input.hpp>
-#include <mqtt/Subscriber.hpp>
 
 #include <string>
 #include <atomic>
@@ -32,21 +31,19 @@ namespace configuration {
 
 namespace sensor::input {
 
-class Grid: public Input, public mqtt::Subscriber
+class Grid: public Input
 {
-	const std::string topic;
-
 	std::atomic_bool state = false;
 
 	public:
-		Grid(const std::string &name, SensorObserver *observer, const std::string &mqtt_id);
+		Grid(const std::string &name, const std::string &mqtt_id);
 		virtual ~Grid();
 
 		static void CheckConfig(const configuration::Json &conf);
 
 		virtual bool GetState() const override;
 
-		void HandleMessage(const std::string &message, const std::string & /*topic*/) override;
+		virtual bool HandleMQTTMessage(const std::string &message, const std::string & /*topic*/) override;
 };
 
 }

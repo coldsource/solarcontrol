@@ -50,10 +50,8 @@ void HTBluetooth::reload(const configuration::Json &config)
 	add_sensor<sensor::weather::FactoryHT>("ht", config);
 }
 
-void HTBluetooth::SensorChanged(const sensor::Sensor *sensor)
+void HTBluetooth::sensor_changed(const sensor::Sensor *sensor)
 {
-	unique_lock<recursive_mutex> llock(lock);
-
 	sensor::weather::HTBluetooth * htble = (sensor::weather::HTBluetooth *)sensor;
 	temperature = htble->GetTemperature();
 	humidity = htble->GetHumidity();

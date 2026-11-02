@@ -21,23 +21,20 @@
 #define __SENSOR_WEATHER_HTBLUETOOTH_HPP__
 
 #include <sensor/weather/HT.hpp>
-#include <mqtt/Subscriber.hpp>
 
 #include <string>
 
 namespace sensor::weather {
 
-class HTBluetooth: public HT, public mqtt::Subscriber
+class HTBluetooth: public HT
 {
-	std::string topic;
-
 	public:
-		HTBluetooth(const std::string &name, SensorObserver *observer, const std::string &ble_addr);
+		HTBluetooth(const std::string &name, const std::string &ble_addr);
 		virtual ~HTBluetooth();
 
 		static void CheckConfig(const configuration::Json &conf);
 
-		void HandleMessage(const std::string &message, const std::string & /*topic*/) override;
+		virtual bool HandleMQTTMessage(const std::string &message, const std::string & /*topic*/) override;
 };
 
 }

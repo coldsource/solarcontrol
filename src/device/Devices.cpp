@@ -93,15 +93,13 @@ std::shared_ptr<Device> Devices::Load(int id, const string &name, const string &
 {
 	auto device = DeviceFactory::Get(id, name, type, config, device_enabled);
 
+	lock_guard<mutex> llock(mutex_w);
 	devices.insert(pair<int, shared_ptr<Device>>(device->GetID(), device));
-
 	return device;
 }
 
 void Devices::Reload(int id)
 {
-	unique_lock<mutex> llock(mutex_w);
-
 	try
 	{
 		if(id==0)
@@ -124,7 +122,7 @@ void Devices::Reload(int id)
 			string name = res["device_name"];
 			int device_enabled = res["device_enabled"];
 
-			auto device = get_by_id(device_id);
+			auto device = GetByID<Device>(device_id);
 			device->Reload(name, config, device_enabled);
 		}
 

@@ -48,7 +48,7 @@ Device::~Device()
 
 void Device::Reload(const string &name, const configuration::Json &config, bool device_enabled)
 {
-	unique_lock<recursive_mutex> llock(lock);
+	lock_guard<recursive_mutex> llock(lock);
 
 	excpt::Context ctx("device", "In device « " + name + " »", {{"device_id", GetID()}});
 
@@ -64,20 +64,20 @@ void Device::Reload(const string &name, const configuration::Json &config, bool 
 
 void Device::Delete()
 {
-	unique_lock<recursive_mutex> llock(lock);
+	lock_guard<recursive_mutex> llock(lock);
 
 	deleted = true; // Device might be in use, flag for removal in destructor
 }
 
 string Device::GetName() const
 {
-	unique_lock<recursive_mutex> llock(lock);
+	lock_guard<recursive_mutex> llock(lock);
 
 	return name;
 }
 const configuration::Json Device::GetConfig() const
 {
-	unique_lock<recursive_mutex> llock(lock);
+	lock_guard<recursive_mutex> llock(lock);
 
 	return config;
 }
@@ -85,45 +85,61 @@ const configuration::Json Device::GetConfig() const
 void Device::StateRestore(const configuration::Json &last_state)
 {
 	state_restore(last_state);
-	state_restored = true;
 }
 
 json Device::ToJson() const
 {
-	unique_lock<recursive_mutex> llock(lock);
+	lock_guard<recursive_mutex> llock(lock);
 
 	json j_device;
 
 	j_device["device_id"] = GetID();
 	j_device["device_type"] = GetType();
 	j_device["device_category"] = GetCategory();
-	j_device["device_name"] = GetName();
-	j_device["device_config"] = (json)GetConfig();
+	j_device["device_name"] = name;
+	j_device["device_config"] = (json)config;
 	j_device["offline"] = (bool)offline;
 	j_device["enabled"] = (bool)enabled;
 
 	return j_device;
 }
 
+void Device::DispatchMQTTMessage(const mqtt::st_message &mqtt_message)
+{
+	lock_guard<recursive_mutex> llock(lock);
+
+	auto [sensor, changed] = sensors.dispatch_mqtt_message(mqtt_message);
+	if(sensor && changed)
+		sensor_changed(sensor.get());
+}
+
 void Device::SensorsForceUpdate()
 {
-	std::set<std::shared_ptr<sensor::Sensor>> snapshot;
+	std::map<unsigned int, std::shared_ptr<sensor::Sensor>> snapshot;
+	std::string name_snapshot;
 
 	{
 		// Snapshot sensors locked
-		unique_lock<recursive_mutex> llock(lock);
-		snapshot = sensors.Get();
+		lock_guard<recursive_mutex> llock(lock);
+		snapshot = sensors.get();
+
+		name_snapshot = name;  // Access « name » locked
 	}
 
 	try
 	{
 		// Check all sensors unlocked to avoid locking the device for too long
-		excpt::Context ctx("device", "Getting input state for device « " + name + " »");
+		excpt::Context ctx("device", "Getting input state for device « " + name_snapshot + " »");
 
-		for(auto sensor : snapshot)
+		for(const auto &sensor : snapshot)
 		{
-			if(sensor->ForceUpdate())
+			if(sensor.second->ForceUpdate())
+			{
 				offline = false;
+
+				lock_guard<recursive_mutex> llock(lock);
+				sensor_changed(sensor.second.get());
+			}
 		}
 	}
 	catch(excpt::Shelly &e)
@@ -134,7 +150,7 @@ void Device::SensorsForceUpdate()
 	catch(...)
 	{
 		offline = true;
-		logs::Logger::Log(LOG_WARNING, "Unknown error on sensor for device « " + name + " »");
+		logs::Logger::Log(LOG_WARNING, "Unknown error on sensor for device « " + name_snapshot + " »");
 	}
 }
 

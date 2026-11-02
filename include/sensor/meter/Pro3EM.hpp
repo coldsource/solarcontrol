@@ -21,7 +21,6 @@
 #define __SENSOR_METER_3EM_HPP__
 
 #include <sensor/meter/Meter.hpp>
-#include <mqtt/Subscriber.hpp>
 
 #include <string>
 
@@ -31,22 +30,21 @@ namespace configuration {
 
 namespace sensor::meter {
 
-class Pro3EM: public Meter, public mqtt::Subscriber
+class Pro3EM: public Meter
 {
 	protected:
-		std::string topic;
 		std::string phase;
 
 		double last_energy_consumption = 0;
 		double last_energy_excess = 0;
 
 	public:
-		Pro3EM(const std::string &name, SensorObserver *observer, const std::string &mqtt_id, const std::string &phase);
+		Pro3EM(const std::string &name, const std::string &mqtt_id, const std::string &phase);
 		virtual ~Pro3EM();
 
 		static void CheckConfig(const configuration::Json &conf);
 
-		void HandleMessage(const std::string &message, const std::string & /*topic*/) override;
+		virtual bool HandleMQTTMessage(const std::string &message, const std::string & /*topic*/) override;
 };
 
 }

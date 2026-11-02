@@ -21,7 +21,6 @@
 #define __SENSOR_SW_RELAY_HPP__
 
 #include <sensor/sw/Switch.hpp>
-#include <mqtt/Subscriber.hpp>
 
 #include <string>
 #include <mutex>
@@ -33,12 +32,11 @@ namespace configuration {
 
 namespace sensor::sw {
 
-class Relay: public Switch, public mqtt::Subscriber
+class Relay: public Switch
 {
 	// Config
 	const std::string ip;
 	const int outlet = 0;
-	const std::string topic;
 	const bool reverted = false;
 
 	// State
@@ -49,7 +47,7 @@ class Relay: public Switch, public mqtt::Subscriber
 		bool get_output() const;
 
 	public:
-		Relay(const std::string &name, SensorObserver *observer, const std::string &ip, int outlet, const std::string &mqtt_id, bool reverted = false);
+		Relay(const std::string &name, const std::string &ip, int outlet, const std::string &mqtt_id, bool reverted = false);
 		virtual ~Relay();
 
 		static void CheckConfig(const configuration::Json & conf);
@@ -58,7 +56,7 @@ class Relay: public Switch, public mqtt::Subscriber
 		bool ForceUpdate() override;
 		bool IsManual() const override { return manual; }
 
-		void HandleMessage(const std::string &message, const std::string & /*topic*/) override;
+		virtual bool HandleMQTTMessage(const std::string &message, const std::string & /*topic*/) override;
 };
 
 }

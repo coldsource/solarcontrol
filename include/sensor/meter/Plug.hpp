@@ -21,21 +21,18 @@
 #define __SENSOR_METER_PLUG_HPP__
 
 #include <sensor/meter/Meter.hpp>
-#include <mqtt/Subscriber.hpp>
 
 #include <string>
 
 namespace sensor::meter {
 
-class Plug: public Meter, public mqtt::Subscriber
+class Plug: public Meter
 {
-	std::string topic;
-
 	public:
-		Plug(const std::string &name, SensorObserver *observer, const std::string &mqtt_id);
+		Plug(const std::string &name, const std::string &mqtt_id);
 		virtual ~Plug();
 
-		void HandleMessage(const std::string &message, const std::string & /*topic*/) override;
+		virtual bool HandleMQTTMessage(const std::string &message, const std::string & /*topic*/) override;
 };
 
 }

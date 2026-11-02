@@ -52,7 +52,10 @@ class Electrical: public Device, public configuration::ConfigurationObserver
 		energy::Counter consumption;
 		energy::Counter offload;
 
+		std::atomic_bool is_metered;
+
 		virtual void reload(const configuration::Json &config) override;
+		virtual void sensor_changed(const sensor::Sensor *sensor) override;
 		void energy_debug();
 
 	public:
@@ -67,7 +70,7 @@ class Electrical: public Device, public configuration::ConfigurationObserver
 		virtual double GetPower() const;
 		virtual double GetVoltage() const;
 		virtual double GetFrequency() const;
-		bool IsMetered() const;
+		bool IsMetered() const { return is_metered; }
 
 		energy::Amount GetEnergyConsumption() const;
 		energy::Amount GetEnergyOffload() const;
@@ -78,7 +81,6 @@ class Electrical: public Device, public configuration::ConfigurationObserver
 
 		virtual nlohmann::json ToJson() const override;
 
-		virtual void SensorChanged(const sensor::Sensor *sensor) override;
 };
 
 }

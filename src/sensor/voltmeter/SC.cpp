@@ -18,7 +18,6 @@
  */
 
 #include <sensor/voltmeter/SC.hpp>
-#include <mqtt/Client.hpp>
 #include <configuration/Json.hpp>
 #include <nlohmann/json.hpp>
 #include <excpt/Context.hpp>
@@ -30,33 +29,20 @@ using nlohmann::json;
 
 namespace sensor::voltmeter {
 
-SC::SC(const std::string &name, SensorObserver *observer, const configuration::Json &conf):Voltmeter(name, observer)
+SC::SC(const std::string &name, const configuration::Json &conf):Voltmeter(name)
 {
 	CheckConfig(conf);
 
 	string mqtt_id = conf.GetString("mqtt_id");
 
-	auto mqtt = mqtt::Client::GetInstance();
-
 	topic_ina = mqtt_id + "/ina236";
-	mqtt->Subscribe(topic_ina, this);
-
 	topic_soc = mqtt_id + "/soc";
-	mqtt->Subscribe(topic_soc, this);
-
 	topic_temperature = mqtt_id + "/ds18b20";
-	mqtt->Subscribe(topic_temperature, this);
+	mqtt_topics = {topic_ina, topic_soc, topic_temperature};
 }
 
 SC::~SC()
 {
-	auto mqtt = mqtt::Client::GetInstance();
-	if(mqtt)
-	{
-		mqtt->Unsubscribe(topic_ina, this);
-		mqtt->Unsubscribe(topic_soc, this);
-		mqtt->Unsubscribe(topic_temperature, this);
-	}
 }
 
 void SC::CheckConfig(const configuration::Json &conf)
@@ -71,7 +57,7 @@ void SC::CheckConfig(const configuration::Json &conf)
 		throw excpt::Config("Missing MQTT ID", "mqtt_id");
 }
 
-void SC::HandleMessage(const string &message, const std::string &topic)
+bool SC::HandleMQTTMessage(const string &message, const std::string &topic)
 {
 	Timestamp now(TS_MONOTONIC);
 
@@ -82,7 +68,7 @@ void SC::HandleMessage(const string &message, const std::string &topic)
 		json j = json::parse(message);
 
 		if(!j.contains("event") || !j.contains("data"))
-			return;
+			return false;
 
 		auto ev = j["data"];
 
@@ -108,15 +94,14 @@ void SC::HandleMessage(const string &message, const std::string &topic)
 	}
 	catch(json::exception &e)
 	{
-		return;
+		return false;
 	}
 
 	// Prevent notify before all states have been read (ina + soc)
 	if(soc==-1 || v==-1)
-		return;
+		return false;
 
-	// Notify observer unlocked
-	notify_observer();
+	return true;
 }
 
 }

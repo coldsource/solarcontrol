@@ -18,7 +18,6 @@
  */
 
 #include <sensor/meter/Arduino.hpp>
-#include <mqtt/Client.hpp>
 #include <configuration/Json.hpp>
 #include <nlohmann/json.hpp>
 #include <excpt/Config.hpp>
@@ -28,21 +27,16 @@ using nlohmann::json;
 
 namespace sensor::meter {
 
-Arduino::Arduino(const string &name, SensorObserver *observer, const string &mqtt_id):Meter(name, observer), last_update(TS_MONOTONIC)
+Arduino::Arduino(const string &name, const string &mqtt_id):Meter(name), last_update(TS_MONOTONIC)
 {
-	auto mqtt = mqtt::Client::GetInstance();
-	topic = mqtt_id;
-	mqtt->Subscribe(topic, this);
+	mqtt_topics = {mqtt_id};
 }
 
 Arduino::~Arduino()
 {
-	auto mqtt = mqtt::Client::GetInstance();
-	if(mqtt)
-		mqtt->Unsubscribe(topic, this);
 }
 
-void Arduino::HandleMessage(const string &message, const std::string & /*topic*/)
+bool Arduino::HandleMQTTMessage(const string &message, const std::string & /*topic*/)
 {
 	try
 	{
@@ -64,11 +58,10 @@ void Arduino::HandleMessage(const string &message, const std::string & /*topic*/
 	}
 	catch(json::exception &e)
 	{
-		return;
+		return false;
 	}
 
-	// Call observer unlocked
-	notify_observer();
+	return true;
 }
 
 }

@@ -220,10 +220,8 @@ bool OnOff::IsOnBattery() const
 	return controller->IsOnBattery();
 }
 
-void OnOff::SensorChanged(const sensor::Sensor *sensor)
+void OnOff::sensor_changed(const sensor::Sensor *sensor)
 {
-	unique_lock<recursive_mutex> llock(lock);
-
 	const string name = sensor->GetName();
 	if(name=="switch")
 	{
@@ -236,7 +234,7 @@ void OnOff::SensorChanged(const sensor::Sensor *sensor)
 		state = new_state;
 	}
 	else
-		Electrical::SensorChanged(sensor);
+		Electrical::sensor_changed(sensor);
 }
 
 nlohmann::json OnOff::ToJson() const

@@ -18,7 +18,6 @@
  */
 
 #include <sensor/sw/Relay.hpp>
-#include <mqtt/Client.hpp>
 #include <configuration/Json.hpp>
 #include <shelly/HTTP.hpp>
 #include <nlohmann/json.hpp>
@@ -30,24 +29,19 @@ using nlohmann::json;
 
 namespace sensor::sw {
 
-Relay::Relay(const string &name, SensorObserver *observer, const string &ip, int outlet, const string &mqtt_id, bool reverted):
-Switch(name, observer),
+Relay::Relay(const string &name, const string &ip, int outlet, const string &mqtt_id, bool reverted):
+Switch(name),
 ip(ip),
 outlet(outlet),
-topic(mqtt_id + "/events/rpc"),
 reverted(reverted)
 {
 	state = false;
 
-	auto mqtt = mqtt::Client::GetInstance();
-	mqtt->Subscribe(topic, this);
+	mqtt_topics = {mqtt_id + "/events/rpc"};
 }
 
 Relay::~Relay()
 {
-	auto mqtt = mqtt::Client::GetInstance();
-	if(mqtt)
-		mqtt->Unsubscribe(topic, this);
 }
 
 void Relay::CheckConfig(const configuration::Json &conf)
@@ -90,19 +84,17 @@ bool Relay::ForceUpdate()
 {
 	state = get_output();
 
-	notify_observer();
-
 	return true;
 }
 
-void Relay::HandleMessage(const string &message, const std::string & /*topic*/)
+bool Relay::HandleMQTTMessage(const string &message, const std::string & /*topic*/)
 {
 	try
 	{
 		json j = json::parse(message);
 		auto ev = j["params"]["switch:" + to_string(outlet)];
 		if(!ev.contains("output"))
-			return;
+			return false;
 
 		state = ev["output"];
 
@@ -111,9 +103,12 @@ void Relay::HandleMessage(const string &message, const std::string & /*topic*/)
 		else
 			manual = false;
 
-		notify_observer();
+		return true;
 	}
-	catch(json::exception &e) {}
+	catch(json::exception &e)
+	{
+		return false;
+	}
 }
 
 }

@@ -18,7 +18,6 @@
  */
 
 #include <sensor/sw/SC.hpp>
-#include <mqtt/Client.hpp>
 #include <configuration/Json.hpp>
 #include <nlohmann/json.hpp>
 #include <excpt/Config.hpp>
@@ -29,22 +28,17 @@ using nlohmann::json;
 
 namespace sensor::sw {
 
-SC::SC(const string &name, SensorObserver *observer, const string &mqtt_id, bool reverted):
-Switch(name, observer),
-topic(mqtt_id + "/source"),
+SC::SC(const string &name, const string &mqtt_id, bool reverted):
+Switch(name),
 reverted(reverted)
 {
 	state = false;
 
-	auto mqtt = mqtt::Client::GetInstance();
-	mqtt->Subscribe(topic, this);
+	mqtt_topics = {mqtt_id + "/source"};
 }
 
 SC::~SC()
 {
-	auto mqtt = mqtt::Client::GetInstance();
-	if(mqtt)
-		mqtt->Unsubscribe(topic, this);
 }
 
 void SC::CheckConfig(const configuration::Json &conf)
@@ -66,16 +60,16 @@ bool SC::GetState() const
 	return !state;
 }
 
-void SC::HandleMessage(const string &message, const std::string & /*topic*/)
+bool SC::HandleMQTTMessage(const string &message, const std::string & /*topic*/)
 {
 	try
 	{
 		json j = json::parse(message);
 		if(!j.contains("event"))
-			return;
+			return false;
 
 		if(j["event"]!="change")
-			return;
+			return false;
 
 		state = j["src"]=="GRID";
 
@@ -84,9 +78,12 @@ void SC::HandleMessage(const string &message, const std::string & /*topic*/)
 		else
 			manual = false;
 
-		notify_observer();
+		return true;
 	}
-	catch(json::exception &e) {}
+	catch(json::exception &e)
+	{
+		return false;
+	}
 }
 
 }

@@ -18,7 +18,6 @@
  */
 
 #include <sensor/meter/ProEM.hpp>
-#include <mqtt/Client.hpp>
 #include <configuration/Json.hpp>
 #include <nlohmann/json.hpp>
 #include <excpt/Config.hpp>
@@ -28,23 +27,18 @@ using nlohmann::json;
 
 namespace sensor::meter {
 
-ProEM::ProEM(const string &name, SensorObserver *observer, const string &mqtt_id, const string &phase):Meter(name, observer)
+ProEM::ProEM(const string &name, const string &mqtt_id, const string &phase):Meter(name)
 {
 	phasei = phase[0] - 'a';
 
 	if(phasei==25) // z is 'All'
 		phasei = -1;
 
-	auto mqtt = mqtt::Client::GetInstance();
-	topic = mqtt_id + "/events/rpc";
-	mqtt->Subscribe(topic, this);
+	mqtt_topics = {mqtt_id + "/events/rpc"};
 }
 
 ProEM::~ProEM()
 {
-	auto mqtt = mqtt::Client::GetInstance();
-	if(mqtt)
-		mqtt->Unsubscribe(topic, this);
 }
 
 void ProEM::CheckConfig(const configuration::Json &conf)
@@ -56,7 +50,7 @@ void ProEM::CheckConfig(const configuration::Json &conf)
 		throw excpt::Config("Phase must be a, b or z", "phase");
 }
 
-void ProEM::HandleMessage(const string &message, const std::string & /*topic*/)
+bool ProEM::HandleMQTTMessage(const string &message, const std::string & /*topic*/)
 {
 	try
 	{
@@ -103,11 +97,10 @@ void ProEM::HandleMessage(const string &message, const std::string & /*topic*/)
 	}
 	catch(json::exception &e)
 	{
-		return;
+		return false;
 	}
 
-	// Call observer unlocked
-	notify_observer();
+	return true;
 }
 
 }

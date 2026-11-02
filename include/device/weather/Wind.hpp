@@ -42,6 +42,7 @@ class Wind: public Weather
 	protected:
 		virtual void reload(const configuration::Json &config) override;
 		virtual void state_restore(const  configuration::Json &last_state) override;
+		virtual void sensor_changed(const sensor::Sensor *sensor) override;
 		virtual configuration::Json state_backup() override;
 
 	public:
@@ -55,8 +56,6 @@ class Wind: public Weather
 		double GetTemperature() const override { return std::numeric_limits<double>::quiet_NaN(); }
 		double GetHumidity() const override { return std::numeric_limits<double>::quiet_NaN(); }
 		double GetWind() const override { return wind; }
-
-		virtual void SensorChanged(const sensor::Sensor *sensor) override;
 };
 
 }

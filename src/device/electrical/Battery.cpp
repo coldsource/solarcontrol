@@ -234,7 +234,7 @@ void Battery::reload(const configuration::Json &config)
 		charge.enabled = false;
 
 	// Control « reverted » may have changed, force state update
-	if(state_restored && ctrl!=nullptr)
+	if(ctrl!=nullptr)
 		ctrl->Switch(state);
 }
 
@@ -281,10 +281,8 @@ json Battery::ToJson() const
 	return j_device;
 }
 
-void Battery::SensorChanged(const sensor::Sensor *sensor)
+void Battery::sensor_changed(const sensor::Sensor *sensor)
 {
-	unique_lock<recursive_mutex> llock(lock);
-
 	if(sensor->GetName()=="voltmeter")
 	{
 		Voltmeter *voltmeter = (Voltmeter *)sensor;
@@ -362,7 +360,7 @@ void Battery::SensorChanged(const sensor::Sensor *sensor)
 		}
 	}
 	else
-		OnOff::SensorChanged(sensor); // Forward other messages
+		OnOff::sensor_changed(sensor); // Forward other messages
 }
 
 en_wanted_state Battery::GetWantedState() const

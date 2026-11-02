@@ -21,7 +21,6 @@
 #define __SENSOR_VOLTMETER_SC_HPP__
 
 #include <sensor/voltmeter/Voltmeter.hpp>
-#include <mqtt/Subscriber.hpp>
 
 #include <string>
 #include <limits>
@@ -37,8 +36,9 @@ namespace sensor::voltmeter {
  * State Of Charge (SOC) is deduced from average voltage
  */
 
-class SC: public Voltmeter, public mqtt::Subscriber
+class SC: public Voltmeter
 {
+	// Config
 	std::string topic_ina;
 	std::string topic_soc;
 	std::string topic_temperature;
@@ -52,7 +52,7 @@ class SC: public Voltmeter, public mqtt::Subscriber
 	double estimated_time = std::numeric_limits<double>::quiet_NaN();
 
 	public:
-		SC(const std::string &name, SensorObserver *observer, const configuration::Json &conf);
+		SC(const std::string &name, const configuration::Json &conf);
 		virtual ~SC();
 
 		static void CheckConfig(const configuration::Json &conf);
@@ -65,7 +65,7 @@ class SC: public Voltmeter, public mqtt::Subscriber
 		virtual double GetTemperature() const override { return temperature; }
 		virtual double GetEstimatedTime() const override { return estimated_time; }
 
-		void HandleMessage(const std::string &message, const std::string &topic) override;
+		virtual bool HandleMQTTMessage(const std::string &message, const std::string &topic) override;
 };
 
 }

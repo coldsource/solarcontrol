@@ -84,14 +84,14 @@ string Grid::grid_state_to_string(en_grid_state state)
 	return "unknown";
 }
 
-void Grid::SensorChanged(const  sensor::Sensor *sensor)
+void Grid::sensor_changed(const  sensor::Sensor *sensor)
 {
 	if(sensor->GetName()=="offpeak_ctrl")
 		offpeak = ((sensor::input::Input *)sensor)->GetState();
 	else if(sensor->GetName()=="grid_detection")
 		grid_state = ((sensor::input::Input *)sensor)->GetState()?ONLINE:OFFLINE;
 	else
-		Passive::SensorChanged(sensor); // Forward message
+		Passive::sensor_changed(sensor); // Forward message
 }
 
 json Grid::ToJson() const

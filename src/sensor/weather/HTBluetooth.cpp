@@ -18,7 +18,6 @@
  */
 
 #include <sensor/weather/HTBluetooth.hpp>
-#include <mqtt/Client.hpp>
 #include <configuration/Json.hpp>
 #include <nlohmann/json.hpp>
 #include <excpt/Config.hpp>
@@ -29,18 +28,13 @@ using nlohmann::json;
 namespace sensor::weather
 {
 
-HTBluetooth::HTBluetooth(const string &name, SensorObserver *observer, const string &ble_addr):HT(name, observer)
+HTBluetooth::HTBluetooth(const string &name,const string &ble_addr):HT(name)
 {
-	auto mqtt = mqtt::Client::GetInstance();
-	topic = "sc-ble-gateway/" + ble_addr;
-	mqtt->Subscribe(topic, this);
+	mqtt_topics = {"sc-ble-gateway/" + ble_addr};
 }
 
 HTBluetooth::~HTBluetooth()
 {
-	auto mqtt = mqtt::Client::GetInstance();
-	if(mqtt)
-		mqtt->Unsubscribe(topic, this);
 }
 
 void HTBluetooth::CheckConfig(const configuration::Json &conf)
@@ -52,42 +46,38 @@ void HTBluetooth::CheckConfig(const configuration::Json &conf)
 		throw excpt::Config("Bluetooth address is mandatory", "ble_addr");
 }
 
-void HTBluetooth::HandleMessage(const string &message, const std::string & /*topic*/)
+bool HTBluetooth::HandleMQTTMessage(const string &message, const std::string & /*topic*/)
 {
+	try
 	{
-		try
+		json j = json::parse(message);
+		if(j.contains("fcd2")) // Shelly sensor
 		{
-			json j = json::parse(message);
-			if(j.contains("fcd2")) // Shelly sensor
-			{
-				string payload = j["fcd2"];
-				if(payload.size()!=20)
-					return;
+			string payload = j["fcd2"];
+			if(payload.size()!=20)
+				return false;
 
-				humidity = (double)strtol(payload.substr(12, 2).c_str(), 0, 16);
-				short utemp = (short)((strtol(payload.substr(18, 2).c_str(), 0, 16) << 8) + strtol(payload.substr(16, 2).c_str(), 0, 16)); // Temperature is a 16 bits signed integer
-				temperature = (double)utemp / 10.0; // Convert to double
-
-				notify_observer();
-			}
-			else if(j.contains("181a")) // Custom sensor
-			{
-				string payload = j["181a"];
-				if(payload.size()!=8)
-					return;
-
-				long ihumidity = (strtol(payload.substr(4, 2).c_str(), 0, 16)<<8) | strtol(payload.substr(6, 2).c_str(), 0, 16);
-				humidity = (double)ihumidity / 10;
-				temperature = 0;
-
-				notify_observer();
-			}
+			humidity = (double)strtol(payload.substr(12, 2).c_str(), 0, 16);
+			short utemp = (short)((strtol(payload.substr(18, 2).c_str(), 0, 16) << 8) + strtol(payload.substr(16, 2).c_str(), 0, 16)); // Temperature is a 16 bits signed integer
+			temperature = (double)utemp / 10.0; // Convert to double
 		}
-		catch(json::exception &e)
+		else if(j.contains("181a")) // Custom sensor
 		{
-			return;
+			string payload = j["181a"];
+			if(payload.size()!=8)
+				return false;
+
+			long ihumidity = (strtol(payload.substr(4, 2).c_str(), 0, 16)<<8) | strtol(payload.substr(6, 2).c_str(), 0, 16);
+			humidity = (double)ihumidity / 10;
+			temperature = 0;
 		}
 	}
+	catch(json::exception &e)
+	{
+		return false;
+	}
+
+	return true;
 }
 
 }

@@ -20,19 +20,36 @@
 #ifndef __SHELLY_AUTODETECTBLE_HPP__
 #define __SHELLY_AUTODETECTBLE_HPP__
 
-//#include <mqtt/Subscriber.hpp>
+#include <mqtt/Subscriber.hpp>
+#include <mqtt/Dispatcher.hpp>
 #include <nlohmann/json.hpp>
 
 #include <string>
 #include <mutex>
 #include <condition_variable>
+#include <memory>
 
 namespace shelly {
 
-class AutodetectBLE/*: public mqtt::Subscriber*/
+class AutodetectBLESubscriber: public mqtt::Subscriber
+{
+	protected:
+		std::shared_ptr<mqtt::Dispatcher> dispatcher;
+
+	public:
+		AutodetectBLESubscriber(std::shared_ptr<mqtt::Dispatcher> dispatcher):dispatcher(dispatcher) {}
+
+		virtual std::shared_ptr<mqtt::Dispatcher> Get() const override
+		{
+			return dispatcher;
+		}
+};
+
+class AutodetectBLE: public mqtt::Dispatcher, public std::enable_shared_from_this<AutodetectBLE>
 {
 	std::mutex wait_lock;
 	std::condition_variable ble_detected;
+	std::shared_ptr<AutodetectBLESubscriber> mqtt_subscriber = nullptr;
 
 	nlohmann::json j_res;
 
@@ -40,7 +57,7 @@ class AutodetectBLE/*: public mqtt::Subscriber*/
 		AutodetectBLE();
 		~AutodetectBLE();
 
-		void HandleMessage(const std::string & /*message*/, const std::string &topic) /*override*/;
+		virtual void DispatchMQTTMessage(const mqtt::st_message &mqtt_message) override;
 
 		nlohmann::json GetDevice();
 };
@@ -48,6 +65,3 @@ class AutodetectBLE/*: public mqtt::Subscriber*/
 }
 
 #endif
-
-
-

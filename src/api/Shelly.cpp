@@ -43,8 +43,8 @@ json Shelly::HandleMessage(const string &cmd, const configuration::Json &j_param
 	}
 	else if(cmd=="autodetectble")
 	{
-		shelly::AutodetectBLE ad;
-		return ad.GetDevice();
+		auto ad = make_shared<shelly::AutodetectBLE>();
+		return ad->GetDevice();
 	}
 	else if(cmd=="mqttget")
 	{

@@ -29,24 +29,21 @@ namespace shelly {
 
 AutodetectBLE::AutodetectBLE()
 {
-	/*auto mqtt = mqtt::Client::GetInstance();
-	mqtt->Subscribe("#", this);*/
 }
 
 AutodetectBLE::~AutodetectBLE()
 {
-	/*auto mqtt = mqtt::Client::GetInstance();
-	if(mqtt)
-		mqtt->Unsubscribe("#", this);*/
+	auto mqtt = mqtt::Client::GetInstance();
+	if(mqtt && mqtt_subscriber)
+		mqtt->Unsubscribe("#", mqtt_subscriber);
 }
 
-
-void AutodetectBLE::HandleMessage(const string & /*message*/, const std::string &topic)
+void AutodetectBLE::DispatchMQTTMessage(const mqtt::st_message &mqtt_message)
 {
-	if(topic.substr(0, 15)!="sc-ble-gateway/")
+	if(mqtt_message.topic.substr(0, 15)!="sc-ble-gateway/")
 		return;
 
-	string addr = topic.substr(15);
+	string addr = mqtt_message.topic.substr(15);
 
 	for(auto device : device::Devices::Get<device::HTBluetooth>())
 	{
@@ -63,6 +60,9 @@ void AutodetectBLE::HandleMessage(const string & /*message*/, const std::string 
 nlohmann::json AutodetectBLE::GetDevice()
 {
 	unique_lock<mutex> llock(wait_lock);
+
+	mqtt_subscriber = make_shared<AutodetectBLESubscriber>(shared_from_this());
+	mqtt::Client::GetInstance()->Subscribe("#", mqtt_subscriber);
 
 	ble_detected.wait_for(llock, chrono::seconds(5));
 

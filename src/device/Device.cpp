@@ -82,6 +82,8 @@ const configuration::Json Device::GetConfig() const
 
 void Device::StateRestore(const configuration::Json &last_state)
 {
+	lock_guard<recursive_mutex> llock(lock);
+
 	state_restore(last_state);
 }
 

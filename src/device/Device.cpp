@@ -64,9 +64,7 @@ void Device::Reload(const string &name, const configuration::Json &config, bool 
 
 void Device::Delete()
 {
-	lock_guard<recursive_mutex> llock(lock);
-
-	deleted = true; // Device might be in use, flag for removal in destructor
+		deleted = true; // Device might be in use, flag for removal in destructor
 }
 
 string Device::GetName() const

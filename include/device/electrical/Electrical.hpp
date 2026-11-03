@@ -52,9 +52,10 @@ class Electrical: public Device, public configuration::ConfigurationObserver
 		energy::Counter consumption;
 		energy::Counter offload;
 
-		std::atomic_bool is_metered;
+		std::atomic_bool is_metered = false;
 
 		virtual void reload(const configuration::Json &config) override;
+		virtual void reloaded() override;
 		virtual void sensor_changed(const sensor::Sensor *sensor) override;
 		void energy_debug();
 

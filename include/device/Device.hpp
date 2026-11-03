@@ -75,6 +75,7 @@ class Device: public mqtt::Dispatcher
 		bool has_sensor(const std::string &category) const;
 
 		virtual void reload(const configuration::Json & /* config */) {}
+		virtual void reloaded() {}
 		virtual void sensor_changed(const sensor::Sensor *sensor) = 0;
 		virtual void state_restore(const configuration::Json & /* last_state */ ) {}
 		virtual configuration::Json state_backup() { return configuration::Json(); }

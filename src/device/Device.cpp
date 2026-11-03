@@ -48,6 +48,7 @@ Device::~Device()
 
 void Device::Reload(const string &name, const configuration::Json &config, bool device_enabled)
 {
+	// Lock before calling protected reload() from children
 	lock_guard<recursive_mutex> llock(lock);
 
 	excpt::Context ctx("device", "In device « " + name + " »", {{"device_id", GetID()}});
@@ -60,6 +61,8 @@ void Device::Reload(const string &name, const configuration::Json &config, bool 
 	sensors.clear();
 
 	reload(config); // Call protected reload to let children reload
+
+	reloaded(); // Notify device is reloaded
 }
 
 void Device::Delete()

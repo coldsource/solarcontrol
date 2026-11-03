@@ -81,7 +81,10 @@ void Electrical::reload(const configuration::Json &config)
 
 	if(config.Has("meter"))
 		add_sensor<sensor::meter::Factory>("meter", config.GetObject("meter")); // Device has a dedicated metering configuration
+}
 
+void Electrical::reloaded()
+{
 	is_metered = has_sensor("meter");
 }
 

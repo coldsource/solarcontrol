@@ -19,6 +19,7 @@
 
 #include <control/BSBLan.hpp>
 #include <configuration/Json.hpp>
+#include <http/HTTP.hpp>
 #include <excpt/Config.hpp>
 #include <excpt/BSBLan.hpp>
 #include <excpt/Context.hpp>
@@ -62,6 +63,7 @@ void BSBLan::send(const nlohmann::json &params) const
 {
 	excpt::Context ctx("control", "Communicating with heat pump");
 
+	http::HTTP http(ip);
 	string output = http.Post("/JS", params.dump());
 	json j_output = json::parse(output);
 	for(auto j_item : j_output)

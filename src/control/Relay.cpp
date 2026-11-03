@@ -49,8 +49,6 @@ void Relay::Switch(bool new_state)
 
 	shelly::HTTP api(ip);
 
-	unique_lock<mutex> llock(lock);
-
 	json j;
 	j["id"] = 1;
 	j["method"] = "Switch.Set";

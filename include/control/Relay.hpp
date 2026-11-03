@@ -23,8 +23,6 @@
 #include <control/OnOff.hpp>
 
 #include <string>
-#include <mutex>
-#include <atomic>
 
 namespace configuration {
 	class Json;
@@ -38,8 +36,6 @@ class Relay: public OnOff
 	const int outlet = 0;
 
 	bool reverted = false;
-
-	std::mutex lock;
 
 	public:
 		Relay(const std::string &ip, int outlet, bool reverted = false):ip(ip), outlet(outlet), reverted(reverted) {}

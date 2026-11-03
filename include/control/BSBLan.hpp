@@ -21,12 +21,10 @@
 #define __CONTROL_BSBLAN_HPP__
 
 #include <control/OnOff.hpp>
-#include <http/HTTP.hpp>
 
 #include <nlohmann/json.hpp>
 
 #include <string>
-#include <mutex>
 
 namespace configuration {
 	class Json;
@@ -36,16 +34,14 @@ namespace control {
 
 class BSBLan: public OnOff
 {
-	http::HTTP http;
-
-	std::mutex lock;
+	std::string ip;
 
 	void set(int param, int value) const;
 	void set(int param, double value) const;
 	void send(const nlohmann::json &params) const;
 
 	public:
-		BSBLan(const std::string &ip):http(ip) {}
+		BSBLan(const std::string &ip):ip(ip) {}
 		virtual ~BSBLan() {}
 
 		static void CheckConfig(const configuration::Json & conf);

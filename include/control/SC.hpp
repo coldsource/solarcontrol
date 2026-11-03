@@ -23,8 +23,6 @@
 #include <control/OnOff.hpp>
 
 #include <string>
-#include <mutex>
-#include <atomic>
 
 namespace configuration {
 	class Json;
@@ -36,8 +34,6 @@ class SC: public OnOff
 {
 	std::string topic;
 	bool reverted = false;
-
-	std::mutex lock;
 
 	public:
 		SC(const std::string &mqtt_id, bool reverted = false):topic(mqtt_id + "/ctrl/src"), reverted(reverted) {}

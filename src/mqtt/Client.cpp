@@ -41,6 +41,8 @@ msg_queue(make_unique<MessageQueue>())
 	string id = configuration::Configuration::FromType("solarcontrol")->Get("mqtt.id");
 	mosqh = mosquitto_new(id.c_str(), true, this);
 
+	mosquitto_threaded_set(mosqh, true);
+
 	mosquitto_connect_callback_set(mosqh, connect_callback);
 	mosquitto_message_callback_set(mosqh, message_callback);
 

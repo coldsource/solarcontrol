@@ -48,14 +48,17 @@ SensorsManager::~SensorsManager()
 
 void SensorsManager::ConfigurationChanged(const configuration::ConfigurationPart *config)
 {
-	unique_lock<mutex> llock(lock);
-
-	state_update_interval = config->GetTime("control.state.update_interval");
-	Signal(); // Signal in case our interval has changed
+	if(config->GetTime("control.state.update_interval") != state_update_interval)
+	{
+		state_update_interval = config->GetTime("control.state.update_interval");
+		Signal(); // Signal because our config has changed
+	}
 }
 
 void SensorsManager::main()
 {
+	logs::Logger::Log(LOG_INFO, "Started SensorsManager thread");
+
 	while(true)
 	{
 		try

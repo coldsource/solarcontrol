@@ -23,9 +23,9 @@
 #include <thread/WaiterThread.hpp>
 #include <configuration/ConfigurationObserver.hpp>
 
-#include <mutex>
 #include <memory>
 #include <set>
+#include <atomic>
 
 namespace thread {
 
@@ -33,9 +33,7 @@ class SensorsManager: public WaiterThread, public configuration::ConfigurationOb
 {
 	static SensorsManager *instance;
 
-	unsigned long state_update_interval;
-
-	std::mutex lock;
+	std::atomic<unsigned long> state_update_interval;
 
 	protected:
 		void main(void) override;

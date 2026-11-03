@@ -42,16 +42,22 @@ bool WaiterThread::wait(unsigned long seconds, wait_predicate p)
 		if(!is_shutting_down && (!p || p()))
 			ret = shutdown_requested.wait_for(llock, chrono::seconds(seconds));
 
-		llock.unlock();
-
 		if(is_signaled)
 		{
 			is_signaled = false;
+			llock.unlock();
+
 			return true;
 		}
 
+
 		if(is_shutting_down)
+		{
+			llock.unlock();
 			return false;
+		}
+
+		llock.unlock();
 
 		if(ret==cv_status::timeout)
 			return true;

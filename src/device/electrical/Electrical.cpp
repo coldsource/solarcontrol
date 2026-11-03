@@ -85,6 +85,8 @@ void Electrical::reload(const configuration::Json &config)
 
 void Electrical::reloaded()
 {
+	Device::reloaded();
+
 	is_metered = has_sensor("meter");
 }
 

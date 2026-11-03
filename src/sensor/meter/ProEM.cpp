@@ -54,8 +54,6 @@ bool ProEM::HandleMQTTMessage(const string &message, const std::string & /*topic
 {
 	try
 	{
-		unique_lock<mutex> llock(lock);
-
 		json j = json::parse(message);
 
 		double total_power = 0;

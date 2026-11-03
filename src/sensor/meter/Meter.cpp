@@ -50,8 +50,6 @@ double Meter::GetFrequency() const
 
 double Meter::GetConsumption()
 {
-	unique_lock<mutex> llock(lock);
-
 	double ret_consumption = energy_consumption;
 	energy_consumption = 0;
 
@@ -60,8 +58,6 @@ double Meter::GetConsumption()
 
 double Meter::GetExcess()
 {
-	unique_lock<mutex> llock(lock);
-
 	double ret_excess = energy_excess;
 	energy_excess = 0;
 

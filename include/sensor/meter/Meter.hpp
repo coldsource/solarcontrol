@@ -23,8 +23,6 @@
 #include <sensor/Sensor.hpp>
 
 #include <string>
-#include <mutex>
-#include <atomic>
 
 namespace configuration {
 	class Json;
@@ -35,13 +33,11 @@ namespace sensor::meter {
 class Meter: public Sensor
 {
 	protected:
-		std::atomic<double> power = -1;
-		std::atomic<double> voltage = -1;
-		std::atomic<double> freq = -1;
-		std::atomic<double> energy_consumption = 0;
-		std::atomic<double> energy_excess = 0;
-
-		std::mutex lock;
+		double power = -1;
+		double voltage = -1;
+		double freq = -1;
+		double energy_consumption = 0;
+		double energy_excess = 0;
 
 	public:
 		using Sensor::Sensor;

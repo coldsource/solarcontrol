@@ -49,8 +49,6 @@ bool Pro3EM::HandleMQTTMessage(const string &message, const std::string & /*topi
 {
 	try
 	{
-		unique_lock<mutex> llock(lock);
-
 		json j = json::parse(message);
 
 		if(j.contains("params") && j["params"].contains("em:0"))

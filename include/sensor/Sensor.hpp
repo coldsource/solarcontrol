@@ -51,7 +51,7 @@ class Sensor
 		unsigned int GetID() { return id; }
 		std::string GetName() const { return name; }
 
-		virtual bool ForceUpdate() { return false; }
+		virtual bool ForceUpdate() { return false; } // Will be called UNLOCKED and MUST be thread safe
 		virtual bool HandleMQTTMessage(const std::string & /*message*/, const std::string & /*topic*/) { return false; };
 
 		virtual std::string GetCategory() const = 0;

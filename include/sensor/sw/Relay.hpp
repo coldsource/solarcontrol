@@ -23,7 +23,6 @@
 #include <sensor/sw/Switch.hpp>
 
 #include <string>
-#include <mutex>
 #include <atomic>
 
 namespace configuration {

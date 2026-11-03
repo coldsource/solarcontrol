@@ -31,11 +31,6 @@ namespace configuration {
 
 namespace sensor::voltmeter {
 
-/*
- * Meter for monitoring battery voltate throught Shelly Uni API
- * State Of Charge (SOC) is deduced from average voltage
- */
-
 class SC: public Voltmeter
 {
 	// Config

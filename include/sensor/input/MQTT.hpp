@@ -23,7 +23,6 @@
 #include <sensor/input/Input.hpp>
 
 #include <string>
-#include <atomic>
 
 namespace configuration {
 	class Json;
@@ -36,7 +35,7 @@ class MQTT: public Input
 	const int input = 0;
 	const std::string ip;
 
-	std::atomic_bool state = false;
+	bool state = false;
 
 	protected:
 		bool get_input() const;

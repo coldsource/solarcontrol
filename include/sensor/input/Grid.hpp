@@ -33,7 +33,7 @@ namespace sensor::input {
 
 class Grid: public Input
 {
-	std::atomic_bool state = false;
+	bool state = false;
 
 	public:
 		Grid(const std::string &name, const std::string &mqtt_id);

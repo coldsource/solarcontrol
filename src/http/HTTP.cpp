@@ -39,16 +39,17 @@ string HTTP::Post(const string &url, const string &data) const
 	CURLcode res;
 
 	curl = curl_easy_init();
+	if(!curl)
+		throw runtime_error("CURL failed to init");
 
 	try
 	{
 		// Configure HTTP timeout
 		unsigned long timeout = configuration::Configuration::FromType("solarcontrol")->GetTime("http.timeout");
 		curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT , timeout);
-
 		curl_easy_setopt(curl, CURLOPT_URL, ("http://" + ip + url).c_str());
-
 		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data.c_str());
+		curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1L);
 
 		string output;
 		auto write_cbk = +[](char *ptr, size_t size, size_t nmemb, void *userdata) {

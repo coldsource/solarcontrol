@@ -22,6 +22,7 @@
 
 #include <thread>
 #include <mutex>
+#include <atomic>
 #include <condition_variable>
 #include <functional>
 
@@ -34,7 +35,7 @@ class WaiterThread
 	std::mutex wait_lock;
 	std::condition_variable shutdown_requested;
 
-	bool enabled = true;
+	std::atomic_bool enabled = true;
 	bool is_signaled = false;
 	bool is_shutting_down = false;
 

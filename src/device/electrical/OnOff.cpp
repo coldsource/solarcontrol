@@ -149,7 +149,7 @@ void OnOff::SetState(bool new_state)
 {
 	excpt::Context ctx("device", "In device « " + GetName() + " »", {{"device_id", GetID()}});
 
-	unique_lock<recursive_mutex> llock(lock);
+	lock_guard<recursive_mutex> llock(lock);
 
 	if(ctrl==nullptr)
 		return; // No controller
@@ -167,7 +167,7 @@ void OnOff::SetManualState(bool new_state)
 {
 	excpt::Context ctx("device", "In device « " + GetName() + " »", {{"device_id", GetID()}});
 
-	unique_lock<recursive_mutex> llock(lock);
+	lock_guard<recursive_mutex> llock(lock);
 
 	if(ctrl==nullptr)
 		return; // No controller
@@ -185,7 +185,7 @@ void OnOff::SetManualState(bool new_state)
 
 void OnOff::SetAutoState()
 {
-	unique_lock<recursive_mutex> llock(lock);
+	lock_guard<recursive_mutex> llock(lock);
 
 	manual = false;
 
@@ -194,7 +194,7 @@ void OnOff::SetAutoState()
 
 double OnOff::GetExpectedConsumption() const
 {
-	unique_lock<recursive_mutex> llock(lock);
+	lock_guard<recursive_mutex> llock(lock);
 
 	if(GetState() && IsMetered())
 		return power; // If device is on and is metered, we take the real consumption

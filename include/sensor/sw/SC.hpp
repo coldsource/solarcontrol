@@ -23,7 +23,6 @@
 #include <sensor/sw/Switch.hpp>
 
 #include <string>
-#include <atomic>
 
 namespace configuration {
 	class Json;
@@ -35,8 +34,8 @@ class SC: public Switch
 {
 	bool reverted = false;
 
-	std::atomic_bool state = false;
-	std::atomic_bool manual = false;
+	bool state = false;
+	bool manual = false;
 
 	public:
 		SC(const std::string &name, const std::string &mqtt_id, bool reverted = false);

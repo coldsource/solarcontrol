@@ -23,7 +23,6 @@
 #include <sensor/sw/Switch.hpp>
 
 #include <string>
-#include <atomic>
 
 namespace configuration {
 	class Json;
@@ -39,8 +38,8 @@ class Relay: public Switch
 	const bool reverted = false;
 
 	// State
-	std::atomic_bool state = false;
-	std::atomic_bool manual = false;
+	bool state = false;
+	bool manual = false;
 
 	protected:
 		bool get_output() const;

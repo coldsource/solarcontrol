@@ -23,8 +23,6 @@
 #include <sensor/sw/Switch.hpp>
 
 #include <string>
-#include <mutex>
-#include <atomic>
 
 namespace configuration {
 	class Json;
@@ -36,10 +34,8 @@ class Arduino: public Switch
 {
 	bool reverted = false;
 
-	std::atomic_bool state = false;
-	std::atomic_bool manual = false;
-
-	std::mutex lock;
+	bool state = false;
+	bool manual = false;
 
 	public:
 		Arduino(const std::string &name, const std::string &mqtt_id, bool reverted = false);

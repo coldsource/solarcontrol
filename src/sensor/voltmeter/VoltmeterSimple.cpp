@@ -84,8 +84,6 @@ void VoltmeterSimple::CheckConfig(const configuration::Json &conf)
 
 void VoltmeterSimple::ConfigurationChanged(const configuration::ConfigurationPart *config)
 {
-	unique_lock<mutex> llock(lock);
-
 	smoothing = config->GetTime("energy.battery.smoothing");
 	voltage_avg = make_unique<stat::MovingAverage<double>>(smoothing);
 	last_voltage_update = Timestamp(TS_MONOTONIC);
@@ -100,8 +98,6 @@ bool VoltmeterSimple::prevent_notify() const
 
 double VoltmeterSimple::GetVoltage() const
 {
-	unique_lock<mutex> llock(lock);
-
 	if(voltage_avg->Size()==0)
 		return -1; // No measurement yet
 
@@ -114,8 +110,6 @@ double VoltmeterSimple::GetSOC() const
 	double voltage = GetVoltage();
 	if(IsCharging())
 		voltage -= charge_delta;
-
-	unique_lock<mutex> llock(lock);
 
 	int threshold_percent_start = 0, threshold_percent_end = 0;
 	double threshold_voltage_start = 0, threshold_voltage_end = 0;

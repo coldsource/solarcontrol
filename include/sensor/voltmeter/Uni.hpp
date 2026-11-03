@@ -38,7 +38,7 @@ namespace sensor::voltmeter {
 class Uni: public VoltmeterSimple
 {
 	// State
-	std::atomic_bool charging = false;
+	bool charging = false;
 
 	public:
 		Uni(const std::string &name, const configuration::Json &conf);

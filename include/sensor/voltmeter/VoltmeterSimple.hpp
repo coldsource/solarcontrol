@@ -26,8 +26,8 @@
 #include <stat/MovingAverage.hpp>
 
 #include <string>
-#include <mutex>
 #include <map>
+#include <atomic>
 
 namespace configuration {
 	class Json;
@@ -38,12 +38,10 @@ namespace sensor::voltmeter {
 class VoltmeterSimple: public Voltmeter, public configuration::ConfigurationObserver
 {
 	protected:
-		mutable std::mutex lock;
-
 		// Config
-		unsigned long smoothing;
-		double charge_delta;
-		double max_voltage;
+		std::atomic<unsigned long> smoothing;
+		std::atomic<double> charge_delta;
+		std::atomic<double> max_voltage;
 		std::map<int, double> thresholds; // Voltate thresholds used for computing SOC
 
 		// State

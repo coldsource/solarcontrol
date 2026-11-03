@@ -63,8 +63,6 @@ bool SC::HandleMQTTMessage(const string &message, const std::string &topic)
 
 	try
 	{
-		unique_lock<mutex> llock(lock);
-
 		json j = json::parse(message);
 
 		if(!j.contains("event") || !j.contains("data"))

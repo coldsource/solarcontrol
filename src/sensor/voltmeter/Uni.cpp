@@ -60,8 +60,6 @@ bool Uni::HandleMQTTMessage(const string &message, const std::string & /*topic*/
 
 	try
 	{
-		unique_lock<mutex> llock(lock);
-
 		json j = json::parse(message);
 
 		if(!j.contains("params") || !j["params"].contains("voltmeter:100"))

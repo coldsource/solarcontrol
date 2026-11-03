@@ -26,7 +26,6 @@
 #include <stat/MovingAverage.hpp>
 
 #include <string>
-#include <mutex>
 #include <map>
 #include <limits>
 
@@ -41,10 +40,6 @@ class Voltmeter: public Sensor
 	public:
 		enum charge_state_t { UNKNOWN, CHARGING, DISCHARGING, NONE, FLOAT };
 
-	protected:
-		mutable std::mutex lock;
-
-	public:
 		using Sensor::Sensor;
 		virtual ~Voltmeter() {}
 

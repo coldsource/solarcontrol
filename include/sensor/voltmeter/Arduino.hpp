@@ -38,7 +38,7 @@ namespace sensor::voltmeter {
 class Arduino: public VoltmeterSimple
 {
 	// State
-	std::atomic_bool charging = false;
+	bool charging = false;
 
 	public:
 		Arduino(const std::string &name, const configuration::Json &conf);

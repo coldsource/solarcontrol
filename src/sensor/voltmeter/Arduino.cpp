@@ -61,8 +61,6 @@ bool Arduino::HandleMQTTMessage(const string &message, const std::string & /*top
 
 	try
 	{
-		unique_lock<mutex> llock(lock);
-
 		json j = json::parse(message);
 
 		if(!j.contains("voltage"))

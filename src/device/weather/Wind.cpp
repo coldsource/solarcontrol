@@ -76,5 +76,11 @@ void Wind::sensor_changed(const sensor::Sensor *sensor)
 	history.Add(stat::MinMaxAvg(wind));
 }
 
+void Wind::SyncHistory()
+{
+	lock_guard<recursive_mutex> llock(lock);
+	history.Sync();
+}
+
 }
 

@@ -27,7 +27,7 @@ namespace stat {
 }
 
 #include <set>
-#include <mutex>
+#include <atomic>
 
 namespace thread {
 
@@ -40,10 +40,7 @@ class HistorySync: public WaiterThread
 {
 	static HistorySync *instance;
 
-	std::mutex lock;
-
-	unsigned long sync_interval;
-	std::set<stat::HistorySync *> clients;
+	std::atomic<unsigned long> sync_interval;
 
 	void main(void) override;
 
@@ -52,9 +49,6 @@ class HistorySync: public WaiterThread
 		~HistorySync();
 
 		static HistorySync *GetInstance() { return instance; }
-
-		void Register(stat::HistorySync *client);
-		void Unregister(stat::HistorySync *client);
 };
 
 }

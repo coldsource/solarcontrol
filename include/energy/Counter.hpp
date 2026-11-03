@@ -27,14 +27,12 @@
 
 #include <map>
 #include <memory>
-#include <mutex>
 
 namespace energy {
 
+// This class is not Thread Safe and must be called LOCKED
 class Counter
 {
-	mutable std::mutex lock;
-
 	int last_yday;
 
 	Amount energy_consumption;
@@ -47,9 +45,9 @@ class Counter
 
 	public:
 		Counter(int device_id = 0, const std::string &consumption_history_type = "", const std::string &excess_history_type = "");
-		virtual ~Counter() {}
 		Counter(const Counter &h) = delete;
 		Counter &operator=(const Counter &) = delete;
+		virtual ~Counter() {}
 
 		void AddEnergy(double consumption, double excess = 0);
 		Amount GetEnergyConsumption()  const;
@@ -60,6 +58,8 @@ class Counter
 
 		const std::map<datetime::Date, Amount> GetConsumptionHistory() const;
 		const std::map<datetime::Date, Amount> GetExcessHistory() const;
+
+		void SyncHistory();
 };
 
 }

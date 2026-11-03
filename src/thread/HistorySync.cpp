@@ -18,9 +18,10 @@
  */
 
 #include <thread/HistorySync.hpp>
-#include <stat/History.hpp>
 #include <configuration/Configuration.hpp>
 #include <configuration/ConfigurationPart.hpp>
+#include <device/Devices.hpp>
+#include <device/Device.hpp>
 #include <excpt/Database.hpp>
 #include <logs/Logger.hpp>
 
@@ -45,38 +46,31 @@ HistorySync::~HistorySync()
 	WaitForShutdown();
 }
 
-void HistorySync::Register(stat::HistorySync *client)
-{
-	unique_lock<mutex> llock(lock);
-
-	clients.insert(client);
-}
-void HistorySync::Unregister(stat::HistorySync *client)
-{
-	unique_lock<mutex> llock(lock);
-
-	clients.erase(client);
-}
-
 void HistorySync::main()
 {
+	logs::Logger::Log(LOG_INFO, "Started HistorySync thread");
+
 	while(true)
 	{
 		if(!wait(sync_interval))
 			return;
 
 		{
-			unique_lock<mutex> llock(lock);
+			auto devices = device::Devices::Get<device::Device>();
 
-			for(auto client : clients)
+			for(auto device : devices)
 			{
 				try
 				{
-					client->Sync();
+					device->SyncHistory();
 				}
 				catch(excpt::Database &e)
 				{
 					e.Log(LOG_ERR);
+				}
+				catch(...)
+				{
+					logs::Logger::Log(LOG_ERR, "Unexpected exception in HistorySync");
 				}
 			}
 		}

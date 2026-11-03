@@ -19,7 +19,6 @@
 
 #include <weather/HistoryQuarterHourHT.hpp>
 #include <database/DB.hpp>
-#include <thread/HistorySync.hpp>
 
 using namespace std;
 
@@ -48,14 +47,10 @@ HistoryQuarterHourHT::HistoryQuarterHourHT(int device_id)
 		stat::MinMax<double> t(res["log_ht_min_t"], res["log_ht_max_t"]);
 		history.insert(pair<QuarterHour, MinMaxHT>(QuarterHour(res["log_ht_date"]), MinMaxHT(h, t)));
 	}
-
-	::thread::HistorySync::GetInstance()->Register(this);
 }
 
 HistoryQuarterHourHT::~HistoryQuarterHourHT()
 {
-	::thread::HistorySync::GetInstance()->Unregister(this);
-
 	save();
 }
 

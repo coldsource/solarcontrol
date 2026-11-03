@@ -73,6 +73,8 @@ class Electrical: public Device, public configuration::ConfigurationObserver
 		virtual double GetFrequency() const;
 		bool IsMetered() const { return is_metered; }
 
+		virtual void SyncHistory() override;
+
 		energy::Amount GetEnergyConsumption() const;
 		energy::Amount GetEnergyOffload() const;
 		energy::Amount GetEnergyExcess() const;

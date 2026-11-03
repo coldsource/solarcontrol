@@ -51,6 +51,8 @@ class HT: public Weather
 		double GetTemperature() const override { return temperature; }
 		double GetHumidity() const override { return humidity; }
 		double GetWind() const override { return std::numeric_limits<double>::quiet_NaN(); }
+
+		virtual void SyncHistory() override;
 };
 
 }

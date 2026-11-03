@@ -41,8 +41,6 @@ Counter::Counter(int device_id, const string &consumption_history_type, const st
 
 void Counter::AddEnergy(double consumption, double excess)
 {
-	lock_guard<mutex> llock(lock);
-
 	int yday = datetime::DateTime().GetYearDay();
 	if(last_yday!=yday)
 	{
@@ -69,8 +67,6 @@ void Counter::AddEnergy(double consumption, double excess)
 
 Amount Counter::GetEnergyConsumption() const
 {
-	lock_guard<mutex> llock(lock);
-
 	if(last_yday!=datetime::DateTime().GetYearDay())
 		return 0;
 
@@ -79,8 +75,6 @@ Amount Counter::GetEnergyConsumption() const
 
 Amount Counter::GetEnergyExcess() const
 {
-	lock_guard<mutex> llock(lock);
-
 	if(last_yday!=datetime::DateTime().GetYearDay())
 		return 0;
 
@@ -104,6 +98,14 @@ const std::map<datetime::Date, Amount> Counter::GetConsumptionHistory() const
 const std::map<datetime::Date, Amount> Counter::GetExcessHistory() const
 {
 	return excess_history->Get();
+}
+
+void Counter::SyncHistory()
+{
+	consumption_history->Sync();
+	excess_history->Sync();
+	consumption_history_detail->Sync();
+	excess_history_detail->Sync();
 }
 
 }

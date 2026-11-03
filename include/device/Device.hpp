@@ -100,9 +100,13 @@ class Device: public mqtt::Dispatcher
 		std::string GetName() const;
 		const configuration::Json GetConfig() const;
 
+		// Sensors management
 		virtual void DispatchMQTTMessage(const mqtt::st_message &mqtt_message) override;
 		void SensorsForceUpdate();
 		bool IsOffline() const { return offline; }
+
+		// History management
+		virtual void SyncHistory() = 0;
 
 		bool IsEnabled() const { return enabled; }
 

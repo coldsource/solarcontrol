@@ -56,6 +56,8 @@ class Wind: public Weather
 		double GetTemperature() const override { return std::numeric_limits<double>::quiet_NaN(); }
 		double GetHumidity() const override { return std::numeric_limits<double>::quiet_NaN(); }
 		double GetWind() const override { return wind; }
+
+		virtual void SyncHistory() override;
 };
 
 }

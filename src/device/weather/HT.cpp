@@ -58,4 +58,10 @@ configuration::Json HT::state_backup()
 	return backup;
 }
 
+void HT::SyncHistory()
+{
+	lock_guard<recursive_mutex> llock(lock);
+	history.Sync();
+}
+
 }

@@ -19,8 +19,6 @@
 
 #include <weather/HistoryQuarterHourWind.hpp>
 #include <database/DB.hpp>
-#include <thread/HistorySync.hpp>
-
 
 using namespace std;
 
@@ -49,14 +47,10 @@ HistoryQuarterHourWind::HistoryQuarterHourWind(int device_id)
 		MinMaxAvg<double> wind(res["log_wind_min"], res["log_wind_max"], res["log_wind_avg"]);
 		history.insert(pair<QuarterHour, MinMaxAvg<double>>(QuarterHour(res["log_wind_date"]), wind));
 	}
-
-	::thread::HistorySync::GetInstance()->Register(this);
 }
 
 HistoryQuarterHourWind::~HistoryQuarterHourWind()
 {
-	::thread::HistorySync::GetInstance()->Unregister(this);
-
 	save();
 }
 

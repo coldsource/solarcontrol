@@ -22,7 +22,6 @@
 
 #include <sensor/weather/Weather.hpp>
 
-#include <atomic>
 #include <limits>
 
 namespace configuration {
@@ -34,8 +33,8 @@ namespace sensor::weather {
 class HT: public Weather
 {
 	protected:
-		std::atomic<double> temperature = std::numeric_limits<double>::quiet_NaN();
-		std::atomic<double> humidity = std::numeric_limits<double>::quiet_NaN();
+		double temperature = std::numeric_limits<double>::quiet_NaN();
+		double humidity = std::numeric_limits<double>::quiet_NaN();
 
 	public:
 		using Weather::Weather;

@@ -22,7 +22,6 @@
 
 #include <sensor/weather/Weather.hpp>
 
-#include <atomic>
 #include <limits>
 
 namespace configuration {
@@ -33,7 +32,7 @@ namespace sensor::weather {
 
 class Wind: public Weather
 {
-	std::atomic<double> wind = std::numeric_limits<double>::quiet_NaN();
+	double wind = std::numeric_limits<double>::quiet_NaN();
 
 	public:
 		Wind(const std::string &name, const std::string &mqtt_id);

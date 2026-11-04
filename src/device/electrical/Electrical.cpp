@@ -53,16 +53,20 @@ Electrical::~Electrical()
 
 void Electrical::ConfigurationChanged(const configuration::ConfigurationPart *config)
 {
-	lock_guard<recursive_mutex> llock(lock);
-
 	if(config->GetType()=="energy")
 	{
 		// Debug mode
-		debug = config->GetBool("energy.debug.enabled");
-		debug_grid = config->GetPower("energy.debug.grid", true);
-		debug_pv = config->GetPower("energy.debug.pv", true);
-		debug_hws = config->GetPower("energy.debug.hws", true);
-		debug_battery= config->GetPower("energy.debug.battery.power", true);
+		auto new_debug = make_shared<st_debug>(st_debug({
+			.enabled = config->GetBool("energy.debug.enabled"),
+			.grid = (double)config->GetPower("energy.debug.grid", true),
+			.pv = (double)config->GetPower("energy.debug.pv", true),
+			.hws = (double)config->GetPower("energy.debug.hws", true),
+			.battery = (double)config->GetPower("energy.debug.battery.power", true),
+			.battery_soc =  config->GetPower("energy.debug.battery.soc", true)
+		}));
+
+		debug.store(new_debug);
+
 		energy_debug(); // Init power from debug values NOW
 	}
 }
@@ -90,14 +94,16 @@ void Electrical::Configuration::Prepare(Device *device)
 
 void Electrical::energy_debug()
 {
+	auto ldebug = debug.load();
+
 	if(GetID()==DEVICE_ID_GRID)
-		power = debug_grid;
+		power = ldebug->grid;
 	else if(GetID()==DEVICE_ID_PV)
-		power = debug_pv;
+		power = ldebug->pv;
 	else if(GetID()==DEVICE_ID_HWS)
-		power = debug_hws;
+		power = ldebug->hws;
 	else if(GetID()==DEVICE_ID_BATTERY)
-		power = debug_battery;
+		power = ldebug->battery;
 }
 
 json Electrical::ToJson() const
@@ -138,7 +144,7 @@ void Electrical::sensor_changed(const sensor::Sensor *sensor)
 	{
 		sensor::meter::Meter *meter = (sensor::meter::Meter *)sensor;
 
-		if(debug && GetID() < 0)
+		if(debug.load()->enabled && GetID() < 0)
 			energy_debug(); // Debug mode is on, use debug power instead of real one
 		else
 		{

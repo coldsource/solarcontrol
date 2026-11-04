@@ -41,6 +41,16 @@ class Battery: public OnOff
 		enum en_offload_state {ALLOWED, FORBIDDEN};
 
 	private:
+		// State
+		std::atomic<double> voltage = -1, current = 0, soc = -1;
+		std::atomic<double> temperature = std::numeric_limits<double>::quiet_NaN(), estimated_time = std::numeric_limits<double>::quiet_NaN(); // SC Extensions
+		datetime::Timestamp last_grid_switch;
+		std::atomic<en_battery_state> soc_state = FLOAT;
+		std::atomic<en_offload_state> offload_state = FORBIDDEN;
+		std::atomic_bool charge_required = false;
+
+	protected:
+		// Device config
 		class Configuration: public OnOff::Configuration
 		{
 			public:
@@ -71,22 +81,11 @@ class Battery: public OnOff
 				virtual void Prepare(Device *device) override;
 		};
 
-		unsigned long battery_cooldown;
-
-		// Power debug
-		int debug_battery_soc = 0;
-
-		// State
-		std::atomic<double> voltage = -1, current = 0, soc = -1;
-		std::atomic<double> temperature = std::numeric_limits<double>::quiet_NaN(), estimated_time = std::numeric_limits<double>::quiet_NaN(); // SC Extensions
-		datetime::Timestamp last_grid_switch;
-		std::atomic<en_battery_state> soc_state = FLOAT;
-		std::atomic<en_offload_state> offload_state = FORBIDDEN;
-		std::atomic_bool charge_required = false;
-
-	protected:
 		virtual std::shared_ptr<Device::Configuration> build_config(const configuration::Json &j_config) const override;
 		inline std::shared_ptr<const Configuration> get_config() const { return dynamic_pointer_cast<const Battery::Configuration>(config.load()); }
+
+		// Global configuration
+		std::atomic<unsigned long> battery_cooldown;
 
 		virtual void state_restore(const  configuration::Json &last_state) override;
 		virtual void sensor_changed(const sensor::Sensor *sensor) override;

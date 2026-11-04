@@ -51,18 +51,15 @@ Battery::~Battery()
 
 void Battery::ConfigurationChanged(const configuration::ConfigurationPart * config)
 {
-	unique_lock<recursive_mutex> llock(lock);
-
 	OnOff::ConfigurationChanged(config);
+
+	auto ldebug = debug.load();
 
 	if(config->GetType()=="control")
 		battery_cooldown = config->GetTime("control.battery.cooldown");
 
-	if(config->GetType()=="energy" && debug)
-	{
-		debug_battery_soc = config->GetPower("energy.debug.battery.soc", true);
-		soc = debug_battery_soc;
-	}
+	if(config->GetType()=="energy" && ldebug->enabled)
+		soc = ldebug->battery_soc;
 }
 
 void Battery::CheckConfig(const configuration::Json &conf)
@@ -295,6 +292,7 @@ json Battery::ToJson() const
 void Battery::sensor_changed(const sensor::Sensor *sensor)
 {
 	auto lconfig = get_config();
+	auto ldebug = debug.load();
 
 	if(sensor->GetName()=="voltmeter")
 	{
@@ -303,8 +301,8 @@ void Battery::sensor_changed(const sensor::Sensor *sensor)
 		current = voltmeter->GetCurrent();
 		double old_soc = soc;
 
-		if(debug)
-			soc = debug_battery_soc;
+		if(ldebug->enabled)
+			soc = ldebug->battery_soc;
 		else
 			soc = voltmeter->GetSOC();
 

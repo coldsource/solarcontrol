@@ -43,12 +43,19 @@ class Electrical: public Device, public configuration::ConfigurationObserver
 		std::atomic<double> freq = 0;
 
 		// Global config
-		bool debug = false;
-		double debug_grid = 0;
-		double debug_pv = 0;
-		double debug_battery = 0;
-		double debug_hws = 0;
+		struct st_debug
+		{
+			bool enabled = false;
+			double grid = 0;
+			double pv = 0;
+			double hws = 0;
+			double battery = 0;
+			int battery_soc = 0;
+		};
 
+		std::atomic<std::shared_ptr<st_debug>> debug;
+
+		// Device configuration
 		class Configuration: public Device::Configuration
 		{
 			public:

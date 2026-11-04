@@ -36,6 +36,12 @@ namespace device {
 class HT: public Weather
 {
 	protected:
+		class Configuration: public Weather::Configuration
+		{
+			public:
+				Configuration(const configuration::Json &config): Weather::Configuration(config) {}
+		};
+
 		double humidity = 0;
 		double temperature = 0;
 

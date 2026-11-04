@@ -31,12 +31,19 @@ namespace device {
 class HWS: public TimeRange
 {
 	protected:
-		double min_energy; // kWh
-		int min_energy_for_last; // Days
+		class Configuration: public TimeRange::Configuration
+		{
+			public:
+				double min_energy; // kWh
+				int min_energy_for_last; // Days
+
+				Configuration(const configuration::Json &config);
+		};
 
 		bool absence;
 
-		virtual void reload(const configuration::Json &config) override;
+		virtual std::shared_ptr<Device::Configuration> build_config(const configuration::Json &j_config) const override;
+		inline std::shared_ptr<const Configuration> get_config() const { return dynamic_pointer_cast<const HWS::Configuration>(config.load()); }
 
 	public:
 		HWS(int id);

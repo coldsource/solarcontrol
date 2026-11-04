@@ -53,10 +53,13 @@ void TimeRange::CheckConfig(const configuration::Json &conf)
 	conf.Check("min_off", "uint", false);
 }
 
-void TimeRange::reload(const configuration::Json &config)
+shared_ptr<Device::Configuration> TimeRange::build_config(const configuration::Json &j_config) const
 {
-	OnOff::reload(config);
+	return make_shared<TimeRange::Configuration>(j_config);
+}
 
+TimeRange::Configuration::Configuration(const configuration::Json &config):OnOff::Configuration(config)
+{
 	force.clear();
 	for(auto it : config.GetArray("force", json::array()))
 		force.push_back(datetime::TimeRange(it));
@@ -79,45 +82,40 @@ void TimeRange::reload(const configuration::Json &config)
 
 unsigned long TimeRange::GetMinOn()
 {
-	unique_lock<recursive_mutex> llock(lock);
-
-	return min_on;
+	return get_config()->min_on;
 }
 
 bool TimeRange::IsForced(configuration::Json *data_ptr) const
 {
-	unique_lock<recursive_mutex> llock(lock);
-
-	return force.IsActive(data_ptr);
+	return get_config()->force.IsActive(data_ptr);
 }
 
 bool TimeRange::WantOffload(configuration::Json *data_ptr) const
 {
-	unique_lock<recursive_mutex> llock(lock);
-
-	return offload.IsActive(data_ptr);
+	return get_config()->offload.IsActive(data_ptr);
 }
 
 bool TimeRange::WantRemainder(configuration::Json *data_ptr) const
 {
-	unique_lock<recursive_mutex> llock(lock);
-
-	return remainder.IsActive(data_ptr) && on_history.GetTotalForLast(min_on_for_last)<min_on_time;
+	auto lconfig = dynamic_pointer_cast<const TimeRange::Configuration>(config.load());
+	return lconfig->remainder.IsActive(data_ptr) && on_history.GetTotalForLast(lconfig->min_on_for_last)<lconfig->min_on_time;
 }
 
 en_wanted_state TimeRange::get_wanted_state(configuration::Json *data_ptr) const
 {
+	auto lconfig = get_config();
+
 	if(manual)
 		return UNCHANGED;
 
 	Timestamp now(TS_MONOTONIC);
-	if(GetState() && (unsigned long)(now-last_on)<min_on)
+	if(GetState() && (unsigned long)(now-last_on)<lconfig->min_on)
 		return UNCHANGED; // Stay on at least 'min_on' seconds
 
-	if(GetState() && max_on>0 && (unsigned long)(now-last_on)>max_on)
+	if(GetState() && lconfig->max_on>0 && (unsigned long)(now-last_on)>lconfig->max_on)
 		return OFF; // Stay on no longer than 'max_on' seconds
 
-	if(!GetState() && (unsigned long)(now-last_off)<min_off)
+	if(!GetState() && (unsigned long)(now-last_off)<lconfig->min_off)
 		return UNCHANGED; // Stay of at least 'min_off' seconds
 
 	if(IsForced(data_ptr) || WantRemainder(data_ptr))

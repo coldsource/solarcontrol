@@ -30,6 +30,16 @@ namespace device {
 
 class PV: public Passive
 {
+	protected:
+		class Configuration: public Passive::Configuration
+		{
+			public:
+				Configuration(const configuration::Json &config): Passive::Configuration(config) {}
+		};
+
+		virtual std::shared_ptr<Device::Configuration> build_config(const configuration::Json &j_config) const override;
+		inline std::shared_ptr<const Configuration> get_config() const { return dynamic_pointer_cast<const PV::Configuration>(config.load()); }
+
 	public:
 		PV(int id);
 		virtual ~PV() {}

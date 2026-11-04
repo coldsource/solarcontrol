@@ -49,16 +49,24 @@ void HeatPump::CheckConfig(const configuration::Json &conf)
 	Temperature::CheckConfig(conf);
 }
 
-void HeatPump::reload(const configuration::Json &config)
+shared_ptr<Device::Configuration> HeatPump::build_config(const configuration::Json &j_config) const
 {
-	Temperature::reload(config);
+	return make_shared<HeatPump::Configuration>(j_config);
+}
 
+HeatPump::Configuration::Configuration(const configuration::Json &config):Temperature::Configuration(config)
+{
 	temperature_offset_slow = config.GetFloat("temperature_offset_slow");
 	temperature_offset_fast = config.GetFloat("temperature_offset_fast");
 	temperature_eco = config.GetFloat("temperature_eco");
 	temperature_comfort = config.GetFloat("temperature_comfort");
+}
 
-	update_interval.Reset(); // Push new config now
+void HeatPump::Configuration::Prepare(Device *device)
+{
+	Temperature::Configuration::Prepare(device);
+
+	((HeatPump *)device)->update_interval.Reset();  // Push new config now
 }
 
 bool HeatPump::temp_check_force(double current_temp, double timerange_temp) const
@@ -77,8 +85,9 @@ bool HeatPump::temp_check_offload(double current_temp, double timerange_temp) co
 void HeatPump::SpecificActions()
 {
 	unique_lock<recursive_mutex> llock(lock);
+	auto lconfig = get_config();
 
-	auto bsblan = std::dynamic_pointer_cast<control::BSBLan>(ctrl);
+	auto bsblan = std::dynamic_pointer_cast<control::BSBLan>(lconfig->ctrl);
 	if(bsblan==nullptr)
 		return; // Only special BSB Lan controller can handle these actions
 
@@ -88,7 +97,7 @@ void HeatPump::SpecificActions()
 	shared_ptr<Weather> ht;
 	try
 	{
-		ht = Devices::GetByID<Weather>(ht_device_id);
+		ht = Devices::GetByID<Weather>(lconfig->ht_device_id);
 	}
 	catch(exception &e)
 	{
@@ -102,7 +111,7 @@ void HeatPump::SpecificActions()
 		double ambient = ht->GetTemperature();
 		bsblan->SetAmbientTemperature(ambient);
 
-		double eco_temp = temperature_eco;
+		double eco_temp = lconfig->temperature_eco;
 		if(absence)
 			eco_temp = absence_temperature; // If absent lower temperature of eco mode to avoid switch on
 		bsblan->SetEcoSetPoint(eco_temp);
@@ -116,11 +125,11 @@ void HeatPump::SpecificActions()
 			fast_mode = (tr_data.GetString("speed")=="fast");
 
 		// Compute setpoint
-		double setpoint = temperature_comfort;
+		double setpoint = lconfig->temperature_comfort;
 		if(tr_data.Has("temperature"))
 			setpoint = tr_data.GetFloat("temperature");
 
-		double temperature_offset = fast_mode ? temperature_offset_fast : temperature_offset_slow;
+		double temperature_offset = fast_mode ? lconfig->temperature_offset_fast : lconfig->temperature_offset_slow;
 
 		// Build offset based setpointsetpoint
 		double t = ambient + temperature_offset;

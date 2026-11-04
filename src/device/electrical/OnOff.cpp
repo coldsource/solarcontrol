@@ -78,10 +78,8 @@ void OnOff::CheckConfig(const configuration::Json &conf)
 	}
 }
 
-void OnOff::reload(const configuration::Json &config)
+OnOff::Configuration::Configuration(const configuration::Json &config):Electrical::Configuration(config)
 {
-	Electrical::reload(config);
-
 	prio = config.GetInt("prio");
 	expected_consumption = config.GetInt("expected_consumption", 0);
 
@@ -147,14 +145,15 @@ void OnOff::clock(bool new_state)
 
 void OnOff::SetState(bool new_state)
 {
+	auto lconfig = get_config();
 	excpt::Context ctx("device", "In device « " + GetName() + " »", {{"device_id", GetID()}});
 
 	lock_guard<recursive_mutex> llock(lock);
 
-	if(ctrl==nullptr)
+	if(lconfig->ctrl==nullptr)
 		return; // No controller
 
-	ctrl->Switch(new_state); // Set controller state first, this might fail and throw exception
+	lconfig->ctrl->Switch(new_state); // Set controller state first, this might fail and throw exception
 
 	clock(new_state);
 
@@ -166,13 +165,14 @@ void OnOff::SetState(bool new_state)
 void OnOff::SetManualState(bool new_state)
 {
 	excpt::Context ctx("device", "In device « " + GetName() + " »", {{"device_id", GetID()}});
+	auto lconfig = get_config();
 
 	lock_guard<recursive_mutex> llock(lock);
 
-	if(ctrl==nullptr)
+	if(lconfig->ctrl==nullptr)
 		return; // No controller
 
-	ctrl->Switch(new_state); // Set controller state first, this might fail and throw exception
+	lconfig->ctrl->Switch(new_state); // Set controller state first, this might fail and throw exception
 
 	clock(new_state);
 
@@ -199,12 +199,15 @@ double OnOff::GetExpectedConsumption() const
 	if(GetState() && IsMetered())
 		return power; // If device is on and is metered, we take the real consumption
 
-	return expected_consumption; // Take estimated consumption
+	return get_config()->expected_consumption; // Take estimated consumption
 }
 
 bool OnOff::IsOnBattery() const
 {
-	if(!battery_enabled)
+	lock_guard<recursive_mutex> llock(lock);
+	auto lconfig = get_config();
+
+	if(!lconfig->battery_enabled)
 		return false; // Device is never on battery
 
 	auto battery = Devices::GetByID<Battery>(DEVICE_ID_BATTERY);
@@ -212,11 +215,11 @@ bool OnOff::IsOnBattery() const
 		return false; // Device may be on battery, but anyway battery is disabled or in GRID mode
 
 	// Device is not controlled, so always on battery
-	if(battery_controller_id==0)
+	if(lconfig->battery_controller_id==0)
 		return true;
 
 	// Device is controlled, check controller state to determine if it's on battery or grid
-	shared_ptr<Controller> controller = Devices::GetByID<Controller>(battery_controller_id);
+	shared_ptr<Controller> controller = Devices::GetByID<Controller>(lconfig->battery_controller_id);
 	return controller->IsOnBattery();
 }
 

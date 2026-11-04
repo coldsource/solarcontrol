@@ -181,10 +181,13 @@ string Battery::offload_state_to_string(en_offload_state state)
 	return "forbidden";
 }
 
-void Battery::reload(const configuration::Json &config)
+shared_ptr<Device::Configuration> Battery::build_config(const configuration::Json &j_config) const
 {
-	OnOff::reload(config);
+	return make_shared<Battery::Configuration>(j_config);
+}
 
+Battery::Configuration::Configuration(const configuration::Json &config):OnOff::Configuration(config)
+{
 	policy = string_to_policy(config.GetString("policy"));
 
 	if(!config.Has("voltmeter"))
@@ -204,9 +207,6 @@ void Battery::reload(const configuration::Json &config)
 
 	if(config.Has("offload"))
 	{
-		if(!offload.enabled)
-			offload_state = FORBIDDEN;
-
 		auto joffload = config.GetObject("offload");
 		offload.enabled = true;
 		offload.max = joffload.GetPower("max");
@@ -218,9 +218,6 @@ void Battery::reload(const configuration::Json &config)
 
 	if(config.Has("charge"))
 	{
-		if(!charge.enabled)
-			charge_required = false; // Option has been enabled, reset state
-
 		charge.enabled = true;
 
 		auto jcharge = config.GetObject("charge");
@@ -232,10 +229,24 @@ void Battery::reload(const configuration::Json &config)
 	}
 	else
 		charge.enabled = false;
+}
+
+void Battery::Configuration::Prepare(Device *device)
+{
+	OnOff::Configuration::Prepare(device);
+
+	Battery * battery = (Battery *)device;
+	auto old_config = battery->get_config();
+
+	if(old_config && old_config->offload.enabled != offload.enabled)
+		battery->offload_state = FORBIDDEN; // Option has been changed, reset state
+
+	if(old_config && old_config->charge.enabled != charge.enabled)
+		battery->charge_required = false; // Option has been changed, reset state
 
 	// Control « reverted » may have changed, force state update
 	if(ctrl!=nullptr)
-		ctrl->Switch(state);
+		ctrl->Switch(battery->state);
 }
 
 void Battery::state_restore(const  configuration::Json &last_state)
@@ -283,6 +294,8 @@ json Battery::ToJson() const
 
 void Battery::sensor_changed(const sensor::Sensor *sensor)
 {
+	auto lconfig = get_config();
+
 	if(sensor->GetName()=="voltmeter")
 	{
 		Voltmeter *voltmeter = (Voltmeter *)sensor;
@@ -299,11 +312,11 @@ void Battery::sensor_changed(const sensor::Sensor *sensor)
 		estimated_time = voltmeter->GetEstimatedTime();
 
 		// Update soc_state
-		if(soc<battery_low)
+		if(soc<lconfig->battery_low)
 			soc_state = BACKUP; // Always switch to backup mode if battery is too low
 
 		Timestamp now(TS_MONOTONIC);
-		if(soc_state==BACKUP && soc>battery_high && (unsigned long)(now - last_grid_switch) > min_grid_time)
+		if(soc_state==BACKUP && soc>lconfig->battery_high && (unsigned long)(now - last_grid_switch) > lconfig->min_grid_time)
 		{
 			soc_state = FLOAT; // Switch out of backup state once we have enough charge and last switch was not too recent
 			last_grid_switch = now;
@@ -335,26 +348,26 @@ void Battery::sensor_changed(const sensor::Sensor *sensor)
 		}
 
 		// Handle offload hysteresis
-		if(offload.enabled)
+		if(lconfig->offload.enabled)
 		{
-			if(soc >= offload.soc_high)
+			if(soc >= lconfig->offload.soc_high)
 				offload_state = ALLOWED;
 
-			if(soc < offload.soc_low)
+			if(soc < lconfig->offload.soc_low)
 				offload_state = FORBIDDEN;
 		}
 
 		// Handle charge hysteresis
-		if(charge.enabled)
+		if(lconfig->charge.enabled)
 		{
-			if(!charge.timeranges.IsActive())
-				charge_required = (soc < charge.soc_low); // Out of charging timerage, no hysteresis
+			if(!lconfig->charge.timeranges.IsActive())
+				charge_required = (soc < lconfig->charge.soc_low); // Out of charging timerage, no hysteresis
 			else
 			{
-				if(soc >= charge.soc_high)
+				if(soc >= lconfig->charge.soc_high)
 					charge_required = false;
 
-				if(soc < charge.soc_low)
+				if(soc < lconfig->charge.soc_low)
 					charge_required = true;
 			}
 		}
@@ -365,6 +378,8 @@ void Battery::sensor_changed(const sensor::Sensor *sensor)
 
 en_wanted_state Battery::GetWantedState() const
 {
+	auto lconfig = get_config();
+
 	// Read grid state unlocked
 	auto grid_state = Devices::GetByID<Grid>(DEVICE_ID_GRID)->GetState();
 
@@ -373,7 +388,7 @@ en_wanted_state Battery::GetWantedState() const
 
 	unique_lock<recursive_mutex> llock(lock);
 
-	if(ctrl==nullptr)
+	if(lconfig->ctrl==nullptr)
 		return UNCHANGED; // Passive battery
 
 	if(soc==-1)
@@ -385,7 +400,7 @@ en_wanted_state Battery::GetWantedState() const
 	if(grid_state==Grid::en_grid_state::OFFLINE && soc_state!=BACKUP)
 		return OFF; // Grid backup mode
 
-	if(policy==GRID)
+	if(lconfig->policy==GRID)
 		return ON; // Forced grid mode
 
 	// Battery or Offload policy, see whether we want to use battery
@@ -393,12 +408,12 @@ en_wanted_state Battery::GetWantedState() const
 	if(soc_state==BACKUP)
 		return ON; // Backup mode is on (not enough power), request forced grid power
 
-	if(policy==BATTERY)
+	if(lconfig->policy==BATTERY)
 	{
-		if(charge.enabled)
+		if(lconfig->charge.enabled)
 		{
 			// Charge is enabled, check if it is required and if it's time to
-			if(charge_required && charge.timeranges.IsActive())
+			if(charge_required && lconfig->charge.timeranges.IsActive())
 				return ON;
 		}
 
@@ -406,7 +421,7 @@ en_wanted_state Battery::GetWantedState() const
 	}
 
 	Timestamp now(TS_MONOTONIC);
-	if(policy==OFFLOAD && (unsigned long)(now-last_on)>battery_cooldown)
+	if(lconfig->policy==OFFLOAD && (unsigned long)(now-last_on)>battery_cooldown)
 		return en_wanted_state::OFFLOAD; // Request offload whenever it is possible
 
 	return UNCHANGED;
@@ -415,11 +430,12 @@ en_wanted_state Battery::GetWantedState() const
 double Battery::GetExpectedConsumption() const
 {
 	unique_lock<recursive_mutex> llock(lock);
+	auto lconfig = get_config();
 
 	if(!GetState() && power>=0)
 		return power; // Battery has metered consumption only when on battery
 
-	return expected_consumption; // Take estimated consumption
+	return lconfig->expected_consumption; // Take estimated consumption
 }
 
 double Battery::GetPower() const
@@ -438,15 +454,11 @@ double Battery::GetPower() const
 
 bool Battery::IsOffloadAllowed() const
 {
-	unique_lock<recursive_mutex> llock(lock);
-
-	return (offload.enabled && offload_state==ALLOWED);
+	return (get_config()->offload.enabled && offload_state==ALLOWED);
 }
 int Battery::GetOffloadMax() const
 {
-	unique_lock<recursive_mutex> llock(lock);
-
-	return offload.max;
+	return get_config()->offload.max;
 }
 
 void Battery::CreateInDB()

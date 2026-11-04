@@ -62,10 +62,13 @@ void Wind::CheckConfig(const configuration::Json &conf)
 	sensor::weather::Wind::CheckConfig(conf);
 }
 
-void Wind::reload(const configuration::Json &config)
+shared_ptr<Device::Configuration> Wind::build_config(const configuration::Json &j_config) const
 {
-	Weather::reload(config);
+	return make_shared<Wind::Configuration>(j_config);
+}
 
+Wind::Configuration::Configuration(const configuration::Json &config):Weather::Configuration(config)
+{
 	add_sensor<sensor::weather::FactoryWind>("ht", config);
 }
 

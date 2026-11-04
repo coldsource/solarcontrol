@@ -34,5 +34,10 @@ void Passive::CheckConfig(const configuration::Json &conf)
 
 }
 
+shared_ptr<Device::Configuration> Passive::build_config(const configuration::Json &j_config) const
+{
+	return make_shared<Passive::Configuration>(j_config);
+}
+
 }
 

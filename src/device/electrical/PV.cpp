@@ -32,6 +32,11 @@ PV::PV(int id):Passive(id, "production", "") // Override default counter for sto
 {
 }
 
+shared_ptr<Device::Configuration> PV::build_config(const configuration::Json &j_config) const
+{
+	return make_shared<PV::Configuration>(j_config);
+}
+
 void PV::CreateInDB()
 {
 	database::DB db;

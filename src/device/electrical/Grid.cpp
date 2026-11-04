@@ -55,10 +55,13 @@ void Grid::CheckConfig(const configuration::Json &conf)
 	}
 }
 
-void Grid::reload(const configuration::Json &config)
+shared_ptr<Device::Configuration> Grid::build_config(const configuration::Json &j_config) const
 {
-	Passive::reload(config);
+	return make_shared<Grid::Configuration>(j_config);
+}
 
+Grid::Configuration::Configuration(const configuration::Json &config):Passive::Configuration(config)
+{
 	if(config.Has("input"))
 		add_sensor<sensor::input::Factory>("offpeak_ctrl", config.GetObject("input"));
 

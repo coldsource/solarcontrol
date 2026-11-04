@@ -37,7 +37,14 @@ class Grid: public Passive
 		enum en_grid_state {UNKNOWN, ONLINE, OFFLINE};
 
 	protected:
-		virtual void reload(const configuration::Json &config) override;
+		class Configuration: public Passive::Configuration
+		{
+			public:
+				Configuration(const configuration::Json &config);
+		};
+
+		virtual std::shared_ptr<Device::Configuration> build_config(const configuration::Json &j_config) const override;
+
 		virtual void sensor_changed(const sensor::Sensor *sensor) override;
 
 		static en_grid_state string_to_grid_state(const std::string &str);

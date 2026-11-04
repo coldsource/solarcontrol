@@ -26,6 +26,13 @@ namespace device {
 
 class Weather: public Device
 {
+	protected:
+		class Configuration: public Device::Configuration
+		{
+			public:
+				Configuration(const configuration::Json & /*config*/): Device::Configuration() {}
+		};
+
 	public:
 		Weather(int id): Device(id) {}
 		virtual ~Weather() {}

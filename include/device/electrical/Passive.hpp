@@ -28,7 +28,17 @@ namespace device {
 
 class Passive: public Electrical
 {
-	public:
+	protected:
+		class Configuration: public Electrical::Configuration
+		{
+			public:
+				Configuration(const configuration::Json &config):Electrical::Configuration(config) {}
+		};
+
+		virtual std::shared_ptr<Device::Configuration> build_config(const configuration::Json &j_config) const override;
+		inline std::shared_ptr<const Configuration> get_config() const { return dynamic_pointer_cast<const Passive::Configuration>(config.load()); }
+
+public:
 		Passive(int id): Electrical(id) {}
 		Passive(int id, const std::string &consumption_type, const std::string consumption_excess_type): Electrical(id, consumption_type, consumption_excess_type) {}
 

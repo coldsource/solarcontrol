@@ -31,7 +31,13 @@ namespace device {
 class Temperature: public TimeRange
 {
 	protected:
-		int ht_device_id;
+		class Configuration: public TimeRange::Configuration
+		{
+			public:
+				int ht_device_id;
+
+				Configuration(const configuration::Json &config);
+		};
 
 		double absence_temperature;
 		bool absence;
@@ -41,7 +47,9 @@ class Temperature: public TimeRange
 		virtual en_wanted_state get_wanted_state(configuration::Json *data_ptr = 0) const override;
 		virtual bool temp_check_force(double current_temp, double timerange_temp) const = 0;
 		virtual bool temp_check_offload(double current_temp, double timerange_temp) const = 0;
-		virtual void reload(const configuration::Json &config) override;
+
+		virtual std::shared_ptr<Device::Configuration> build_config(const configuration::Json &j_config) const override;
+		inline std::shared_ptr<const Configuration> get_config() const { return dynamic_pointer_cast<const Temperature::Configuration>(config.load()); }
 
 	public:
 		Temperature(int id);

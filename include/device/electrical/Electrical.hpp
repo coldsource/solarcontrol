@@ -49,13 +49,21 @@ class Electrical: public Device, public configuration::ConfigurationObserver
 		double debug_battery = 0;
 		double debug_hws = 0;
 
+		class Configuration: public Device::Configuration
+		{
+			public:
+				bool is_metered;
+
+				Configuration(const configuration::Json &config);
+
+				virtual void Prepare(Device *device) override;
+		};
+
+		inline std::shared_ptr<const Configuration> get_config() const { return dynamic_pointer_cast<const Electrical::Configuration>(config.load()); }
+
 		energy::Counter consumption;
 		energy::Counter offload;
 
-		std::atomic_bool is_metered = false;
-
-		virtual void reload(const configuration::Json &config) override;
-		virtual void reloaded() override;
 		virtual void sensor_changed(const sensor::Sensor *sensor) override;
 		void energy_debug();
 
@@ -71,7 +79,7 @@ class Electrical: public Device, public configuration::ConfigurationObserver
 		virtual double GetPower() const;
 		virtual double GetVoltage() const;
 		virtual double GetFrequency() const;
-		bool IsMetered() const { return is_metered; }
+		bool IsMetered() const { return get_config()->is_metered; }
 
 		virtual void SyncHistory() override;
 

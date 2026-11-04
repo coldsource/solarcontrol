@@ -56,10 +56,13 @@ void HWS::CheckConfig(const configuration::Json &conf)
 	TimeRange::CheckConfig(conf);
 }
 
-void HWS::reload(const configuration::Json &config)
+shared_ptr<Device::Configuration> HWS::build_config(const configuration::Json &j_config) const
 {
-	TimeRange::reload(config);
+	return make_shared<HWS::Configuration>(j_config);
+}
 
+HWS::Configuration::Configuration(const configuration::Json &config):TimeRange::Configuration(config)
+{
 	min_energy = config.GetInt("min_energy");
 	min_energy_for_last = config.GetInt("min_energy_for_last");
 }
@@ -67,12 +70,13 @@ void HWS::reload(const configuration::Json &config)
 bool HWS::WantRemainder(configuration::Json *data_ptr) const
 {
 	unique_lock<recursive_mutex> llock(lock);
+	auto lconfig = get_config();
 
 	if(absence)
 		return false; // No remainder in absence mode
 
-	double last_energy = consumption.GetTotalConsumptionForLast(min_energy_for_last);
-	return remainder.IsActive(data_ptr) && last_energy<min_energy;
+	double last_energy = consumption.GetTotalConsumptionForLast(lconfig->min_energy_for_last);
+	return lconfig->remainder.IsActive(data_ptr) && last_energy<lconfig->min_energy;
 }
 
 void HWS::CreateInDB()

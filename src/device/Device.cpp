@@ -46,23 +46,20 @@ Device::~Device()
 	}
 }
 
-void Device::Reload(const string &name, const configuration::Json &config, bool device_enabled)
+void Device::Reload(const string &name, const configuration::Json &j_config, bool device_enabled)
 {
-	// Lock before calling protected reload() from children
+	auto new_config = build_config(j_config);
+
+	new_config->name = name;
+	new_config->enabled = device_enabled;
+	new_config->json_config = j_config;
+
+	// Lock before preparing config
 	lock_guard<recursive_mutex> llock(lock);
-
 	excpt::Context ctx("device", "In device « " + name + " »", {{"device_id", GetID()}});
+	new_config->Prepare(this);
 
-	this->name = name;
-	this->config = config;
-	this->enabled = device_enabled;
-
-	// Reinit sensors before reload
-	sensors.clear();
-
-	reload(config); // Call protected reload to let children reload
-
-	reloaded(); // Notify device is reloaded
+	config.store(new_config); // Atomically switch configuration
 }
 
 void Device::Delete()
@@ -70,17 +67,10 @@ void Device::Delete()
 		deleted = true; // Device might be in use, flag for removal in destructor
 }
 
-string Device::GetName() const
-{
-	lock_guard<recursive_mutex> llock(lock);
-
-	return name;
-}
 const configuration::Json Device::GetConfig() const
 {
-	lock_guard<recursive_mutex> llock(lock);
-
-	return config;
+	auto lconfig = config.load();
+	return lconfig->json_config;
 }
 
 void Device::StateRestore(const configuration::Json &last_state)
@@ -92,17 +82,17 @@ void Device::StateRestore(const configuration::Json &last_state)
 
 json Device::ToJson() const
 {
-	lock_guard<recursive_mutex> llock(lock);
+	auto lconfig = config.load();
 
 	json j_device;
 
 	j_device["device_id"] = GetID();
 	j_device["device_type"] = GetType();
 	j_device["device_category"] = GetCategory();
-	j_device["device_name"] = name;
-	j_device["device_config"] = (json)config;
+	j_device["device_name"] = lconfig->name;
+	j_device["device_config"] = (json)lconfig->json_config;
 	j_device["offline"] = (bool)offline;
-	j_device["enabled"] = (bool)enabled;
+	j_device["enabled"] = (bool)lconfig->enabled;
 
 	return j_device;
 }
@@ -111,30 +101,21 @@ void Device::DispatchMQTTMessage(const mqtt::st_message &mqtt_message)
 {
 	lock_guard<recursive_mutex> llock(lock);
 
-	auto [sensor, changed] = sensors.dispatch_mqtt_message(mqtt_message);
+	auto [sensor, changed] = config.load()->sensors.dispatch_mqtt_message(mqtt_message);
 	if(sensor && changed)
 		sensor_changed(sensor.get());
 }
 
 void Device::SensorsForceUpdate()
 {
-	std::map<unsigned int, std::shared_ptr<sensor::Sensor>> snapshot;
-	std::string name_snapshot;
-
-	{
-		// Snapshot sensors locked
-		lock_guard<recursive_mutex> llock(lock);
-		snapshot = sensors.get();
-
-		name_snapshot = name;  // Access « name » locked
-	}
+	auto lconfig = config.load();
 
 	try
 	{
 		// Check all sensors unlocked to avoid locking the device for too long
-		excpt::Context ctx("device", "Getting input state for device « " + name_snapshot + " »");
+		excpt::Context ctx("device", "Getting input state for device « " + lconfig->name + " »");
 
-		for(const auto &sensor : snapshot)
+		for(const auto &sensor : lconfig->sensors.get())
 		{
 			if(sensor.second->ForceUpdate())
 			{
@@ -153,11 +134,11 @@ void Device::SensorsForceUpdate()
 	catch(...)
 	{
 		offline = true;
-		logs::Logger::Log(LOG_WARNING, "Unknown error on sensor for device « " + name_snapshot + " »");
+		logs::Logger::Log(LOG_WARNING, "Unknown error on sensor for device « " + lconfig->name + " »");
 	}
 }
 
-bool Device::has_sensor(const std::string &category) const
+bool Device::Configuration::has_sensor(const std::string &category) const
 {
 	return sensors.has(category);
 }

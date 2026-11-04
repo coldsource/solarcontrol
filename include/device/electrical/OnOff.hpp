@@ -45,22 +45,29 @@ class OnOff: public Electrical
 		std::atomic_bool manual = false;
 		std::atomic_bool state = false;
 
-		std::shared_ptr<control::OnOff> ctrl = nullptr;
+		class Configuration: public Electrical::Configuration
+		{
+			public:
+				std::shared_ptr<control::OnOff> ctrl = nullptr;
+
+				int prio;
+				double expected_consumption = 0;
+
+				// Battery configuration
+				bool battery_enabled = false;
+				int battery_controller_id = 0;
+
+				Configuration(const configuration::Json &config);
+		};
+
+		inline std::shared_ptr<const Configuration> get_config() const { return dynamic_pointer_cast<const OnOff::Configuration>(config.load()); }
 
 		datetime::Timestamp last_on;
 		datetime::Timestamp last_off;
 
-		std::atomic_int prio;
-		double expected_consumption = 0;
-
-		// Battery configuration
-		bool battery_enabled = false;
-		int battery_controller_id = 0;
-
 		datetime::TimespanHistory on_history;
 
 		void clock(bool new_state);
-		virtual void reload(const configuration::Json &config) override;
 		virtual void state_restore(const  configuration::Json &last_state) override;
 		virtual void sensor_changed(const sensor::Sensor *sensor) override;
 		virtual configuration::Json state_backup() override;
@@ -74,7 +81,7 @@ class OnOff: public Electrical
 
 		en_category GetCategory() const override { return ONOFF; }
 
-		int GetPrio() const { return prio; }
+		int GetPrio() const { return get_config()->prio; }
 		virtual unsigned long GetMinOn() { return 0; }
 
 		virtual en_wanted_state GetWantedState() const = 0;

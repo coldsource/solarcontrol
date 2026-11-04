@@ -73,11 +73,13 @@ void Temperature::CheckConfig(const configuration::Json &conf)
 	}
 }
 
-void Temperature::reload(const configuration::Json &config)
+shared_ptr<Device::Configuration> Temperature::build_config(const configuration::Json &j_config) const
 {
+	return make_shared<Temperature::Configuration>(j_config);
+}
 
-	TimeRange::reload(config);
-
+Temperature::Configuration::Configuration(const configuration::Json &config):TimeRange::Configuration(config)
+{
 	ht_device_id = config.GetInt("ht_device_id");
 }
 
@@ -99,10 +101,12 @@ void Temperature::check_timeranges(const configuration::Json &conf, const string
 
 en_wanted_state Temperature::get_wanted_state(configuration::Json *data_ptr) const
 {
+	auto lconfig = get_config();
+
 	shared_ptr<Weather> ht;
 	try
 	{
-		ht = Devices::GetByID<Weather>(ht_device_id);
+		ht = Devices::GetByID<Weather>(lconfig->ht_device_id);
 	}
 	catch(exception &e)
 	{
@@ -137,18 +141,17 @@ en_wanted_state Temperature::get_wanted_state(configuration::Json *data_ptr) con
 
 bool Temperature::Depends(int device_id) const
 {
-	unique_lock<recursive_mutex> llock(lock);
+	auto lconfig = get_config();
 
-	return device_id==ht_device_id;
+	return device_id==lconfig->ht_device_id;
 }
 
 json Temperature::ToJson() const
 {
-	unique_lock<recursive_mutex> llock(lock);
+	auto lconfig = get_config();
 
 	json j_device = TimeRange::ToJson();
-
-	j_device["temperature"] = Devices::GetByID<Weather>(ht_device_id)->GetTemperature();
+	j_device["temperature"] = Devices::GetByID<Weather>(lconfig->ht_device_id)->GetTemperature();
 
 	return j_device;
 }

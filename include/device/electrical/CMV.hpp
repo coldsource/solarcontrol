@@ -33,12 +33,20 @@ namespace device {
 class CMV: public TimeRange
 {
 	protected:
-		std::set<int> ht_device_ids;
+		class Configuration: public TimeRange::Configuration
+		{
+			public:
+				std::set<int> ht_device_ids;
+
+				Configuration(const configuration::Json &config);
+		};
 
 		static void check_timeranges(const configuration::Json &conf, const std::string &name);
 
 		virtual en_wanted_state get_wanted_state(configuration::Json *data_ptr = 0) const override;
-		virtual void reload(const configuration::Json &config) override;
+
+		virtual std::shared_ptr<Device::Configuration> build_config(const configuration::Json &j_config) const override;
+		inline std::shared_ptr<const Configuration> get_config() const { return dynamic_pointer_cast<const CMV::Configuration>(config.load()); }
 
 	public:
 		CMV(int id);

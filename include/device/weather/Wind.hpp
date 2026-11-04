@@ -40,7 +40,15 @@ class Wind: public Weather
 	weather::HistoryQuarterHourWind history;
 
 	protected:
-		virtual void reload(const configuration::Json &config) override;
+		class Configuration: public Weather::Configuration
+		{
+			public:
+				Configuration(const configuration::Json &config);
+		};
+
+		virtual std::shared_ptr<Device::Configuration> build_config(const configuration::Json &j_config) const override;
+		inline std::shared_ptr<const Configuration> get_config() const { return dynamic_pointer_cast<const Wind::Configuration>(config.load()); }
+
 		virtual void state_restore(const  configuration::Json &last_state) override;
 		virtual void sensor_changed(const sensor::Sensor *sensor) override;
 		virtual configuration::Json state_backup() override;

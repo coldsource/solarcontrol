@@ -41,19 +41,17 @@ class Sensors
 
 	std::map<unsigned int, std::shared_ptr<Sensor>> sensors;
 
-	device::Device *observer;
-
 	public:
-		Sensors(device::Device *observer):observer(observer) {}
+		Sensors() {}
 		virtual ~Sensors();
 
 	protected:
 		auto get() { return sensors; }
 
 		void insert(std::shared_ptr<Sensor> sensor_ptr);
-		void clear();
 		bool has(const std::string &category) const;
 
+		void subscribe_mqtt(int device_id);
 		std::pair<std::shared_ptr<Sensor>, bool> dispatch_mqtt_message(const mqtt::st_message &mqtt_msg);
 };
 

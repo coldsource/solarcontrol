@@ -30,10 +30,12 @@
 namespace sensor {
 
 class Factory;
+class Sensors;
 
 class Sensor
 {
 	friend class Factory;
+	friend class Sensors;
 
 	inline static std::atomic<unsigned int> id_sequence{1};
 

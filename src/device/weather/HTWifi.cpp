@@ -43,10 +43,13 @@ void HTWifi::CheckConfig(const configuration::Json &conf)
 	sensor::weather::HTWifi::CheckConfig(conf);
 }
 
-void HTWifi::reload(const configuration::Json &config)
+shared_ptr<Device::Configuration> HTWifi::build_config(const configuration::Json &j_config) const
 {
-	HT::reload(config);
+	return make_shared<HTWifi::Configuration>(j_config);
+}
 
+HTWifi::Configuration::Configuration(const configuration::Json &config):HT::Configuration(config)
+{
 	add_sensor<sensor::weather::FactoryHT>("ht", config);
 }
 

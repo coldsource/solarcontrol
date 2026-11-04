@@ -48,40 +48,54 @@ enum en_category
 class Device: public mqtt::Dispatcher
 {
 	int id;
-	configuration::Json config;
-	std::string name;
-
-	sensor::Sensors sensors;
 
 	std::atomic_bool deleted = false;
 
 	protected:
 		mutable std::recursive_mutex lock;
 
-		std::atomic_bool offline = false;
-		std::atomic_bool enabled = true;
-
-		// concept DeriveDeBase = std::derived_from<T, Base>;
-		// template<DeriveDeBase T, typename... Args>
-		template<typename T_FACTORY>
-		void add_sensor(const std::string &name, const configuration::Json &conf)
+		class Configuration
 		{
-			T_FACTORY factory(this);
-			auto sensor_ptr = factory.GetFromConfig(name, conf);
-			if(sensor_ptr!=nullptr)
-				sensors.insert(sensor_ptr);
-		}
+			public:
+				configuration::Json json_config;
 
-		bool has_sensor(const std::string &category) const;
+				std::string name;
+				bool enabled;
 
-		virtual void reload(const configuration::Json & /* config */) {}
-		virtual void reloaded() {}
+				mutable sensor::Sensors sensors;
+
+				Configuration() {}
+				virtual ~Configuration() {}
+
+				template<typename T_FACTORY>
+				void add_sensor(const std::string &name, const configuration::Json &conf)
+				{
+					T_FACTORY factory;
+					auto sensor_ptr = factory.GetFromConfig(name, conf);
+					if(sensor_ptr!=nullptr)
+						sensors.insert(sensor_ptr);
+				}
+
+				bool has_sensor(const std::string &category) const;
+
+				virtual void Prepare(Device *device)
+				{
+					sensors.subscribe_mqtt(device->GetID());
+				}
+		};
+
+		std::atomic<std::shared_ptr<const Configuration>> config;
+
+		std::atomic_bool offline = false;
+
+		virtual std::shared_ptr<Configuration> build_config(const configuration::Json & /* j_config */) const = 0;
+
 		virtual void sensor_changed(const sensor::Sensor *sensor) = 0;
 		virtual void state_restore(const configuration::Json & /* last_state */ ) {}
 		virtual configuration::Json state_backup() { return configuration::Json(); }
 
 	public:
-		Device(int id):id(id),sensors(this) {}
+		Device(int id):id(id) {}
 		Device(const Device&) = delete;
 		virtual ~Device();
 
@@ -97,7 +111,7 @@ class Device: public mqtt::Dispatcher
 		virtual nlohmann::json ToJson() const;
 
 		int GetID() const { return id; }
-		std::string GetName() const;
+		std::string GetName() const { return config.load()->name; }
 		const configuration::Json GetConfig() const;
 
 		// Sensors management
@@ -108,7 +122,7 @@ class Device: public mqtt::Dispatcher
 		// History management
 		virtual void SyncHistory() = 0;
 
-		bool IsEnabled() const { return enabled; }
+		bool IsEnabled() const { return config.load()->enabled; }
 
 		virtual bool Depends(int /* device_id */) const { return false; }
 

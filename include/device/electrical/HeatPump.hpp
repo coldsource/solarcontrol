@@ -35,13 +35,22 @@ class HeatPump: public Temperature
 		// State
 		datetime::Timer update_interval;
 
-		// Config
-		double temperature_offset_slow;
-		double temperature_offset_fast;
-		double temperature_eco;
-		double temperature_comfort;
+		class Configuration: public Temperature::Configuration
+		{
+			public:
+				double temperature_offset_slow;
+				double temperature_offset_fast;
+				double temperature_eco;
+				double temperature_comfort;
 
-		virtual void reload(const configuration::Json &config) override;
+				Configuration(const configuration::Json &config);
+
+				virtual void Prepare(Device *device) override;
+		};
+
+
+		virtual std::shared_ptr<Device::Configuration> build_config(const configuration::Json &j_config) const override;
+		inline std::shared_ptr<const Configuration> get_config() const { return dynamic_pointer_cast<const HeatPump::Configuration>(config.load()); }
 
 		virtual bool temp_check_force(double current_temp, double timerange_temp) const override;
 		virtual bool temp_check_offload(double current_temp, double timerange_temp) const override;

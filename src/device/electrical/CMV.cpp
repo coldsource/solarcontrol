@@ -58,10 +58,13 @@ void CMV::CheckConfig(const configuration::Json &conf)
 	}
 }
 
-void CMV::reload(const configuration::Json &config)
+shared_ptr<Device::Configuration> CMV::build_config(const configuration::Json &j_config) const
 {
-	TimeRange::reload(config);
+	return make_shared<CMV::Configuration>(j_config);
+}
 
+CMV::Configuration::Configuration(const configuration::Json &config):TimeRange::Configuration(config)
+{
 	for(auto device_id : config.GetArray("ht_device_ids"))
 		ht_device_ids.insert(device_id);
 
@@ -86,10 +89,12 @@ void CMV::check_timeranges(const configuration::Json &conf, const string &name)
 
 en_wanted_state CMV::get_wanted_state(configuration::Json *data_ptr) const
 {
+	auto lconfig = get_config();
+
 	double max_moisture = 0;
 	try
 	{
-		for(auto ht_device_id : ht_device_ids)
+		for(auto ht_device_id : lconfig->ht_device_ids)
 		{
 			auto ht = Devices::GetByID<Weather>(ht_device_id);
 			if(ht->GetHumidity()>max_moisture)
@@ -124,9 +129,9 @@ en_wanted_state CMV::get_wanted_state(configuration::Json *data_ptr) const
 
 bool CMV::Depends(int device_id) const
 {
-	unique_lock<recursive_mutex> llock(lock);
+	auto lconfig = get_config();
 
-	for(auto ht_device_id : ht_device_ids)
+	for(auto ht_device_id : lconfig->ht_device_ids)
 		if(ht_device_id==device_id)
 			return true;
 	return false;

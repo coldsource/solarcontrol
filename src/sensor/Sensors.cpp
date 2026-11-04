@@ -20,6 +20,7 @@
 #include <sensor/Sensors.hpp>
 #include <sensor/Sensor.hpp>
 #include <sensor/MQTTSubscriber.hpp>
+#include <mqtt/Client.hpp>
 
 using namespace std;
 
@@ -27,17 +28,11 @@ namespace sensor {
 
 Sensors::~Sensors()
 {
-	clear();
 }
 
 void Sensors::insert(shared_ptr<Sensor> sensor_ptr)
 {
 	sensors[sensor_ptr->GetID()] = sensor_ptr;
-}
-
-void Sensors::clear()
-{
-	sensors.clear();
 }
 
 bool Sensors::has(const std::string &category) const
@@ -49,6 +44,23 @@ bool Sensors::has(const std::string &category) const
 	}
 
 	return false;
+}
+
+void Sensors::subscribe_mqtt(int device_id)
+{
+	// Subscribe wanted MQTT topics
+	auto mqtt = mqtt::Client::GetInstance();
+
+	for(const auto& [sensor_id, sensor] : sensors)
+	{
+		for(const auto &mqtt_topic : sensor->mqtt_topics)
+		{
+			auto subscriber = make_shared<MQTTSubscriber>(mqtt_topic, device_id, sensor->GetID());
+			sensor->mqtt_subscribers.push_back(subscriber);
+			mqtt->Subscribe(mqtt_topic, subscriber);
+		}
+	}
+
 }
 
 pair<shared_ptr<Sensor>, bool> Sensors::dispatch_mqtt_message(const mqtt::st_message &mqtt_msg)

@@ -33,7 +33,15 @@ namespace device {
 class HTWifi: public HT
 {
 	protected:
-		virtual void reload(const configuration::Json &config) override;
+		class Configuration: public HT::Configuration
+		{
+			public:
+				Configuration(const configuration::Json &config);
+		};
+
+		virtual std::shared_ptr<Device::Configuration> build_config(const configuration::Json &j_config) const override;
+		inline std::shared_ptr<const Configuration> get_config() const { return dynamic_pointer_cast<const HTWifi::Configuration>(config.load()); }
+
 		virtual void sensor_changed(const sensor::Sensor *sensor) override;
 
 	public:

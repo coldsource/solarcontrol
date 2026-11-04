@@ -43,10 +43,13 @@ void HTBluetooth::CheckConfig(const configuration::Json &conf)
 	sensor::weather::HTBluetooth::CheckConfig(conf);
 }
 
-void HTBluetooth::reload(const configuration::Json &config)
+shared_ptr<Device::Configuration> HTBluetooth::build_config(const configuration::Json &j_config) const
 {
-	HT::reload(config);
+	return make_shared<HTBluetooth::Configuration>(j_config);
+}
 
+HTBluetooth::Configuration::Configuration(const configuration::Json &config):HT::Configuration(config)
+{
 	add_sensor<sensor::weather::FactoryHT>("ht", config);
 }
 

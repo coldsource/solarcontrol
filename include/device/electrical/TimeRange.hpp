@@ -35,20 +35,26 @@ namespace device {
 class TimeRange: public OnOff
 {
 	protected:
-		unsigned long min_on = 0;
-		unsigned long max_on = 0;
-		unsigned long min_off = 0;
+		class Configuration: public OnOff::Configuration
+		{
+			public:
+				unsigned long min_on = 0;
+				unsigned long max_on = 0;
+				unsigned long min_off = 0;
 
-		datetime::TimeRanges force;
+				datetime::TimeRanges force;
+				datetime::TimeRanges offload;
+				datetime::TimeRanges remainder;
+				unsigned long min_on_time;
+				unsigned long min_on_for_last;
 
-		datetime::TimeRanges offload;
-
-		datetime::TimeRanges remainder;
-		unsigned long min_on_time;
-		unsigned long min_on_for_last;
+				Configuration(const configuration::Json &config);
+		};
 
 		virtual en_wanted_state get_wanted_state(configuration::Json *data_ptr = 0) const;
-		virtual void reload(const configuration::Json &config) override;
+
+		virtual std::shared_ptr<Device::Configuration> build_config(const configuration::Json &j_config) const override;
+		inline std::shared_ptr<const Configuration> get_config() const { return dynamic_pointer_cast<const TimeRange::Configuration>(config.load()); }
 
 	public:
 		TimeRange(int id);

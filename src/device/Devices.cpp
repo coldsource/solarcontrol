@@ -36,7 +36,7 @@ namespace device
 {
 
 Devices *Devices::instance = 0;
-mutex Devices::mutex_w;
+shared_mutex Devices::mutex_w;
 
 map<int, shared_ptr<Device>> Devices::devices;
 
@@ -93,7 +93,7 @@ std::shared_ptr<Device> Devices::Load(int id, const string &name, const string &
 {
 	auto device = DeviceFactory::Get(id, name, type, config, device_enabled);
 
-	lock_guard<mutex> llock(mutex_w);
+	unique_lock<shared_mutex> llock(mutex_w);
 	devices.insert(pair<int, shared_ptr<Device>>(device->GetID(), device));
 	return device;
 }
@@ -161,7 +161,7 @@ void Devices::Unload()
 
 void Devices::Delete(int id)
 {
-	lock_guard<mutex> llock(mutex_w);
+	unique_lock<shared_mutex> llock(mutex_w);
 
 	auto it = devices.find(id);
 	if(it==devices.end())
@@ -182,7 +182,7 @@ void Devices::Delete(int id)
 
 string Devices::IDToName(int id) const
 {
-	lock_guard<mutex> llock(mutex_w);
+	shared_lock<shared_mutex> llock(mutex_w);
 
 	// Special devices
 	if(id==DEVICE_ID_GRID)
@@ -212,7 +212,7 @@ shared_ptr<Device> Devices::get_by_id(int id)
 
 shared_ptr<Device> Devices::IsInUse(int device_id) const
 {
-	lock_guard<mutex> llock(mutex_w);
+	shared_lock<shared_mutex> llock(mutex_w);
 
 	for(auto device : devices)
 	{

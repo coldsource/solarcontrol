@@ -24,7 +24,7 @@
 #include <map>
 #include <set>
 #include <unordered_set>
-#include <mutex>
+#include <shared_mutex>
 #include <memory>
 
 #define DEVICE_ID_GRID     -1
@@ -50,11 +50,9 @@ class DeviceWeather;
 class Devices
 {
 	static Devices *instance;
-	static std::mutex mutex_w;
+	static std::shared_mutex mutex_w;
 
 	static std::map<int, std::shared_ptr<Device>> devices;
-	static std::unordered_set<std::shared_ptr<DeviceElectrical>> devices_electrical;
-	static std::unordered_set<std::shared_ptr<DeviceWeather>> devices_weather;
 
 	static std::shared_ptr<Device> get_by_id(int id);
 
@@ -72,7 +70,7 @@ class Devices
 		template<typename T>
 		static std::shared_ptr<T> GetByID(int id)
 		{
-			std::lock_guard<std::mutex> llock(mutex_w);
+			std::shared_lock<std::shared_mutex> llock(mutex_w);
 
 			auto res = std::dynamic_pointer_cast<T>(get_by_id(id));
 			if(res==nullptr)
@@ -83,7 +81,7 @@ class Devices
 		template<typename T>
 		static const std::multiset<std::shared_ptr<T>, decltype(T::CompareTo) *> Get()
 		{
-			std::lock_guard<std::mutex> llock(mutex_w);
+			std::shared_lock<std::shared_mutex> llock(mutex_w);
 
 			std::multiset<std::shared_ptr<T>, decltype(T::CompareTo) *> res(T::CompareTo);
 			for(auto device : devices)

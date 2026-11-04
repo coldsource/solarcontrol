@@ -45,8 +45,14 @@ class VoltmeterSimple: public Voltmeter, public configuration::ConfigurationObse
 		std::map<int, double> thresholds; // Voltate thresholds used for computing SOC
 
 		// State
-		std::shared_ptr<stat::MovingAverage<double>> voltage_avg; // Average voltage in mV
-		datetime::Timestamp last_voltage_update;
+		struct st_voltage_sense
+		{
+			std::shared_ptr<stat::MovingAverage<double>> voltage_avg; // Average voltage in mV
+			datetime::Timestamp last_voltage_update;
+		};
+
+		std::atomic<std::shared_ptr<st_voltage_sense>> voltage_sense;
+
 		datetime::Timestamp last_reload;
 
 		bool prevent_notify() const;

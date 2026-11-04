@@ -85,8 +85,11 @@ void VoltmeterSimple::CheckConfig(const configuration::Json &conf)
 void VoltmeterSimple::ConfigurationChanged(const configuration::ConfigurationPart *config)
 {
 	smoothing = config->GetTime("energy.battery.smoothing");
-	voltage_avg = make_unique<stat::MovingAverage<double>>(smoothing);
-	last_voltage_update = Timestamp(TS_MONOTONIC);
+
+	voltage_sense.store(make_shared<st_voltage_sense>(st_voltage_sense({
+		.voltage_avg = make_unique<stat::MovingAverage<double>>(smoothing),
+		.last_voltage_update = Timestamp(TS_MONOTONIC)
+	})));
 }
 
 bool VoltmeterSimple::prevent_notify() const
@@ -98,10 +101,11 @@ bool VoltmeterSimple::prevent_notify() const
 
 double VoltmeterSimple::GetVoltage() const
 {
-	if(voltage_avg->Size()==0)
+	auto lvsense = voltage_sense.load();
+	if(lvsense->voltage_avg->Size()==0)
 		return -1; // No measurement yet
 
-	return voltage_avg->Get();
+	return lvsense->voltage_avg->Get();
 }
 
 double VoltmeterSimple::GetSOC() const

@@ -185,8 +185,6 @@ void OnOff::SetManualState(bool new_state)
 
 void OnOff::SetAutoState()
 {
-	lock_guard<recursive_mutex> llock(lock);
-
 	manual = false;
 
 	logs::State::LogModeChange(GetID(), logs::State::en_mode::automatic);
@@ -204,7 +202,6 @@ double OnOff::GetExpectedConsumption() const
 
 bool OnOff::IsOnBattery() const
 {
-	lock_guard<recursive_mutex> llock(lock);
 	auto lconfig = get_config();
 
 	if(!lconfig->battery_enabled)
@@ -249,6 +246,12 @@ nlohmann::json OnOff::ToJson() const
 	j_device["on_battery"] = IsOnBattery();
 
 	return j_device;
+}
+
+bool OnOff::Depends(int device_id) const
+{
+	auto lconfig = get_config();
+	return (lconfig->battery_enabled && device_id==lconfig->battery_controller_id);
 }
 
 }

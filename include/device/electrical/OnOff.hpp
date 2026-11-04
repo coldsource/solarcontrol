@@ -45,6 +45,7 @@ class OnOff: public Electrical
 		std::atomic_bool manual = false;
 		std::atomic_bool state = false;
 
+		// Device config
 		class Configuration: public Electrical::Configuration
 		{
 			public:
@@ -94,13 +95,14 @@ class OnOff: public Electrical
 
 		virtual double GetExpectedConsumption() const;
 
-
 		virtual nlohmann::json ToJson() const override;
 
 		static bool CompareTo(std::shared_ptr<OnOff> a, std::shared_ptr<OnOff> b) // OnOff devices are sorted by prio
 		{
 			return a->GetPrio() < b->GetPrio();
 		}
+
+		virtual bool Depends(int device_id) const override;
 };
 
 }

@@ -42,8 +42,6 @@ Temperature::~Temperature()
 
 void Temperature::ConfigurationChanged(const configuration::ConfigurationPart * config)
 {
-	unique_lock<recursive_mutex> llock(lock);
-
 	if(config->GetType()=="control")
 	{
 		absence_temperature = config->GetDouble("control.absence.temperature");

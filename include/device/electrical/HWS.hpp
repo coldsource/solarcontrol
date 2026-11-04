@@ -31,6 +31,7 @@ namespace device {
 class HWS: public TimeRange
 {
 	protected:
+		// Device configuration
 		class Configuration: public TimeRange::Configuration
 		{
 			public:
@@ -40,10 +41,11 @@ class HWS: public TimeRange
 				Configuration(const configuration::Json &config);
 		};
 
-		bool absence;
-
 		virtual std::shared_ptr<Device::Configuration> build_config(const configuration::Json &j_config) const override;
 		inline std::shared_ptr<const Configuration> get_config() const { return dynamic_pointer_cast<const HWS::Configuration>(config.load()); }
+
+		// Global configuration
+		std::atomic_bool absence;
 
 	public:
 		HWS(int id);

@@ -39,8 +39,8 @@ class Temperature: public TimeRange
 				Configuration(const configuration::Json &config);
 		};
 
-		double absence_temperature;
-		bool absence;
+		std::atomic<double> absence_temperature;
+		std::atomic_bool absence;
 
 		static void check_timeranges(const configuration::Json &conf, const std::string &name);
 

@@ -45,16 +45,11 @@ class DevicesManager: public WaiterThread, public configuration::ConfigurationOb
 {
 	static DevicesManager *instance;
 
-	std::mutex lock;
-
 	protected:
 		energy::GlobalMeter *global_meter = 0;
 
 		// Config
-		unsigned long cooldown;
-
-		// State
-		double forced_power = 0;
+		std::atomic<unsigned long> cooldown;
 
 		void main(void) override;
 

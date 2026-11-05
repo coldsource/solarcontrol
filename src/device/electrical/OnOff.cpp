@@ -235,6 +235,24 @@ void OnOff::sensor_changed(const sensor::Sensor *sensor)
 		Electrical::sensor_changed(sensor);
 }
 
+datetime::Timestamp OnOff::GetLastOn() const
+{
+	lock_guard<recursive_mutex> llock(lock); // Complex variables are accessed locked
+	return last_on;
+}
+
+datetime::Timestamp OnOff::GetLastOff() const
+{
+	lock_guard<recursive_mutex> llock(lock); // Complex variables are accessed locked
+	return last_off;
+}
+
+unsigned long OnOff::GetOnHistoryTotalForLast(unsigned long nseconds) const
+{
+	lock_guard<recursive_mutex> llock(lock);
+	return on_history.GetTotalForLast(nseconds);
+}
+
 nlohmann::json OnOff::ToJson() const
 {
 	auto j_device = Electrical::ToJson();

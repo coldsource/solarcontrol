@@ -243,7 +243,7 @@ void Battery::Configuration::Prepare(Device *device)
 
 	// Control « reverted » may have changed, force state update
 	if(ctrl!=nullptr)
-		ctrl->Switch(battery->state);
+		ctrl->Switch(battery->GetState());
 }
 
 void Battery::state_restore(const  configuration::Json &last_state)
@@ -280,7 +280,7 @@ json Battery::ToJson() const
 	j_device["soc_state"] = state_to_string(soc_state);
 	j_device["temperature"] = (double)temperature;
 	j_device["estimated_time"] = (double)estimated_time;
-	j_device["state"] = state?"grid":"battery";
+	j_device["state"] = GetState()?"grid":"battery";
 	j_device["offload_state"] = offload_state_to_string(offload_state);
 	j_device["charge_required"] = (bool)charge_required;
 	j_device["output_voltage"] = GetVoltage();
@@ -377,6 +377,7 @@ void Battery::sensor_changed(const sensor::Sensor *sensor)
 en_wanted_state Battery::GetWantedState() const
 {
 	auto lconfig = get_config();
+	auto last_on = GetLastOn();
 
 	// Read grid state unlocked
 	auto grid_state = Devices::GetByID<Grid>(DEVICE_ID_GRID)->GetState();
@@ -392,7 +393,7 @@ en_wanted_state Battery::GetWantedState() const
 	if(soc==-1)
 		return UNCHANGED; // SOC Not yet updated
 
-	if(manual && soc_state!=BACKUP)
+	if(IsManual() && soc_state!=BACKUP)
 		return UNCHANGED;
 
 	if(grid_state==Grid::en_grid_state::OFFLINE && soc_state!=BACKUP)

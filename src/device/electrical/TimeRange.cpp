@@ -98,14 +98,16 @@ bool TimeRange::WantOffload(configuration::Json *data_ptr) const
 bool TimeRange::WantRemainder(configuration::Json *data_ptr) const
 {
 	auto lconfig = dynamic_pointer_cast<const TimeRange::Configuration>(config.load());
-	return lconfig->remainder.IsActive(data_ptr) && on_history.GetTotalForLast(lconfig->min_on_for_last)<lconfig->min_on_time;
+	return lconfig->remainder.IsActive(data_ptr) && GetOnHistoryTotalForLast(lconfig->min_on_for_last)<lconfig->min_on_time;
 }
 
 en_wanted_state TimeRange::get_wanted_state(configuration::Json *data_ptr) const
 {
 	auto lconfig = get_config();
+	auto last_on = GetLastOn();
+	auto last_off = GetLastOff();
 
-	if(manual)
+	if(IsManual())
 		return UNCHANGED;
 
 	Timestamp now(TS_MONOTONIC);
@@ -138,7 +140,7 @@ configuration::Json TimeRange::GetCurrentTimerangeData() const
 {
 	configuration::Json data;
 
-	if(manual)
+	if(IsManual())
 		return data; // No timerange active since we are in manual mode
 
 	if(IsForced(&data))

@@ -40,11 +40,17 @@ enum en_wanted_state
 
 class OnOff: public Electrical
 {
-	protected:
+	private:
 		// State
 		std::atomic_bool manual = false;
 		std::atomic_bool state = false;
 
+		datetime::Timestamp last_on;
+		datetime::Timestamp last_off;
+
+		datetime::TimespanHistory on_history;
+
+	protected:
 		// Device config
 		class Configuration: public Electrical::Configuration
 		{
@@ -62,11 +68,6 @@ class OnOff: public Electrical
 		};
 
 		inline std::shared_ptr<const Configuration> get_config() const { return dynamic_pointer_cast<const OnOff::Configuration>(config.load()); }
-
-		datetime::Timestamp last_on;
-		datetime::Timestamp last_off;
-
-		datetime::TimespanHistory on_history;
 
 		void clock(bool new_state);
 		virtual void state_restore(const  configuration::Json &last_state) override;
@@ -94,6 +95,10 @@ class OnOff: public Electrical
 		virtual bool IsOnBattery() const;
 
 		virtual double GetExpectedConsumption() const;
+
+		datetime::Timestamp GetLastOn() const;
+		datetime::Timestamp GetLastOff() const;
+		unsigned long GetOnHistoryTotalForLast(unsigned long nseconds) const;
 
 		virtual nlohmann::json ToJson() const override;
 

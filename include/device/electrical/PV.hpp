@@ -46,7 +46,7 @@ class PV: public Passive
 
 		std::string GetType() const override { return "pv"; }
 
-		const std::map<datetime::Date, energy::Amount> GetProductionHistory() const { return consumption.GetConsumptionHistory(); }
+		const std::map<datetime::Date, energy::Amount> GetProductionHistory() const { return GetConsumptionHistory(); }
 
 		static void CreateInDB();
 };

@@ -73,7 +73,7 @@ bool HWS::WantRemainder(configuration::Json *data_ptr) const
 	if(absence)
 		return false; // No remainder in absence mode
 
-	double last_energy = consumption.GetTotalConsumptionForLast(lconfig->min_energy_for_last);
+	double last_energy = GetTotalConsumptionForLast(lconfig->min_energy_for_last);
 	return lconfig->remainder.IsActive(data_ptr) && last_energy<lconfig->min_energy;
 }
 

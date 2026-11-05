@@ -192,10 +192,22 @@ const std::map<datetime::Date, energy::Amount> Electrical::GetConsumptionHistory
 	return consumption.GetConsumptionHistory();
 }
 
+const std::map<datetime::Date, energy::Amount> Electrical::GetConsumptionExcessHistory() const
+{
+	lock_guard<recursive_mutex> llock(lock);
+	return consumption.GetExcessHistory();
+}
+
 const std::map<datetime::Date, energy::Amount> Electrical::GetOffloadHistory() const
 {
 	lock_guard<recursive_mutex> llock(lock);
 	return offload.GetConsumptionHistory();
+}
+
+double Electrical::GetTotalConsumptionForLast(int ndays) const
+{
+	lock_guard<recursive_mutex> llock(lock);
+	return consumption.GetTotalConsumptionForLast(ndays);
 }
 
 }

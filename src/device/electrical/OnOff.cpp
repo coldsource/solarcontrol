@@ -192,10 +192,8 @@ void OnOff::SetAutoState()
 
 double OnOff::GetExpectedConsumption() const
 {
-	lock_guard<recursive_mutex> llock(lock);
-
 	if(GetState() && IsMetered())
-		return power; // If device is on and is metered, we take the real consumption
+		return GetPower(); // If device is on and is metered, we take the real consumption
 
 	return get_config()->expected_consumption; // Take estimated consumption
 }

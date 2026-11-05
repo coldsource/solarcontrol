@@ -53,7 +53,7 @@ void Battery::ConfigurationChanged(const configuration::ConfigurationPart * conf
 {
 	OnOff::ConfigurationChanged(config);
 
-	auto ldebug = debug.load();
+	auto ldebug = get_debug();
 
 	if(config->GetType()=="control")
 		battery_cooldown = config->GetTime("control.battery.cooldown");
@@ -292,7 +292,7 @@ json Battery::ToJson() const
 void Battery::sensor_changed(const sensor::Sensor *sensor)
 {
 	auto lconfig = get_config();
-	auto ldebug = debug.load();
+	auto ldebug = get_debug();
 
 	if(sensor->GetName()=="voltmeter")
 	{
@@ -427,11 +427,10 @@ en_wanted_state Battery::GetWantedState() const
 
 double Battery::GetExpectedConsumption() const
 {
-	unique_lock<recursive_mutex> llock(lock);
 	auto lconfig = get_config();
 
-	if(!GetState() && power>=0)
-		return power; // Battery has metered consumption only when on battery
+	if(!GetState() && GetPower()>=0)
+		return GetPower(); // Battery has metered consumption only when on battery
 
 	return lconfig->expected_consumption; // Take estimated consumption
 }

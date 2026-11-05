@@ -36,11 +36,14 @@ namespace device {
 
 class Electrical: public Device, public configuration::ConfigurationObserver
 {
-	protected:
+	private:
 		// State
 		std::atomic<double> power = 0;
 		std::atomic<double> voltage = 0;
 		std::atomic<double> freq = 0;
+
+		energy::Counter consumption;
+		energy::Counter offload;
 
 		// Global config
 		struct st_debug
@@ -54,7 +57,9 @@ class Electrical: public Device, public configuration::ConfigurationObserver
 		};
 
 		std::atomic<std::shared_ptr<st_debug>> debug;
+		void energy_debug();
 
+	protected:
 		// Device configuration
 		class Configuration: public Device::Configuration
 		{
@@ -67,12 +72,9 @@ class Electrical: public Device, public configuration::ConfigurationObserver
 		};
 
 		inline std::shared_ptr<const Configuration> get_config() const { return dynamic_pointer_cast<const Electrical::Configuration>(config.load()); }
-
-		energy::Counter consumption;
-		energy::Counter offload;
+		inline std::shared_ptr<st_debug> get_debug() const { return debug.load(); }
 
 		virtual void sensor_changed(const sensor::Sensor *sensor) override;
-		void energy_debug();
 
 	public:
 		Electrical(int id);
@@ -83,18 +85,20 @@ class Electrical: public Device, public configuration::ConfigurationObserver
 
 		static void CheckConfig(const configuration::Json &conf);
 
+		virtual bool IsMetered() const final { return get_config()->is_metered; }
 		virtual double GetPower() const;
 		virtual double GetVoltage() const;
 		virtual double GetFrequency() const;
-		bool IsMetered() const { return get_config()->is_metered; }
 
 		virtual void SyncHistory() override;
 
 		energy::Amount GetEnergyConsumption() const;
 		energy::Amount GetEnergyOffload() const;
 		energy::Amount GetEnergyExcess() const;
+		double GetTotalConsumptionForLast(int ndays) const;
 
 		const std::map<datetime::Date, energy::Amount> GetConsumptionHistory() const;
+		const std::map<datetime::Date, energy::Amount> GetConsumptionExcessHistory() const;
 		const std::map<datetime::Date, energy::Amount> GetOffloadHistory() const;
 
 		virtual nlohmann::json ToJson() const override;

@@ -110,7 +110,7 @@ class Battery: public OnOff
 		std::string GetType() const override { return "battery"; }
 		virtual unsigned long GetMinOn() override { return battery_cooldown; }
 
-		const std::map<datetime::Date, energy::Amount> GetProductionHistory() const { return consumption.GetConsumptionHistory(); }
+		const std::map<datetime::Date, energy::Amount> GetProductionHistory() const { return GetConsumptionHistory(); }
 
 		static void CheckConfig(const configuration::Json &conf);
 

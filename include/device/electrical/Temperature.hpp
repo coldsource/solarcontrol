@@ -30,6 +30,16 @@ namespace device {
 
 class Temperature: public TimeRange
 {
+	private:
+		// Global config
+		struct st_absence
+		{
+			bool enabled;
+			double temperature;
+		};
+
+		std::atomic<std::shared_ptr<st_absence>> absence;
+
 	protected:
 		class Configuration: public TimeRange::Configuration
 		{
@@ -39,9 +49,6 @@ class Temperature: public TimeRange
 				Configuration(const configuration::Json &config);
 		};
 
-		std::atomic<double> absence_temperature;
-		std::atomic_bool absence;
-
 		static void check_timeranges(const configuration::Json &conf, const std::string &name);
 
 		virtual en_wanted_state get_wanted_state(configuration::Json *data_ptr = 0) const override;
@@ -50,6 +57,7 @@ class Temperature: public TimeRange
 
 		virtual std::shared_ptr<Device::Configuration> build_config(const configuration::Json &j_config) const override;
 		inline std::shared_ptr<const Configuration> get_config() const { return dynamic_pointer_cast<const Temperature::Configuration>(config.load()); }
+		inline std::shared_ptr<st_absence> get_absence() const { return absence.load(); }
 
 	public:
 		Temperature(int id);

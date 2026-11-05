@@ -44,8 +44,12 @@ void Temperature::ConfigurationChanged(const configuration::ConfigurationPart * 
 {
 	if(config->GetType()=="control")
 	{
-		absence_temperature = config->GetDouble("control.absence.temperature");
-		absence = config->GetBool("control.absence.enabled");
+		auto new_absence = make_shared<st_absence>(st_absence({
+			.enabled = config->GetBool("control.absence.enabled"),
+			.temperature = config->GetDouble("control.absence.temperature")
+		}));
+
+		absence.store(new_absence);
 	}
 
 	TimeRange::ConfigurationChanged(config);

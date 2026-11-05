@@ -71,8 +71,10 @@ void HeatPump::Configuration::Prepare(Device *device)
 
 bool HeatPump::temp_check_force(double current_temp, double timerange_temp) const
 {
-	if(absence)
-		timerange_temp = absence_temperature; // Use special absence temperature if absent mode is on
+	auto labsence = get_absence();
+
+	if(labsence->enabled)
+		timerange_temp = labsence->temperature; // Use special absence temperature if absent mode is on
 
 	return current_temp<timerange_temp;
 }
@@ -86,6 +88,7 @@ void HeatPump::SpecificActions()
 {
 	unique_lock<recursive_mutex> llock(lock);
 	auto lconfig = get_config();
+	auto labsence = get_absence();
 
 	auto bsblan = std::dynamic_pointer_cast<control::BSBLan>(lconfig->ctrl);
 	if(bsblan==nullptr)
@@ -112,8 +115,8 @@ void HeatPump::SpecificActions()
 		bsblan->SetAmbientTemperature(ambient);
 
 		double eco_temp = lconfig->temperature_eco;
-		if(absence)
-			eco_temp = absence_temperature; // If absent lower temperature of eco mode to avoid switch on
+		if(labsence->enabled)
+			eco_temp = labsence->temperature; // If absent lower temperature of eco mode to avoid switch on
 		bsblan->SetEcoSetPoint(eco_temp);
 
 		// Handle special timerange data

@@ -23,7 +23,7 @@ namespace device {
 
 bool Cooler::temp_check_force(double current_temp, double timerange_temp) const
 {
-	if(absence)
+	if(get_absence()->enabled)
 		return false; // Cooler is always OFF when absent
 
 	return current_temp>timerange_temp;
@@ -31,7 +31,7 @@ bool Cooler::temp_check_force(double current_temp, double timerange_temp) const
 
 bool Cooler::temp_check_offload(double current_temp, double timerange_temp) const
 {
-	if(absence)
+	if(get_absence()->enabled)
 		return false; // Cooler is always OFF when absent
 
 	return current_temp>timerange_temp;

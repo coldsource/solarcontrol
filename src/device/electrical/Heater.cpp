@@ -23,8 +23,10 @@ namespace device {
 
 bool Heater::temp_check_force(double current_temp, double timerange_temp) const
 {
-	if(absence)
-		timerange_temp = absence_temperature; // Use special absence temperature if absent mode is on
+	auto labsence = get_absence();
+
+	if(labsence->enabled)
+		timerange_temp = labsence->temperature; // Use special absence temperature if absent mode is on
 
 	return current_temp<timerange_temp;
 }

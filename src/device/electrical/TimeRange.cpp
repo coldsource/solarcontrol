@@ -106,18 +106,19 @@ en_wanted_state TimeRange::get_wanted_state(configuration::Json *data_ptr) const
 	auto lconfig = get_config();
 	auto last_on = GetLastOn();
 	auto last_off = GetLastOff();
+	auto state = GetState();
 
 	if(IsManual())
 		return UNCHANGED;
 
 	Timestamp now(TS_MONOTONIC);
-	if(GetState() && (unsigned long)(now-last_on)<lconfig->min_on)
+	if(state && (unsigned long)(now-last_on)<lconfig->min_on)
 		return UNCHANGED; // Stay on at least 'min_on' seconds
 
-	if(GetState() && lconfig->max_on>0 && (unsigned long)(now-last_on)>lconfig->max_on)
+	if(state && lconfig->max_on>0 && (unsigned long)(now-last_on)>lconfig->max_on)
 		return OFF; // Stay on no longer than 'max_on' seconds
 
-	if(!GetState() && (unsigned long)(now-last_off)<lconfig->min_off)
+	if(!state && (unsigned long)(now-last_off)<lconfig->min_off)
 		return UNCHANGED; // Stay of at least 'min_off' seconds
 
 	if(IsForced(data_ptr) || WantRemainder(data_ptr))
@@ -131,8 +132,6 @@ en_wanted_state TimeRange::get_wanted_state(configuration::Json *data_ptr) const
 
 en_wanted_state TimeRange::GetWantedState() const
 {
-	unique_lock<recursive_mutex> llock(lock);
-
 	return get_wanted_state();
 }
 

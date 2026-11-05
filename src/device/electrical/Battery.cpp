@@ -385,8 +385,6 @@ en_wanted_state Battery::GetWantedState() const
 	// State ON is GRID mode
 	// State OFF is BATTERY mode
 
-	unique_lock<recursive_mutex> llock(lock);
-
 	if(lconfig->ctrl==nullptr)
 		return UNCHANGED; // Passive battery
 

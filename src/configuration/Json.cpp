@@ -156,12 +156,49 @@ int Json::GetPower(const std::string &name, int default_value) const
 
 int Json::GetPower(const std::string &name) const
 {
-	check_entry(name, "string");
-	const string value = GetString(name);
+	string value;
+	try
+	{
+		value = GetString(name);
+	}
+	catch(excpt::Config &e)
+	{
+		value = to_string(GetInt(name)); // Backward compatibility
+	}
 
 	try
 	{
 		return (int)decode_unit_value<double>(value, {{"w", 1},  {"kw", 1000}}, false);
+	}
+	catch(exception &e)
+	{
+		throw excpt::Config(string(e.what()), name);
+	}
+}
+
+int Json::GetEnergy(const std::string &name, int default_value) const
+{
+	if(!json.contains(name))
+		return default_value;
+
+	return GetEnergy(name);
+}
+
+int Json::GetEnergy(const std::string &name) const
+{
+	string value;
+	try
+	{
+		value = GetString(name);
+	}
+	catch(excpt::Config &e)
+	{
+		value = to_string(GetInt(name)); // Backward compatibility
+	}
+
+	try
+	{
+		return (int)decode_unit_value<double>(value, {{"wh", 1},  {"kwh", 1000}}, false);
 	}
 	catch(exception &e)
 	{
@@ -189,7 +226,7 @@ const Json Json::GetObject(const string &name) const
 	return Json(json[name]);
 }
 
-void Json::CheckPercentage(const string &display_name, const string &name)
+void Json::CheckPercentage(const string &display_name, const string &name) const
 {
 	if(!json.contains(name) || json[name].is_null())
 		throw excpt::Config(display_name + " is mandatory", name);
@@ -202,7 +239,7 @@ void Json::CheckPercentage(const string &display_name, const string &name)
 		throw excpt::Config(display_name + " must not exceed 100%", name);
 }
 
-void Json::CheckPower(const string &display_name, const string &name)
+void Json::CheckPower(const string &display_name, const string &name) const
 {
 	if(!json.contains(name) || json[name].is_null())
 		throw excpt::Config(display_name + " is mandatory", name);
@@ -219,6 +256,25 @@ void Json::CheckPower(const string &display_name, const string &name)
 
 	if(val <= 0)
 		throw excpt::Config(display_name + " must be at least 1W", name);
+}
+
+void Json::CheckEnergy(const string &display_name, const string &name) const
+{
+	if(!json.contains(name) || json[name].is_null())
+		throw excpt::Config(display_name + " is mandatory", name);
+
+	int val;
+	try
+	{
+		 val = GetEnergy(name);
+	}
+	catch(excpt::Config &e)
+	{
+		throw excpt::Config(display_name + " is invalid : " + string(e.what()), name);
+	}
+
+	if(val <= 0)
+		throw excpt::Config(display_name + " must be at least 1Wh", name);
 }
 
 Json::Iterator& Json::Iterator::operator++()

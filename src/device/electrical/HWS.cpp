@@ -48,7 +48,7 @@ void HWS::ConfigurationChanged(const configuration::ConfigurationPart * config)
 
 void HWS::CheckConfig(const configuration::Json &conf)
 {
-	conf.Check("min_energy", "float");
+	conf.CheckEnergy("Minimum HWS energy", "min_energy");
 	conf.Check("min_energy_for_last", "int");
 
 	TimeRange::CheckConfig(conf);
@@ -61,7 +61,7 @@ shared_ptr<Device::Configuration> HWS::build_config(const configuration::Json &j
 
 HWS::Configuration::Configuration(const configuration::Json &config):TimeRange::Configuration(config)
 {
-	min_energy = config.GetInt("min_energy");
+	min_energy = config.GetEnergy("min_energy");
 	min_energy_for_last = config.GetInt("min_energy_for_last");
 }
 

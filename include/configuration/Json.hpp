@@ -54,6 +54,8 @@ class Json
 		bool GetBool(const std::string &name, bool default_value) const;
 		int GetPower(const std::string &name) const;
 		int GetPower(const std::string &name, int default_value) const;
+		int GetEnergy(const std::string &name) const;
+		int GetEnergy(const std::string &name, int default_value) const;
 		const Json GetArray(const std::string &name) const;
 		const Json GetArray(const std::string &name, const nlohmann::json &default_value) const;
 		const Json GetObject(const std::string &name) const;
@@ -63,8 +65,9 @@ class Json
 		void Set(const std::string &name, int value) { json[name] = value; }
 		void Set(const std::string &name, double value) { json[name] = value; }
 
-		void CheckPercentage(const std::string &display_name, const std::string &name);
-		void CheckPower(const std::string &display_name, const std::string &name);
+		void CheckPercentage(const std::string &display_name, const std::string &name) const;
+		void CheckPower(const std::string &display_name, const std::string &name) const;
+		void CheckEnergy(const std::string &display_name, const std::string &name) const;
 
 		const std::string ToString() const { return json.dump(); }
 		operator nlohmann::json() const { return json; }

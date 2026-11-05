@@ -26,6 +26,7 @@
 #include <string>
 #include <memory>
 #include <limits>
+#include <atomic>
 
 namespace control {
 	class Wind;
@@ -35,7 +36,7 @@ namespace device {
 
 class Wind: public Weather
 {
-	double wind = 0;
+	std::atomic<double> wind = 0;
 
 	weather::HistoryQuarterHourWind history;
 

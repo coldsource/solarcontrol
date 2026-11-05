@@ -76,7 +76,7 @@ void Wind::sensor_changed(const sensor::Sensor *sensor)
 {
 	wind = ((sensor::weather::Wind *)sensor)->GetWind();
 
-	history.Add(stat::MinMaxAvg(wind));
+	history.Add(stat::MinMaxAvg((double)wind));
 }
 
 void Wind::SyncHistory()

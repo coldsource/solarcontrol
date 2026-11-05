@@ -26,6 +26,7 @@
 
 #include <memory>
 #include <limits>
+#include <atomic>
 
 namespace control {
 	class HT;
@@ -42,8 +43,8 @@ class HT: public Weather
 				Configuration(const configuration::Json &config): Weather::Configuration(config) {}
 		};
 
-		double humidity = 0;
-		double temperature = 0;
+		std::atomic<double> humidity = 0;
+		std::atomic<double> temperature = 0;
 
 		weather::HistoryQuarterHourHT history;
 

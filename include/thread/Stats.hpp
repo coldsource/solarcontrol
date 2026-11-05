@@ -28,6 +28,7 @@
 
 #include <mutex>
 #include <memory>
+#include <atomic>
 
 namespace energy {
 	class GlobalMeter;
@@ -54,7 +55,6 @@ class Stats: public WaiterThread, public configuration::ConfigurationObserver
 	unsigned long medium_time;
 	unsigned long fast_time;
 
-
 	protected:
 		// Controllable power is the sum of power that can be manager by Solar Control
 		// It includes available (exported) + Power manager by controlled OnOff devices (Forced + Offload)
@@ -64,8 +64,10 @@ class Stats: public WaiterThread, public configuration::ConfigurationObserver
 		std::unique_ptr<stat::CumulativeHigherFrequency<double>> controllable_power_frequency_medium; // Statistic distribution of controlled power for medium devices
 		std::unique_ptr<stat::CumulativeHigherFrequency<double>> controllable_power_frequency_slow; // Statistic distribution of controlled power for slow devices
 		std::unique_ptr<stat::CumulativeHigherFrequency<double>> production_power_frequency; // Statistic distribution of production
-		double controllable_power = 0;
-		double controlled_power = 0;
+
+		std::atomic<double> controllable_power = 0;
+		std::atomic<double> controlled_power = 0;
+		std::atomic<double> snap_controllable_power_avg = 0;
 
 		double get_controlled_power() const;
 		double get_device_prediction(const std::shared_ptr<device::OnOff> &device, double active_power = 0) const;

@@ -116,11 +116,11 @@ void Stats::main()
 	{
 		try
 		{
-			// Lock our config
-			unique_lock<mutex> llock(lock);
-
 			controlled_power = get_controlled_power();
 			controllable_power = global_meter->GetNetAvailablePower(true) + controlled_power;
+
+			// Lock our config
+			unique_lock<mutex> llock(lock);
 
 			// Compute controllable power history
 			controllable_power_frequency_slow->Add(controllable_power);
@@ -130,6 +130,8 @@ void Stats::main()
 
 			// Compute moving average of available power
 			controllable_power_avg->Add(controllable_power);
+
+			snap_controllable_power_avg = controllable_power_avg->Get();
 		}
 		catch(exception &e)
 		{
@@ -204,9 +206,7 @@ json Stats::devices_predictions_to_json() const
 
 double Stats::GetControllablePowerAvg() const
 {
-	unique_lock<mutex> llock(lock);
-
-	return controllable_power_avg->Get();
+	return snap_controllable_power_avg;
 }
 
 double Stats::get_device_prediction(const std::shared_ptr<device::OnOff> &device, double active_power) const
@@ -236,9 +236,9 @@ json Stats::ToJson() const
 	j_state["controllable_power_frequency"]["slow"] = frequency_to_json(controllable_power_frequency_slow);
 	j_state["controllable_power_frequency"]["medium"] = frequency_to_json(controllable_power_frequency_medium);
 	j_state["controllable_power_frequency"]["fast"] = frequency_to_json(controllable_power_frequency_fast);
-	j_state["controllable_power_avg"] = controllable_power_avg->Get();
-	j_state["controllable_power"] = controllable_power;
-	j_state["controlled_power"] = controlled_power;
+	j_state["controllable_power_avg"] = (double)snap_controllable_power_avg;
+	j_state["controllable_power"] = (double)controllable_power;
+	j_state["controlled_power"] = (double)controlled_power;
 	j_state["devices"] = devices_predictions_to_json();
 	j_state["weather_type"] = get_weather_type()==VARIABLE?"variable":"constant";
 

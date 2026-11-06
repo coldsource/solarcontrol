@@ -162,7 +162,7 @@ void OnOff::SetState(bool new_state)
 	logs::State::LogStateChange(GetID(), logs::State::en_mode::automatic, new_state);
 }
 
-void OnOff::SetManualState(bool new_state)
+void OnOff::SetManualState(bool new_state, int timeout)
 {
 	excpt::Context ctx("device", "In device « " + GetName() + " »", {{"device_id", GetID()}});
 	auto lconfig = get_config();
@@ -177,6 +177,8 @@ void OnOff::SetManualState(bool new_state)
 	clock(new_state);
 
 	manual = true;
+	manual_timeout = timeout;
+	last_manual = Timestamp(TS_MONOTONIC);
 
 	state = new_state;
 
@@ -186,6 +188,7 @@ void OnOff::SetManualState(bool new_state)
 void OnOff::SetAutoState()
 {
 	manual = false;
+	manual_timeout = 0;
 
 	logs::State::LogModeChange(GetID(), logs::State::en_mode::automatic);
 }
@@ -247,9 +250,15 @@ datetime::Timestamp OnOff::GetLastOff() const
 	return last_off;
 }
 
+datetime::Timestamp OnOff::GetLastManual() const
+{
+	lock_guard<recursive_mutex> llock(lock); // Complex variables are accessed locked
+	return last_manual;
+}
+
 unsigned long OnOff::GetOnHistoryTotalForLast(unsigned long nseconds) const
 {
-	lock_guard<recursive_mutex> llock(lock);
+	lock_guard<recursive_mutex> llock(lock); // Complex variables are accessed locked
 	return on_history.GetTotalForLast(nseconds);
 }
 
@@ -260,8 +269,28 @@ nlohmann::json OnOff::ToJson() const
 	j_device["state"] = GetState();
 	j_device["manual"] = IsManual();
 	j_device["on_battery"] = IsOnBattery();
+	j_device["manual_timeout"] = (int)manual_timeout;
+	if(manual_timeout!=0)
+	{
+		Timestamp now(TS_MONOTONIC);
+		j_device["manual_elapsed"] = (now - GetLastManual());
+	}
 
 	return j_device;
+}
+
+void OnOff::SpecificActions()
+{
+	if(manual_timeout==0)
+		return; // No manual state pending
+
+	lock_guard<recursive_mutex> llock(lock);
+
+	Timestamp now(TS_MONOTONIC);
+	if(now - last_manual >= manual_timeout)
+		return SetAutoState(); // Device is manual for a specific duration, time to switch back to auto state
+
+	// Nothing to do yet
 }
 
 bool OnOff::Depends(int device_id) const

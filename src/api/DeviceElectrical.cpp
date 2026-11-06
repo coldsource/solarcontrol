@@ -103,6 +103,8 @@ json DeviceElectrical::HandleMessage(const string &cmd, const configuration::Jso
 	{
 		int device_id =j_params.GetInt("device_id");
 		string state = j_params.GetString("state");
+		int timeout = j_params.GetInt("timeout", 0);
+
 		if(state!="on" && state!="off" && state!="auto")
 			throw excpt::API("Invalid state : « " + state + " »");
 
@@ -116,7 +118,7 @@ json DeviceElectrical::HandleMessage(const string &cmd, const configuration::Jso
 		if(state=="auto")
 			device_onoff->SetAutoState();
 		else
-			device_onoff->SetManualState(state=="on"?true:false);
+			device_onoff->SetManualState(state=="on"?true:false, timeout);
 
 		websocket::SolarControl::GetInstance()->NotifyAll(websocket::SolarControl::en_protocols::DEVICE);
 

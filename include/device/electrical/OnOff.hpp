@@ -43,10 +43,12 @@ class OnOff: public Electrical
 	private:
 		// State
 		std::atomic_bool manual = false;
+		std::atomic_int manual_timeout = 0;
 		std::atomic_bool state = false;
 
 		datetime::Timestamp last_on;
 		datetime::Timestamp last_off;
+		datetime::Timestamp last_manual;
 
 		datetime::TimespanHistory on_history;
 
@@ -89,9 +91,10 @@ class OnOff: public Electrical
 		virtual en_wanted_state GetWantedState() const = 0;
 		virtual bool GetState() const { return state; }
 		virtual void SetState(bool new_state);
-		virtual void SetManualState(bool new_state);
+		virtual void SetManualState(bool new_state, int timeout = 0);
 		virtual void SetAutoState();
 		virtual bool IsManual() const { return manual; }
+		virtual datetime::Timestamp GetLastManual() const;
 		virtual bool IsOnBattery() const;
 
 		virtual double GetExpectedConsumption() const;
@@ -102,12 +105,13 @@ class OnOff: public Electrical
 
 		virtual nlohmann::json ToJson() const override;
 
+		virtual bool Depends(int device_id) const override;
+		virtual void SpecificActions() override;
+
 		static bool CompareTo(std::shared_ptr<OnOff> a, std::shared_ptr<OnOff> b) // OnOff devices are sorted by prio
 		{
 			return a->GetPrio() < b->GetPrio();
 		}
-
-		virtual bool Depends(int device_id) const override;
 };
 
 }
